@@ -180,6 +180,9 @@ const App = {
     this.capturedImage = null;
     this.capturedThumbnail = null;
     this.scanResult = null;
+    // Restore the last rotation the user set — so they never have to rotate again
+    const saved = DB.getSettings().preferredScanRotation;
+    if (saved !== undefined) this._scanRotation = saved;
     const btn = document.getElementById('capture-btn');
     if (btn) { btn.dataset.action = 'start-camera'; }
   },
@@ -209,6 +212,10 @@ const App = {
   rotateScan() {
     this._scanRotation = (this._scanRotation + 90) % 360;
     this._applyVideoRotation();
+    // Persist preferred rotation so next session starts correctly
+    const s = DB.getSettings();
+    s.preferredScanRotation = this._scanRotation;
+    DB.saveSettings(s);
   },
 
   _applyVideoRotation() {
@@ -317,7 +324,7 @@ const App = {
     this.capturedImage     = null;
     this.capturedThumbnail = null;
     this.scanResult        = null;
-    this._scanRotation     = 0;
+    // Keep _scanRotation at its current (remembered) value — don't reset to 0
     this.startCamera();
   },
 
