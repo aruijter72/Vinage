@@ -19,11 +19,23 @@ const App = {
 
   // ── Bootstrap ────────────────────────────────────────────────────────────
   init() {
+    this._showSplash();
     this.lang = detectLang();
     this.render();
     this.navigate('scan');
     document.addEventListener('click', e => this._delegateClick(e));
     Sync.init();
+  },
+
+  _showSplash() {
+    const el = document.createElement('div');
+    el.id = 'splash-screen';
+    el.innerHTML = `<img src="Vinage Hero-image.PNG" alt="Vinage" class="splash-img">`;
+    document.body.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('splash-fade');
+      setTimeout(() => el.remove(), 700);
+    }, 2000);
   },
 
   // ── Translate ─────────────────────────────────────────────────────────────
@@ -1344,7 +1356,7 @@ const App = {
     return `
     <div style="text-align:left">
       ${imgSrc ? `<img src="${imgSrc}" alt="${this._esc(w.name)}"
-        style="width:100%;max-height:400px;object-fit:contain;border-radius:10px;margin-bottom:14px;display:block;background:#f5f0ec;">` : ''}
+        style="width:100%;max-height:60vh;object-fit:contain;border-radius:10px;margin-bottom:14px;display:block;background:#111;">` : ''}
       <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">${this._esc(w.name)}</div>
       ${w.producer ? `<div style="color:var(--text-md);margin-bottom:8px">${this._esc(w.producer)}</div>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">

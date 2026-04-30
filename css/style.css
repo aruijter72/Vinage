@@ -33,6 +33,25 @@
   --slot-w:      40px;
 }
 
+/* ── Splash screen ──────────────────────────────────────────────────────────── */
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0e001c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: opacity .65s ease;
+}
+#splash-screen.splash-fade { opacity: 0; pointer-events: none; }
+.splash-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
 /* ── Reset ─────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; -webkit-text-size-adjust: 100%; }
@@ -373,9 +392,11 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
    WINE FORM (modal)
    ════════════════════════════════════════════════════════════════════════════ */
 .wine-form-image {
-  width: 100%; height: 160px;
-  object-fit: cover; border-radius: var(--radius-sm);
-  margin-bottom: 16px; background: var(--cream-dk);
+  width: 100%; height: auto;
+  max-height: 55vh;
+  object-fit: contain; border-radius: var(--radius-sm);
+  margin-bottom: 16px; background: #111;
+  display: block;
 }
 .type-selector { display: flex; flex-wrap: wrap; gap: 8px; }
 .type-option {
