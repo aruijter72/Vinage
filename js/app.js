@@ -1069,8 +1069,12 @@ const App = {
   },
 
   _buildWineCardInner(w) {
+    const imgSrc = w.image ? `data:image/jpeg;base64,${w.image}`
+                 : w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}` : null;
     return `
     <div style="text-align:left">
+      ${imgSrc ? `<img src="${imgSrc}" alt="${this._esc(w.name)}"
+        style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-bottom:14px;display:block;">` : ''}
       <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">${this._esc(w.name)}</div>
       ${w.producer ? `<div style="color:var(--text-md);margin-bottom:8px">${this._esc(w.producer)}</div>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
