@@ -118,7 +118,12 @@ const App = {
       case 'rotate-camera':       this.rotateScan(); break;
       case 'capture':             this.captureAndAnalyze(); break;
       case 'retake':              this.retakeScan(); break;
-      case 'add-wine-from-scan':  this.showWineForm(this.scanResult); break;
+      case 'add-wine-from-scan': {
+        const dup = this._findDuplicate(this.scanResult);
+        if (dup) this._showDuplicateWarning(dup, this.scanResult);
+        else     this.showWineForm(this.scanResult);
+        break;
+      }
       case 'manual-add-wine':     this.showWineForm(null); break;
       case 'save-wine':           this.saveWineForm(); break;
       case 'edit-wine':           this.editWine(args.id); break;
@@ -170,6 +175,7 @@ const App = {
         <div id="scan-status" class="scan-status">&nbsp;</div>
         <!-- Branded header: mark · camera button · wordmark -->
         <div class="scan-brand-row">
+          <img src="Vinage Logo Pic.png" class="scan-brand-watermark" alt="" draggable="false" aria-hidden="true">
           <img src="Vinage Logo Pic.png" class="scan-brand-mark" alt="" draggable="false">
           <button class="capture-btn" id="capture-btn" data-action="start-camera" title="${this.t('scan.startCamera')}">
             ${this._iconCamera()}
@@ -484,10 +490,11 @@ const App = {
       drinkUntil: parseNum('wf-drink-until') ? parseInt(parse('wf-drink-until'), 10) : null,
     };
 
+    let newWine = null;
     if (this.editWineId) {
       Sync.updateWine(this.editWineId, data);
     } else {
-      Sync.addWine(data);
+      newWine = Sync.addWine(data);
     }
 
     this.capturedImage     = null;
@@ -496,8 +503,14 @@ const App = {
     this.closeModal();
     this.toast(this.t('common.save') + ' ✓', 'success');
 
+    const fromScan = this.view === 'scan';
     if (this.view === 'collection') this.renderView();
-    else if (this.view === 'scan') { this.navigate('collection'); }
+    else if (fromScan) { this.navigate('collection'); }
+
+    // After adding from scan, offer cellar placement
+    if (newWine && fromScan) {
+      setTimeout(() => this._promptCellarPlacement(newWine.id, newWine.quantity || 1, 1), 400);
+    }
   },
 
   editWine(id) {
@@ -506,6 +519,97 @@ const App = {
     this.capturedImage     = wine.image     || null;
     this.capturedThumbnail = wine.thumbnail || null;
     this.showWineForm(wine);
+  },
+
+  // ── Duplicate detection ───────────────────────────────────────────────────
+  _findDuplicate(scan) {
+    if (!scan || !scan.name) return null;
+    const n = scan.name.toLowerCase().trim();
+    const v = scan.vintage;
+    return DB.getWines().find(w => {
+      if ((w.name||'').toLowerCase().trim() !== n) return false;
+      if (v && w.vintage && v !== w.vintage) return false;
+      return true;
+    }) || null;
+  },
+
+  _showDuplicateWarning(existing, scan) {
+    const hasVin = existing.vintage;
+    const key = hasVin ? 'dupBody' : 'dupBodyNoVintage';
+    const body = this.t('scan.' + key, { name: this._esc(existing.name), vintage: existing.vintage || '' });
+    this.showModal(this.t('scan.dupTitle'), `<p>${body}</p>`, [
+      { label: this.t('scan.dupViewExisting'), cls: 'btn-secondary', action: () => {
+          this.closeModal(); this.editWine(existing.id);
+        }
+      },
+      { label: this.t('scan.dupAddAnyway'), cls: 'btn-primary', action: () => {
+          this.closeModal(); this.showWineForm(scan);
+        }
+      }
+    ]);
+  },
+
+  // ── Post-scan cellar placement ────────────────────────────────────────────
+  _promptCellarPlacement(wineId, totalQty, bottleNum) {
+    const wine = DB.getWineById(wineId);
+    if (!wine) return;
+    const cellars = DB.getCellars();
+    if (!cellars.length) {
+      // No cellars yet — silent skip (user can place manually later)
+      return;
+    }
+    const isMulti = totalQty > 1;
+    const bodyKey = isMulti ? 'cellarPlaceBodyMulti' : 'cellarPlaceBody';
+    const body = this.t('scan.' + bodyKey, {
+      name: this._esc(wine.name), qty: totalQty, n: bottleNum
+    });
+    // Build cellar selector
+    const cellarOpts = cellars.map(c => {
+      const cap = c.type === 'shelf' ? '∞' : (c.rows||0) * (c.cols||0);
+      return `<button class="btn btn-secondary" style="width:100%;margin-bottom:6px;text-align:left"
+                data-cellar-pick="${c.id}">${this._esc(c.name)} <small style="opacity:.6">${cap} slots</small></button>`;
+    }).join('');
+    this.showModal(
+      this.t('scan.cellarPlaceTitle'),
+      `<p style="margin-bottom:12px">${body}</p>${cellarOpts}`,
+      [{ label: this.t('scan.cellarPlaceSkip'), cls: 'btn-ghost', action: () => this.closeModal() }]
+    );
+    // Wire cellar pick buttons
+    setTimeout(() => {
+      document.querySelectorAll('[data-cellar-pick]').forEach(btn => {
+        btn.onclick = () => {
+          const cellarId = btn.dataset.cellarPick;
+          this.closeModal();
+          this.cellarDetailId = cellarId;
+          this.navigate('cellar');
+          // After render, open slot picker for this wine
+          setTimeout(() => {
+            this._pendingPlaceWineId    = wineId;
+            this._pendingPlaceTotalQty  = totalQty;
+            this._pendingPlaceBottleNum = bottleNum;
+            this._openPickerForPending();
+          }, 350);
+        };
+      });
+    }, 50);
+  },
+
+  _openPickerForPending() {
+    const wineId    = this._pendingPlaceWineId;
+    const totalQty  = this._pendingPlaceTotalQty;
+    const bottleNum = this._pendingPlaceBottleNum;
+    if (!wineId) return;
+    this._pendingPlaceWineId = null;
+    // Open the wine picker modal — reuse existing assignWineToSlot picker, but
+    // instead pre-select the wine and open the slot picker directly.
+    // We show an instruction toast, then open the slot picker for an empty slot.
+    const wine = DB.getWineById(wineId);
+    if (!wine) return;
+    this.toast(`📍 ${this.t('cellar.assignWine')}: ${this._esc(wine.name)}`, 'success');
+    // Store the pre-selected wine so handleSlotClick skips the wine-picker step
+    this._autoPlaceWineId    = wineId;
+    this._autoPlaceTotalQty  = totalQty;
+    this._autoPlaceBottleNum = bottleNum;
   },
 
   confirmDeleteWine(id) {
@@ -860,6 +964,22 @@ const App = {
   },
 
   handleSlotClick(cellarId, slot, wineId) {
+    // Auto-place mode: a wine is pre-selected from the post-scan flow
+    if (!wineId && this._autoPlaceWineId) {
+      const autoId    = this._autoPlaceWineId;
+      const totalQty  = this._autoPlaceTotalQty  || 1;
+      const bottleNum = this._autoPlaceBottleNum || 1;
+      this._autoPlaceWineId = null;
+      Sync.assignWineToSlot(cellarId, slot, autoId);
+      this.renderView();
+      setTimeout(() => { this._initRackHover(); this._initRackZoom(); }, 0);
+      if (bottleNum < totalQty) {
+        setTimeout(() => this._promptCellarPlacement(autoId, totalQty, bottleNum + 1), 400);
+      } else {
+        this.toast('📍 ' + this.t('cellar.assignWine') + ' ✓', 'success');
+      }
+      return;
+    }
     if (wineId) {
       const wine = DB.getWineById(wineId);
       if (!wine) return;
@@ -1136,7 +1256,7 @@ const App = {
         ${this._iconSearch()}
         <input class="search-input" id="coll-search" placeholder="${this.t('collection.search')}"
                value="${this._esc(this.collectionSearch)}"
-               oninput="App.collectionSearch=this.value;App.renderView()">
+               oninput="App.collectionSearch=this.value;App._filterCollection()">
       </div>
     </div>
     <div class="filter-strip">
@@ -1144,11 +1264,40 @@ const App = {
         <button class="filter-chip${this.collectionFilter===f.id?' active':''}"
                 onclick="App.collectionFilter='${f.id}';App.renderView()">${f.label}</button>`).join('')}
     </div>
-    <div class="wine-grid">
+    <div class="wine-grid" id="collection-wine-grid">
       ${wines.length === 0
         ? `<div class="empty-state">${this._iconWineLg()}<p>${this.t('collection.noWines')}</p></div>`
         : wines.map(w => this._buildWineListCard(w, placementMap)).join('')}
     </div>`;
+  },
+
+  // Re-render only the wine list (called on search input to preserve focus)
+  _filterCollection() {
+    const grid = document.getElementById('collection-wine-grid');
+    if (!grid) { this.renderView(); return; }
+    let wines = DB.getWines();
+    const placementMap = DB.getWinePlacementMap();
+    if (this.collectionFilter !== 'all') {
+      if      (this.collectionFilter === 'in-cellar')  wines = wines.filter(w => placementMap[w.id]);
+      else if (this.collectionFilter === 'not-placed') wines = wines.filter(w => !placementMap[w.id]);
+      else if (this.collectionFilter === 'drink-now')  wines = wines.filter(w => this._drinkStatus(w) === 'ready' || this._drinkStatus(w) === 'past');
+      else wines = wines.filter(w => w.type === this.collectionFilter);
+    }
+    const q = this.collectionSearch.toLowerCase();
+    if (q) wines = wines.filter(w =>
+      w.name.toLowerCase().includes(q) ||
+      (w.producer||'').toLowerCase().includes(q) ||
+      (w.region||'').toLowerCase().includes(q)
+    );
+    wines = [...wines].sort((a,b) => {
+      if (this.collectionSort === 'name') return a.name.localeCompare(b.name);
+      if (this.collectionSort === 'vintage') return (b.vintage||0) - (a.vintage||0);
+      if (this.collectionSort === 'type') return a.type.localeCompare(b.type);
+      return b.addedAt - a.addedAt;
+    });
+    grid.innerHTML = wines.length === 0
+      ? `<div class="empty-state">${this._iconWineLg()}<p>${this.t('collection.noWines')}</p></div>`
+      : wines.map(w => this._buildWineListCard(w, placementMap)).join('');
   },
 
   _buildWineListCard(w, placementMap) {
@@ -1178,7 +1327,7 @@ const App = {
         </div>
       </div>
       <button class="btn btn-icon btn-sm" data-action="delete-wine" data-id="${w.id}"
-              onclick="event.stopPropagation()" style="color:var(--text-lt)">${this._iconTrash()}</button>
+              style="color:var(--text-lt)">${this._iconTrash()}</button>
     </div>`;
   },
 

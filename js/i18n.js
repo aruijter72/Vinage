@@ -14,7 +14,19 @@ const TRANSLATIONS = {
       addToCollection: 'Add to Collection',
       manualAdd: 'Add Manually',
       cameraError: 'Camera not available. Check browser permissions.',
-      apiKeyMissing: 'Add an API key in Settings to use scanning.'
+      apiKeyMissing: 'Add an API key in Settings to use scanning.',
+      dupTitle: 'Already in collection',
+      dupBody: 'You already have <strong>{name}</strong> ({vintage}) in your collection. Add it again or view the existing entry?',
+      dupBodyNoVintage: 'You already have <strong>{name}</strong> in your collection. Add it again or view the existing entry?',
+      dupAddAnyway: 'Add Anyway',
+      dupViewExisting: 'View Existing',
+      cellarPlaceTitle: 'Place in cellar?',
+      cellarPlaceBody: 'Would you like to store <strong>{name}</strong> in one of your cellar locations?',
+      cellarPlaceBodyMulti: 'You have <strong>{qty} bottles</strong> of <strong>{name}</strong>. Place bottle {n} of {qty} in a cellar location?',
+      cellarPlaceSkip: 'Skip',
+      cellarPlaceYes: 'Choose location',
+      cellarPlaceNext: 'Place next bottle',
+      cellarNone: 'No cellar locations yet — add one in the Cellar tab first.'
     },
     wine: {
       name: 'Wine Name',
@@ -168,7 +180,19 @@ const TRANSLATIONS = {
       addToCollection: 'Toevoegen aan Collectie',
       manualAdd: 'Handmatig Toevoegen',
       cameraError: 'Camera niet beschikbaar. Controleer browsermachtigingen.',
-      apiKeyMissing: 'Voeg een API-sleutel toe in Instellingen om te kunnen scannen.'
+      apiKeyMissing: 'Voeg een API-sleutel toe in Instellingen om te kunnen scannen.',
+      dupTitle: 'Al in collectie',
+      dupBody: 'Je hebt <strong>{name}</strong> ({vintage}) al in je collectie. Opnieuw toevoegen of de bestaande wijn bekijken?',
+      dupBodyNoVintage: 'Je hebt <strong>{name}</strong> al in je collectie. Opnieuw toevoegen of de bestaande wijn bekijken?',
+      dupAddAnyway: 'Toch Toevoegen',
+      dupViewExisting: 'Bekijk Bestaande',
+      cellarPlaceTitle: 'In kelder plaatsen?',
+      cellarPlaceBody: 'Wil je <strong>{name}</strong> in een kelderlocatie opslaan?',
+      cellarPlaceBodyMulti: 'Je hebt <strong>{qty} flessen</strong> van <strong>{name}</strong>. Fles {n} van {qty} in een kelderlocatie plaatsen?',
+      cellarPlaceSkip: 'Overslaan',
+      cellarPlaceYes: 'Locatie kiezen',
+      cellarPlaceNext: 'Volgende fles plaatsen',
+      cellarNone: 'Nog geen kelderlocaties — voeg er een toe via het Kelder-tabblad.'
     },
     wine: {
       name: 'Wijnnaam',
