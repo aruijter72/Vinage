@@ -1,0 +1,266 @@
+// Vinage — Translations (English & Dutch)
+const TRANSLATIONS = {
+  en: {
+    nav: { scan: 'Scan', cellar: 'Cellar', collection: 'Collection', pairing: 'Pairing', settings: 'Settings' },
+    scan: {
+      title: 'Scan Wine',
+      instruction: 'Point the camera at the label and tap Capture',
+      startCamera: 'Start Camera',
+      capture: 'Capture',
+      retake: 'Retake',
+      analyzing: 'Identifying wine…',
+      found: 'Wine identified!',
+      notFound: 'Could not identify. Fill in manually.',
+      addToCollection: 'Add to Collection',
+      manualAdd: 'Add Manually',
+      cameraError: 'Camera not available. Check browser permissions.',
+      apiKeyMissing: 'Add an API key in Settings to use scanning.'
+    },
+    wine: {
+      name: 'Wine Name',
+      producer: 'Producer / Winery',
+      vintage: 'Vintage',
+      region: 'Region',
+      country: 'Country',
+      type: 'Type',
+      grapes: 'Grape Varieties',
+      rating: 'My Rating',
+      notes: 'Tasting Notes',
+      price: 'Price (€)',
+      quantity: 'Bottles in stock',
+      pairings: 'Food Pairings',
+      addedOn: 'Added',
+      cellarLocation: 'Cellar Location'
+    },
+    types: {
+      red: 'Red', white: 'White', rosé: 'Rosé',
+      sparkling: 'Sparkling', dessert: 'Dessert', fortified: 'Fortified'
+    },
+    cellar: {
+      title: 'My Cellar',
+      addLocation: '+ Add Location',
+      noLocations: 'No cellar locations yet.\nTap "+ Add Location" to get started.',
+      locationName: 'Location Name',
+      locationType: 'Storage Type',
+      rows: 'Rows',
+      cols: 'Columns',
+      capacity: 'Capacity',
+      bottles: 'bottles',
+      occupied: 'occupied',
+      empty: 'empty',
+      slotEmpty: 'Empty slot',
+      assignWine: 'Place a wine here',
+      removeWine: 'Remove from slot',
+      viewWine: 'View wine',
+      deleteLocation: 'Delete Location',
+      deleteLocationConfirm: 'Delete this cellar location? Wines will remain in your collection.',
+      types: {
+        grid: 'Grid Rack', diamond: 'Diamond Rack',
+        case: 'Case / Box (12)', shelf: 'Free Shelf / Bin'
+      },
+      typeDescriptions: {
+        grid: 'Classic rack with rows & columns — you set the size',
+        diamond: 'Diagonal / honeycomb layout — each bottle nestles between two below',
+        case: 'A 12-bottle case as shipped',
+        shelf: 'Unstructured pile or shelf — just a list'
+      }
+    },
+    collection: {
+      title: 'My Collection',
+      search: 'Search wines…',
+      noWines: 'No wines yet.\nScan a bottle or tap + to add one.',
+      total: '{count} bottle(s) · {types}',
+      addWine: '+ Add Wine',
+      sortBy: 'Sort',
+      sortName: 'Name',
+      sortVintage: 'Vintage',
+      sortType: 'Type',
+      sortAdded: 'Date Added',
+      filterAll: 'All',
+      inCellar: 'In cellar',
+      notInCellar: 'Not placed'
+    },
+    pairing: {
+      title: 'Wine & Food',
+      dish: 'What are you cooking?',
+      dishPlaceholder: 'e.g. Grilled salmon, Beef stew, Pasta carbonara, Cheese board…',
+      find: 'Find Matching Wines',
+      finding: 'Finding the best match…',
+      fromCellar: 'From Your Cellar',
+      generalSuggestion: 'General Advice',
+      noMatch: 'No wines in your cellar matched this dish.',
+      noWines: 'Add wines to your collection first.',
+      match: 'match',
+      apiKeyMissing: 'Add an API key in Settings to use AI pairing.',
+      rulesBased: 'Showing rule-based suggestions (no API key set).'
+    },
+    settings: {
+      title: 'Settings',
+      language: 'Language',
+      ai: 'AI & Scanning',
+      apiProvider: 'AI Provider',
+      anthropicKey: 'Anthropic (Claude) API Key',
+      openaiKey: 'OpenAI API Key',
+      keyPlaceholder: 'Paste your key here…',
+      keyHint: 'Your key is stored only on this device.',
+      save: 'Save Settings',
+      saved: 'Saved ✓',
+      data: 'Data Management',
+      exportData: 'Export Data (JSON)',
+      importData: 'Import Data',
+      clearData: 'Clear All Data',
+      clearConfirm: 'This will permanently delete all wines and cellar data. Are you sure?',
+      about: 'About Vinage',
+      version: 'Version 1.0',
+      madeWith: 'A wine cellar app for humans 🍷'
+    },
+    common: {
+      save: 'Save', cancel: 'Cancel', delete: 'Delete',
+      edit: 'Edit', add: 'Add', close: 'Close',
+      back: 'Back', confirm: 'Confirm',
+      yes: 'Yes', no: 'No',
+      loading: 'Loading…', error: 'Something went wrong. Please try again.',
+      noApiKey: 'Set an API key in Settings to use this feature.',
+      stars: ['', '★', '★★', '★★★', '★★★★', '★★★★★'],
+      pickWine: 'Pick a wine',
+      search: 'Search…',
+      none: 'None',
+      selectWine: 'Select Wine'
+    }
+  },
+  nl: {
+    nav: { scan: 'Scannen', cellar: 'Kelder', collection: 'Collectie', pairing: 'Combineren', settings: 'Instellingen' },
+    scan: {
+      title: 'Fles Scannen',
+      instruction: 'Richt de camera op het label en tik op Vastleggen',
+      startCamera: 'Camera Starten',
+      capture: 'Vastleggen',
+      retake: 'Opnieuw',
+      analyzing: 'Wijn identificeren…',
+      found: 'Wijn gevonden!',
+      notFound: 'Niet herkend. Vul handmatig in.',
+      addToCollection: 'Toevoegen aan Collectie',
+      manualAdd: 'Handmatig Toevoegen',
+      cameraError: 'Camera niet beschikbaar. Controleer browsermachtigingen.',
+      apiKeyMissing: 'Voeg een API-sleutel toe in Instellingen om te kunnen scannen.'
+    },
+    wine: {
+      name: 'Wijnnaam',
+      producer: 'Producent / Wijnhuis',
+      vintage: 'Oogstjaar',
+      region: 'Regio',
+      country: 'Land',
+      type: 'Type',
+      grapes: 'Druivenrassen',
+      rating: 'Mijn Beoordeling',
+      notes: 'Proefnotities',
+      price: 'Prijs (€)',
+      quantity: 'Flessen op voorraad',
+      pairings: 'Spijscombinaties',
+      addedOn: 'Toegevoegd',
+      cellarLocation: 'Kelderlocatie'
+    },
+    types: {
+      red: 'Rood', white: 'Wit', rosé: 'Rosé',
+      sparkling: 'Schuimwijn', dessert: 'Dessertwijn', fortified: 'Versterktwijn'
+    },
+    cellar: {
+      title: 'Mijn Kelder',
+      addLocation: '+ Locatie Toevoegen',
+      noLocations: 'Nog geen kelderlocaties.\nTik op "+ Locatie Toevoegen" om te beginnen.',
+      locationName: 'Naam Locatie',
+      locationType: 'Opslagtype',
+      rows: 'Rijen',
+      cols: 'Kolommen',
+      capacity: 'Capaciteit',
+      bottles: 'flessen',
+      occupied: 'bezet',
+      empty: 'leeg',
+      slotEmpty: 'Leeg vak',
+      assignWine: 'Wijn hier plaatsen',
+      removeWine: 'Uit vak verwijderen',
+      viewWine: 'Wijn bekijken',
+      deleteLocation: 'Locatie Verwijderen',
+      deleteLocationConfirm: 'Locatie verwijderen? Wijnen blijven in jouw collectie.',
+      types: {
+        grid: 'Roosterrek', diamond: 'Diamantrek',
+        case: 'Kist / Doos (12)', shelf: 'Vrije Plank / Bak'
+      },
+      typeDescriptions: {
+        grid: 'Klassiek rek met rijen en kolommen — jij bepaalt de afmeting',
+        diamond: 'Diagonale / honingraatindeling — elke fles rust tussen twee eronder',
+        case: 'Een kist van 12 flessen zoals geleverd',
+        shelf: 'Ongestructureerde stapel of plank — gewoon een lijst'
+      }
+    },
+    collection: {
+      title: 'Mijn Collectie',
+      search: 'Zoek wijnen…',
+      noWines: 'Nog geen wijnen.\nScan een fles of tik op + om er een toe te voegen.',
+      total: '{count} fles(sen) · {types}',
+      addWine: '+ Wijn Toevoegen',
+      sortBy: 'Sorteren',
+      sortName: 'Naam',
+      sortVintage: 'Oogstjaar',
+      sortType: 'Type',
+      sortAdded: 'Datum Toegevoegd',
+      filterAll: 'Alle',
+      inCellar: 'In kelder',
+      notInCellar: 'Niet geplaatst'
+    },
+    pairing: {
+      title: 'Wijn & Spijs',
+      dish: 'Wat ga je koken?',
+      dishPlaceholder: 'bijv. Gegrilde zalm, Runderstoofpot, Pasta carbonara, Kaasplank…',
+      find: 'Vind Passende Wijnen',
+      finding: 'Beste combinatie zoeken…',
+      fromCellar: 'Uit Jouw Kelder',
+      generalSuggestion: 'Algemeen Advies',
+      noMatch: 'Geen passende wijnen in jouw kelder gevonden.',
+      noWines: 'Voeg eerst wijnen toe aan jouw collectie.',
+      match: 'match',
+      apiKeyMissing: 'Voeg een API-sleutel toe in Instellingen voor AI-combinaties.',
+      rulesBased: 'Op basis van regels (geen API-sleutel ingesteld).'
+    },
+    settings: {
+      title: 'Instellingen',
+      language: 'Taal',
+      ai: 'AI & Scannen',
+      apiProvider: 'AI Provider',
+      anthropicKey: 'Anthropic (Claude) API Sleutel',
+      openaiKey: 'OpenAI API Sleutel',
+      keyPlaceholder: 'Plak hier jouw sleutel…',
+      keyHint: 'Jouw sleutel wordt alleen lokaal op dit apparaat opgeslagen.',
+      save: 'Instellingen Opslaan',
+      saved: 'Opgeslagen ✓',
+      data: 'Gegevensbeheer',
+      exportData: 'Gegevens Exporteren (JSON)',
+      importData: 'Gegevens Importeren',
+      clearData: 'Alle Gegevens Wissen',
+      clearConfirm: 'Alle wijnen en keldergegevens worden permanent verwijderd. Weet je het zeker?',
+      about: 'Over Vinage',
+      version: 'Versie 1.0',
+      madeWith: 'Een wijnkelderapp voor mensen 🍷'
+    },
+    common: {
+      save: 'Opslaan', cancel: 'Annuleren', delete: 'Verwijderen',
+      edit: 'Bewerken', add: 'Toevoegen', close: 'Sluiten',
+      back: 'Terug', confirm: 'Bevestigen',
+      yes: 'Ja', no: 'Nee',
+      loading: 'Laden…', error: 'Er is iets misgegaan. Probeer opnieuw.',
+      noApiKey: 'Stel een API-sleutel in via Instellingen om deze functie te gebruiken.',
+      stars: ['', '★', '★★', '★★★', '★★★★', '★★★★★'],
+      pickWine: 'Kies een wijn',
+      search: 'Zoeken…',
+      none: 'Geen',
+      selectWine: 'Wijn Selecteren'
+    }
+  }
+};
+
+function detectLang() {
+  const saved = (JSON.parse(localStorage.getItem('vinage_settings') || '{}')).lang;
+  if (saved) return saved;
+  const browser = navigator.language || 'en';
+  return browser.startsWith('nl') ? 'nl' : 'en';
+}
