@@ -163,8 +163,8 @@ const App = {
         <canvas id="camera-canvas"></canvas>
         <div class="camera-overlay"><div class="camera-frame"></div></div>
         <div class="camera-placeholder" id="camera-placeholder">
-          ${this._iconCameraLg()}
-          <p>${this.t('scan.instruction')}</p>
+          <img src="Vinage Logo & Text.PNG" class="scan-logo" alt="Vinage" draggable="false">
+          <p class="scan-instruction-text">${this.t('scan.instruction')}</p>
         </div>
       </div>
       <div class="scan-controls">

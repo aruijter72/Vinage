@@ -300,6 +300,20 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .camera-placeholder svg { opacity: .6; }
 .camera-placeholder p { font-size: .9rem; line-height: 1.4; }
+.scan-logo {
+  width: min(220px, 60%);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 12px rgba(0,0,0,.35));
+  pointer-events: none;
+  user-select: none;
+}
+.scan-instruction-text {
+  font-size: .85rem;
+  line-height: 1.45;
+  color: rgba(255,255,255,.75);
+  margin: 0;
+}
 
 .scan-controls {
   padding: 14px 16px 16px;
