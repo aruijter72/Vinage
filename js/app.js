@@ -15,6 +15,7 @@ const App = {
   collectionFilter: 'all',
   collectionSearch: '',
   _scanRotation: 0,       // 0 | 90 | 180 | 270
+  _rackZoom: 1.0,         // current rack zoom level (0.35 – 3.0)
 
   // ── Bootstrap ────────────────────────────────────────────────────────────
   init() {
@@ -92,7 +93,7 @@ const App = {
       case 'scan':       el.innerHTML = this.buildScanView(); this.initCamera(); break;
       case 'cellar':
         el.innerHTML = this.cellarDetailId ? this.buildCellarDetail() : this.buildCellarList();
-        if (this.cellarDetailId) setTimeout(() => this._initRackHover(), 0);
+        if (this.cellarDetailId) setTimeout(() => { this._initRackHover(); this._initRackZoom(); }, 0);
         break;
       case 'collection': el.innerHTML = this.buildCollectionView(); break;
       case 'pairing':    el.innerHTML = this.buildPairingView(); break;
@@ -169,9 +170,7 @@ const App = {
           <button class="btn btn-secondary btn-icon" id="rotate-btn" data-action="rotate-camera"
                   title="Rotate image" style="display:none">${this._iconRotate()}</button>
         </div>
-        <div style="margin-top:auto;padding-top:8px;">
-          <button class="btn btn-ghost btn-full" data-action="manual-add-wine">${this.t('scan.manualAdd')}</button>
-        </div>
+        <button class="btn btn-ghost btn-full" data-action="manual-add-wine" style="margin-top:4px">${this.t('scan.manualAdd')}</button>
       </div>
     </div>`;
   },
@@ -529,6 +528,7 @@ const App = {
   },
 
   openCellarDetail(id) {
+    if (id !== this.cellarDetailId) this._rackZoom = 1.0; // reset zoom when switching cellar
     this.cellarDetailId = id;
     this.renderView();
   },
@@ -561,9 +561,17 @@ const App = {
         ${stats.capacity !== null
           ? `<span style="font-size:.8rem;font-weight:400;color:var(--text-lt)">${stats.occupied}/${stats.capacity}</span>`
           : `<span style="font-size:.8rem;font-weight:400;color:var(--text-lt)">${stats.occupied} ${this.t('cellar.bottles')}</span>`}
+        <div class="rack-zoom-bar">
+          <button class="rack-zoom-btn" id="zoom-out-btn" title="Zoom out">−</button>
+          <span class="rack-zoom-level" id="rack-zoom-level">100%</span>
+          <button class="rack-zoom-btn" id="zoom-in-btn" title="Zoom in">+</button>
+          <button class="rack-zoom-btn" id="zoom-reset-btn" title="Reset zoom" style="font-size:.7rem;font-weight:800">⊡</button>
+        </div>
       </div>
       <div class="rack-subtitle">${this.t('cellar.typeDescriptions.' + c.type)}</div>
-      ${rackHtml}
+      <div class="rack-zoom-container" id="rack-zoom-container">
+        <div id="rack-zoom-inner">${rackHtml}</div>
+      </div>
     </div>`;
   },
 
@@ -584,18 +592,16 @@ const App = {
       return `<div class="rack-wood-frame"><div class="rack-diamond">${rows}</div></div>`;
     }
 
-    // Grid rack — labeled rows (A, B, C…) and column numbers (1, 2, 3…)
-    // Column label header
+    // Grid rack — Excel style: column letters (A,B,C…) across top, row numbers (1,2,3…) down left
     let colLabels = `<div class="rack-corner"></div>`;
     for (let col = 0; col < c.cols; col++) {
-      colLabels += `<div class="rack-col-label">${col + 1}</div>`;
+      colLabels += `<div class="rack-col-label">${String.fromCharCode(65 + col % 26)}</div>`;
     }
 
-    // Rows with row labels
+    // Rows with numeric labels
     let rows = '';
     for (let r = 0; r < c.rows; r++) {
-      const rowLetter = String.fromCharCode(65 + r % 26);
-      let cells = `<div class="rack-row-lbl">${rowLetter}</div>`;
+      let cells = `<div class="rack-row-lbl">${r + 1}</div>`;
       for (let col = 0; col < c.cols; col++) {
         const key = `${r}-${col}`;
         const wineId = c.slots[key];
@@ -649,11 +655,12 @@ const App = {
     const s = String(slotKey);
     if (s.includes('-')) {
       const [r, c] = s.split('-').map(Number);
-      return String.fromCharCode(65 + r % 26) + (c + 1);
+      // Excel: column = letter (A,B,C…) across top; row = number down left  e.g. D3
+      return String.fromCharCode(65 + c % 26) + (r + 1);
     }
-    // Case rack: 0-11 → A1..A4, B1..B4, C1..C4
+    // Case rack 0-11: cols A-D repeat across, rows 1-3 downward
     const i = parseInt(s, 10);
-    return String.fromCharCode(65 + Math.floor(i / 4)) + ((i % 4) + 1);
+    return String.fromCharCode(65 + (i % 4)) + (Math.floor(i / 4) + 1);
   },
 
   _buildSlot(cellarId, slotKey, wine) {
@@ -680,6 +687,64 @@ const App = {
          data-action="click-slot" data-cellarid="${cellarId}" data-slot="${slotKey}" data-wineid="">
       <div class="slot-pos">${pos}</div>
     </div>`;
+  },
+
+  _initRackZoom() {
+    const container = document.getElementById('rack-zoom-container');
+    const inner     = document.getElementById('rack-zoom-inner');
+    if (!container || !inner) return;
+
+    // Read natural dimensions before any transform so we can resize container correctly
+    const origW = inner.scrollWidth;
+    const origH = inner.scrollHeight;
+
+    const applyZoom = (z) => {
+      this._rackZoom = Math.max(0.35, Math.min(3.0, z));
+      const sz = this._rackZoom;
+      inner.style.transform = `scale(${sz})`;
+      inner.style.transformOrigin = 'top left';
+      // Expand/shrink container so scroll area matches scaled content
+      container.style.minWidth  = (origW * sz) + 'px';
+      container.style.minHeight = (origH * sz) + 'px';
+      const lvl = document.getElementById('rack-zoom-level');
+      if (lvl) lvl.textContent = Math.round(sz * 100) + '%';
+    };
+
+    document.getElementById('zoom-in-btn')?.addEventListener('click',    () => applyZoom(this._rackZoom + 0.2));
+    document.getElementById('zoom-out-btn')?.addEventListener('click',   () => applyZoom(this._rackZoom - 0.2));
+    document.getElementById('zoom-reset-btn')?.addEventListener('click', () => applyZoom(1.0));
+
+    // Pinch-to-zoom (touch devices)
+    let pinchDist0 = 0, zoom0 = 1;
+    container.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        pinchDist0 = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        zoom0 = this._rackZoom;
+      }
+    }, { passive: true });
+    container.addEventListener('touchmove', e => {
+      if (e.touches.length !== 2) return;
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      applyZoom(zoom0 * dist / pinchDist0);
+      e.preventDefault();
+    }, { passive: false });
+
+    // Ctrl+scroll-wheel zoom on desktop
+    container.addEventListener('wheel', e => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        applyZoom(this._rackZoom - e.deltaY * 0.004);
+      }
+    }, { passive: false });
+
+    // Restore current zoom level (persists between re-renders of same cellar)
+    applyZoom(this._rackZoom);
   },
 
   _buildWineMap(c) {
