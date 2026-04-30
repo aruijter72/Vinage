@@ -23,6 +23,7 @@ const App = {
     this.render();
     this.navigate('scan');
     document.addEventListener('click', e => this._delegateClick(e));
+    Sync.init();
   },
 
   // ── Translate ─────────────────────────────────────────────────────────────
@@ -65,7 +66,8 @@ const App = {
         </div>
       </div>
       <div id="toast-container"></div>
-      <div id="rack-tooltip"></div>`;
+      <div id="rack-tooltip"></div>
+      <div id="sync-indicator" class="sync-indicator sync-off" title="Offline / not signed in"></div>`;
 
     document.getElementById('modal-close-btn').onclick = () => this.closeModal();
     document.getElementById('modal-overlay').onclick = e => {
@@ -141,6 +143,12 @@ const App = {
       case 'clear-data':          this.clearData(); break;
       case 'star-pick':           this.pickStar(parseInt(args.val, 10)); break;
       case 'type-pick':           this.pickType(args.type); break;
+      // Cloud sync actions
+      case 'sync-sign-in':        Sync.signIn(); break;
+      case 'sync-sign-out':       Sync.signOut(); break;
+      case 'sync-create':         Sync.createHousehold(); break;
+      case 'sync-join':           this._syncJoin(); break;
+      case 'sync-leave':          this._syncLeave(); break;
     }
   },
 
@@ -347,8 +355,11 @@ const App = {
     const types = ['red','white','rosé','sparkling','dessert','fortified'];
     const title = this.editWineId ? this.t('common.edit') : this.t('common.add') + ' ' + this.t('nav.collection').slice(0,-1);
 
+    const existingImgSrc = wine.imageUrl || (wine.image ? `data:image/jpeg;base64,${wine.image}` : null);
     const imageHtml = this.capturedImage
       ? `<img class="wine-form-image" src="data:image/jpeg;base64,${this.capturedImage}" alt="label">`
+      : existingImgSrc
+      ? `<img class="wine-form-image" src="${existingImgSrc}" alt="label">`
       : '';
 
     const body = `
@@ -458,9 +469,9 @@ const App = {
     };
 
     if (this.editWineId) {
-      DB.updateWine(this.editWineId, data);
+      Sync.updateWine(this.editWineId, data);
     } else {
-      DB.addWine(data);
+      Sync.addWine(data);
     }
 
     this.capturedImage     = null;
@@ -490,7 +501,7 @@ const App = {
       [
         { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
         { label: this.t('common.delete'), cls: 'btn-danger', action: () => {
-          DB.deleteWine(id); this.closeModal(); this.renderView(); this.toast('Deleted', 'success');
+          Sync.deleteWine(id); this.closeModal(); this.renderView(); this.toast('Deleted', 'success');
         }}
       ]
     );
@@ -675,7 +686,12 @@ const App = {
     if (wine) {
       const cls = this._typeClass(wine.type);
       // Data attributes for the hover tooltip
-      const twImg = wine.thumbnail ? ` data-tw-img="${wine.thumbnail}"` : '';
+      // For tooltip: prefer thumbnail (local b64), else use remote imageUrl
+      const twImg = wine.thumbnail
+        ? ` data-tw-img="${wine.thumbnail}" data-tw-img-type="b64"`
+        : wine.imageUrl
+        ? ` data-tw-img="${this._esc(wine.imageUrl)}" data-tw-img-type="url"`
+        : '';
       return `
       <div class="slot occupied ${cls}"
            data-action="click-slot" data-cellarid="${cellarId}" data-slot="${slotKey}" data-wineid="${wine.id}"
@@ -684,8 +700,7 @@ const App = {
            data-tw-vintage="${wine.vintage||''}"
            data-tw-type="${wine.type}"
            data-tw-pos="${pos}"${twImg}>
-        <div class="bottle-neck"></div>
-        <div class="bottle-body"></div>
+        <div class="bottle-top"></div>
         <div class="slot-label">${pos}</div>
       </div>`;
     }
@@ -776,12 +791,16 @@ const App = {
         const type     = slot.dataset.twType     || 'red';
         const pos      = slot.dataset.twPos      || '';
         const img      = slot.dataset.twImg      || '';
+        const imgType  = slot.dataset.twImgType  || 'b64';
 
         const metaParts = [producer, vintage, this.t('types.' + type)].filter(Boolean);
+        const imgSrc = img
+          ? (imgType === 'url' ? img : `data:image/jpeg;base64,${img}`)
+          : '';
 
         tooltip.innerHTML = `
           <div class="rack-tooltip-card">
-            ${img ? `<img class="rack-tooltip-img" src="data:image/jpeg;base64,${img}" alt="">` : ''}
+            ${imgSrc ? `<img class="rack-tooltip-img" src="${imgSrc}" alt="">` : ''}
             <div class="rack-tooltip-body">
               <div class="rack-tooltip-pos">${this._esc(pos)}</div>
               <div class="rack-tooltip-name">${this._esc(name)}</div>
@@ -792,17 +811,28 @@ const App = {
             </div>
           </div>`;
 
-        // Position above the slot, clamped to viewport
-        const rect = slot.getBoundingClientRect();
-        const tipW = 180;
+        // Position near the slot, flipping below when near the top of the viewport
+        const rect     = slot.getBoundingClientRect();
+        const tipW     = 190;
+        // Estimate tooltip height: image (110px) + text body (~80px) + padding
+        const tipEstH  = imgSrc ? 210 : 100;
+        const spaceAbove = rect.top;
+        const showBelow  = spaceAbove < tipEstH + 16;
+
         let left = rect.left + rect.width / 2 - tipW / 2;
         left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
-        const top = rect.top + window.scrollY;
 
-        tooltip.style.left      = left + 'px';
-        tooltip.style.top       = top  + 'px';
-        tooltip.style.transform = 'translateY(calc(-100% - 10px))';
-        tooltip.style.width     = tipW + 'px';
+        const anchorTop = rect.top + window.scrollY;
+        tooltip.style.left  = left + 'px';
+        tooltip.style.width = tipW + 'px';
+
+        if (showBelow) {
+          tooltip.style.top       = (anchorTop + rect.height + 10) + 'px';
+          tooltip.style.transform = 'none';
+        } else {
+          tooltip.style.top       = anchorTop + 'px';
+          tooltip.style.transform = 'translateY(calc(-100% - 10px))';
+        }
         tooltip.classList.add('visible');
       });
 
@@ -824,7 +854,7 @@ const App = {
         </div>`,
         [
           { label: this.t('cellar.removeWine'), cls: 'btn-danger', action: () => {
-            DB.assignWineToSlot(cellarId, slot, null);
+            Sync.assignWineToSlot(cellarId, slot, null);
             this.closeModal(); this.renderView();
           }},
           { label: this.t('common.edit'), cls: 'btn-secondary', action: () => {
@@ -890,21 +920,21 @@ const App = {
     const cellar = DB.getCellars().find(c => c.id === cellarId);
     if (!cellar) return;
     if (cellar.wines) {
-      DB.assignWineToSlot(cellarId, null, wineId); // shelf
+      Sync.assignWineToSlot(cellarId, null, wineId); // shelf
     } else {
-      DB.assignWineToSlot(cellarId, slotKey, wineId);
+      Sync.assignWineToSlot(cellarId, slotKey, wineId);
     }
     this.closeModal();
     this.renderView();
   },
 
   removeFromSlot(cellarId, slot, wineId) {
-    DB.assignWineToSlot(cellarId, slot, null);
+    Sync.assignWineToSlot(cellarId, slot, null);
     this.closeModal(); this.renderView();
   },
 
   removeFromShelf(cellarId, wineId) {
-    DB.removeWineFromShelf(cellarId, wineId);
+    Sync.removeWineFromShelf(cellarId, wineId);
     this.renderView();
   },
 
@@ -955,7 +985,7 @@ const App = {
     const rows = parseInt(document.getElementById('cf-rows')?.value || '5', 10);
     const cols = parseInt(document.getElementById('cf-cols')?.value || '8', 10);
 
-    DB.addCellar({ name, type, rows: Math.max(1,rows), cols: Math.max(1,cols) });
+    Sync.addCellar({ name, type, rows: Math.max(1,rows), cols: Math.max(1,cols) });
     this.closeModal();
     this.renderView();
     this.toast(this.t('common.save') + ' ✓', 'success');
@@ -970,7 +1000,7 @@ const App = {
       [
         { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
         { label: this.t('common.delete'), cls: 'btn-danger', action: () => {
-          DB.deleteCellar(id); this.cellarDetailId = null; this.closeModal(); this.renderView();
+          Sync.deleteCellar(id); this.cellarDetailId = null; this.closeModal(); this.renderView();
         }}
       ]
     );
@@ -1076,7 +1106,8 @@ const App = {
   },
 
   _buildWineCardInner(w) {
-    const imgSrc = w.image ? `data:image/jpeg;base64,${w.image}`
+    const imgSrc = w.image     ? `data:image/jpeg;base64,${w.image}`
+                 : w.imageUrl  ? w.imageUrl
                  : w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}` : null;
     return `
     <div style="text-align:left">
@@ -1253,6 +1284,8 @@ const App = {
       </div>
     </div>
 
+    ${this._buildSyncSection()}
+
     <div class="about-info">
       <div style="font-size:2rem;margin-bottom:8px">🍷</div>
       <strong>Vinage</strong><br>
@@ -1317,6 +1350,84 @@ const App = {
     DB.clearAll();
     this.toast('Cleared', 'success');
     this.renderView();
+  },
+
+  // ── Cloud Sync Section ─────────────────────────────────────────────────────
+  _buildSyncSection() {
+    const status = Sync.statusSummary();
+
+    if (status.mode === 'disabled') {
+      return `
+      <div class="settings-section">
+        <h2>${this.t('settings.sync')}</h2>
+        <p class="sync-info-text">${this.t('settings.syncDisabled')}</p>
+      </div>`;
+    }
+
+    if (status.mode === 'signed-out') {
+      return `
+      <div class="settings-section">
+        <h2>${this.t('settings.sync')}</h2>
+        <p class="sync-info-text">${this.t('settings.syncNoHousehold')}</p>
+        <button class="btn btn-google btn-full" data-action="sync-sign-in">
+          ${this._iconGoogle()} ${this.t('settings.syncSignIn')}
+        </button>
+      </div>`;
+    }
+
+    const userName = this._esc(status.user.displayName || status.user.email || '');
+
+    if (status.mode === 'no-household') {
+      return `
+      <div class="settings-section">
+        <h2>${this.t('settings.sync')}</h2>
+        <div class="sync-user-row">
+          <span class="sync-avatar">${this._esc((status.user.displayName||'?')[0].toUpperCase())}</span>
+          <span>${this.t('settings.syncSignedInAs')} <strong>${userName}</strong></span>
+          <button class="btn btn-ghost btn-sm" data-action="sync-sign-out" style="margin-left:auto">${this.t('settings.syncSignOut')}</button>
+        </div>
+        <p class="sync-info-text" style="margin-top:12px">${this.t('settings.syncNoHousehold')}</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <button class="btn btn-primary btn-full" data-action="sync-create">${this.t('settings.syncCreateHousehold')}</button>
+          <div class="sync-join-row">
+            <input id="sync-code-input" class="form-control" placeholder="${this.t('settings.syncJoinPlaceholder')}"
+                   maxlength="6" style="text-transform:uppercase;letter-spacing:.12em">
+            <button class="btn btn-secondary" data-action="sync-join">${this.t('settings.syncJoin')}</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // mode === 'syncing'
+    return `
+    <div class="settings-section">
+      <h2>${this.t('settings.sync')}</h2>
+      <div class="sync-user-row">
+        <span class="sync-avatar">${this._esc((status.user.displayName||'?')[0].toUpperCase())}</span>
+        <span>${this.t('settings.syncSignedInAs')} <strong>${userName}</strong></span>
+        <button class="btn btn-ghost btn-sm" data-action="sync-sign-out" style="margin-left:auto">${this.t('settings.syncSignOut')}</button>
+      </div>
+      <div class="sync-active-badge">
+        <span class="sync-dot"></span>${this.t('settings.syncActive')}
+      </div>
+      <div class="sync-code-box">
+        <div class="sync-code-label">${this.t('settings.syncCode')}</div>
+        <div class="sync-code-value">${this._esc(status.inviteCode || '—')}</div>
+        <div class="sync-code-hint">${this.t('settings.syncCodeHint')}</div>
+      </div>
+      <button class="btn btn-ghost btn-full" data-action="sync-leave" style="margin-top:8px;color:var(--text-lt)">${this.t('settings.syncLeave')}</button>
+    </div>`;
+  },
+
+  _syncJoin() {
+    const code = document.getElementById('sync-code-input')?.value?.trim().toUpperCase();
+    if (!code || code.length < 4) { this.toast('Enter the 6-character code', 'error'); return; }
+    Sync.joinHousehold(code);
+  },
+
+  _syncLeave() {
+    if (!confirm(this.t('settings.syncLeaveConfirm'))) return;
+    Sync.leaveHousehold();
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1447,6 +1558,15 @@ const App = {
   _iconRotate() {
     return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="22" height="22">
       <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+    </svg>`;
+  },
+
+  _iconGoogle() {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="18" height="18">
+      <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2v6h7.8c4.5-4.2 7.1-10.3 7.1-17.2z"/>
+      <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.8-5.8l-7.8-6c-2.1 1.4-4.8 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.7H2.8v6.2C6.7 42.9 14.8 48 24 48z"/>
+      <path fill="#FBBC05" d="M10.8 28.8c-.5-1.4-.7-2.9-.7-4.4s.2-3 .7-4.4v-6.2H2.8C1 17.2 0 20.5 0 24s1 6.8 2.8 10.2l8-6.2-.0001.0001z"/>
+      <path fill="#EA4335" d="M24 9.5c3.4 0 6.5 1.2 8.9 3.5l6.6-6.6C35.9 2.7 30.4.5 24 .5 14.8.5 6.7 5.6 2.8 13.8l8 6.2C12.7 13.6 17.9 9.5 24 9.5z"/>
     </svg>`;
   }
 };

@@ -30,10 +30,33 @@
     </div>
   </div>
 
-  <!-- Load order matters: i18n → db → api → app -->
+  <!-- ── Firebase SDK (compat / global namespace) ── -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+  <!-- ── Your Firebase project config — paste from Firebase Console ── -->
+  <script>
+    // PASTE YOUR FIREBASE CONFIG OBJECT BELOW
+    // (Firebase Console → Project settings → Your apps → SDK setup and configuration)
+    // Leave as {} if not yet configured; the app will run in offline-only mode.
+    window.FIREBASE_CONFIG = {
+     apiKey: "AIzaSyBM3sFAZDZIuIu77oL6UnxoHgz3XEhjupU",
+     authDomain: "vinage-85fd8.firebaseapp.com",
+     projectId: "vinage-85fd8",
+     storageBucket: "vinage-85fd8.firebasestorage.app",
+     messagingSenderId: "634323804602",
+     appId: "1:634323804602:web:17df73dbb709218b663d83",
+     measurementId: "G-9WLDXDJ55R"
+    };
+  </script>
+
+  <!-- Load order matters: i18n → db → api → sync → app -->
   <script src="js/i18n.js"></script>
   <script src="js/db.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/sync.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

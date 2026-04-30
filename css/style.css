@@ -30,8 +30,7 @@
   --radius:      14px;
   --radius-sm:   8px;
   --transition:  .18s ease;
-  --slot-w:      36px;
-  --slot-h:      56px;
+  --slot-w:      40px;
 }
 
 /* ── Reset ─────────────────────────────────────────────────────────────────── */
@@ -392,17 +391,19 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .rack-subtitle { font-size: .8rem; color: var(--text-lt); margin-bottom: 12px; }
 .rack-back { margin-bottom: 12px; }
 
-/* ── Wooden rack frame ──────────────────────────────────────────────────────── */
+/* ── Elegant rack frame (light stone / natural oak) ─────────────────────────── */
 .rack-wood-frame {
   display: inline-block;
   min-width: 100%;
-  background: linear-gradient(175deg, #6B3A1F 0%, #4A2410 60%, #5C3017 100%);
-  border-radius: 10px;
-  padding: 10px 12px 14px;
+  background: linear-gradient(160deg, #F7F1E8 0%, #EDE5D8 50%, #F2EBE0 100%);
+  border-radius: 14px;
+  padding: 12px 14px 16px;
   box-shadow:
-    0 8px 32px rgba(0,0,0,.45),
-    inset 0 1px 0 rgba(255,255,255,.14),
-    inset 0 -2px 0 rgba(0,0,0,.35);
+    0 6px 28px rgba(100,70,40,.14),
+    0 2px 6px  rgba(100,70,40,.08),
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(160,130,90,.15);
+  border: 1.5px solid rgba(195,170,135,.55);
   overflow-x: auto;
 }
 
@@ -410,131 +411,163 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .rack-col-labels {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-bottom: 5px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
-.rack-corner { width: 20px; flex-shrink: 0; }
+.rack-corner { width: 22px; flex-shrink: 0; }
 .rack-col-label {
   width: var(--slot-w);
   text-align: center;
   font-size: .52rem;
   font-weight: 700;
-  color: rgba(255,255,255,.35);
-  letter-spacing: .05em;
+  color: rgba(100,70,40,.45);
+  letter-spacing: .06em;
   flex-shrink: 0;
 }
 
-/* Rows */
-.rack-body { display: flex; flex-direction: column; gap: 4px; }
+/* Rows — extra bottom padding to give room for the below-circle position label */
+.rack-body { display: flex; flex-direction: column; gap: 18px; }
 .rack-body-row {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(0,0,0,.38);
+  gap: 6px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(180,150,110,.18);
 }
 .rack-body-row:last-child { border-bottom: none; padding-bottom: 0; }
 .rack-row-lbl {
-  width: 20px;
+  width: 22px;
   text-align: center;
   font-size: .52rem;
   font-weight: 700;
-  color: rgba(255,255,255,.35);
+  color: rgba(100,70,40,.45);
   flex-shrink: 0;
 }
 
-/* Grid & Diamond racks (legacy use + diamond) */
+/* Grid & Diamond racks */
 .rack-grid {
   display: grid;
-  gap: 5px;
+  gap: 6px;
   width: fit-content;
   min-width: 100%;
 }
 .rack-diamond .rack-row {
   display: flex;
-  gap: 5px;
-  margin-bottom: 4px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
-.rack-diamond .rack-row:nth-child(even) { margin-left: 19px; }
+.rack-diamond .rack-row:nth-child(even) { margin-left: 21px; }
 
-/* ── Slot ───────────────────────────────────────────────────────────────────── */
+/* ── Slot — circular hole ────────────────────────────────────────────────────── */
 .slot {
   width: var(--slot-w);
-  height: var(--slot-h);
-  border-radius: 5px 5px 20px 20px;
-  background: rgba(0,0,0,.55);
-  box-shadow: inset 0 3px 8px rgba(0,0,0,.75), inset 0 -1px 0 rgba(255,255,255,.04);
-  border: 1px solid rgba(0,0,0,.5);
+  height: var(--slot-w);   /* square → circle */
+  border-radius: 50%;
+  /* Dark depth illusion — like looking into a hole */
+  background: radial-gradient(circle at 38% 32%, #3C200C 0%, #1C0D04 55%, #0E0602 100%);
+  box-shadow:
+    inset 0 4px 14px rgba(0,0,0,.92),
+    inset 0 1px 4px  rgba(0,0,0,.70),
+    0 1px 0 rgba(255,255,255,.55),
+    0 2px 4px rgba(0,0,0,.10);
+  border: 2px solid rgba(210,185,150,.38);
   cursor: pointer;
   position: relative;
   transition: transform var(--transition), box-shadow var(--transition);
   flex-shrink: 0;
-  display: flex; flex-direction: column;
+  display: flex;
   align-items: center;
+  justify-content: center;
 }
 .slot:hover {
-  box-shadow: inset 0 3px 8px rgba(0,0,0,.65), 0 0 0 2px rgba(255,255,255,.18);
-}
-.slot.occupied { background: rgba(0,0,0,.25); }
-.slot.occupied:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0,0,0,.6), inset 0 2px 4px rgba(0,0,0,.35);
+  box-shadow:
+    inset 0 4px 14px rgba(0,0,0,.82),
+    0 0 0 2.5px var(--burgundy-lt),
+    0 3px 10px rgba(107,39,55,.25),
+    0 1px 0 rgba(255,255,255,.55);
 }
 
-/* Bottle inside slot */
-.bottle-body {
-  width: 22px; height: 38px;
-  border-radius: 3px 3px 11px 11px;
-  margin-top: 6px;
-  position: relative;
-  overflow: hidden;
+/* Occupied slot — bottle top is visible, hole is shallower */
+.slot.occupied {
+  background: radial-gradient(circle at 38% 32%, #2A1508 0%, #110702 100%);
+  box-shadow:
+    inset 0 2px 8px rgba(0,0,0,.75),
+    0 1px 0 rgba(255,255,255,.5),
+    0 2px 4px rgba(0,0,0,.1);
 }
-/* Bottle shine */
-.bottle-body::after {
+.slot.occupied:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,.6),
+    0 6px 18px rgba(0,0,0,.22),
+    0 1px 0 rgba(255,255,255,.55);
+}
+
+/* ── Bottle top — bird's-eye view of the capsule ────────────────────────────── */
+.bottle-top {
+  width: 72%;
+  height: 72%;
+  border-radius: 50%;
+  position: relative;
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.55),
+    inset 0 1px 2px rgba(255,255,255,.28),
+    inset 0 -1px 2px rgba(0,0,0,.4);
+}
+/* Central neck opening — dark circle on top of the capsule */
+.bottle-top::after {
   content: '';
   position: absolute;
-  top: 4px; left: 3px;
-  width: 5px; height: 60%;
-  background: rgba(255,255,255,.22);
-  border-radius: 3px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a0a02 0%, #0a0401 100%);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,1);
 }
-.bottle-neck {
-  width: 10px; height: 10px;
-  border-radius: 3px 3px 0 0;
-  position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
-}
-
-/* Wine type gradients */
-.slot.red-wine    .bottle-body { background: linear-gradient(155deg, #9B2040 0%, #5A0F1E 100%); }
-.slot.red-wine    .bottle-neck { background: #5A0F1E; }
-.slot.white-wine  .bottle-body { background: linear-gradient(155deg, #E8CC60 0%, #9A7215 100%); }
-.slot.white-wine  .bottle-neck { background: #9A7215; }
-.slot.rosé        .bottle-body { background: linear-gradient(155deg, #E87888 0%, #A03050 100%); }
-.slot.rosé        .bottle-neck { background: #A03050; }
-.slot.sparkling   .bottle-body { background: linear-gradient(155deg, #90B870 0%, #4A7030 100%); }
-.slot.sparkling   .bottle-neck { background: #4A7030; }
-.slot.dessert     .bottle-body { background: linear-gradient(155deg, #E8B840 0%, #9A7010 100%); }
-.slot.dessert     .bottle-neck { background: #9A7010; }
-.slot.fortified   .bottle-body { background: linear-gradient(155deg, #A0603A 0%, #6B3A1F 100%); }
-.slot.fortified   .bottle-neck { background: #6B3A1F; }
-
-/* Position label on occupied bottle */
-.slot-label {
-  font-size: .48rem; font-weight: 700;
-  position: absolute; bottom: 3px;
-  left: 0; right: 0; text-align: center;
-  color: rgba(255,255,255,.55);
-  overflow: hidden; white-space: nowrap;
-  padding: 0 2px;
-  letter-spacing: .04em;
-}
-/* Position label on empty slot */
-.slot-pos {
+/* Highlight arc — simulates foil/capsule sheen */
+.bottle-top::before {
+  content: '';
   position: absolute;
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-  font-size: .5rem; font-weight: 700;
+  top: 12%;
+  left: 18%;
+  width: 28%;
+  height: 20%;
+  border-radius: 50%;
+  background: rgba(255,255,255,.22);
+  transform: rotate(-20deg);
+}
+
+/* Capsule colours by wine type */
+.slot.red-wine   .bottle-top { background: radial-gradient(circle at 35% 30%, #C84060 0%, #8B1E3F 45%, #4A0F1E 100%); }
+.slot.white-wine .bottle-top { background: radial-gradient(circle at 35% 30%, #DDB840 0%, #A07820 45%, #6A5010 100%); }
+.slot.rosé       .bottle-top { background: radial-gradient(circle at 35% 30%, #F09090 0%, #C04060 45%, #8A2040 100%); }
+.slot.sparkling  .bottle-top { background: radial-gradient(circle at 35% 30%, #C8D860 0%, #8AA030 45%, #506020 100%); }
+.slot.dessert    .bottle-top { background: radial-gradient(circle at 35% 30%, #E8C040 0%, #C89010 45%, #8A6010 100%); }
+.slot.fortified  .bottle-top { background: radial-gradient(circle at 35% 30%, #C07850 0%, #9A5030 45%, #6B3010 100%); }
+
+/* Position label — shows below the circle */
+.slot-label {
+  position: absolute;
+  bottom: -13px;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: .46rem;
+  font-weight: 700;
+  color: rgba(100,70,40,.55);
+  letter-spacing: .04em;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* Position label on empty slot — centred inside the hole */
+.slot-pos {
+  font-size: .48rem;
+  font-weight: 700;
   color: rgba(255,255,255,.18);
   letter-spacing: .03em;
+  user-select: none;
 }
 
 /* ── Rack zoom controls ─────────────────────────────────────────────────────── */
@@ -826,13 +859,117 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   }
   #modal-overlay { align-items: center; }
 
-  :root { --slot-w: 44px; --slot-h: 68px; }
-  .rack-grid, .rack-diamond .rack-row, .rack-body-row, .rack-col-labels { gap: 7px; }
-  .bottle-body { width: 28px; height: 46px; }
-  .bottle-body::after { width: 7px; }
+  :root { --slot-w: 48px; }
+  .rack-grid, .rack-diamond .rack-row, .rack-body-row, .rack-col-labels { gap: 8px; }
+  .rack-body { gap: 20px; }
+  .rack-body-row { padding-bottom: 20px; }
 }
 
 @media (min-width: 1024px) {
   #main-content { max-width: 760px; margin: 0 auto; }
   .pairing-hero { border-radius: 0 0 var(--radius) var(--radius); }
+}
+
+/* ── Cloud Sync UI ───────────────────────────────────────────────────────────── */
+
+/* Floating sync status dot (bottom-left) */
+#sync-indicator {
+  position: fixed;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 10px);
+  left: 14px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  z-index: 900;
+  transition: background var(--transition);
+}
+.sync-live  { background: #34A853; box-shadow: 0 0 0 3px rgba(52,168,83,.25); }
+.sync-off   { background: transparent; }
+
+/* Sign-in with Google button */
+.btn-google {
+  background: #fff;
+  color: #3c4043;
+  border: 1.5px solid #dadce0;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  transition: box-shadow var(--transition), background var(--transition);
+}
+.btn-google:hover { background: #f8f9fa; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+
+/* Signed-in user row */
+.sync-user-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+.sync-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--burgundy);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Active sync badge */
+.sync-active-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .82rem;
+  font-weight: 600;
+  color: #34A853;
+  margin: 10px 0 14px;
+}
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34A853;
+  animation: pulse-green 2s ease infinite;
+}
+@keyframes pulse-green {
+  0%,100% { box-shadow: 0 0 0 0 rgba(52,168,83,.5); }
+  50%      { box-shadow: 0 0 0 5px rgba(52,168,83,0); }
+}
+
+/* Invite code box */
+.sync-code-box {
+  background: var(--cream-dk);
+  border: 1.5px dashed var(--burgundy-lt);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  text-align: center;
+}
+.sync-code-label  { font-size: .75rem; color: var(--text-lt); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
+.sync-code-value  { font-size: 2rem; font-weight: 800; letter-spacing: .22em; color: var(--burgundy); font-family: 'SF Mono', 'Fira Code', monospace; }
+.sync-code-hint   { font-size: .78rem; color: var(--text-lt); margin-top: 6px; }
+
+/* Join row */
+.sync-join-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.sync-join-row .form-control { flex: 1; }
+
+/* Info text */
+.sync-info-text {
+  font-size: .88rem;
+  color: var(--text-md);
+  margin-bottom: 12px;
+  line-height: 1.5;
 }
