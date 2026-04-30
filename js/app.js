@@ -163,16 +163,18 @@ const App = {
         <canvas id="camera-canvas"></canvas>
         <div class="camera-overlay"><div class="camera-frame"></div></div>
         <div class="camera-placeholder" id="camera-placeholder">
-          <img src="Vinage Logo & Text.PNG" class="scan-logo" alt="Vinage" draggable="false">
           <p class="scan-instruction-text">${this.t('scan.instruction')}</p>
         </div>
       </div>
       <div class="scan-controls">
         <div id="scan-status" class="scan-status">&nbsp;</div>
-        <div class="capture-btn-wrap">
+        <!-- Branded header: mark · camera button · wordmark -->
+        <div class="scan-brand-row">
+          <img src="Vinage Logo Pic.png" class="scan-brand-mark" alt="" draggable="false">
           <button class="capture-btn" id="capture-btn" data-action="start-camera" title="${this.t('scan.startCamera')}">
             ${this._iconCamera()}
           </button>
+          <img src="Vinage Logo Name.png" class="scan-brand-name" alt="Vinage" draggable="false">
         </div>
         <div id="scan-action-row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;">
           <button class="btn btn-secondary btn-icon" id="rotate-btn" data-action="rotate-camera"

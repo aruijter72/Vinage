@@ -300,14 +300,6 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .camera-placeholder svg { opacity: .6; }
 .camera-placeholder p { font-size: .9rem; line-height: 1.4; }
-.scan-logo {
-  width: min(220px, 60%);
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 12px rgba(0,0,0,.35));
-  pointer-events: none;
-  user-select: none;
-}
 .scan-instruction-text {
   font-size: .85rem;
   line-height: 1.45;
@@ -315,10 +307,35 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   margin: 0;
 }
 
+/* Branded scan controls header */
 .scan-controls {
-  padding: 14px 16px 16px;
+  padding: 12px 16px 16px;
   display: flex; flex-direction: column; gap: 10px;
   align-items: center;
+}
+.scan-brand-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 4px;
+}
+.scan-brand-mark {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  flex-shrink: 0;
+}
+.scan-brand-name {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  flex-shrink: 0;
 }
 .capture-btn-wrap { display: flex; justify-content: center; }
 .capture-btn {
