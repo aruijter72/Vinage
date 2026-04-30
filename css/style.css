@@ -4,22 +4,22 @@
 
 /* ── Variables ─────────────────────────────────────────────────────────────── */
 :root {
-  --burgundy:    #6B2737;
-  --burgundy-dk: #4A1A25;
-  --burgundy-lt: #9B3A4F;
+  --burgundy:    #5C2896;   /* primary violet-purple (replaces burgundy) */
+  --burgundy-dk: #36165E;   /* deep navy-purple (nav bg, dark surfaces) */
+  --burgundy-lt: #8E47C6;   /* lighter violet (hover, light accents) */
   --gold:        #C8913A;
   --gold-lt:     #E8B86D;
-  --cream:       #FAF6F0;
-  --cream-dk:    #F0E8DC;
-  --brown:       #3D1F0F;
-  --brown-md:    #7A4F38;
-  --text:        #2C1810;
-  --text-md:     #5C3D2E;
-  --text-lt:     #9A7B6E;
+  --cream:       #FAF7FD;   /* slight violet tint to cream */
+  --cream-dk:    #EEE6F7;
+  --brown:       #2A1250;   /* replaces warm brown with deep purple */
+  --brown-md:    #6B4A9A;
+  --text:        #1E0E3A;   /* near-black with violet tint */
+  --text-md:     #503878;
+  --text-lt:     #8B72A8;
   --white:       #FFFFFF;
-  --shadow:      rgba(44,24,16,.14);
-  --shadow-md:   rgba(44,24,16,.22);
-  --red-wine:    #7B1A2E;
+  --shadow:      rgba(30,14,58,.12);
+  --shadow-md:   rgba(30,14,58,.20);
+  --red-wine:    #7B1A2E;   /* wine type colours stay true to the wine */
   --white-wine:  #E8D5A0;
   --rose-wine:   #E8A0A8;
   --sparkling:   #C8D8A8;
@@ -147,7 +147,7 @@ ul { list-style: none; }
   text-transform: uppercase;
   letter-spacing: .04em;
 }
-.type-red      { background: #F5E0E4; color: var(--red-wine); }
+.type-red      { background: #F5E0E5; color: var(--red-wine); }
 .type-white    { background: #FAF3DC; color: #7A6010; }
 .type-rosé     { background: #FDE8EC; color: #A0405A; }
 .type-sparkling{ background: #E8F5E0; color: #3D6030; }
@@ -684,8 +684,90 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .wine-card-name { font-size: .97rem; font-weight: 700; margin-bottom: 3px; }
 .wine-card-sub { font-size: .8rem; color: var(--text-lt); margin-bottom: 5px; }
 .wine-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.wine-qty { font-size: .8rem; font-weight: 600; color: var(--burgundy); background: #F5E0E4; padding: 2px 8px; border-radius: 50px; }
+.wine-qty { font-size: .8rem; font-weight: 600; color: var(--burgundy); background: var(--cream-dk); padding: 2px 8px; border-radius: 50px; }
 .wine-cellar-tag { font-size: .75rem; color: var(--text-lt); }
+
+/* ── Collection stats bar ───────────────────────────────────────────────────── */
+.collection-stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, var(--burgundy-dk) 0%, var(--burgundy) 100%);
+  color: var(--white);
+}
+.stat-pill {
+  text-align: center;
+  flex-shrink: 0;
+}
+.stat-number {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+.stat-label {
+  font-size: .68rem;
+  font-weight: 500;
+  opacity: .7;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: 2px;
+}
+.stat-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255,255,255,.2);
+  margin: 0 16px;
+  flex-shrink: 0;
+}
+.stats-type-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.stats-type-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .82rem;
+  font-weight: 600;
+  opacity: .88;
+}
+.stats-type-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Drink-window alerts ────────────────────────────────────────────────────── */
+.drink-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  font-size: .84rem;
+  font-weight: 600;
+}
+.drink-alert-ready { background: #EDFAF0; color: #1A6B3C; border-bottom: 1px solid #C0EDD0; }
+.drink-alert-past  { background: #FFF5E0; color: #8B5000; border-bottom: 1px solid #F0D890; }
+
+/* ── Drink-window badges on wine cards ──────────────────────────────────────── */
+.drink-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  border-radius: 50px;
+  font-size: .72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.drink-badge-ready  { background: #EDFAF0; color: #1A6B3C; }
+.drink-badge-past   { background: #FFF5E0; color: #8B5000; }
+.drink-badge-cellar { background: var(--cream-dk); color: var(--text-lt); }
 
 .empty-state {
   text-align: center; padding: 48px 24px;
@@ -840,7 +922,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   border: 1.5px solid var(--cream-dk);
 }
 .wine-picker-item:hover { background: var(--cream); }
-.wine-picker-item.selected { border-color: var(--burgundy); background: #F5E0E4; }
+.wine-picker-item.selected { border-color: var(--burgundy); background: var(--cream-dk); }
 .picker-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .picker-name { font-size: .9rem; font-weight: 600; flex: 1; }
 .picker-meta { font-size: .78rem; color: var(--text-lt); }

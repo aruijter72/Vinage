@@ -30,7 +30,9 @@ const TRANSLATIONS = {
       quantity: 'Bottles in stock',
       pairings: 'Food Pairings',
       addedOn: 'Added',
-      cellarLocation: 'Cellar Location'
+      cellarLocation: 'Cellar Location',
+      drinkFrom: 'Drink from (year)',
+      drinkUntil: 'Drink until (year)'
     },
     types: {
       red: 'Red', white: 'White', rosé: 'Rosé',
@@ -70,6 +72,8 @@ const TRANSLATIONS = {
       search: 'Search wines…',
       noWines: 'No wines yet.\nScan a bottle or tap + to add one.',
       total: '{count} bottle(s) · {types}',
+      wines: '{count} wines',
+      bottles: '{count} bottles',
       addWine: '+ Add Wine',
       sortBy: 'Sort',
       sortName: 'Name',
@@ -78,7 +82,13 @@ const TRANSLATIONS = {
       sortAdded: 'Date Added',
       filterAll: 'All',
       inCellar: 'In cellar',
-      notInCellar: 'Not placed'
+      notInCellar: 'Not placed',
+      drinkDue: 'Drink now',
+      drinkReady: 'Drink now',
+      drinkPast: 'Past peak',
+      drinkCellar: 'Cellar until {year}',
+      drinkDueAlert: '{count} wine(s) ready to drink',
+      drinkPastAlert: '{count} past their peak'
     },
     pairing: {
       title: 'Wine & Food',
@@ -174,7 +184,9 @@ const TRANSLATIONS = {
       quantity: 'Flessen op voorraad',
       pairings: 'Spijscombinaties',
       addedOn: 'Toegevoegd',
-      cellarLocation: 'Kelderlocatie'
+      cellarLocation: 'Kelderlocatie',
+      drinkFrom: 'Drinken vanaf (jaar)',
+      drinkUntil: 'Drinken tot (jaar)'
     },
     types: {
       red: 'Rood', white: 'Wit', rosé: 'Rosé',
@@ -214,6 +226,8 @@ const TRANSLATIONS = {
       search: 'Zoek wijnen…',
       noWines: 'Nog geen wijnen.\nScan een fles of tik op + om er een toe te voegen.',
       total: '{count} fles(sen) · {types}',
+      wines: '{count} wijnen',
+      bottles: '{count} flessen',
       addWine: '+ Wijn Toevoegen',
       sortBy: 'Sorteren',
       sortName: 'Naam',
@@ -222,7 +236,13 @@ const TRANSLATIONS = {
       sortAdded: 'Datum Toegevoegd',
       filterAll: 'Alle',
       inCellar: 'In kelder',
-      notInCellar: 'Niet geplaatst'
+      notInCellar: 'Niet geplaatst',
+      drinkDue: 'Nu drinken',
+      drinkReady: 'Nu drinken',
+      drinkPast: 'Voorbij piek',
+      drinkCellar: 'Bewaren tot {year}',
+      drinkDueAlert: '{count} wijn(en) klaar om te drinken',
+      drinkPastAlert: '{count} voorbij hun piek'
     },
     pairing: {
       title: 'Wijn & Spijs',

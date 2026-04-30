@@ -425,6 +425,18 @@ const App = {
               <button class="star-btn${this._formRating>=n?' on':''}" data-action="star-pick" data-val="${n}">★</button>`).join('')}
           </div>
         </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>${this.t('wine.drinkFrom')}</label>
+          <input id="wf-drink-from" class="form-control" type="number" min="1980" max="2060"
+                 value="${wine.drinkFrom||''}" placeholder="${new Date().getFullYear()}">
+        </div>
+        <div class="form-group">
+          <label>${this.t('wine.drinkUntil')}</label>
+          <input id="wf-drink-until" class="form-control" type="number" min="1980" max="2060"
+                 value="${wine.drinkUntil||''}" placeholder="${new Date().getFullYear() + 5}">
+        </div>
       </div>`;
 
     this.showModal(title, body, [
@@ -463,9 +475,11 @@ const App = {
       country:  parse('wf-country'),
       grapes:   parseList('wf-grapes'),
       pairings: parseList('wf-pairings'),
-      notes:    parse('wf-notes'),
-      price:    parseNum('wf-price'),
-      rating:   this._formRating,
+      notes:      parse('wf-notes'),
+      price:      parseNum('wf-price'),
+      rating:     this._formRating,
+      drinkFrom:  parseNum('wf-drink-from')  ? parseInt(parse('wf-drink-from'),  10) : null,
+      drinkUntil: parseNum('wf-drink-until') ? parseInt(parse('wf-drink-until'), 10) : null,
     };
 
     if (this.editWineId) {
@@ -1009,14 +1023,65 @@ const App = {
   // ══════════════════════════════════════════════════════════════════════════
   // COLLECTION VIEW
   // ══════════════════════════════════════════════════════════════════════════
+
+  // Returns 'ready' | 'past' | 'cellar' | null
+  _drinkStatus(wine) {
+    if (!wine.drinkFrom && !wine.drinkUntil) return null;
+    const y = new Date().getFullYear();
+    if (wine.drinkUntil && y > wine.drinkUntil) return 'past';
+    if (wine.drinkFrom  && y < wine.drinkFrom)  return 'cellar';
+    return 'ready';
+  },
+
+  _buildCollectionStatsBar(allWines) {
+    const wineCount   = allWines.length;
+    const bottleCount = allWines.reduce((s, w) => s + (w.quantity || 1), 0);
+
+    // Type breakdown — only show types that appear
+    const typeCounts = {};
+    allWines.forEach(w => { typeCounts[w.type] = (typeCounts[w.type] || 0) + (w.quantity || 1); });
+    const typeItems = Object.entries(typeCounts)
+      .sort((a,b) => b[1]-a[1])
+      .map(([tp, cnt]) => `
+        <div class="stats-type-item">
+          <span class="stats-type-dot" style="background:${this._typeColor(tp)}"></span>
+          <span>${cnt}</span>
+        </div>`).join('');
+
+    // Drink window alerts
+    const ready = allWines.filter(w => this._drinkStatus(w) === 'ready');
+    const past  = allWines.filter(w => this._drinkStatus(w) === 'past');
+    const alerts = [
+      ready.length ? `<div class="drink-alert drink-alert-ready">🍷 ${this.t('collection.drinkDueAlert', {count: ready.length})}</div>` : '',
+      past.length  ? `<div class="drink-alert drink-alert-past">⚠️ ${this.t('collection.drinkPastAlert',  {count: past.length})}</div>` : ''
+    ].join('');
+
+    return `
+    <div class="collection-stats-bar">
+      <div class="stat-pill">
+        <div class="stat-number">${wineCount}</div>
+        <div class="stat-label">${this.lang === 'nl' ? 'wijnen' : 'wines'}</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-pill">
+        <div class="stat-number">${bottleCount}</div>
+        <div class="stat-label">${this.lang === 'nl' ? 'flessen' : 'bottles'}</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stats-type-row">${typeItems}</div>
+    </div>
+    ${alerts}`;
+  },
+
   buildCollectionView() {
     let wines = DB.getWines();
     const placementMap = DB.getWinePlacementMap();
 
     // Filter
     if (this.collectionFilter !== 'all') {
-      if (this.collectionFilter === 'in-cellar') wines = wines.filter(w => placementMap[w.id]);
+      if      (this.collectionFilter === 'in-cellar')  wines = wines.filter(w => placementMap[w.id]);
       else if (this.collectionFilter === 'not-placed') wines = wines.filter(w => !placementMap[w.id]);
+      else if (this.collectionFilter === 'drink-now')  wines = wines.filter(w => this._drinkStatus(w) === 'ready' || this._drinkStatus(w) === 'past');
       else wines = wines.filter(w => w.type === this.collectionFilter);
     }
 
@@ -1046,6 +1111,7 @@ const App = {
       { id: 'rosé',       label: this.t('types.rosé') },
       { id: 'sparkling',  label: this.t('types.sparkling') },
       { id: 'in-cellar',  label: this.t('collection.inCellar') },
+      { id: 'drink-now',  label: '🍷 ' + this.t('collection.drinkDue') },
     ];
 
     return `
@@ -1062,6 +1128,7 @@ const App = {
         <button class="btn btn-primary btn-sm" data-action="manual-add-wine">${this.t('collection.addWine')}</button>
       </div>
     </div>
+    ${DB.getWines().length > 0 ? this._buildCollectionStatsBar(DB.getWines()) : ''}
     <div class="collection-toolbar">
       <div class="search-input-wrap">
         ${this._iconSearch()}
@@ -1075,7 +1142,6 @@ const App = {
         <button class="filter-chip${this.collectionFilter===f.id?' active':''}"
                 onclick="App.collectionFilter='${f.id}';App.renderView()">${f.label}</button>`).join('')}
     </div>
-    ${totalBottles > 0 ? `<div style="padding:8px 16px;font-size:.8rem;color:var(--text-lt)">${this.t('collection.total',{count:totalBottles,types:typeSummary})}</div>` : ''}
     <div class="wine-grid">
       ${wines.length === 0
         ? `<div class="empty-state">${this._iconWineLg()}<p>${this.t('collection.noWines')}</p></div>`
@@ -1084,8 +1150,16 @@ const App = {
   },
 
   _buildWineListCard(w, placementMap) {
-    const places = placementMap[w.id];
+    const places    = placementMap[w.id];
     const cellarTag = places ? places.map(p => p.cellarName).join(', ') : '';
+    const status    = this._drinkStatus(w);
+    const drinkBadge = status === 'ready'
+      ? `<span class="drink-badge drink-badge-ready">🍷 ${this.t('collection.drinkReady')}</span>`
+      : status === 'past'
+      ? `<span class="drink-badge drink-badge-past">⚠️ ${this.t('collection.drinkPast')}</span>`
+      : status === 'cellar'
+      ? `<span class="drink-badge drink-badge-cellar">${this.t('collection.drinkCellar',{year:w.drinkFrom})}</span>`
+      : '';
     return `
     <div class="wine-card" data-action="edit-wine" data-id="${w.id}">
       <div class="wine-card-dot" style="background:${this._typeColor(w.type)}"></div>
@@ -1097,6 +1171,7 @@ const App = {
           ${w.vintage ? `<span style="font-size:.8rem;color:var(--text-lt)">${w.vintage}</span>` : ''}
           ${(w.quantity||1) > 1 ? `<span class="wine-qty">${w.quantity}×</span>` : ''}
           ${w.rating ? `<span class="stars" style="font-size:.8rem">${'★'.repeat(w.rating)}</span>` : ''}
+          ${drinkBadge}
           ${cellarTag ? `<span class="wine-cellar-tag">📍 ${this._esc(cellarTag)}</span>` : ''}
         </div>
       </div>
@@ -1121,7 +1196,16 @@ const App = {
         ${w.region  ? `<span style="font-size:.85rem;color:var(--text-lt)">${this._esc(w.region)}</span>` : ''}
       </div>
       ${w.rating ? `<div class="stars" style="margin-bottom:8px">${'★'.repeat(w.rating)}</div>` : ''}
-      ${w.notes ? `<div style="font-size:.88rem;color:var(--text-md);line-height:1.5">${this._esc(w.notes)}</div>` : ''}
+      ${w.notes ? `<div style="font-size:.88rem;color:var(--text-md);line-height:1.5;margin-bottom:10px">${this._esc(w.notes)}</div>` : ''}
+      ${(w.drinkFrom || w.drinkUntil) ? (() => {
+        const s = this._drinkStatus(w);
+        const cls = s === 'ready' ? 'drink-badge-ready' : s === 'past' ? 'drink-badge-past' : 'drink-badge-cellar';
+        const window = [w.drinkFrom, w.drinkUntil].filter(Boolean).join(' – ');
+        return `<div class="drink-badge ${cls}" style="display:inline-flex;margin-top:2px">
+          ${s==='ready'?'🍷':s==='past'?'⚠️':'🔒'} ${window}
+          ${s==='ready' ? ' · '+this.t('collection.drinkReady') : s==='past' ? ' · '+this.t('collection.drinkPast') : ''}
+        </div>`;
+      })() : ''}
     </div>`;
   },
 

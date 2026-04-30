@@ -17,8 +17,11 @@ Return ONLY a valid JSON object — no explanation, no markdown — with exactly
   "grapes": ["Grape1", "Grape2"],
   "pairings": ["food1", "food2", "food3"],
   "notes": "brief tasting note or description if visible on label",
+  "drinkFrom": 2024,
+  "drinkUntil": 2032,
   "confidence": "high|medium|low"
 }
+For drinkFrom/drinkUntil: use your sommelier knowledge to estimate the ideal drinking window based on the wine's type, region, producer, and vintage — even if not printed on the label. Return null only if you truly cannot make any estimate.
 If this is clearly NOT a wine bottle, return: {"error":"not_a_wine"}`;
 
     const provider = settings.apiProvider || 'anthropic';
