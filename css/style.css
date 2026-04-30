@@ -30,6 +30,8 @@
   --radius:      14px;
   --radius-sm:   8px;
   --transition:  .18s ease;
+  --slot-w:      36px;
+  --slot-h:      56px;
 }
 
 /* ── Reset ─────────────────────────────────────────────────────────────────── */
@@ -370,7 +372,58 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .rack-subtitle { font-size: .8rem; color: var(--text-lt); margin-bottom: 12px; }
 .rack-back { margin-bottom: 12px; }
 
-/* Grid & Diamond racks */
+/* ── Wooden rack frame ──────────────────────────────────────────────────────── */
+.rack-wood-frame {
+  display: inline-block;
+  min-width: 100%;
+  background: linear-gradient(175deg, #6B3A1F 0%, #4A2410 60%, #5C3017 100%);
+  border-radius: 10px;
+  padding: 10px 12px 14px;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -2px 0 rgba(0,0,0,.35);
+  overflow-x: auto;
+}
+
+/* Column-label row */
+.rack-col-labels {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+.rack-corner { width: 20px; flex-shrink: 0; }
+.rack-col-label {
+  width: var(--slot-w);
+  text-align: center;
+  font-size: .52rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.35);
+  letter-spacing: .05em;
+  flex-shrink: 0;
+}
+
+/* Rows */
+.rack-body { display: flex; flex-direction: column; gap: 4px; }
+.rack-body-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(0,0,0,.38);
+}
+.rack-body-row:last-child { border-bottom: none; padding-bottom: 0; }
+.rack-row-lbl {
+  width: 20px;
+  text-align: center;
+  font-size: .52rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.35);
+  flex-shrink: 0;
+}
+
+/* Grid & Diamond racks (legacy use + diamond) */
 .rack-grid {
   display: grid;
   gap: 5px;
@@ -380,15 +433,18 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .rack-diamond .rack-row {
   display: flex;
   gap: 5px;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 .rack-diamond .rack-row:nth-child(even) { margin-left: 19px; }
 
+/* ── Slot ───────────────────────────────────────────────────────────────────── */
 .slot {
-  width: 36px; height: 56px;
-  border-radius: 4px 4px 18px 18px;
-  border: 1.5px solid var(--cream-dk);
-  background: var(--cream);
+  width: var(--slot-w);
+  height: var(--slot-h);
+  border-radius: 5px 5px 20px 20px;
+  background: rgba(0,0,0,.55);
+  box-shadow: inset 0 3px 8px rgba(0,0,0,.75), inset 0 -1px 0 rgba(255,255,255,.04);
+  border: 1px solid rgba(0,0,0,.5);
   cursor: pointer;
   position: relative;
   transition: transform var(--transition), box-shadow var(--transition);
@@ -396,9 +452,14 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   display: flex; flex-direction: column;
   align-items: center;
 }
-.slot:active { transform: scale(.92); }
-.slot.occupied { border-color: transparent; }
-.slot.occupied:hover { box-shadow: 0 3px 10px var(--shadow-md); transform: translateY(-2px); }
+.slot:hover {
+  box-shadow: inset 0 3px 8px rgba(0,0,0,.65), 0 0 0 2px rgba(255,255,255,.18);
+}
+.slot.occupied { background: rgba(0,0,0,.25); }
+.slot.occupied:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.6), inset 0 2px 4px rgba(0,0,0,.35);
+}
 
 /* Bottle inside slot */
 .bottle-body {
@@ -406,32 +467,54 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   border-radius: 3px 3px 11px 11px;
   margin-top: 6px;
   position: relative;
+  overflow: hidden;
+}
+/* Bottle shine */
+.bottle-body::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 3px;
+  width: 5px; height: 60%;
+  background: rgba(255,255,255,.22);
+  border-radius: 3px;
 }
 .bottle-neck {
   width: 10px; height: 10px;
   border-radius: 3px 3px 0 0;
   position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
 }
-.slot.red-wine    .bottle-body { background: var(--red-wine); }
-.slot.red-wine    .bottle-neck { background: var(--red-wine); }
-.slot.white-wine  .bottle-body { background: #C8A830; }
-.slot.white-wine  .bottle-neck { background: #C8A830; }
-.slot.rosé        .bottle-body { background: #D47080; }
-.slot.rosé        .bottle-neck { background: #D47080; }
-.slot.sparkling   .bottle-body { background: #6A9050; }
-.slot.sparkling   .bottle-neck { background: #6A9050; }
-.slot.dessert     .bottle-body { background: var(--dessert); }
-.slot.dessert     .bottle-neck { background: var(--dessert); }
-.slot.fortified   .bottle-body { background: var(--fortified); }
-.slot.fortified   .bottle-neck { background: var(--fortified); }
 
+/* Wine type gradients */
+.slot.red-wine    .bottle-body { background: linear-gradient(155deg, #9B2040 0%, #5A0F1E 100%); }
+.slot.red-wine    .bottle-neck { background: #5A0F1E; }
+.slot.white-wine  .bottle-body { background: linear-gradient(155deg, #E8CC60 0%, #9A7215 100%); }
+.slot.white-wine  .bottle-neck { background: #9A7215; }
+.slot.rosé        .bottle-body { background: linear-gradient(155deg, #E87888 0%, #A03050 100%); }
+.slot.rosé        .bottle-neck { background: #A03050; }
+.slot.sparkling   .bottle-body { background: linear-gradient(155deg, #90B870 0%, #4A7030 100%); }
+.slot.sparkling   .bottle-neck { background: #4A7030; }
+.slot.dessert     .bottle-body { background: linear-gradient(155deg, #E8B840 0%, #9A7010 100%); }
+.slot.dessert     .bottle-neck { background: #9A7010; }
+.slot.fortified   .bottle-body { background: linear-gradient(155deg, #A0603A 0%, #6B3A1F 100%); }
+.slot.fortified   .bottle-neck { background: #6B3A1F; }
+
+/* Position label on occupied bottle */
 .slot-label {
-  font-size: .5rem; font-weight: 600;
+  font-size: .48rem; font-weight: 700;
   position: absolute; bottom: 3px;
   left: 0; right: 0; text-align: center;
-  color: rgba(255,255,255,.8);
-  overflow: hidden; white-space: nowrap; text-overflow: clip;
+  color: rgba(255,255,255,.55);
+  overflow: hidden; white-space: nowrap;
   padding: 0 2px;
+  letter-spacing: .04em;
+}
+/* Position label on empty slot */
+.slot-pos {
+  position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: .5rem; font-weight: 700;
+  color: rgba(255,255,255,.18);
+  letter-spacing: .03em;
 }
 
 /* Case rack (3×4) */
@@ -614,19 +697,45 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .settings-btn-row { padding: 16px; }
 .about-info { padding: 24px 16px; text-align: center; color: var(--text-lt); font-size: .88rem; line-height: 1.8; }
 
-/* ── Slot tooltip ────────────────────────────────────────────────────────────── */
-.slot-tooltip {
-  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-  background: var(--brown); color: var(--white);
-  padding: 6px 10px; border-radius: 6px;
-  font-size: .72rem; white-space: nowrap;
-  pointer-events: none; z-index: 10;
-  box-shadow: 0 2px 8px var(--shadow-md);
+/* ── Rack hover tooltip (desktop, hover-capable devices only) ───────────────── */
+#rack-tooltip {
+  position: fixed;
+  z-index: 500;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s ease;
+  width: 180px;
 }
-.slot-tooltip::after {
-  content: ''; position: absolute;
-  top: 100%; left: 50%; transform: translateX(-50%);
-  border: 5px solid transparent; border-top-color: var(--brown);
+#rack-tooltip.visible { opacity: 1; }
+.rack-tooltip-card {
+  background: #1A0C05;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 32px rgba(0,0,0,.7);
+}
+.rack-tooltip-img {
+  width: 100%; height: 110px;
+  object-fit: cover; object-position: center;
+  display: block;
+}
+.rack-tooltip-body { padding: 10px 12px 12px; }
+.rack-tooltip-pos {
+  font-size: .6rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .14em;
+  color: var(--gold); margin-bottom: 5px;
+}
+.rack-tooltip-name {
+  font-size: .85rem; font-weight: 700;
+  color: var(--white); line-height: 1.25; margin-bottom: 5px;
+}
+.rack-tooltip-meta {
+  font-size: .7rem; color: rgba(255,255,255,.5);
+  line-height: 1.4; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+}
+.rack-tooltip-dot {
+  display: inline-block;
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
 }
 
 /* ── Wine picker modal list ─────────────────────────────────────────────────── */
@@ -657,9 +766,10 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   }
   #modal-overlay { align-items: center; }
 
-  .rack-grid, .rack-diamond .rack-row { gap: 7px; }
-  .slot { width: 44px; height: 68px; }
+  :root { --slot-w: 44px; --slot-h: 68px; }
+  .rack-grid, .rack-diamond .rack-row, .rack-body-row, .rack-col-labels { gap: 7px; }
   .bottle-body { width: 28px; height: 46px; }
+  .bottle-body::after { width: 7px; }
 }
 
 @media (min-width: 1024px) {

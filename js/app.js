@@ -6,7 +6,8 @@ const App = {
   view: 'scan',
   lang: 'en',
   stream: null,
-  capturedImage: null,   // base64 jpeg
+  capturedImage: null,      // base64 jpeg (full res, for AI + form display)
+  capturedThumbnail: null,  // base64 jpeg (80×120 thumbnail, stored with wine for rack tooltip)
   scanResult: null,
   editWineId: null,
   cellarDetailId: null,
@@ -62,7 +63,8 @@ const App = {
           <div id="modal-footer"></div>
         </div>
       </div>
-      <div id="toast-container"></div>`;
+      <div id="toast-container"></div>
+      <div id="rack-tooltip"></div>`;
 
     document.getElementById('modal-close-btn').onclick = () => this.closeModal();
     document.getElementById('modal-overlay').onclick = e => {
@@ -88,7 +90,10 @@ const App = {
     const el = document.getElementById('main-content');
     switch (this.view) {
       case 'scan':       el.innerHTML = this.buildScanView(); this.initCamera(); break;
-      case 'cellar':     el.innerHTML = this.cellarDetailId ? this.buildCellarDetail() : this.buildCellarList(); break;
+      case 'cellar':
+        el.innerHTML = this.cellarDetailId ? this.buildCellarDetail() : this.buildCellarList();
+        if (this.cellarDetailId) setTimeout(() => this._initRackHover(), 0);
+        break;
       case 'collection': el.innerHTML = this.buildCollectionView(); break;
       case 'pairing':    el.innerHTML = this.buildPairingView(); break;
       case 'settings':   el.innerHTML = this.buildSettingsView(); break;
@@ -174,6 +179,7 @@ const App = {
   initCamera() {
     // Restore capture btn icon to camera (start state)
     this.capturedImage = null;
+    this.capturedThumbnail = null;
     this.scanResult = null;
     const btn = document.getElementById('capture-btn');
     if (btn) { btn.dataset.action = 'start-camera'; }
@@ -249,6 +255,14 @@ const App = {
     canvas.classList.add('show');
     this.stopCamera();
 
+    // Create a small thumbnail for rack hover tooltip (80×120 px)
+    try {
+      const tC = document.createElement('canvas');
+      tC.width = 80; tC.height = 120;
+      tC.getContext('2d').drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 80, 120);
+      this.capturedThumbnail = tC.toDataURL('image/jpeg', 0.65).split(',')[1];
+    } catch (_) { this.capturedThumbnail = null; }
+
     // Show retake button
     const actionRow = document.getElementById('scan-action-row');
     actionRow.innerHTML = `<button class="btn btn-secondary btn-sm" data-action="retake">${this.t('scan.retake')}</button>`;
@@ -301,9 +315,10 @@ const App = {
       <button class="btn btn-secondary btn-icon" id="rotate-btn" data-action="rotate-camera"
               title="Rotate image" style="display:none">${this._iconRotate()}</button>`;
     this._setScanStatus('', '');
-    this.capturedImage = null;
-    this.scanResult = null;
-    this._scanRotation = 0;
+    this.capturedImage     = null;
+    this.capturedThumbnail = null;
+    this.scanResult        = null;
+    this._scanRotation     = 0;
     this.startCamera();
   },
 
@@ -420,7 +435,9 @@ const App = {
     const parseList = id => parse(id).split(',').map(s => s.trim()).filter(Boolean);
 
     const data = {
-      name, image: this.capturedImage || null,
+      name,
+      image:     this.capturedImage     || null,
+      thumbnail: this.capturedThumbnail || null,
       producer: parse('wf-producer'),
       vintage:  parseNum('wf-vintage') ? parseInt(parse('wf-vintage'),10) : null,
       quantity: parseInt(parse('wf-qty'),10) || 1,
@@ -440,8 +457,9 @@ const App = {
       DB.addWine(data);
     }
 
-    this.capturedImage = null;
-    this.scanResult    = null;
+    this.capturedImage     = null;
+    this.capturedThumbnail = null;
+    this.scanResult        = null;
     this.closeModal();
     this.toast(this.t('common.save') + ' ✓', 'success');
 
@@ -452,7 +470,8 @@ const App = {
   editWine(id) {
     const wine = DB.getWineById(id);
     if (!wine) return;
-    this.capturedImage = wine.image || null;
+    this.capturedImage     = wine.image     || null;
+    this.capturedThumbnail = wine.thumbnail || null;
     this.showWineForm(wine);
   },
 
@@ -549,29 +568,48 @@ const App = {
   },
 
   _buildGridRack(c, diamond) {
-    const wineMap = this._buildWineMap(c);
-    let rows = '';
+    if (diamond) {
+      // Diamond rack — wrap in wood frame but keep offset-row layout
+      let rows = '';
+      for (let r = 0; r < c.rows; r++) {
+        let cells = '';
+        for (let col = 0; col < c.cols; col++) {
+          const key = `${r}-${col}`;
+          const wineId = c.slots[key];
+          const wine = wineId ? DB.getWineById(wineId) : null;
+          cells += this._buildSlot(c.id, key, wine);
+        }
+        rows += `<div class="rack-row">${cells}</div>`;
+      }
+      return `<div class="rack-wood-frame"><div class="rack-diamond">${rows}</div></div>`;
+    }
 
+    // Grid rack — labeled rows (A, B, C…) and column numbers (1, 2, 3…)
+    // Column label header
+    let colLabels = `<div class="rack-corner"></div>`;
+    for (let col = 0; col < c.cols; col++) {
+      colLabels += `<div class="rack-col-label">${col + 1}</div>`;
+    }
+
+    // Rows with row labels
+    let rows = '';
     for (let r = 0; r < c.rows; r++) {
-      let cells = '';
+      const rowLetter = String.fromCharCode(65 + r % 26);
+      let cells = `<div class="rack-row-lbl">${rowLetter}</div>`;
       for (let col = 0; col < c.cols; col++) {
         const key = `${r}-${col}`;
         const wineId = c.slots[key];
         const wine = wineId ? DB.getWineById(wineId) : null;
         cells += this._buildSlot(c.id, key, wine);
       }
-      if (diamond) {
-        rows += `<div class="rack-row">${cells}</div>`;
-      } else {
-        rows += cells;
-      }
+      rows += `<div class="rack-body-row">${cells}</div>`;
     }
 
-    if (diamond) {
-      return `<div class="rack-diamond">${rows}</div>`;
-    } else {
-      return `<div class="rack-grid" style="grid-template-columns:repeat(${c.cols},36px)">${rows}</div>`;
-    }
+    return `
+      <div class="rack-wood-frame">
+        <div class="rack-col-labels">${colLabels}</div>
+        <div class="rack-body">${rows}</div>
+      </div>`;
   },
 
   _buildCaseRack(c) {
@@ -581,7 +619,7 @@ const App = {
       const wine = wineId ? DB.getWineById(wineId) : null;
       cells += this._buildSlot(c.id, String(i), wine);
     }
-    return `<div class="rack-case">${cells}</div>`;
+    return `<div class="rack-wood-frame" style="display:inline-block;min-width:auto"><div class="rack-case">${cells}</div></div>`;
   },
 
   _buildShelfRack(c) {
@@ -607,23 +645,40 @@ const App = {
     </div>`;
   },
 
+  _slotPositionLabel(slotKey) {
+    const s = String(slotKey);
+    if (s.includes('-')) {
+      const [r, c] = s.split('-').map(Number);
+      return String.fromCharCode(65 + r % 26) + (c + 1);
+    }
+    // Case rack: 0-11 → A1..A4, B1..B4, C1..C4
+    const i = parseInt(s, 10);
+    return String.fromCharCode(65 + Math.floor(i / 4)) + ((i % 4) + 1);
+  },
+
   _buildSlot(cellarId, slotKey, wine) {
+    const pos = this._slotPositionLabel(slotKey);
     if (wine) {
       const cls = this._typeClass(wine.type);
-      const label = wine.name.substring(0, 6);
+      // Data attributes for the hover tooltip
+      const twImg = wine.thumbnail ? ` data-tw-img="${wine.thumbnail}"` : '';
       return `
       <div class="slot occupied ${cls}"
            data-action="click-slot" data-cellarid="${cellarId}" data-slot="${slotKey}" data-wineid="${wine.id}"
-           title="${this._esc(wine.name)} ${wine.vintage||''}">
+           data-tw-name="${this._esc(wine.name)}"
+           data-tw-producer="${this._esc(wine.producer||'')}"
+           data-tw-vintage="${wine.vintage||''}"
+           data-tw-type="${wine.type}"
+           data-tw-pos="${pos}"${twImg}>
         <div class="bottle-neck"></div>
         <div class="bottle-body"></div>
-        <div class="slot-label">${label}</div>
+        <div class="slot-label">${pos}</div>
       </div>`;
     }
     return `
     <div class="slot"
-         data-action="click-slot" data-cellarid="${cellarId}" data-slot="${slotKey}" data-wineid=""
-         title="${this.t('cellar.slotEmpty')}">
+         data-action="click-slot" data-cellarid="${cellarId}" data-slot="${slotKey}" data-wineid="">
+      <div class="slot-pos">${pos}</div>
     </div>`;
   },
 
@@ -631,6 +686,59 @@ const App = {
     const map = {};
     if (c.slots) Object.entries(c.slots).forEach(([k,v]) => { if(v) map[v] = k; });
     return map;
+  },
+
+  _initRackHover() {
+    // Only activate on hover-capable devices (desktops)
+    if (!window.matchMedia('(hover: hover)').matches) return;
+    const tooltip = document.getElementById('rack-tooltip');
+    if (!tooltip) return;
+
+    const hide = () => tooltip.classList.remove('visible');
+
+    document.querySelectorAll('.slot.occupied[data-tw-name]').forEach(slot => {
+      slot.addEventListener('mouseenter', () => {
+        const name     = slot.dataset.twName     || '';
+        const producer = slot.dataset.twProducer || '';
+        const vintage  = slot.dataset.twVintage  || '';
+        const type     = slot.dataset.twType     || 'red';
+        const pos      = slot.dataset.twPos      || '';
+        const img      = slot.dataset.twImg      || '';
+
+        const metaParts = [producer, vintage, this.t('types.' + type)].filter(Boolean);
+
+        tooltip.innerHTML = `
+          <div class="rack-tooltip-card">
+            ${img ? `<img class="rack-tooltip-img" src="data:image/jpeg;base64,${img}" alt="">` : ''}
+            <div class="rack-tooltip-body">
+              <div class="rack-tooltip-pos">${this._esc(pos)}</div>
+              <div class="rack-tooltip-name">${this._esc(name)}</div>
+              <div class="rack-tooltip-meta">
+                <span class="rack-tooltip-dot" style="background:${this._typeColor(type)}"></span>
+                ${this._esc(metaParts.join(' · '))}
+              </div>
+            </div>
+          </div>`;
+
+        // Position above the slot, clamped to viewport
+        const rect = slot.getBoundingClientRect();
+        const tipW = 180;
+        let left = rect.left + rect.width / 2 - tipW / 2;
+        left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+        const top = rect.top + window.scrollY;
+
+        tooltip.style.left      = left + 'px';
+        tooltip.style.top       = top  + 'px';
+        tooltip.style.transform = 'translateY(calc(-100% - 10px))';
+        tooltip.style.width     = tipW + 'px';
+        tooltip.classList.add('visible');
+      });
+
+      slot.addEventListener('mouseleave', hide);
+    });
+
+    // Hide when scrolling (so tooltip doesn't drift)
+    document.getElementById('main-content')?.addEventListener('scroll', hide, { passive: true });
   },
 
   handleSlotClick(cellarId, slot, wineId) {
