@@ -374,11 +374,19 @@ const App = {
     const types = ['red','white','rosé','sparkling','dessert','fortified'];
     const title = this.editWineId ? this.t('common.edit') : this.t('common.add') + ' ' + this.t('nav.collection').slice(0,-1);
 
-    const existingImgSrc = wine.imageUrl || (wine.image ? `data:image/jpeg;base64,${wine.image}` : null);
+    // Image source priority: captured → imageUrl → full b64 → thumbnail fallback
+    const thumbB64 = wine.thumbnail ? `data:image/jpeg;base64,${wine.thumbnail}` : null;
+    const existingImgSrc = wine.imageUrl
+      || (wine.image     ? `data:image/jpeg;base64,${wine.image}` : null)
+      || thumbB64;
+    // onerror: if remote URL fails (CORS/expired), fall back to local thumbnail
+    const onerrorAttr = (wine.imageUrl && thumbB64)
+      ? `onerror="this.src='${thumbB64}';this.onerror=null"`
+      : `onerror="this.style.display='none'"`;
     const imageHtml = this.capturedImage
       ? `<img class="wine-form-image" src="data:image/jpeg;base64,${this.capturedImage}" alt="label">`
       : existingImgSrc
-      ? `<img class="wine-form-image" src="${existingImgSrc}" alt="label">`
+      ? `<img class="wine-form-image" src="${existingImgSrc}" alt="label" ${onerrorAttr}>`
       : '';
 
     const body = `

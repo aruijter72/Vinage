@@ -48,7 +48,7 @@
 #splash-screen.splash-fade { opacity: 0; pointer-events: none; }
 .splash-img {
   width: 100%; height: 100%;
-  object-fit: cover;
+  object-fit: contain;   /* show full image — no cropping on wide screens */
   object-position: center center;
 }
 
@@ -392,8 +392,10 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
    WINE FORM (modal)
    ════════════════════════════════════════════════════════════════════════════ */
 .wine-form-image {
-  width: 100%; height: auto;
+  width: 100%;
+  min-height: 180px;     /* always visible even while loading */
   max-height: 55vh;
+  height: auto;
   object-fit: contain; border-radius: var(--radius-sm);
   margin-bottom: 16px; background: #111;
   display: block;
