@@ -100,14 +100,15 @@ ul { list-style: none; }
   top: 0;
   background: var(--white);
   border-bottom: 1px solid var(--cream-dk);
-  padding: 14px 16px 12px;
+  padding: 10px 16px 8px;
   z-index: 50;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 4px 10px;
 }
-.page-header h1 { font-size: 1.25rem; font-weight: 700; color: var(--burgundy); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.page-header .header-actions { display: flex; gap: 8px; align-items: center; }
+.page-header h1 { font-size: 1.4rem; font-weight: 700; color: var(--burgundy); width: 100%; flex: none; }
+.page-header .header-actions { display: flex; gap: 8px; align-items: center; width: 100%; justify-content: flex-end; padding-bottom: 4px; }
 
 /* ── Buttons ────────────────────────────────────────────────────────────────── */
 .btn {
@@ -710,6 +711,13 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .wine-card:active { box-shadow: 0 3px 12px var(--shadow-md); }
 .wine-card-dot {
   width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+}
+.wine-card-thumb {
+  width: 44px; height: 62px;
+  object-fit: cover; object-position: center top;
+  border-radius: 6px; flex-shrink: 0;
+  box-shadow: 0 1px 5px rgba(0,0,0,.18);
+  background: var(--cream-dk);
 }
 .wine-card-body { flex: 1; min-width: 0; }
 .wine-card-name { font-size: .97rem; font-weight: 700; margin-bottom: 3px; }

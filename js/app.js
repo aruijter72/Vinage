@@ -1310,9 +1310,16 @@ const App = {
       : status === 'cellar'
       ? `<span class="drink-badge drink-badge-cellar">${this.t('collection.drinkCellar',{year:w.drinkFrom})}</span>`
       : '';
+    // Thumbnail: prefer small b64 thumb, fall back to Firestore URL, else show colour dot
+    const thumbSrc = w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}`
+                   : w.imageUrl  ? w.imageUrl
+                   : null;
+    const leftCol = thumbSrc
+      ? `<img src="${thumbSrc}" class="wine-card-thumb" alt="" loading="lazy">`
+      : `<div class="wine-card-dot" style="background:${this._typeColor(w.type)}"></div>`;
     return `
     <div class="wine-card" data-action="edit-wine" data-id="${w.id}">
-      <div class="wine-card-dot" style="background:${this._typeColor(w.type)}"></div>
+      ${leftCol}
       <div class="wine-card-body">
         <div class="wine-card-name">${this._esc(w.name)}</div>
         <div class="wine-card-sub">${[w.producer, w.region, w.country].filter(Boolean).join(' · ')}</div>
@@ -1337,7 +1344,7 @@ const App = {
     return `
     <div style="text-align:left">
       ${imgSrc ? `<img src="${imgSrc}" alt="${this._esc(w.name)}"
-        style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-bottom:14px;display:block;">` : ''}
+        style="width:100%;max-height:400px;object-fit:contain;border-radius:10px;margin-bottom:14px;display:block;background:#f5f0ec;">` : ''}
       <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">${this._esc(w.name)}</div>
       ${w.producer ? `<div style="color:var(--text-md);margin-bottom:8px">${this._esc(w.producer)}</div>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
