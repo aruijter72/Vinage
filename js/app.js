@@ -175,7 +175,6 @@ const App = {
         <div id="scan-status" class="scan-status">&nbsp;</div>
         <!-- Branded header: mark · camera button · wordmark -->
         <div class="scan-brand-row">
-          <img src="Vinage Logo Pic.png" class="scan-brand-watermark" alt="" draggable="false" aria-hidden="true">
           <img src="Vinage Logo Pic.png" class="scan-brand-mark" alt="" draggable="false">
           <button class="capture-btn" id="capture-btn" data-action="start-camera" title="${this.t('scan.startCamera')}">
             ${this._iconCamera()}

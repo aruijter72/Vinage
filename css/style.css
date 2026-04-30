@@ -106,7 +106,7 @@ ul { list-style: none; }
   align-items: center;
   gap: 12px;
 }
-.page-header h1 { font-size: 1.25rem; font-weight: 700; color: var(--burgundy); flex: 1; }
+.page-header h1 { font-size: 1.25rem; font-weight: 700; color: var(--burgundy); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .page-header .header-actions { display: flex; gap: 8px; align-items: center; }
 
 /* ── Buttons ────────────────────────────────────────────────────────────────── */
@@ -315,24 +315,11 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .scan-brand-row {
   width: 100%;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   padding: 0 4px;
-}
-/* Faint centred watermark behind the camera button */
-.scan-brand-watermark {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  height: 90px;
-  width: auto;
-  opacity: 0.07;
-  pointer-events: none;
-  user-select: none;
 }
 .scan-brand-mark {
   height: 52px;
@@ -341,7 +328,6 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   pointer-events: none;
   user-select: none;
   flex-shrink: 0;
-  position: relative; /* above watermark */
 }
 .scan-brand-name {
   height: 22px;
@@ -350,7 +336,6 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   pointer-events: none;
   user-select: none;
   flex-shrink: 0;
-  position: relative; /* above watermark */
 }
 .capture-btn-wrap { display: flex; justify-content: center; }
 .capture-btn {

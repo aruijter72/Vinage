@@ -214,7 +214,7 @@ const TRANSLATIONS = {
     },
     types: {
       red: 'Rood', white: 'Wit', rosé: 'Rosé',
-      sparkling: 'Schuimwijn', dessert: 'Dessertwijn', fortified: 'Versterktwijn'
+      sparkling: 'Mousserend', dessert: 'Dessertwijn', fortified: 'Versterkte wijn'
     },
     cellar: {
       title: 'Mijn Kelder',
