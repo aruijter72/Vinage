@@ -172,7 +172,18 @@ const TRANSLATIONS = {
       syncActive: 'Live sync active',
       syncNoHousehold: 'Not in a shared cellar yet.',
       syncDisabled: 'Cloud sync not configured. Add Firebase config to index.html.',
-      syncMembers: 'Members'
+      syncMembers: 'Members',
+      notifications: 'Notifications',
+      notifStatus: 'Status',
+      notifGranted: 'Allowed ✓',
+      notifDenied: 'Blocked — enable in browser settings',
+      notifDefault: 'Not yet enabled',
+      notifEnable: 'Enable Notifications',
+      notifDrinkWindow: 'Drink-window reminders',
+      notifDrinkWindowHint: 'Notify when a wine enters its ideal drinking window',
+      notifDecant: 'Decanting timer alert',
+      notifDecantHint: 'Notify when the decanting countdown finishes',
+      notifTestBtn: 'Send test notification'
     },
     common: {
       save: 'Save', cancel: 'Cancel', delete: 'Delete',
@@ -377,7 +388,18 @@ const TRANSLATIONS = {
       syncActive: 'Live synchronisatie actief',
       syncNoHousehold: 'Nog niet in een gedeelde kelder.',
       syncDisabled: 'Cloud sync niet geconfigureerd. Voeg Firebase-config toe aan index.html.',
-      syncMembers: 'Leden'
+      syncMembers: 'Leden',
+      notifications: 'Meldingen',
+      notifStatus: 'Status',
+      notifGranted: 'Toegestaan ✓',
+      notifDenied: 'Geblokkeerd — inschakelen via browserinstellingen',
+      notifDefault: 'Nog niet ingeschakeld',
+      notifEnable: 'Meldingen Inschakelen',
+      notifDrinkWindow: 'Drinkvenster-herinneringen',
+      notifDrinkWindowHint: 'Melding wanneer een wijn zijn ideale drinkperiode bereikt',
+      notifDecant: 'Decanteertimer-melding',
+      notifDecantHint: 'Melding wanneer de decanteertimer afloopt',
+      notifTestBtn: 'Testmelding verzenden'
     },
     common: {
       save: 'Opslaan', cancel: 'Annuleren', delete: 'Verwijderen',

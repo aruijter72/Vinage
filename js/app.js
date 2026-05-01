@@ -28,7 +28,8 @@ const App = {
     this.lang = detectLang();
     this.render();
     this.navigate('scan');
-    document.addEventListener('click', e => this._delegateClick(e));
+    document.addEventListener('click',  e => this._delegateClick(e));
+    document.addEventListener('change', e => this._delegateChange(e));
     Sync.init();
     this._restoreDecantTimer();
     this._checkDrinkWindowNotifications();
@@ -195,6 +196,8 @@ const App = {
       // Notifications
       case 'allow-notif':         this._requestNotifications(); break;
       case 'dismiss-notif':       document.getElementById('notif-prompt-toast')?.remove(); break;
+      case 'notif-request':       this._requestNotificationsFromSettings(); break;
+      case 'notif-test':          this._sendTestNotif(); break;
       // PDF
       case 'export-pdf':          this.exportPdf(); break;
       // Cloud sync actions
@@ -204,6 +207,22 @@ const App = {
       case 'sync-join':           this._syncJoin(); break;
       case 'sync-leave':          this._syncLeave(); break;
     }
+  },
+
+  _delegateChange(e) {
+    const t = e.target.closest('[data-action]');
+    if (!t) return;
+    if (t.dataset.action === 'notif-toggle') {
+      this._handleNotifToggle(t.dataset.key, t.checked);
+    }
+  },
+
+  _requestNotificationsFromSettings() {
+    if (!('Notification' in window)) return;
+    Notification.requestPermission().then(() => {
+      // Re-render settings so status badge + toggles update
+      this.navigate('settings');
+    });
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1921,6 +1940,8 @@ const App = {
 
     ${this._buildSyncSection()}
 
+    ${this._buildNotifSection()}
+
     <div class="about-info">
       <div style="font-size:2rem;margin-bottom:8px">🍷</div>
       <strong>Vinage</strong><br>
@@ -2034,6 +2055,76 @@ const App = {
     DB.clearAll();
     this.toast('Cleared', 'success');
     this.renderView();
+  },
+
+  // ── Notifications Settings Section ────────────────────────────────────────
+  _buildNotifSection() {
+    if (!('Notification' in window)) return '';
+    const perm = Notification.permission;          // 'granted' | 'denied' | 'default'
+    const s    = DB.getSettings();
+    const drinkOn   = s.notifDrinkWindow !== false; // default on
+    const decantOn  = s.notifDecant      !== false; // default on
+
+    const statusLabel = perm === 'granted'
+      ? `<span class="notif-status granted">${this.t('settings.notifGranted')}</span>`
+      : perm === 'denied'
+        ? `<span class="notif-status denied">${this.t('settings.notifDenied')}</span>`
+        : `<span class="notif-status default">${this.t('settings.notifDefault')}</span>`;
+
+    const enableBtn = perm === 'default'
+      ? `<button class="btn btn-primary btn-sm" data-action="notif-request">${this.t('settings.notifEnable')}</button>`
+      : '';
+
+    const toggles = perm === 'granted' ? `
+      <div class="settings-row notif-toggle-row">
+        <div class="notif-toggle-label">
+          <span>${this.t('settings.notifDrinkWindow')}</span>
+          <small>${this.t('settings.notifDrinkWindowHint')}</small>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" data-action="notif-toggle" data-key="notifDrinkWindow" ${drinkOn ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="settings-row notif-toggle-row">
+        <div class="notif-toggle-label">
+          <span>${this.t('settings.notifDecant')}</span>
+          <small>${this.t('settings.notifDecantHint')}</small>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" data-action="notif-toggle" data-key="notifDecant" ${decantOn ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:4px" data-action="notif-test">${this.t('settings.notifTestBtn')}</button>
+    ` : '';
+
+    return `
+    <div class="settings-section">
+      <h2>${this.t('settings.notifications')}</h2>
+      <div class="settings-row">
+        <label>${this.t('settings.notifStatus')}</label>
+        ${statusLabel}
+      </div>
+      ${enableBtn}
+      ${toggles}
+    </div>`;
+  },
+
+  _handleNotifToggle(key, checked) {
+    const s = DB.getSettings();
+    s[key] = checked;
+    DB.saveSettings(s);
+  },
+
+  _sendTestNotif() {
+    if (Notification.permission !== 'granted') return;
+    try {
+      new Notification('Vinage 🍷', {
+        body: 'Notifications are working!',
+        icon: 'icons/apple-touch-icon.png'
+      });
+    } catch(_) {}
   },
 
   // ── Cloud Sync Section ─────────────────────────────────────────────────────
@@ -2164,7 +2255,7 @@ const App = {
         localStorage.removeItem('vinage_decant_timer');
         const msg = this.t('scan.decantDone', { name: this._decantTimer?.wineName || '' });
         this.toast(msg, 'success');
-        if (Notification.permission === 'granted') {
+        if (Notification.permission === 'granted' && DB.getSettings().notifDecant !== false) {
           new Notification('Vinage', { body: this.t('scan.decantDone', { name: this._decantTimer?.wineName || '' }), icon: 'icons/apple-touch-icon.png' });
         }
         return;
@@ -2437,6 +2528,7 @@ const App = {
 
   _checkDrinkWindowNotifications() {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (DB.getSettings().notifDrinkWindow === false) return;
     const currentYear = new Date().getFullYear();
     DB.getWines().forEach(wine => {
       if (this._drinkStatus(wine) === 'ready') {
