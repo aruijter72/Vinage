@@ -1563,14 +1563,7 @@ const App = {
     if (!grid) { this.renderView(); return; }
     let wines = DB.getWines();
     const placementMap = DB.getWinePlacementMap();
-    const allTags = [...new Set(wines.flatMap(w => w.tags || []))].filter(Boolean);
-    if (this.collectionFilter !== 'all') {
-      if      (this.collectionFilter === 'in-cellar')  wines = wines.filter(w => placementMap[w.id]);
-      else if (this.collectionFilter === 'not-placed') wines = wines.filter(w => !placementMap[w.id]);
-      else if (this.collectionFilter === 'drink-now')  wines = wines.filter(w => this._drinkStatus(w) === 'ready' || this._drinkStatus(w) === 'past');
-      else if (allTags.includes(this.collectionFilter)) wines = wines.filter(w => (w.tags||[]).includes(this.collectionFilter));
-      else wines = wines.filter(w => w.type === this.collectionFilter);
-    }
+    wines = this._applyCollectionFilters(wines, placementMap);
     const q = this.collectionSearch.toLowerCase();
     if (q) wines = wines.filter(w =>
       w.name.toLowerCase().includes(q) ||
