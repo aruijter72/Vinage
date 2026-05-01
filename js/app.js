@@ -449,9 +449,9 @@ const App = {
     const fullImgB64 = wine.image   ? `data:image/jpeg;base64,${wine.image}`     : null;
     const existingImgSrc = wine.imageUrl || fullImgB64 || thumbB64;
     const hasFullImage = !!(this.capturedImage || wine.imageUrl || wine.image);
-    // onerror: if remote URL fails (CORS/expired), fall back to local thumbnail
+    // onerror: if remote URL fails (CORS/expired), fall back to local thumbnail (shown small)
     const onerrorAttr = (wine.imageUrl && thumbB64)
-      ? `onerror="this.src='${thumbB64}';this.onerror=null"`
+      ? `onerror="this.src='${thumbB64}';this.className='wine-form-image wine-form-image--thumb';this.onerror=null"`
       : `onerror="this.style.display='none'"`;
     // Only show thumbnail at its natural size — never upscale an 80×120 px image to full-width
     const imgCls = hasFullImage ? 'wine-form-image' : 'wine-form-image wine-form-image--thumb';
