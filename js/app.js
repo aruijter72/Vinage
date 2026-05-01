@@ -548,6 +548,22 @@ const App = {
     document.querySelectorAll('.type-option').forEach(b => b.classList.toggle('selected', b.dataset.type === type));
   },
 
+  // When the user edits the vintage, shift drinkFrom/drinkUntil by the same delta
+  _onVintageChange(input) {
+    const newVin = parseInt(input.value, 10);
+    const oldVin = parseInt(input.dataset.prevVintage, 10);
+    if (!newVin || !oldVin || newVin === oldVin) return;
+    const delta = newVin - oldVin;
+
+    const fromEl  = document.getElementById('wf-drink-from');
+    const untilEl = document.getElementById('wf-drink-until');
+    if (fromEl?.value)  fromEl.value  = parseInt(fromEl.value,  10) + delta;
+    if (untilEl?.value) untilEl.value = parseInt(untilEl.value, 10) + delta;
+
+    // Update baseline so repeated edits keep computing the right delta
+    input.dataset.prevVintage = newVin;
+  },
+
   saveWineForm() {
     const name = document.getElementById('wf-name')?.value.trim();
     if (!name) { this.toast(this.t('wine.name') + ' is required', 'error'); return; }
