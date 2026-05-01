@@ -12,7 +12,7 @@ const App = {
   editWineId: null,
   cellarDetailId: null,
   collectionSort: 'addedAt',
-  collectionFilter: 'all',
+  collectionFilters: new Set(), // empty = show all; multi-select
   collectionSearch: '',
   collectionView: 'list',    // 'list' | 'gallery'
   batchSelectMode: false,
