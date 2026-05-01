@@ -81,14 +81,33 @@ const ImageDB = (() => {
       }
     },
 
+    // ── Resize a base64 JPEG to a medium preview (360 px wide) ──────────────
+    _resizeToMedium(base64) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          const w = 360;
+          const h = Math.round(360 * img.height / img.width);
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', 0.72).split(',')[1]);
+        };
+        img.onerror = () => resolve(base64); // keep original if resize fails
+        img.src = 'data:image/jpeg;base64,' + base64;
+      });
+    },
+
     // ── One-time migration: move wine.image from localStorage → IndexedDB ─────
+    // Resizes full-res images down to 360 px wide before storing to save space.
     // Safe to call multiple times — wines without a stored image are skipped.
     async migrate() {
       const wines = DB.getWines();
       let count = 0;
       for (const w of wines) {
         if (!w.image) continue;
-        await this.save(w.id, w.image);
+        const medium = await this._resizeToMedium(w.image);
+        await this.save(w.id, medium);
         // Strip the full image from localStorage to free space; keep thumbnail
         DB.updateWine(w.id, { image: null });
         count++;
