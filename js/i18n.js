@@ -216,6 +216,28 @@ const TRANSLATIONS = {
       moveBtn: 'Add to Collection',
       deleteItem: 'Remove from Wishlist',
       form: 'Add to Wishlist'
+    },
+    consume: {
+      openBottle: 'Open a bottle',
+      pickLocation: 'Which bottle are you opening?',
+      noLocation: 'Not in a cellar slot',
+      lastBottleTitle: 'Last bottle opened',
+      lastBottleBody: 'This was the last bottle of {name}. Keep it in your collection as a memory, or remove it?',
+      keep: 'Keep',
+      remove: 'Remove',
+      toasted: '🍷 Cheers! Bottle logged.',
+    },
+    stats: {
+      title: 'Cellar Stats',
+      totalBottles: 'Total bottles',
+      totalValue: 'Cellar value',
+      avgPrice: 'Avg. price',
+      readyToDrink: 'Ready to drink',
+      byType: 'By type',
+      history: 'Consumption history',
+      noHistory: 'No bottles opened yet.',
+      unknownCellar: 'No location',
+      bottles: 'bottles',
     }
   },
   nl: {
