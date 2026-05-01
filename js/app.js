@@ -446,17 +446,19 @@ const App = {
 
     // Image source priority: captured → imageUrl → full b64 → thumbnail fallback
     const thumbB64 = wine.thumbnail ? `data:image/jpeg;base64,${wine.thumbnail}` : null;
-    const existingImgSrc = wine.imageUrl
-      || (wine.image     ? `data:image/jpeg;base64,${wine.image}` : null)
-      || thumbB64;
+    const fullImgB64 = wine.image   ? `data:image/jpeg;base64,${wine.image}`     : null;
+    const existingImgSrc = wine.imageUrl || fullImgB64 || thumbB64;
+    const hasFullImage = !!(this.capturedImage || wine.imageUrl || wine.image);
     // onerror: if remote URL fails (CORS/expired), fall back to local thumbnail
     const onerrorAttr = (wine.imageUrl && thumbB64)
       ? `onerror="this.src='${thumbB64}';this.onerror=null"`
       : `onerror="this.style.display='none'"`;
+    // Only show thumbnail at its natural size — never upscale an 80×120 px image to full-width
+    const imgCls = hasFullImage ? 'wine-form-image' : 'wine-form-image wine-form-image--thumb';
     const imageHtml = this.capturedImage
       ? `<img class="wine-form-image" src="data:image/jpeg;base64,${this.capturedImage}" alt="label">`
       : existingImgSrc
-      ? `<img class="wine-form-image" src="${existingImgSrc}" alt="label" ${onerrorAttr}>`
+      ? `<img class="${imgCls}" src="${existingImgSrc}" alt="label" ${onerrorAttr}>`
       : '';
 
     const body = `
