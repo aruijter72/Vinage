@@ -617,9 +617,11 @@ const App = {
     const parseNum = id => { const v = document.getElementById(id)?.value; return v ? parseFloat(v) : null; };
     const parseList = id => parse(id).split(',').map(s => s.trim()).filter(Boolean);
 
+    // Full image always goes to IndexedDB — never localStorage
+    const capturedImageForSave = this.capturedImage || null;
     const data = {
       name,
-      image:     this.capturedImage     || null,
+      image:     null, // always null in localStorage; full image lives in IndexedDB
       thumbnail: this.capturedThumbnail || null,
       producer: parse('wf-producer'),
       vintage:  parseNum('wf-vintage') ? parseInt(parse('wf-vintage'),10) : null,
@@ -650,22 +652,14 @@ const App = {
         newWine = Sync.addWine(data);
       }
     } catch (err) {
-      // Most common cause: localStorage quota exceeded due to large image.
-      // Retry without the full image (keep only the thumbnail).
-      if (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-        try {
-          const lean = { ...data, image: null }; // drop full image, keep thumbnail
-          if (this.editWineId) Sync.updateWine(this.editWineId, lean);
-          else newWine = Sync.addWine(lean);
-          this.toast('💾 Opgeslagen zonder volledige foto (opslagruimte vol)', 'warning');
-        } catch (err2) {
-          this.toast('Opslaan mislukt: ' + err2.message, 'error');
-          return;
-        }
-      } else {
-        this.toast('Opslaan mislukt: ' + err.message, 'error');
-        return;
-      }
+      this.toast('Opslaan mislukt: ' + err.message, 'error');
+      return;
+    }
+
+    // Persist full image to IndexedDB (no size limit, never blocks the save)
+    const savedId = editWineId || newWine?.id;
+    if (savedId && capturedImageForSave) {
+      ImageDB.save(savedId, capturedImageForSave);
     }
 
     this.capturedImage     = null;
