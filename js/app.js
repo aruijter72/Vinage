@@ -821,7 +821,7 @@ const App = {
   },
 
   openCellarDetail(id) {
-    if (id !== this.cellarDetailId) this._rackZoom = 1.0; // reset zoom when switching cellar
+    // Zoom is persisted per-cellar in localStorage — no manual reset needed
     this.cellarDetailId = id;
     this.renderView();
   },
