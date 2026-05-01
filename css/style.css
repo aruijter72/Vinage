@@ -250,19 +250,11 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   flex-wrap: wrap;
   gap: 8px;
 }
+/* Each button can grow to fill space but won't shrink below 140 px —
+   so on a ~360 px phone two fit per row, three always wrap to 2 + 1. */
 #modal-footer .btn {
-  flex: 1 1 120px;   /* grow/shrink freely, but never narrower than 120 px */
+  flex: 1 1 140px;
   min-width: 0;
-}
-/* Primary action always takes its own full row when it wraps */
-#modal-footer .btn-primary,
-#modal-footer .btn-danger {
-  flex-basis: 100%;  /* force to its own line when there are ≥3 buttons */
-}
-/* Two-button footers: each still fills half the row */
-#modal-footer:has(.btn:nth-child(2):last-child) .btn,
-#modal-footer:has(.btn:nth-child(1):last-child) .btn {
-  flex-basis: 0;
 }
 
 @keyframes fade-in { from { opacity:0; } to { opacity:1; } }
