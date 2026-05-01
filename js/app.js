@@ -358,13 +358,22 @@ const App = {
     canvas.classList.add('show');
     this.stopCamera();
 
-    // Create a small thumbnail for rack hover tooltip (80×120 px)
+    // Tiny thumbnail — rack hover tooltip only (80×120 px, stays in localStorage)
     try {
       const tC = document.createElement('canvas');
       tC.width = 80; tC.height = 120;
       tC.getContext('2d').drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 80, 120);
       this.capturedThumbnail = tC.toDataURL('image/jpeg', 0.65).split(',')[1];
     } catch (_) { this.capturedThumbnail = null; }
+
+    // Medium image — readable label, stored in IndexedDB (≈30–60 KB base64)
+    try {
+      const mC = document.createElement('canvas');
+      const mW = 360, mH = Math.round(360 * canvas.height / canvas.width);
+      mC.width = mW; mC.height = mH;
+      mC.getContext('2d').drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, mW, mH);
+      this.capturedMedium = mC.toDataURL('image/jpeg', 0.72).split(',')[1];
+    } catch (_) { this.capturedMedium = null; }
 
     // Show retake button
     const actionRow = document.getElementById('scan-action-row');
@@ -373,7 +382,7 @@ const App = {
     const btn = document.getElementById('capture-btn');
     btn.style.display = 'none';
 
-    // Extract JPEG base64
+    // Full-res capture — used for AI analysis only, never stored
     this.capturedImage = canvas.toDataURL('image/jpeg', .85).split(',')[1];
 
     const settings = DB.getSettings();
