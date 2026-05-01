@@ -2006,10 +2006,10 @@ const App = {
     ${this._buildNotifSection()}
 
     <div class="about-info">
-      <div style="font-size:2rem;margin-bottom:8px">🍷</div>
-      <strong>Vinage</strong><br>
-      ${this.t('settings.version')}<br>
-      ${this.t('settings.madeWith')}
+      <button class="btn btn-ghost btn-full" data-action="show-about" style="gap:10px;font-weight:600">
+        <img src="Vinage Logo Pic.png" style="height:24px;width:auto"> ${this.t('settings.about')}
+      </button>
+      <div style="font-size:.8rem;color:var(--text-lt);margin-top:8px">${this.t('settings.version')} · ${this.t('settings.madeWith')}</div>
     </div>`;
   },
 
