@@ -125,6 +125,7 @@ const App = {
       case 'collection': el.innerHTML = this.buildCollectionView(); break;
       case 'wishlist':   el.innerHTML = this.buildWishlistView(); break;
       case 'pairing':    el.innerHTML = this.buildPairingView(); break;
+      case 'stats':      el.innerHTML = this.buildStatsView(); break;
       case 'settings':   el.innerHTML = this.buildSettingsView(); break;
     }
   },
@@ -191,6 +192,9 @@ const App = {
       case 'share-wine':          this._showShareModal(args.id); break;
       case 'download-share-card': this._downloadShareCard(); break;
       case 'native-share-card':   this._nativeShare(); break;
+      // Consumption
+      case 'consume-bottle':      this._consumeBottle(args.id); break;
+      case 'delete-consumption':  DB.deleteConsumptionEntry(args.id); this.renderView(); break;
       // Wishlist
       case 'add-wishlist-item':   this.showWishlistForm(null); break;
       case 'edit-wishlist-item':  this.showWishlistForm(args.id); break;
