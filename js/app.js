@@ -178,7 +178,7 @@ const App = {
       case 'batch-add-tag':       this._batchAddTag(); break;
       case 'batch-delete':        this._batchDelete(); break;
       case 'toggle-wine-select':  this._toggleWineSelect(args.id); break;
-      case 'filter-ready-cellar': this.collectionFilter = 'drink-now'; this.renderView(); break;
+      case 'filter-ready-cellar': this.collectionFilters = new Set(['drink-now']); this.renderView(); break;
       // Cellar map
       case 'toggle-cellar-map':   this._cellarMapOpen = !this._cellarMapOpen; this.renderView(); break;
       // Decanting timer
@@ -1501,9 +1501,11 @@ const App = {
       </div>
     </div>
     <div class="filter-strip">
-      ${filters.map(f => `
-        <button class="filter-chip${this.collectionFilter===f.id?' active':''}"
-                onclick="App.collectionFilter='${f.id}';App.renderView()">${f.label}</button>`).join('')}
+      <button class="filter-chip${this.collectionFilters.size===0?' active':''}"
+              onclick="App.collectionFilters=new Set();App.renderView()">${this.t('collection.filterAll')}</button>
+      ${filters.slice(1).map(f => `
+        <button class="filter-chip${this.collectionFilters.has(f.id)?' active':''}"
+                onclick="App._toggleFilter('${f.id}')">${f.label}</button>`).join('')}
     </div>
     <div class="${isGallery ? '' : 'wine-grid'}" id="collection-wine-grid">
       ${wineContent}
