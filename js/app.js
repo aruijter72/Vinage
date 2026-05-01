@@ -34,6 +34,8 @@ const App = {
     this._restoreDecantTimer();
     this._checkDrinkWindowNotifications();
     setTimeout(() => this._maybePromptNotifications(), 3000);
+    // Migrate any full images still in localStorage → IndexedDB (frees storage space)
+    ImageDB.migrate();
   },
 
   _showSplash() {
