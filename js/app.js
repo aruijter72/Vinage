@@ -2216,6 +2216,100 @@ const App = {
   },
 
   // ══════════════════════════════════════════════════════════════════════════
+  // STATS VIEW
+  // ══════════════════════════════════════════════════════════════════════════
+  buildStatsView() {
+    const wines  = DB.getWines();
+    const log    = DB.getConsumptionLog();
+
+    // ── Summary numbers ──────────────────────────────────────────────────────
+    const totalBottles = wines.reduce((s, w) => s + (w.quantity || 1), 0);
+    const winesWithPrice = wines.filter(w => w.price);
+    const totalValue  = wines.reduce((s, w) => s + (w.price || 0) * (w.quantity || 1), 0);
+    const avgPrice    = winesWithPrice.length
+      ? winesWithPrice.reduce((s, w) => s + w.price, 0) / winesWithPrice.length : 0;
+    const readyCount  = wines.filter(w => this._drinkStatus(w) === 'ready')
+                             .reduce((s, w) => s + (w.quantity || 1), 0);
+
+    const fmt = n => n > 0 ? '€' + n.toFixed(0) : '—';
+    const fmtAvg = n => n > 0 ? '€' + n.toFixed(0) : '—';
+
+    // ── By type ──────────────────────────────────────────────────────────────
+    const types = ['red','white','rosé','sparkling','dessert','fortified'];
+    const byType = types.map(tp => {
+      const tw = wines.filter(w => w.type === tp);
+      const bottles = tw.reduce((s, w) => s + (w.quantity || 1), 0);
+      if (!bottles) return '';
+      const val = tw.reduce((s, w) => s + (w.price || 0) * (w.quantity || 1), 0);
+      const pct = totalBottles ? Math.round(bottles / totalBottles * 100) : 0;
+      return `
+      <div class="stats-type-row">
+        <span class="type-badge type-${tp.replace('é','e')}" style="min-width:72px">${this.t('types.'+tp)}</span>
+        <div class="stats-bar-wrap">
+          <div class="stats-bar" style="width:${pct}%;background:var(--${tp.replace('é','e')}-wine,var(--burgundy-lt))"></div>
+        </div>
+        <span class="stats-type-count">${bottles} ${this.t('stats.bottles')}</span>
+        ${val > 0 ? `<span class="stats-type-val">${fmt(val)}</span>` : ''}
+      </div>`;
+    }).join('');
+
+    // ── Consumption history ──────────────────────────────────────────────────
+    const historyRows = log.length === 0
+      ? `<div class="empty-state" style="padding:24px 0">${this.t('stats.noHistory')}</div>`
+      : log.slice(0, 50).map(e => {
+          const d    = new Date(e.date);
+          const date = d.toLocaleDateString(this.lang === 'nl' ? 'nl-NL' : 'en-GB', { day:'numeric', month:'short', year:'numeric' });
+          const loc  = e.fromCellarName
+            ? `📍 ${this._esc(e.fromCellarName)}${e.fromSlot ? ' · ' + this._slotPositionLabel(e.fromSlot) : ''}`
+            : this.t('stats.unknownCellar');
+          return `
+          <div class="stats-history-row">
+            <div class="stats-history-main">
+              <span class="type-badge type-${(e.wineType||'red').replace('é','e')}" style="font-size:.65rem;padding:2px 6px"></span>
+              <div>
+                <div class="stats-history-name">${this._esc(e.wineName)}${e.wineVintage ? ' <span style="opacity:.6;font-weight:400">'+e.wineVintage+'</span>' : ''}</div>
+                <div class="stats-history-meta">${date} · ${loc}</div>
+              </div>
+            </div>
+            <button class="btn btn-icon btn-sm" data-action="delete-consumption" data-id="${e.id}"
+                    style="color:var(--text-lt);flex-shrink:0">${this._iconTrash()}</button>
+          </div>`;
+        }).join('');
+
+    return `
+    <div class="page-header"><h1>${this.t('stats.title')}</h1></div>
+
+    <div class="stats-summary-grid">
+      <div class="stats-card">
+        <div class="stats-card-value">${totalBottles}</div>
+        <div class="stats-card-label">${this.t('stats.totalBottles')}</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-value">${fmt(totalValue)}</div>
+        <div class="stats-card-label">${this.t('stats.totalValue')}</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-value">${fmtAvg(avgPrice)}</div>
+        <div class="stats-card-label">${this.t('stats.avgPrice')}</div>
+      </div>
+      <div class="stats-card stats-card--highlight">
+        <div class="stats-card-value">${readyCount}</div>
+        <div class="stats-card-label">${this.t('stats.readyToDrink')}</div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <h2 class="stats-section-title">${this.t('stats.byType')}</h2>
+      <div class="stats-type-list">${byType || '<p style="opacity:.5;font-size:.88rem">—</p>'}</div>
+    </div>
+
+    <div class="stats-section">
+      <h2 class="stats-section-title">${this.t('stats.history')} ${log.length > 0 ? `<span style="font-size:.8rem;font-weight:400;color:var(--text-lt)">(${log.length})</span>` : ''}</h2>
+      <div class="stats-history-list">${historyRows}</div>
+    </div>`;
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
   // SETTINGS VIEW
   // ══════════════════════════════════════════════════════════════════════════
   buildSettingsView() {
