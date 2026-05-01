@@ -693,9 +693,13 @@ const App = {
         btn.onclick = () => {
           const cellarId = btn.dataset.cellarPick;
           this.closeModal();
+          // Navigate directly to the chosen cellar detail — bypass navigate()
+          // because navigate() resets cellarDetailId to null before rendering.
+          this.view = 'cellar';
           this.cellarDetailId = cellarId;
-          this.navigate('cellar');
-          // After render, open slot picker for this wine
+          this.renderView();
+          this.renderNav();
+          // After render, arm the auto-place mode for this wine
           setTimeout(() => {
             this._pendingPlaceWineId    = wineId;
             this._pendingPlaceTotalQty  = totalQty;
