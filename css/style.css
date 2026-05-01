@@ -1567,3 +1567,54 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
    FEATURE 4 — WISHLIST (uses existing wine-card styles + minor additions)
    ════════════════════════════════════════════════════════════════════════════ */
 /* wishlist uses existing wine-grid + wine-card — no new base styles needed */
+
+/* ── Wine location block (shown in wine detail card) ───────────────────────── */
+.wine-location-block {
+  margin-top: 12px;
+  border-top: 1px solid var(--cream-dk);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.location-cellar-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.location-cellar-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1.5px solid var(--burgundy);
+  border-radius: 20px;
+  color: var(--burgundy);
+  font-size: .8rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition), color var(--transition);
+}
+.location-cellar-name:hover,
+.location-cellar-name:active {
+  background: var(--burgundy);
+  color: var(--white);
+}
+.location-coords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.location-coord-pill {
+  background: var(--cream-dk);
+  color: var(--text-md);
+  border-radius: 6px;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  font-variant-numeric: tabular-nums;
+}
