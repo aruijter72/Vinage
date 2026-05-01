@@ -813,7 +813,9 @@ const App = {
       [
         { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
         { label: this.t('common.delete'), cls: 'btn-danger', action: () => {
-          Sync.deleteWine(id); this.closeModal(); this.renderView(); this.toast('Deleted', 'success');
+          Sync.deleteWine(id);
+          ImageDB.delete(id); // free IndexedDB image too
+          this.closeModal(); this.renderView(); this.toast('Deleted', 'success');
         }}
       ]
     );
@@ -1779,18 +1781,24 @@ const App = {
   },
 
   _buildWineCardInner(w) {
-    const hasFullImage = !!(w.image || w.imageUrl);
-    const imgSrc = w.image     ? `data:image/jpeg;base64,${w.image}`
-                 : w.imageUrl  ? w.imageUrl
-                 : w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}` : null;
-    // Don't upscale an 80×120 thumbnail to full card width — keep it small
-    const imgStyle = hasFullImage
-      ? 'width:100%;max-height:60vh;object-fit:contain;border-radius:10px;margin-bottom:14px;display:block;background:#111;'
-      : 'max-width:120px;max-height:160px;height:auto;object-fit:contain;border-radius:10px;margin:0 auto 14px;display:block;';
+    // Start with thumbnail (instant); upgrade to full image from IndexedDB after render
+    const thumbSrc = w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}`
+                   : w.imageUrl  ? w.imageUrl
+                   : null;
+    const imgId  = `wine-card-img-${w.id}`;
+    const thumbStyle = 'max-width:120px;max-height:160px;height:auto;object-fit:contain;border-radius:10px;margin:0 auto 14px;display:block;';
+    const fullStyle  = 'width:100%;max-height:60vh;object-fit:contain;border-radius:10px;margin-bottom:14px;display:block;background:#111;';
+    // Async upgrade: once IndexedDB resolves, swap to full image
+    ImageDB.get(w.id).then(img => {
+      const el = document.getElementById(imgId);
+      if (!el || !img) return;
+      el.src   = 'data:image/jpeg;base64,' + img;
+      el.style.cssText = fullStyle;
+    });
     const isRed = w.type === 'red';
     return `
     <div style="text-align:left">
-      ${imgSrc ? `<img src="${imgSrc}" alt="${this._esc(w.name)}" style="${imgStyle}">` : ''}
+      ${thumbSrc ? `<img id="${imgId}" src="${thumbSrc}" alt="${this._esc(w.name)}" style="${thumbStyle}">` : ''}
       <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">${this._esc(w.name)}</div>
       ${w.producer ? `<div style="color:var(--text-md);margin-bottom:8px">${this._esc(w.producer)}</div>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
