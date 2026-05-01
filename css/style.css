@@ -959,16 +959,17 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   display: flex;
-  align-items: flex-end;
+  align-items: flex-end;        /* bottom-sheet on mobile */
+  justify-content: center;
   opacity: 0;
   transition: opacity .3s ease;
-  overflow: hidden;
 }
 #about-overlay.about-overlay-visible { opacity: 1; }
 
 .about-overlay-inner {
   position: relative;
   width: 100%;
+  max-width: 480px;             /* centered card on desktop */
   max-height: 96dvh;
   background: linear-gradient(170deg, #2a0a5e 0%, #1a0036 60%, #0d001f 100%);
   border-radius: 24px 24px 0 0;
@@ -979,10 +980,19 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 #about-overlay.about-overlay-visible .about-overlay-inner { transform: translateY(0); }
 
+/* On wider screens: center it vertically too, add bottom gap */
+@media (min-width: 520px) {
+  #about-overlay { align-items: center; }
+  .about-overlay-inner {
+    border-radius: 24px;
+    max-height: 90dvh;
+  }
+}
+
 .about-close-btn {
   position: absolute;
   top: 14px; right: 16px;
-  background: rgba(255,255,255,.12);
+  background: rgba(255,255,255,.15);
   border: none;
   color: white;
   font-size: 1rem;
@@ -995,15 +1005,21 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 
 .about-hero-wrap {
   width: 100%;
-  max-height: 52vh;
+  /* Fixed pixel height so the crop is predictable at any viewport width */
+  height: 300px;
   overflow: hidden;
   border-radius: 24px 24px 0 0;
+  flex-shrink: 0;
+}
+@media (min-width: 520px) {
+  .about-hero-wrap { border-radius: 24px 24px 0 0; height: 260px; }
 }
 .about-hero-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
+  /* Show the wine bottle + phone mockup (lower-centre of the image) */
+  object-position: center 65%;
   display: block;
 }
 
@@ -1013,7 +1029,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   color: white;
 }
 .about-wordmark {
-  height: 36px;
+  height: 32px;
   width: auto;
   filter: brightness(0) invert(1);
   margin-bottom: 8px;
@@ -1021,13 +1037,13 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .about-tagline {
   color: rgba(255,255,255,.65);
   font-size: .9rem;
-  margin: 0 0 24px;
+  margin: 0 0 20px;
 }
 .about-features {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 28px;
+  gap: 8px;
+  margin-bottom: 24px;
   text-align: left;
 }
 .about-feature-item {
