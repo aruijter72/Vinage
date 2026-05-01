@@ -1244,13 +1244,16 @@ const App = {
           ${this._buildWineCardInner(wine)}
         </div>`,
         [
+          { label: '🍷 ' + this.t('consume.openBottle'), cls: 'btn-primary', action: () => {
+            this.closeModal(); this._consumeBottle(wineId);
+          }},
+          { label: this.t('common.edit'), cls: 'btn-secondary', action: () => {
+            this.closeModal(); this.editWine(wineId);
+          }},
           { label: this.t('cellar.removeWine'), cls: 'btn-danger', action: () => {
             Sync.assignWineToSlot(cellarId, slot, null);
             this.closeModal(); this.renderView();
           }},
-          { label: this.t('common.edit'), cls: 'btn-secondary', action: () => {
-            this.closeModal(); this.editWine(wineId);
-          }}
         ]
       );
     } else {
