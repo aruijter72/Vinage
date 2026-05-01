@@ -2121,6 +2121,45 @@ const App = {
     this.renderView();
   },
 
+  // ── About screen ──────────────────────────────────────────────────────────
+  _showAbout() {
+    // Build full-screen overlay (outside the modal system so it can be truly full-screen)
+    const existing = document.getElementById('about-overlay');
+    if (existing) { existing.remove(); return; }
+
+    const el = document.createElement('div');
+    el.id = 'about-overlay';
+    el.innerHTML = `
+      <div class="about-overlay-inner">
+        <button class="about-close-btn" data-action="close-about" aria-label="Close">✕</button>
+        <div class="about-hero-wrap">
+          <img src="Vinage About.PNG" class="about-hero-img" alt="Vinage">
+        </div>
+        <div class="about-content">
+          <img src="Vinage Logo Name.png" class="about-wordmark" alt="Vinage">
+          <p class="about-tagline">${this.t('settings.madeWith')}</p>
+          <div class="about-features">
+            <div class="about-feature-item">📷 ${this.lang === 'nl' ? 'Scannen & herkennen van wijnflessen' : 'Scan & identify wine bottles'}</div>
+            <div class="about-feature-item">🗄️ ${this.lang === 'nl' ? 'Beheer jouw persoonlijke wijnkelder' : 'Manage your personal wine cellar'}</div>
+            <div class="about-feature-item">🍽️ ${this.lang === 'nl' ? 'AI-gedreven spijscombinaties' : 'AI-powered food pairings'}</div>
+            <div class="about-feature-item">☁️ ${this.lang === 'nl' ? 'Cloud synchronisatie & delen' : 'Cloud sync & household sharing'}</div>
+            <div class="about-feature-item">🌐 ${this.lang === 'nl' ? 'Nederlands & Engels' : 'English & Dutch'}</div>
+          </div>
+          <div class="about-version">${this.t('settings.version')}</div>
+        </div>
+      </div>`;
+
+    document.body.appendChild(el);
+
+    // Tap outside content closes it
+    el.addEventListener('click', e => {
+      if (e.target === el || e.target.dataset.action === 'close-about') el.remove();
+    });
+
+    // Animate in
+    requestAnimationFrame(() => el.classList.add('about-overlay-visible'));
+  },
+
   // ── Notifications Settings Section ────────────────────────────────────────
   _buildNotifSection() {
     if (!('Notification' in window)) return '';
