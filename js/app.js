@@ -461,7 +461,10 @@ const App = {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="form-group">
           <label>${this.t('wine.vintage')}</label>
-          <input id="wf-vintage" class="form-control" type="number" min="1800" max="${new Date().getFullYear()}" value="${wine.vintage||''}" placeholder="${new Date().getFullYear()}">
+          <input id="wf-vintage" class="form-control" type="number" min="1800" max="2100"
+                 value="${wine.vintage||''}" placeholder="${new Date().getFullYear()}"
+                 data-prev-vintage="${wine.vintage||''}"
+                 oninput="App._onVintageChange(this)">
         </div>
         <div class="form-group">
           <label>${this.t('wine.quantity')}</label>
