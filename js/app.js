@@ -1749,6 +1749,29 @@ const App = {
           ${s==='ready' ? ' · '+this.t('collection.drinkReady') : s==='past' ? ' · '+this.t('collection.drinkPast') : ''}
         </div>`;
       })() : ''}
+      ${(() => {
+        // ── Cellar location block ───────────────────────────────────────────
+        const places = DB.getWinePlacementMap()[w.id];
+        if (!places || places.length === 0) return '';
+        // Group by cellar
+        const byCellar = {};
+        places.forEach(p => {
+          if (!byCellar[p.cellarId]) byCellar[p.cellarId] = { name: p.cellarName, id: p.cellarId, slots: [] };
+          if (p.slot !== null) byCellar[p.cellarId].slots.push(this._slotPositionLabel(p.slot));
+        });
+        const rows = Object.values(byCellar).map(c => {
+          const coords = c.slots.length
+            ? c.slots.map(s => `<span class="location-coord-pill">${s}</span>`).join('')
+            : `<span style="font-size:.78rem;opacity:.6">${this.lang==='nl'?'(Plank)':'(Shelf)'}</span>`;
+          return `<div class="location-cellar-row">
+            <button class="location-cellar-name" data-action="goto-cellar" data-cellarid="${c.id}">
+              📍 ${this._esc(c.name)}
+            </button>
+            <div class="location-coords">${coords}</div>
+          </div>`;
+        }).join('');
+        return `<div class="wine-location-block" style="margin-top:12px">${rows}</div>`;
+      })()}
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
         ${isRed ? `<button class="btn btn-secondary btn-sm" data-action="start-decant" data-id="${w.id}">🫗 ${this.t('scan.decantBtn')}</button>` : ''}
         <button class="btn btn-secondary btn-sm" data-action="share-wine" data-id="${w.id}">${this._iconShare()} ${this.t('common.shareWine')}</button>
