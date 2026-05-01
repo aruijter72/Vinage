@@ -193,6 +193,7 @@ const App = {
       case 'edit-wishlist-item':  this.showWishlistForm(args.id); break;
       case 'delete-wishlist-item':this._deleteWishlistItem(args.id); break;
       case 'move-wishlist-to-collection': this._moveWishlistToCollection(args.id); break;
+      case 'toggle-wine-wishlist': this._toggleWineWishlist(args.id, t); break;
       // Notifications
       case 'allow-notif':         this._requestNotifications(); break;
       case 'dismiss-notif':       document.getElementById('notif-prompt-toast')?.remove(); break;
@@ -1421,7 +1422,7 @@ const App = {
     <div class="page-header">
       <h1>${this.t('collection.title')}</h1>
       <div class="header-actions">
-        <select class="form-control" style="width:auto;padding:7px 28px 7px 10px;font-size:.82rem"
+        <select class="form-control collection-sort-select"
                 onchange="App.collectionSort=this.value;App.renderView()">
           <option value="addedAt"${this.collectionSort==='addedAt'?' selected':''}>${this.t('collection.sortAdded')}</option>
           <option value="name"${this.collectionSort==='name'?' selected':''}>${this.t('collection.sortName')}</option>
@@ -1531,8 +1532,17 @@ const App = {
         </div>
         ${tagPills}
       </div>
-      ${!this.batchSelectMode ? `<button class="btn btn-icon btn-sm" data-action="delete-wine" data-id="${w.id}"
-              style="color:var(--text-lt)">${this._iconTrash()}</button>` : ''}
+      ${!this.batchSelectMode ? (() => {
+        const onWishlist = !!DB.getWishlistItemByWineId(w.id);
+        return `<div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+          <button class="btn btn-icon btn-sm${onWishlist?' wishlist-active':''}"
+                  data-action="toggle-wine-wishlist" data-id="${w.id}"
+                  title="${onWishlist ? this.t('common.removeFromWishlist') : this.t('common.addToWishlist')}"
+                  style="${onWishlist?'color:var(--burgundy)':'color:var(--text-lt)'}">${this._iconCart(onWishlist)}</button>
+          <button class="btn btn-icon btn-sm" data-action="delete-wine" data-id="${w.id}"
+                  style="color:var(--text-lt)">${this._iconTrash()}</button>
+        </div>`;
+      })() : ''}
     </div>`;
   },
 
@@ -1649,6 +1659,15 @@ const App = {
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
         ${isRed ? `<button class="btn btn-secondary btn-sm" data-action="start-decant" data-id="${w.id}">🫗 ${this.t('scan.decantBtn')}</button>` : ''}
         <button class="btn btn-secondary btn-sm" data-action="share-wine" data-id="${w.id}">${this._iconShare()} ${this.t('common.shareWine')}</button>
+        ${(() => {
+          const onWL = !!DB.getWishlistItemByWineId(w.id);
+          return `<button class="btn btn-secondary btn-sm${onWL?' wishlist-active':''}"
+            data-action="toggle-wine-wishlist" data-id="${w.id}"
+            title="${onWL ? this.t('common.removeFromWishlist') : this.t('common.addToWishlist')}"
+            style="${onWL?'color:var(--burgundy);border-color:var(--burgundy)':''}">
+            ${this._iconCart(onWL)} ${onWL ? this.t('common.removeFromWishlist') : this.t('common.addToWishlist')}
+          </button>`;
+        })()}
       </div>
     </div>`;
   },
@@ -1776,6 +1795,28 @@ const App = {
     // Store the wishlist id so saveWineForm can clean it up
     this._pendingWishlistDeleteId = id;
     this.showWineForm({ ...item, id: null });
+  },
+
+  _toggleWineWishlist(wineId, btnEl) {
+    const wine = DB.getWines().find(w => w.id === wineId);
+    if (!wine) return;
+    const added = DB.toggleWineOnWishlist(wine);
+    // Update button state in-place (no full re-render needed)
+    if (btnEl) {
+      btnEl.classList.toggle('wishlist-active', added);
+      btnEl.title = added ? this.t('common.removeFromWishlist') : this.t('common.addToWishlist');
+      btnEl.innerHTML = this._iconCart(added);
+    }
+    this.toast(added ? this.t('common.addToWishlist') + ' ✓' : this.t('common.removeFromWishlist') + ' ✓', 'success');
+  },
+
+  _iconCart(active = false) {
+    const fill = active ? 'var(--burgundy)' : 'none';
+    const stroke = active ? 'var(--burgundy)' : 'currentColor';
+    return `<svg width="18" height="18" viewBox="0 0 24 24" fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>`;
   },
 
   // ══════════════════════════════════════════════════════════════════════════

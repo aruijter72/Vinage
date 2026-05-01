@@ -127,7 +127,23 @@ ul { list-style: none; }
   gap: 4px 10px;
 }
 .page-header h1 { font-size: 1.4rem; font-weight: 700; color: var(--burgundy); width: 100%; flex: none; }
-.page-header .header-actions { display: flex; gap: 8px; align-items: center; width: 100%; justify-content: flex-end; padding-bottom: 4px; }
+.page-header .header-actions { display: flex; gap: 8px; align-items: center; width: 100%; justify-content: flex-end; padding-bottom: 4px; flex-wrap: wrap; }
+
+/* Wishlist cart toggle button — active state */
+.wishlist-active { color: var(--burgundy) !important; }
+
+/* Sort dropdown — shrinks on narrow screens, never overflows */
+.collection-sort-select {
+  padding: 7px 24px 7px 10px;
+  font-size: .82rem;
+  width: auto;
+  max-width: 130px;
+  min-width: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* ── Buttons ────────────────────────────────────────────────────────────────── */
 .btn {

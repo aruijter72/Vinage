@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Label must match the filename (without .plist) -->
+  <key>Label</key>
+  <string>com.vinage.autopush</string>
+
+  <!-- Run autopush.sh whenever files change in the project folder -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>/Users/arnoldruijter/Projects/Vinage/autopush.sh</string>
+  </array>
+
+  <!-- WatchPaths: launchd fires the script whenever anything in this
+       directory tree changes (file created, modified, deleted, etc.) -->
+  <key>WatchPaths</key>
+  <array>
+    <string>/Users/arnoldruijter/Projects/Vinage</string>
+  </array>
+
+  <!-- Keep stdout/stderr so you can debug if needed -->
+  <key>StandardOutPath</key>
+  <string>/Users/arnoldruijter/Projects/Vinage/autopush.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/arnoldruijter/Projects/Vinage/autopush.log</string>
+
+  <!-- Run at login -->
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

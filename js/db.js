@@ -192,5 +192,30 @@ const DB = {
 
   deleteWishlistItem(id) {
     this._saveWishlist(this.getWishlist().filter(x => x.id !== id));
+  },
+
+  // Returns the wishlist item linked to a cellar wine, or null
+  getWishlistItemByWineId(wineId) {
+    return this.getWishlist().find(x => x.wineId === wineId) || null;
+  },
+
+  // Toggle a cellar wine in/out of the wishlist; returns true if added
+  toggleWineOnWishlist(wine) {
+    const existing = this.getWishlistItemByWineId(wine.id);
+    if (existing) {
+      this.deleteWishlistItem(existing.id);
+      return false;
+    }
+    this.addWishlistItem({
+      wineId:   wine.id,
+      name:     wine.name     || '',
+      producer: wine.producer || '',
+      vintage:  wine.vintage  || null,
+      type:     wine.type     || 'red',
+      region:   wine.region   || '',
+      notes:    wine.notes    || '',
+      price:    wine.price    || null,
+    });
+    return true;
   }
 };

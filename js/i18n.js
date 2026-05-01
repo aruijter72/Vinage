@@ -204,7 +204,9 @@ const TRANSLATIONS = {
       shareDownload: 'Download',
       cellarMapTitle: 'Map Overview',
       cellarMapCollapse: 'Collapse',
-      cellarMapExpand: 'Expand'
+      cellarMapExpand: 'Expand',
+      addToWishlist: 'Add to wishlist',
+      removeFromWishlist: 'Remove from wishlist'
     },
     wishlist: {
       title: 'Wishlist',
@@ -420,7 +422,9 @@ const TRANSLATIONS = {
       shareDownload: 'Downloaden',
       cellarMapTitle: 'Kaartoverzicht',
       cellarMapCollapse: 'Inklappen',
-      cellarMapExpand: 'Uitklappen'
+      cellarMapExpand: 'Uitklappen',
+      addToWishlist: 'Aan verlanglijst toevoegen',
+      removeFromWishlist: 'Van verlanglijst verwijderen'
     },
     wishlist: {
       title: 'Verlanglijst',
