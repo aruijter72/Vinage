@@ -1628,3 +1628,108 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   padding: 2px 7px;
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Stats view ─────────────────────────────────────────────────────────────── */
+.stats-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 16px 16px;
+}
+.stats-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 1px 4px var(--shadow);
+  text-align: center;
+}
+.stats-card--highlight { background: var(--burgundy); color: var(--white); }
+.stats-card--highlight .stats-card-label { color: rgba(255,255,255,.75); }
+.stats-card-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--burgundy);
+  line-height: 1.1;
+}
+.stats-card--highlight .stats-card-value { color: var(--white); }
+.stats-card-label {
+  font-size: .72rem;
+  color: var(--text-lt);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.stats-section {
+  padding: 0 16px 24px;
+}
+.stats-section-title {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 12px;
+}
+.stats-type-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.stats-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--cream-dk);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.stats-bar {
+  height: 100%;
+  border-radius: 4px;
+  min-width: 4px;
+  transition: width .4s ease;
+}
+.stats-type-count {
+  font-size: .78rem;
+  color: var(--text-md);
+  min-width: 54px;
+  text-align: right;
+}
+.stats-type-val {
+  font-size: .78rem;
+  color: var(--text-lt);
+  min-width: 46px;
+  text-align: right;
+}
+.stats-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stats-history-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 3px var(--shadow);
+}
+.stats-history-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.stats-history-name {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stats-history-meta {
+  font-size: .74rem;
+  color: var(--text-lt);
+  margin-top: 2px;
+}
