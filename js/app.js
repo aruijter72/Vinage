@@ -1512,6 +1512,56 @@ const App = {
     </div>`;
   },
 
+  _toggleFilter(id) {
+    if (this.collectionFilters.has(id)) {
+      this.collectionFilters.delete(id);
+    } else {
+      this.collectionFilters.add(id);
+    }
+    // Update chip active states without full re-render
+    document.querySelectorAll('.filter-chip').forEach(btn => {
+      const fid = btn.dataset.filterId;
+      if (!fid) {
+        // "All" button — active only when nothing selected
+        btn.classList.toggle('active', this.collectionFilters.size === 0);
+      } else {
+        btn.classList.toggle('active', this.collectionFilters.has(fid));
+      }
+    });
+    this._filterCollection();
+  },
+
+  // Apply active multi-filters to a wine list.
+  // Types are OR'd with each other; status filters (in-cellar, drink-now) AND with types.
+  _applyCollectionFilters(wines, placementMap) {
+    const fs = this.collectionFilters;
+    if (fs.size === 0) return wines;
+
+    const TYPE_FILTERS   = new Set(['red','white','rosé','sparkling','dessert','fortified']);
+    const STATUS_FILTERS = new Set(['in-cellar','drink-now','not-placed']);
+
+    const activeTypes   = [...fs].filter(f => TYPE_FILTERS.has(f));
+    const activeStatus  = [...fs].filter(f => STATUS_FILTERS.has(f));
+    const activeTags    = [...fs].filter(f => !TYPE_FILTERS.has(f) && !STATUS_FILTERS.has(f));
+
+    return wines.filter(w => {
+      // Type: must match one of the selected types (OR), or skip if no type filters
+      if (activeTypes.length && !activeTypes.includes(w.type)) return false;
+      // Tags: must have all selected tags (AND)
+      if (activeTags.length && !activeTags.every(t => (w.tags||[]).includes(t))) return false;
+      // Status: must match all selected statuses (AND)
+      for (const s of activeStatus) {
+        if (s === 'in-cellar'  && !placementMap[w.id]) return false;
+        if (s === 'not-placed' && placementMap[w.id])  return false;
+        if (s === 'drink-now') {
+          const st = this._drinkStatus(w);
+          if (st !== 'ready' && st !== 'past') return false;
+        }
+      }
+      return true;
+    });
+  },
+
   // Re-render only the wine list (called on search input to preserve focus)
   _filterCollection() {
     const grid = document.getElementById('collection-wine-grid');
