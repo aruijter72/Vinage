@@ -148,6 +148,20 @@ const DB = {
     return { capacity, occupied, empty: capacity !== null ? capacity - occupied : null };
   },
 
+  // ── Consumption log ───────────────────────────────────────────────────────
+  getConsumptionLog() { return this._get(this.KEYS.consumption) || []; },
+  _saveConsumptionLog(log) { this._set(this.KEYS.consumption, log); },
+
+  logConsumption(entry) {
+    const log = this.getConsumptionLog();
+    log.unshift({ id: this.uuid(), date: Date.now(), ...entry });
+    this._saveConsumptionLog(log);
+  },
+
+  deleteConsumptionEntry(id) {
+    this._saveConsumptionLog(this.getConsumptionLog().filter(e => e.id !== id));
+  },
+
   // ── Export / Import ───────────────────────────────────────────────────────
   exportAll() {
     return JSON.stringify({ wines: this.getWines(), cellars: this.getCellars(), exportedAt: new Date().toISOString() }, null, 2);
