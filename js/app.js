@@ -1412,14 +1412,8 @@ const App = {
     // Collect unique tags across all wines
     const allTags = [...new Set(allWines.flatMap(w => w.tags || []))].filter(Boolean).sort();
 
-    // Filter
-    if (this.collectionFilter !== 'all') {
-      if      (this.collectionFilter === 'in-cellar')  wines = wines.filter(w => placementMap[w.id]);
-      else if (this.collectionFilter === 'not-placed') wines = wines.filter(w => !placementMap[w.id]);
-      else if (this.collectionFilter === 'drink-now')  wines = wines.filter(w => this._drinkStatus(w) === 'ready' || this._drinkStatus(w) === 'past');
-      else if (allTags.includes(this.collectionFilter)) wines = wines.filter(w => (w.tags||[]).includes(this.collectionFilter));
-      else wines = wines.filter(w => w.type === this.collectionFilter);
-    }
+    // Filter (multi-select)
+    wines = this._applyCollectionFilters(wines, placementMap);
 
     // Search
     const q = this.collectionSearch.toLowerCase();
@@ -1505,6 +1499,7 @@ const App = {
               onclick="App.collectionFilters=new Set();App.renderView()">${this.t('collection.filterAll')}</button>
       ${filters.slice(1).map(f => `
         <button class="filter-chip${this.collectionFilters.has(f.id)?' active':''}"
+                data-filter-id="${f.id}"
                 onclick="App._toggleFilter('${f.id}')">${f.label}</button>`).join('')}
     </div>
     <div class="${isGallery ? '' : 'wine-grid'}" id="collection-wine-grid">
