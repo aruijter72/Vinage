@@ -2133,7 +2133,10 @@ const App = {
       <div class="about-overlay-inner">
         <button class="about-close-btn" data-action="close-about" aria-label="Close">✕</button>
         <div class="about-hero-wrap">
-          <img src="Vinage About.PNG" class="about-hero-img" alt="Vinage">
+          <picture>
+            <source media="(min-width: 520px)" srcset="Vinage About Laptop-Desktop-iPad.png">
+            <img src="Vinage About Mobile.png" class="about-hero-img" alt="Vinage">
+          </picture>
         </div>
         <div class="about-content">
           <img src="Vinage Logo Name.png" class="about-wordmark" alt="Vinage">
