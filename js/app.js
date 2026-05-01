@@ -208,6 +208,16 @@ const App = {
       case 'sync-create':         Sync.createHousehold(); break;
       case 'sync-join':           this._syncJoin(); break;
       case 'sync-leave':          this._syncLeave(); break;
+      // Wine location — jump directly to a cellar from the detail card
+      case 'goto-cellar': {
+        this.closeModal();
+        this.view = 'cellar';
+        this.cellarDetailId = args.cellarid;
+        this.renderView();
+        this.renderNav();
+        setTimeout(() => { this._initRackHover(); this._initRackZoom(); }, 0);
+        break;
+      }
     }
   },
 
@@ -595,6 +605,11 @@ const App = {
       drinkFrom:  parseNum('wf-drink-from')  ? parseInt(parse('wf-drink-from'),  10) : null,
       drinkUntil: parseNum('wf-drink-until') ? parseInt(parse('wf-drink-until'), 10) : null,
     };
+
+    // Capture old quantity before saving (for quantity-increase detection)
+    const oldWine    = this.editWineId ? DB.getWineById(this.editWineId) : null;
+    const oldQty     = oldWine ? (oldWine.quantity || 1) : 0;
+    const editWineId = this.editWineId; // stash before closeModal clears it
 
     let newWine = null;
     try {
