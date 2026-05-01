@@ -694,9 +694,19 @@ const App = {
   editWine(id) {
     const wine = DB.getWineById(id);
     if (!wine) return;
-    this.capturedImage     = wine.image     || null;
+    this.capturedImage     = null; // full image now lives in IndexedDB, not wine object
     this.capturedThumbnail = wine.thumbnail || null;
     this.showWineForm(wine);
+    // After the form renders, async-load the full image from IndexedDB and upgrade the preview
+    ImageDB.get(id).then(img => {
+      if (!img) return;
+      this.capturedImage = img; // so saveWineForm preserves it if user doesn't retake
+      const el = document.querySelector('#modal-body .wine-form-image');
+      if (el) {
+        el.src       = 'data:image/jpeg;base64,' + img;
+        el.className = 'wine-form-image'; // ensure full-width class
+      }
+    });
   },
 
   // ── Duplicate detection ───────────────────────────────────────────────────
