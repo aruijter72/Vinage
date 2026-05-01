@@ -588,10 +588,20 @@ const App = {
         </div>`;
       })()}`;
 
-    this.showModal(title, body, [
+    const footerBtns = [
       { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
       { label: this.t('common.save'),   cls: 'btn-primary',   action: () => this.saveWineForm(), id: 'wf-save-btn' }
-    ]);
+    ];
+    // Show "Open a bottle" only when editing an existing wine with stock
+    if (this.editWineId) {
+      const w = DB.getWineById(this.editWineId);
+      if (w && (w.quantity || 1) > 0) {
+        footerBtns.unshift({ label: '🍷 ' + this.t('consume.openBottle'), cls: 'btn-ghost', action: () => {
+          this.closeModal(); this._consumeBottle(this.editWineId || w.id);
+        }});
+      }
+    }
+    this.showModal(title, body, footerBtns);
   },
 
   pickStar(val) {
