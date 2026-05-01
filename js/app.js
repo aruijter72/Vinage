@@ -274,7 +274,8 @@ const App = {
 
   initCamera() {
     // Restore capture btn icon to camera (start state)
-    this.capturedImage = null;
+    this.capturedImage     = null;
+    this.capturedMedium    = null;
     this.capturedThumbnail = null;
     this.scanResult = null;
     // Restore the last rotation the user set — so they never have to rotate again
@@ -428,6 +429,7 @@ const App = {
               title="Rotate image" style="display:none">${this._iconRotate()}</button>`;
     this._setScanStatus('', '');
     this.capturedImage     = null;
+    this.capturedMedium    = null;
     this.capturedThumbnail = null;
     this.scanResult        = null;
     // Keep _scanRotation at its current (remembered) value — don't reset to 0
