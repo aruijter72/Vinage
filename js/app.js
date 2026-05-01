@@ -658,6 +658,12 @@ const App = {
     if (newWine && fromScan) {
       setTimeout(() => this._promptCellarPlacement(newWine.id, newWine.quantity || 1, 1), 400);
     }
+
+    // After editing, if quantity increased offer placement for the extra bottles
+    if (editWineId && data.quantity > oldQty) {
+      const extra = data.quantity - oldQty;
+      setTimeout(() => this._promptCellarPlacement(editWineId, extra, 1), 400);
+    }
   },
 
   editWine(id) {
