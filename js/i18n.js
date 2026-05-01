@@ -241,7 +241,7 @@ const TRANSLATIONS = {
     }
   },
   nl: {
-    nav: { scan: 'Scannen', cellar: 'Kelder', collection: 'Collectie', pairing: 'Combineren', settings: 'Instellingen', wishlist: 'Verlanglijst' },
+    nav: { scan: 'Scannen', cellar: 'Kelder', collection: 'Collectie', pairing: 'Combineren', settings: 'Instellingen', wishlist: 'Verlanglijst', stats: 'Statistieken' },
     scan: {
       title: 'Fles Scannen',
       instruction: 'Richt de camera op het label en tik op Vastleggen',
@@ -456,6 +456,28 @@ const TRANSLATIONS = {
       moveBtn: 'Toevoegen aan Collectie',
       deleteItem: 'Verwijder van Verlanglijst',
       form: 'Toevoegen aan Verlanglijst'
+    },
+    consume: {
+      openBottle: 'Fles openen',
+      pickLocation: 'Welke fles open je?',
+      noLocation: 'Niet in een kelderplaats',
+      lastBottleTitle: 'Laatste fles geopend',
+      lastBottleBody: 'Dit was de laatste fles {name}. Bewaar hem als herinnering of verwijder hem?',
+      keep: 'Bewaren',
+      remove: 'Verwijderen',
+      toasted: '🍷 Proost! Fles geregistreerd.',
+    },
+    stats: {
+      title: 'Kelder Statistieken',
+      totalBottles: 'Totaal flessen',
+      totalValue: 'Kelderwaarde',
+      avgPrice: 'Gem. prijs',
+      readyToDrink: 'Klaar om te drinken',
+      byType: 'Per type',
+      history: 'Consumptiegeschiedenis',
+      noHistory: 'Nog geen flessen geopend.',
+      unknownCellar: 'Geen locatie',
+      bottles: 'flessen',
     }
   }
 };
