@@ -243,8 +243,27 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 #modal-title { flex: 1; font-size: 1.1rem; font-weight: 700; color: var(--burgundy); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 #modal-body { overflow-y: auto; padding: 16px; flex: 1; }
-#modal-footer { padding: 12px 16px; border-top: 1px solid var(--cream-dk); display: flex; gap: 10px; }
-#modal-footer .btn { flex: 1; }
+#modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--cream-dk);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#modal-footer .btn {
+  flex: 1 1 120px;   /* grow/shrink freely, but never narrower than 120 px */
+  min-width: 0;
+}
+/* Primary action always takes its own full row when it wraps */
+#modal-footer .btn-primary,
+#modal-footer .btn-danger {
+  flex-basis: 100%;  /* force to its own line when there are ≥3 buttons */
+}
+/* Two-button footers: each still fills half the row */
+#modal-footer:has(.btn:nth-child(2):last-child) .btn,
+#modal-footer:has(.btn:nth-child(1):last-child) .btn {
+  flex-basis: 0;
+}
 
 @keyframes fade-in { from { opacity:0; } to { opacity:1; } }
 @keyframes slide-up { from { transform:translateY(60px); opacity:0; } to { transform:none; opacity:1; } }
