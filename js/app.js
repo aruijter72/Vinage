@@ -432,7 +432,7 @@ const App = {
     if (!prefill || prefill.id) this._pendingWishlistDeleteId = null;
 
     const types = ['red','white','rosé','sparkling','dessert','fortified'];
-    const title = this.editWineId ? this.t('common.edit') : this.t('common.add') + ' ' + this.t('nav.collection').slice(0,-1);
+    const title = this.editWineId ? this.t('common.edit') : this.t('scan.addToCollection');
 
     // Image source priority: captured → imageUrl → full b64 → thumbnail fallback
     const thumbB64 = wine.thumbnail ? `data:image/jpeg;base64,${wine.thumbnail}` : null;
