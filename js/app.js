@@ -457,21 +457,19 @@ const App = {
     const types = ['red','white','rosé','sparkling','dessert','fortified'];
     const title = this.editWineId ? this.t('common.edit') : this.t('scan.addToCollection');
 
-    // Image source priority: captured → imageUrl → full b64 → thumbnail fallback
+    // Image for form preview: freshly captured medium → imageUrl → tiny thumb placeholder
     const thumbB64 = wine.thumbnail ? `data:image/jpeg;base64,${wine.thumbnail}` : null;
-    const fullImgB64 = wine.image   ? `data:image/jpeg;base64,${wine.image}`     : null;
-    const existingImgSrc = wine.imageUrl || fullImgB64 || thumbB64;
-    const hasFullImage = !!(this.capturedImage || wine.imageUrl || wine.image);
-    // onerror: if remote URL fails (CORS/expired), fall back to local thumbnail (shown small)
     const onerrorAttr = (wine.imageUrl && thumbB64)
       ? `onerror="this.src='${thumbB64}';this.className='wine-form-image wine-form-image--thumb';this.onerror=null"`
       : `onerror="this.style.display='none'"`;
-    // Only show thumbnail at its natural size — never upscale an 80×120 px image to full-width
-    const imgCls = hasFullImage ? 'wine-form-image' : 'wine-form-image wine-form-image--thumb';
-    const imageHtml = this.capturedImage
-      ? `<img class="wine-form-image" src="data:image/jpeg;base64,${this.capturedImage}" alt="label">`
-      : existingImgSrc
-      ? `<img class="${imgCls}" src="${existingImgSrc}" alt="label" ${onerrorAttr}>`
+    // Freshly scanned: show medium immediately. Editing existing: start with thumb,
+    // editWine() will async-upgrade to the IndexedDB medium image after render.
+    const imageHtml = this.capturedMedium
+      ? `<img class="wine-form-image" id="wf-preview-img" src="data:image/jpeg;base64,${this.capturedMedium}" alt="label">`
+      : wine.imageUrl
+      ? `<img class="wine-form-image" id="wf-preview-img" src="${wine.imageUrl}" alt="label" ${onerrorAttr}>`
+      : thumbB64
+      ? `<img class="wine-form-image wine-form-image--thumb" id="wf-preview-img" src="${thumbB64}" alt="label">`
       : '';
 
     const body = `
