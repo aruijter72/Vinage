@@ -1773,14 +1773,18 @@ const App = {
   },
 
   _buildWineCardInner(w) {
+    const hasFullImage = !!(w.image || w.imageUrl);
     const imgSrc = w.image     ? `data:image/jpeg;base64,${w.image}`
                  : w.imageUrl  ? w.imageUrl
                  : w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}` : null;
+    // Don't upscale an 80×120 thumbnail to full card width — keep it small
+    const imgStyle = hasFullImage
+      ? 'width:100%;max-height:60vh;object-fit:contain;border-radius:10px;margin-bottom:14px;display:block;background:#111;'
+      : 'max-width:120px;max-height:160px;height:auto;object-fit:contain;border-radius:10px;margin:0 auto 14px;display:block;';
     const isRed = w.type === 'red';
     return `
     <div style="text-align:left">
-      ${imgSrc ? `<img src="${imgSrc}" alt="${this._esc(w.name)}"
-        style="width:100%;max-height:60vh;object-fit:contain;border-radius:10px;margin-bottom:14px;display:block;background:#111;">` : ''}
+      ${imgSrc ? `<img src="${imgSrc}" alt="${this._esc(w.name)}" style="${imgStyle}">` : ''}
       <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">${this._esc(w.name)}</div>
       ${w.producer ? `<div style="color:var(--text-md);margin-bottom:8px">${this._esc(w.producer)}</div>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
