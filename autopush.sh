@@ -12,11 +12,12 @@ cd "$(dirname "$0")"
 # Nothing to do if working tree is clean
 git diff --quiet && git diff --staged --quiet && [ -z "$(git ls-files --others --exclude-standard)" ] && exit 0
 
-# ── Cache-bust: stamp index.html with current unix timestamp ──────────────────
-# Replaces ?v=<anything> on all local JS/CSS <script>/<link> tags so Safari
-# and other browsers always fetch the latest files after each deploy.
+# ── Cache-bust: stamp index.html + sw.js with current unix timestamp ──────────
+# 1. Bumps ?v= on all local JS/CSS tags in index.html → browsers re-fetch files.
+# 2. Bumps SW_VERSION in sw.js → Safari installs the new SW and wipes old cache.
 TS=$(date +%s)
 sed -i '' "s|\.css?v=[^\"']*|.css?v=${TS}|g; s|\.js?v=[^\"']*|.js?v=${TS}|g" index.html
+sed -i '' "s|const SW_VERSION = '[^']*'|const SW_VERSION = 'v${TS}'|" sw.js
 # ─────────────────────────────────────────────────────────────────────────────
 
 git add -A
