@@ -597,10 +597,29 @@ const App = {
     };
 
     let newWine = null;
-    if (this.editWineId) {
-      Sync.updateWine(this.editWineId, data);
-    } else {
-      newWine = Sync.addWine(data);
+    try {
+      if (this.editWineId) {
+        Sync.updateWine(this.editWineId, data);
+      } else {
+        newWine = Sync.addWine(data);
+      }
+    } catch (err) {
+      // Most common cause: localStorage quota exceeded due to large image.
+      // Retry without the full image (keep only the thumbnail).
+      if (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        try {
+          const lean = { ...data, image: null }; // drop full image, keep thumbnail
+          if (this.editWineId) Sync.updateWine(this.editWineId, lean);
+          else newWine = Sync.addWine(lean);
+          this.toast('💾 Opgeslagen zonder volledige foto (opslagruimte vol)', 'warning');
+        } catch (err2) {
+          this.toast('Opslaan mislukt: ' + err2.message, 'error');
+          return;
+        }
+      } else {
+        this.toast('Opslaan mislukt: ' + err.message, 'error');
+        return;
+      }
     }
 
     this.capturedImage     = null;
