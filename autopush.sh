@@ -36,7 +36,7 @@ ELAPSED=$(( NOW - LAST ))
 INTERVAL=$(( PUSH_INTERVAL_MINUTES * 60 ))
 
 if [ "$ELAPSED" -ge "$INTERVAL" ]; then
-  git push origin main >> "$(dirname "$0")/autopush.log" 2>&1
+  git push --set-upstream origin main >> "$(dirname "$0")/autopush.log" 2>&1
   echo "$NOW" > "$LOCK"
 else
   REMAINING=$(( (INTERVAL - ELAPSED) / 60 ))
