@@ -628,11 +628,11 @@ const App = {
     const parseNum = id => { const v = document.getElementById(id)?.value; return v ? parseFloat(v) : null; };
     const parseList = id => parse(id).split(',').map(s => s.trim()).filter(Boolean);
 
-    // Full image always goes to IndexedDB — never localStorage
-    const capturedImageForSave = this.capturedImage || null;
+    // Medium image (360px wide, ~30-60 KB) goes to IndexedDB — never localStorage
+    const mediumForSave = this.capturedMedium || null;
     const data = {
       name,
-      image:     null, // always null in localStorage; full image lives in IndexedDB
+      image:     null, // always null in localStorage; medium image lives in IndexedDB
       thumbnail: this.capturedThumbnail || null,
       producer: parse('wf-producer'),
       vintage:  parseNum('wf-vintage') ? parseInt(parse('wf-vintage'),10) : null,
@@ -667,13 +667,14 @@ const App = {
       return;
     }
 
-    // Persist full image to IndexedDB (no size limit, never blocks the save)
+    // Persist medium image to IndexedDB (no size limit, never blocks the save)
     const savedId = editWineId || newWine?.id;
-    if (savedId && capturedImageForSave) {
-      ImageDB.save(savedId, capturedImageForSave);
+    if (savedId && mediumForSave) {
+      ImageDB.save(savedId, mediumForSave);
     }
 
     this.capturedImage     = null;
+    this.capturedMedium    = null;
     this.capturedThumbnail = null;
     this.scanResult        = null;
 
