@@ -704,17 +704,18 @@ const App = {
   editWine(id) {
     const wine = DB.getWineById(id);
     if (!wine) return;
-    this.capturedImage     = null; // full image now lives in IndexedDB, not wine object
+    this.capturedImage     = null;
+    this.capturedMedium    = null; // medium image lives in IndexedDB
     this.capturedThumbnail = wine.thumbnail || null;
     this.showWineForm(wine);
-    // After the form renders, async-load the full image from IndexedDB and upgrade the preview
+    // After form renders, async-load medium image from IndexedDB and upgrade the preview
     ImageDB.get(id).then(img => {
       if (!img) return;
-      this.capturedImage = img; // so saveWineForm preserves it if user doesn't retake
-      const el = document.querySelector('#modal-body .wine-form-image');
+      this.capturedMedium = img; // so saveWineForm preserves it if user doesn't retake
+      const el = document.getElementById('wf-preview-img');
       if (el) {
         el.src       = 'data:image/jpeg;base64,' + img;
-        el.className = 'wine-form-image'; // ensure full-width class
+        el.className = 'wine-form-image'; // upgrade from thumb to full-width
       }
     });
   },
