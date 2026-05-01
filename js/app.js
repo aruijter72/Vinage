@@ -6,8 +6,9 @@ const App = {
   view: 'scan',
   lang: 'en',
   stream: null,
-  capturedImage: null,      // base64 jpeg (full res, for AI + form display)
-  capturedThumbnail: null,  // base64 jpeg (80×120 thumbnail, stored with wine for rack tooltip)
+  capturedImage: null,      // base64 jpeg (full res, AI analysis only — never stored)
+  capturedMedium: null,     // base64 jpeg (360px wide, stored in IndexedDB for display)
+  capturedThumbnail: null,  // base64 jpeg (80×120, stored in localStorage for rack tooltip)
   scanResult: null,
   editWineId: null,
   cellarDetailId: null,
