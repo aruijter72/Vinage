@@ -1715,6 +1715,9 @@ const App = {
       ${!this.batchSelectMode ? (() => {
         const onWishlist = !!DB.getWishlistItemByWineId(w.id);
         return `<div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+          <button class="btn btn-icon btn-sm" data-action="consume-bottle" data-id="${w.id}"
+                  title="${this.t('consume.openBottle')}"
+                  style="color:var(--burgundy)">${this._iconBottle()}</button>
           <button class="btn btn-icon btn-sm${onWishlist?' wishlist-active':''}"
                   data-action="toggle-wine-wishlist" data-id="${w.id}"
                   title="${onWishlist ? this.t('common.removeFromWishlist') : this.t('common.addToWishlist')}"
