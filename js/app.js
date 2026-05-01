@@ -830,6 +830,95 @@ const App = {
     this._autoPlaceBottleNum = bottleNum;
   },
 
+  // ── Consumption tracking ──────────────────────────────────────────────────
+  _consumeBottle(wineId) {
+    const wine = DB.getWineById(wineId);
+    if (!wine) return;
+
+    const places = (DB.getWinePlacementMap()[wineId] || []);
+
+    if (places.length <= 1) {
+      // 0 or 1 location — no picker needed
+      this._doConsumeBottle(wine, places[0] || null);
+    } else {
+      // Multiple locations — let user pick which bottle
+      const opts = places.map(p => {
+        const coord = p.slot ? this._slotPositionLabel(p.slot) : null;
+        const label = coord
+          ? `📍 ${this._esc(p.cellarName)} · ${coord}`
+          : `📍 ${this._esc(p.cellarName)} (${this.lang === 'nl' ? 'Plank' : 'Shelf'})`;
+        return `<button class="btn btn-secondary" style="width:100%;margin-bottom:8px;text-align:left"
+                  data-pick-cellar="${p.cellarId}" data-pick-slot="${p.slot || ''}">${label}</button>`;
+      }).join('');
+      this.showModal(
+        this.t('consume.openBottle'),
+        `<p style="margin-bottom:12px">${this.t('consume.pickLocation')}</p>${opts}`,
+        [{ label: this.t('common.cancel'), cls: 'btn-ghost', action: () => this.closeModal() }]
+      );
+      setTimeout(() => {
+        document.querySelectorAll('[data-pick-cellar]').forEach(btn => {
+          btn.onclick = () => {
+            const cellarId = btn.dataset.pickCellar;
+            const slot     = btn.dataset.pickSlot || null;
+            const place    = { cellarId, cellarName: places.find(p => p.cellarId === cellarId)?.cellarName || '', slot: slot || null };
+            this.closeModal();
+            this._doConsumeBottle(wine, place);
+          };
+        });
+      }, 50);
+    }
+  },
+
+  _doConsumeBottle(wine, place) {
+    // Remove from cellar slot/shelf
+    if (place) {
+      if (place.slot) {
+        Sync.assignWineToSlot(place.cellarId, place.slot, null);
+      } else {
+        DB.removeWineFromShelf(place.cellarId, wine.id);
+      }
+    }
+
+    // Log to consumption history
+    DB.logConsumption({
+      wineId:        wine.id,
+      wineName:      wine.name,
+      wineType:      wine.type,
+      wineVintage:   wine.vintage || null,
+      fromCellarId:  place?.cellarId   || null,
+      fromCellarName:place?.cellarName || null,
+      fromSlot:      place?.slot       || null,
+      price:         wine.price        || null,
+    });
+
+    const newQty = (wine.quantity || 1) - 1;
+
+    if (newQty <= 0) {
+      // Last bottle — ask keep or delete
+      this.showModal(
+        this.t('consume.lastBottleTitle'),
+        `<p>${this.t('consume.lastBottleBody', { name: this._esc(wine.name) })}</p>`,
+        [
+          { label: this.t('consume.keep'), cls: 'btn-secondary', action: () => {
+            Sync.updateWine(wine.id, { quantity: 0 });
+            this.closeModal(); this.renderView();
+            this.toast(this.t('consume.toasted'), 'success');
+          }},
+          { label: this.t('consume.remove'), cls: 'btn-danger', action: () => {
+            Sync.deleteWine(wine.id);
+            ImageDB.delete(wine.id);
+            this.closeModal(); this.renderView();
+            this.toast(this.t('consume.toasted'), 'success');
+          }},
+        ]
+      );
+    } else {
+      Sync.updateWine(wine.id, { quantity: newQty });
+      this.renderView();
+      this.toast(this.t('consume.toasted'), 'success');
+    }
+  },
+
   confirmDeleteWine(id) {
     const wine = DB.getWineById(id);
     if (!wine) return;
