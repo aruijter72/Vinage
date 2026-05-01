@@ -543,7 +543,34 @@ const App = {
           <input id="wf-drink-until" class="form-control" type="number" min="1980" max="2060"
                  value="${wine.drinkUntil||''}" placeholder="${new Date().getFullYear() + 5}">
         </div>
-      </div>`;
+      </div>
+      ${(() => {
+        // ── Read-only location block (edit mode only) ──────────────────────
+        if (!this.editWineId) return '';
+        const places = DB.getWinePlacementMap()[this.editWineId];
+        if (!places || places.length === 0) return '';
+        const byCellar = {};
+        places.forEach(p => {
+          if (!byCellar[p.cellarId]) byCellar[p.cellarId] = { name: p.cellarName, id: p.cellarId, slots: [] };
+          if (p.slot !== null) byCellar[p.cellarId].slots.push(this._slotPositionLabel(p.slot));
+        });
+        const rows = Object.values(byCellar).map(c => {
+          const coords = c.slots.length
+            ? c.slots.map(s => `<span class="location-coord-pill">${s}</span>`).join('')
+            : `<span style="font-size:.78rem;opacity:.6">${this.lang==='nl'?'(Plank)':'(Shelf)'}</span>`;
+          return `<div class="location-cellar-row">
+            <button class="location-cellar-name" data-action="goto-cellar" data-cellarid="${c.id}">
+              📍 ${this._esc(c.name)}
+            </button>
+            <div class="location-coords">${coords}</div>
+          </div>`;
+        }).join('');
+        const label = this.lang === 'nl' ? 'Locatie in kelder' : 'Cellar location';
+        return `<div class="form-group">
+          <label>${label}</label>
+          <div class="wine-location-block" style="margin-top:0;border-top:none;padding-top:0">${rows}</div>
+        </div>`;
+      })()}`;
 
     this.showModal(title, body, [
       { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
