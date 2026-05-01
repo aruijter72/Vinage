@@ -199,6 +199,7 @@ const App = {
       case 'dismiss-notif':       document.getElementById('notif-prompt-toast')?.remove(); break;
       case 'notif-request':       this._requestNotificationsFromSettings(); break;
       case 'notif-test':          this._sendTestNotif(); break;
+      case 'show-about':          this._showAbout(); break;
       // PDF
       case 'export-pdf':          this.exportPdf(); break;
       // Cloud sync actions
