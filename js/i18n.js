@@ -1,7 +1,7 @@
 // Vinage — Translations (English & Dutch)
 const TRANSLATIONS = {
   en: {
-    nav: { scan: 'Scan', cellar: 'Cellar', collection: 'Collection', pairing: 'Pairing', settings: 'Settings' },
+    nav: { scan: 'Scan', cellar: 'Cellar', collection: 'Collection', pairing: 'Pairing', settings: 'Settings', wishlist: 'Wishlist' },
     scan: {
       title: 'Scan Wine',
       instruction: 'Point the camera at the label and tap Capture',
@@ -26,7 +26,14 @@ const TRANSLATIONS = {
       cellarPlaceSkip: 'Skip',
       cellarPlaceYes: 'Choose location',
       cellarPlaceNext: 'Place next bottle',
-      cellarNone: 'No cellar locations yet — add one in the Cellar tab first.'
+      cellarNone: 'No cellar locations yet — add one in the Cellar tab first.',
+      decant: 'Decant',
+      decantBtn: 'Start Decanting',
+      decantTitle: 'Decanting Timer',
+      decantMins: 'Decanting time (minutes)',
+      decantStart: 'Start Timer',
+      decantCancel: 'Cancel Timer',
+      decantDone: 'Time to open your {name}!'
     },
     wine: {
       name: 'Wine Name',
@@ -44,7 +51,8 @@ const TRANSLATIONS = {
       addedOn: 'Added',
       cellarLocation: 'Cellar Location',
       drinkFrom: 'Drink from (year)',
-      drinkUntil: 'Drink until (year)'
+      drinkUntil: 'Drink until (year)',
+      tags: 'Tags'
     },
     types: {
       red: 'Red', white: 'White', rosé: 'Rosé',
@@ -100,7 +108,20 @@ const TRANSLATIONS = {
       drinkPast: 'Past peak',
       drinkCellar: 'Cellar until {year}',
       drinkDueAlert: '{count} wine(s) ready to drink',
-      drinkPastAlert: '{count} past their peak'
+      drinkPastAlert: '{count} past their peak',
+      cellarValue: 'Cellar value',
+      readyTonight: '{count} wine(s) ready to open tonight',
+      readyTonightBtn: 'See ready wines',
+      galleryToggle: 'Gallery',
+      listToggle: 'List',
+      selectMode: 'Select',
+      selectDone: 'Done',
+      selectedCount: '{count} selected',
+      batchSetQty: 'Set Quantity',
+      batchAddTag: 'Add Tag',
+      batchDelete: 'Delete Selected',
+      batchQtyPrompt: 'Set quantity for selected wines:',
+      batchTagPrompt: 'Tag name to add to selected wines:'
     },
     pairing: {
       title: 'Wine & Food',
@@ -129,6 +150,7 @@ const TRANSLATIONS = {
       saved: 'Saved ✓',
       data: 'Data Management',
       exportData: 'Export Data (JSON)',
+      exportPdf: 'Export PDF Report',
       importData: 'Import Data',
       clearData: 'Clear All Data',
       clearConfirm: 'This will permanently delete all wines and cellar data. Are you sure?',
@@ -163,11 +185,28 @@ const TRANSLATIONS = {
       pickWine: 'Pick a wine',
       search: 'Search…',
       none: 'None',
-      selectWine: 'Select Wine'
+      selectWine: 'Select Wine',
+      notifPrompt: 'Enable notifications to be reminded when wines are ready to drink',
+      notifAllow: 'Allow',
+      notifDismiss: 'Dismiss',
+      shareWine: 'Share',
+      shareDownload: 'Download',
+      cellarMapTitle: 'Map Overview',
+      cellarMapCollapse: 'Collapse',
+      cellarMapExpand: 'Expand'
+    },
+    wishlist: {
+      title: 'Wishlist',
+      noItems: 'Your wishlist is empty.\nTap + to add a wine.',
+      addItem: '+ Add to Wishlist',
+      moveToCellar: 'Move to Collection',
+      moveBtn: 'Add to Collection',
+      deleteItem: 'Remove from Wishlist',
+      form: 'Add to Wishlist'
     }
   },
   nl: {
-    nav: { scan: 'Scannen', cellar: 'Kelder', collection: 'Collectie', pairing: 'Combineren', settings: 'Instellingen' },
+    nav: { scan: 'Scannen', cellar: 'Kelder', collection: 'Collectie', pairing: 'Combineren', settings: 'Instellingen', wishlist: 'Verlanglijst' },
     scan: {
       title: 'Fles Scannen',
       instruction: 'Richt de camera op het label en tik op Vastleggen',
@@ -192,7 +231,14 @@ const TRANSLATIONS = {
       cellarPlaceSkip: 'Overslaan',
       cellarPlaceYes: 'Locatie kiezen',
       cellarPlaceNext: 'Volgende fles plaatsen',
-      cellarNone: 'Nog geen kelderlocaties — voeg er een toe via het Kelder-tabblad.'
+      cellarNone: 'Nog geen kelderlocaties — voeg er een toe via het Kelder-tabblad.',
+      decant: 'Decanteren',
+      decantBtn: 'Start Decanteren',
+      decantTitle: 'Decanteer Timer',
+      decantMins: 'Decanteertijd (minuten)',
+      decantStart: 'Start Timer',
+      decantCancel: 'Timer Annuleren',
+      decantDone: 'Tijd om {name} te openen!'
     },
     wine: {
       name: 'Wijnnaam',
@@ -210,7 +256,8 @@ const TRANSLATIONS = {
       addedOn: 'Toegevoegd',
       cellarLocation: 'Kelderlocatie',
       drinkFrom: 'Drinken vanaf (jaar)',
-      drinkUntil: 'Drinken tot (jaar)'
+      drinkUntil: 'Drinken tot (jaar)',
+      tags: 'Labels'
     },
     types: {
       red: 'Rood', white: 'Wit', rosé: 'Rosé',
@@ -266,7 +313,20 @@ const TRANSLATIONS = {
       drinkPast: 'Voorbij piek',
       drinkCellar: 'Bewaren tot {year}',
       drinkDueAlert: '{count} wijn(en) klaar om te drinken',
-      drinkPastAlert: '{count} voorbij hun piek'
+      drinkPastAlert: '{count} voorbij hun piek',
+      cellarValue: 'Kelderwaarde',
+      readyTonight: '{count} wijn(en) klaar om te openen vanavond',
+      readyTonightBtn: 'Bekijk klare wijnen',
+      galleryToggle: 'Galerij',
+      listToggle: 'Lijst',
+      selectMode: 'Selecteren',
+      selectDone: 'Klaar',
+      selectedCount: '{count} geselecteerd',
+      batchSetQty: 'Aantal instellen',
+      batchAddTag: 'Label toevoegen',
+      batchDelete: 'Verwijder geselecteerde',
+      batchQtyPrompt: 'Stel aantal in voor geselecteerde wijnen:',
+      batchTagPrompt: 'Labelnaam toevoegen aan geselecteerde wijnen:'
     },
     pairing: {
       title: 'Wijn & Spijs',
@@ -295,6 +355,7 @@ const TRANSLATIONS = {
       saved: 'Opgeslagen ✓',
       data: 'Gegevensbeheer',
       exportData: 'Gegevens Exporteren (JSON)',
+      exportPdf: 'PDF-rapport exporteren',
       importData: 'Gegevens Importeren',
       clearData: 'Alle Gegevens Wissen',
       clearConfirm: 'Alle wijnen en keldergegevens worden permanent verwijderd. Weet je het zeker?',
@@ -329,7 +390,24 @@ const TRANSLATIONS = {
       pickWine: 'Kies een wijn',
       search: 'Zoeken…',
       none: 'Geen',
-      selectWine: 'Wijn Selecteren'
+      selectWine: 'Wijn Selecteren',
+      notifPrompt: 'Schakel meldingen in om herinnerd te worden wanneer wijnen klaar zijn om te drinken',
+      notifAllow: 'Toestaan',
+      notifDismiss: 'Sluiten',
+      shareWine: 'Delen',
+      shareDownload: 'Downloaden',
+      cellarMapTitle: 'Kaartoverzicht',
+      cellarMapCollapse: 'Inklappen',
+      cellarMapExpand: 'Uitklappen'
+    },
+    wishlist: {
+      title: 'Verlanglijst',
+      noItems: 'Je verlanglijst is leeg.\nTik op + om een wijn toe te voegen.',
+      addItem: '+ Toevoegen aan verlanglijst',
+      moveToCellar: 'Naar Collectie',
+      moveBtn: 'Toevoegen aan Collectie',
+      deleteItem: 'Verwijder van Verlanglijst',
+      form: 'Toevoegen aan Verlanglijst'
     }
   }
 };

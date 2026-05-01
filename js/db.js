@@ -1,6 +1,6 @@
 // Vinage — Data Layer (localStorage)
 const DB = {
-  KEYS: { wines: 'vinage_wines', cellars: 'vinage_cellars', settings: 'vinage_settings' },
+  KEYS: { wines: 'vinage_wines', cellars: 'vinage_cellars', settings: 'vinage_settings', wishlist: 'vinage_wishlist' },
 
   // ── Utility ──────────────────────────────────────────────────────────────
   uuid() {
@@ -25,7 +25,7 @@ const DB = {
       addedAt: Date.now(),
       name: '', producer: '', vintage: null, region: '', country: '',
       type: 'red', grapes: [], rating: 0, notes: '', price: null,
-      quantity: 1, pairings: [], image: null,
+      quantity: 1, pairings: [], image: null, tags: [],
       ...data
     };
     wines.push(wine);
@@ -161,5 +161,36 @@ const DB = {
 
   clearAll() {
     Object.values(this.KEYS).forEach(k => localStorage.removeItem(k));
+  },
+
+  // ── Wishlist ──────────────────────────────────────────────────────────────
+  getWishlist() { return this._get(this.KEYS.wishlist) || []; },
+  _saveWishlist(items) { this._set(this.KEYS.wishlist, items); },
+
+  addWishlistItem(data) {
+    const items = this.getWishlist();
+    const item = {
+      id: this.uuid(),
+      addedAt: Date.now(),
+      name: '', producer: '', vintage: null, type: 'red',
+      region: '', notes: '', price: null,
+      ...data
+    };
+    items.push(item);
+    this._saveWishlist(items);
+    return item;
+  },
+
+  updateWishlistItem(id, patch) {
+    const items = this.getWishlist();
+    const i = items.findIndex(x => x.id === id);
+    if (i < 0) return null;
+    items[i] = { ...items[i], ...patch };
+    this._saveWishlist(items);
+    return items[i];
+  },
+
+  deleteWishlistItem(id) {
+    this._saveWishlist(this.getWishlist().filter(x => x.id !== id));
   }
 };

@@ -1117,3 +1117,274 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   margin-bottom: 12px;
   line-height: 1.5;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FEATURE 2 — READY TONIGHT BANNER
+   ════════════════════════════════════════════════════════════════════════════ */
+.ready-tonight-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #1A6B3C 0%, #2D8A55 100%);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity var(--transition);
+}
+.ready-tonight-banner:active { opacity: .85; }
+.ready-tonight-icon { font-size: 1.8rem; flex-shrink: 0; }
+.ready-tonight-text { flex: 1; }
+.ready-tonight-count { font-size: 1rem; font-weight: 700; }
+.ready-tonight-sub { font-size: .8rem; opacity: .8; margin-top: 2px; }
+.ready-tonight-arrow { font-size: 1.2rem; opacity: .7; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FEATURE 3 — TAGS
+   ════════════════════════════════════════════════════════════════════════════ */
+.wine-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+.wine-tag-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 50px;
+  font-size: .7rem;
+  font-weight: 600;
+  background: var(--cream-dk);
+  color: var(--text-md);
+  border: 1px solid rgba(92,40,150,.15);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FEATURE 5 — GALLERY MODE
+   ════════════════════════════════════════════════════════════════════════════ */
+.wine-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 12px 12px;
+}
+.gallery-card {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--cream-dk);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gallery-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .25s ease;
+}
+.gallery-card:active .gallery-card-img { transform: scale(1.04); }
+.gallery-card-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 100%);
+  padding: 6px 6px 5px;
+}
+.gallery-card-name {
+  font-size: .65rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gallery-card-vintage {
+  font-size: .58rem;
+  color: rgba(255,255,255,.7);
+}
+.gallery-card-placeholder .gallery-card-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  opacity: .7;
+  margin-bottom: 24px; /* room for the overlay */
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FEATURE 6 — CELLAR MAP OVERVIEW
+   ════════════════════════════════════════════════════════════════════════════ */
+.cellar-map-section {
+  margin: 12px 16px 0;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 6px var(--shadow);
+  overflow: hidden;
+}
+.cellar-map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  background: var(--burgundy-dk);
+  color: var(--white);
+  cursor: pointer;
+  user-select: none;
+}
+.cellar-map-title {
+  font-size: .82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.cellar-map-toggle {
+  font-size: .75rem;
+  opacity: .75;
+}
+.cellar-mini-maps-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 12px 14px;
+  scrollbar-width: none;
+}
+.cellar-mini-maps-row::-webkit-scrollbar { display: none; }
+.cellar-mini-map {
+  flex-shrink: 0;
+  width: 90px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform var(--transition);
+}
+.cellar-mini-map:active { transform: scale(.96); }
+.cellar-mini-map:hover { opacity: .85; }
+.mini-map-name {
+  font-size: .65rem;
+  font-weight: 700;
+  color: var(--text-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 5px;
+}
+.mini-map-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  justify-content: center;
+  min-height: 30px;
+}
+.map-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.map-dot-filled { opacity: .9; }
+.map-dot-empty {
+  background: var(--cream-dk);
+  border: 1px solid var(--cream-dk);
+}
+.mini-map-pct {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--burgundy);
+  margin-top: 5px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FEATURE 7 — DECANTING TIMER BUBBLE
+   ════════════════════════════════════════════════════════════════════════════ */
+#decant-bubble {
+  position: fixed;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 14px);
+  left: 14px;
+  background: var(--burgundy);
+  color: var(--white);
+  padding: 9px 14px;
+  border-radius: 50px;
+  font-size: .88rem;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(92,40,150,.45);
+  z-index: 900;
+  cursor: pointer;
+  transition: transform var(--transition);
+  white-space: nowrap;
+}
+#decant-bubble:active { transform: scale(.95); }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FEATURE 8 — BATCH SELECT
+   ════════════════════════════════════════════════════════════════════════════ */
+.batch-select-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  background: var(--cream-dk);
+  border-bottom: 1px solid var(--cream-dk);
+}
+.batch-count {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--burgundy);
+  flex: 1;
+  white-space: nowrap;
+}
+.batch-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--cream-dk);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--white);
+}
+.batch-checkbox.checked {
+  background: var(--burgundy);
+  border-color: var(--burgundy);
+}
+.batch-checkbox.checked::after {
+  content: '✓';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 900;
+  height: 100%;
+}
+.wine-card.batch-selected {
+  border: 2px solid var(--burgundy);
+  background: var(--cream);
+}
+.wine-card.batch-selectable { cursor: pointer; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FEATURE 11 — NOTIFICATION PROMPT TOAST
+   ════════════════════════════════════════════════════════════════════════════ */
+.notif-prompt-toast {
+  background: var(--brown);
+  color: var(--white);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: .85rem;
+  line-height: 1.45;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  box-shadow: 0 4px 20px var(--shadow-md);
+  pointer-events: all;
+  max-width: 400px;
+  text-align: left;
+}
+.notif-prompt-toast span { flex: 1 1 100%; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FEATURE 4 — WISHLIST (uses existing wine-card styles + minor additions)
+   ════════════════════════════════════════════════════════════════════════════ */
+/* wishlist uses existing wine-grid + wine-card — no new base styles needed */

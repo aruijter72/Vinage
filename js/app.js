@@ -14,8 +14,13 @@ const App = {
   collectionSort: 'addedAt',
   collectionFilter: 'all',
   collectionSearch: '',
-  _scanRotation: 0,       // 0 | 90 | 180 | 270
-  _rackZoom: 1.0,         // current rack zoom level (0.35 – 3.0)
+  collectionView: 'list',    // 'list' | 'gallery'
+  batchSelectMode: false,
+  batchSelected: new Set(),
+  _cellarMapOpen: true,      // cellar map collapse state
+  _scanRotation: 0,          // 0 | 90 | 180 | 270
+  _rackZoom: 1.0,            // current rack zoom level (0.35 – 3.0)
+  _decantTimer: null,        // { wineId, wineName, endTime, timerId }
 
   // ── Bootstrap ────────────────────────────────────────────────────────────
   init() {
@@ -25,6 +30,9 @@ const App = {
     this.navigate('scan');
     document.addEventListener('click', e => this._delegateClick(e));
     Sync.init();
+    this._restoreDecantTimer();
+    this._checkDrinkWindowNotifications();
+    setTimeout(() => this._maybePromptNotifications(), 3000);
   },
 
   _showSplash() {
@@ -89,11 +97,12 @@ const App = {
 
   renderNav() {
     const items = [
-      { id: 'scan',       icon: this._iconCamera(),  label: this.t('nav.scan') },
-      { id: 'cellar',     icon: this._iconCellar(),  label: this.t('nav.cellar') },
-      { id: 'collection', icon: this._iconWine(),    label: this.t('nav.collection') },
-      { id: 'pairing',    icon: this._iconFork(),    label: this.t('nav.pairing') },
-      { id: 'settings',   icon: this._iconGear(),    label: this.t('nav.settings') },
+      { id: 'scan',       icon: this._iconCamera(),    label: this.t('nav.scan') },
+      { id: 'cellar',     icon: this._iconCellar(),    label: this.t('nav.cellar') },
+      { id: 'collection', icon: this._iconWine(),      label: this.t('nav.collection') },
+      { id: 'wishlist',   icon: this._iconHeart(),     label: this.t('nav.wishlist') },
+      { id: 'pairing',    icon: this._iconFork(),      label: this.t('nav.pairing') },
+      { id: 'settings',   icon: this._iconGear(),      label: this.t('nav.settings') },
     ];
     document.getElementById('bottom-nav').innerHTML = items.map(item => `
       <button class="nav-item${this.view === item.id ? ' active' : ''}" data-nav="${item.id}" aria-label="${item.label}">
@@ -110,6 +119,7 @@ const App = {
         if (this.cellarDetailId) setTimeout(() => { this._initRackHover(); this._initRackZoom(); }, 0);
         break;
       case 'collection': el.innerHTML = this.buildCollectionView(); break;
+      case 'wishlist':   el.innerHTML = this.buildWishlistView(); break;
       case 'pairing':    el.innerHTML = this.buildPairingView(); break;
       case 'settings':   el.innerHTML = this.buildSettingsView(); break;
     }
@@ -160,6 +170,33 @@ const App = {
       case 'clear-data':          this.clearData(); break;
       case 'star-pick':           this.pickStar(parseInt(args.val, 10)); break;
       case 'type-pick':           this.pickType(args.type); break;
+      // Collection extras
+      case 'toggle-gallery':      this.collectionView = this.collectionView === 'gallery' ? 'list' : 'gallery'; this.renderView(); break;
+      case 'toggle-select-mode':  this._toggleBatchSelect(); break;
+      case 'batch-set-qty':       this._batchSetQty(); break;
+      case 'batch-add-tag':       this._batchAddTag(); break;
+      case 'batch-delete':        this._batchDelete(); break;
+      case 'toggle-wine-select':  this._toggleWineSelect(args.id); break;
+      case 'filter-ready-cellar': this.collectionFilter = 'drink-now'; this.renderView(); break;
+      // Cellar map
+      case 'toggle-cellar-map':   this._cellarMapOpen = !this._cellarMapOpen; this.renderView(); break;
+      // Decanting timer
+      case 'start-decant':        this._showDecantModal(args.id); break;
+      case 'cancel-decant':       this._cancelDecantTimer(); break;
+      // Share wine card
+      case 'share-wine':          this._showShareModal(args.id); break;
+      case 'download-share-card': this._downloadShareCard(); break;
+      case 'native-share-card':   this._nativeShare(); break;
+      // Wishlist
+      case 'add-wishlist-item':   this.showWishlistForm(null); break;
+      case 'edit-wishlist-item':  this.showWishlistForm(args.id); break;
+      case 'delete-wishlist-item':this._deleteWishlistItem(args.id); break;
+      case 'move-wishlist-to-collection': this._moveWishlistToCollection(args.id); break;
+      // Notifications
+      case 'allow-notif':         this._requestNotifications(); break;
+      case 'dismiss-notif':       document.getElementById('notif-prompt-toast')?.remove(); break;
+      // PDF
+      case 'export-pdf':          this.exportPdf(); break;
       // Cloud sync actions
       case 'sync-sign-in':        Sync.signIn(); break;
       case 'sync-sign-out':       Sync.signOut(); break;
@@ -370,6 +407,8 @@ const App = {
     this.editWineId = wine.id || null;
     this._formRating = wine.rating || 0;
     this._formType   = wine.type   || 'red';
+    // Clear pending wishlist delete unless explicitly set before this call
+    if (!prefill || prefill.id) this._pendingWishlistDeleteId = null;
 
     const types = ['red','white','rosé','sparkling','dessert','fortified'];
     const title = this.editWineId ? this.t('common.edit') : this.t('common.add') + ' ' + this.t('nav.collection').slice(0,-1);
@@ -437,6 +476,10 @@ const App = {
         <input id="wf-pairings" class="form-control" value="${this._esc((wine.pairings||[]).join(', '))}" placeholder="Beef, Cheese">
       </div>
       <div class="form-group">
+        <label>${this.t('wine.tags')}</label>
+        <input id="wf-tags" class="form-control" value="${this._esc((wine.tags||[]).join(', '))}" placeholder="Organic, Gift, Special Occasion">
+      </div>
+      <div class="form-group">
         <label>${this.t('wine.notes')}</label>
         <textarea id="wf-notes" class="form-control">${this._esc(wine.notes||'')}</textarea>
       </div>
@@ -502,6 +545,7 @@ const App = {
       country:  parse('wf-country'),
       grapes:   parseList('wf-grapes'),
       pairings: parseList('wf-pairings'),
+      tags:     parseList('wf-tags'),
       notes:      parse('wf-notes'),
       price:      parseNum('wf-price'),
       rating:     this._formRating,
@@ -519,6 +563,13 @@ const App = {
     this.capturedImage     = null;
     this.capturedThumbnail = null;
     this.scanResult        = null;
+
+    // If moved from wishlist, remove it
+    if (this._pendingWishlistDeleteId) {
+      DB.deleteWishlistItem(this._pendingWishlistDeleteId);
+      this._pendingWishlistDeleteId = null;
+    }
+
     this.closeModal();
     this.toast(this.t('common.save') + ' ✓', 'success');
 
@@ -651,6 +702,7 @@ const App = {
   // ══════════════════════════════════════════════════════════════════════════
   buildCellarList() {
     const cellars = DB.getCellars();
+    const mapSection = cellars.length > 0 ? this._buildCellarMapSection(cellars) : '';
     return `
     <div class="page-header">
       <h1>${this.t('cellar.title')}</h1>
@@ -658,10 +710,47 @@ const App = {
         <button class="btn btn-primary btn-sm" data-action="add-cellar">${this.t('cellar.addLocation')}</button>
       </div>
     </div>
+    ${mapSection}
     <div class="cellar-list">
       ${cellars.length === 0
         ? `<div class="empty-state">${this._iconCellarLg()}<p>${this.t('cellar.noLocations')}</p></div>`
         : cellars.map(c => this._buildCellarCard(c)).join('')}
+    </div>`;
+  },
+
+  _buildCellarMapSection(cellars) {
+    const isOpen = this._cellarMapOpen;
+    const miniMaps = cellars.map(c => {
+      const stats = DB.getCellarStats(c);
+      const pct = stats.capacity ? Math.round(stats.occupied / stats.capacity * 100) : null;
+      let dots = '';
+      if (c.slots) {
+        const entries = Object.entries(c.slots).slice(0, 40);
+        dots = entries.map(([, wid]) => wid
+          ? `<div class="map-dot map-dot-filled" style="background:${this._typeColor((DB.getWineById(wid)||{}).type||'red')}"></div>`
+          : `<div class="map-dot map-dot-empty"></div>`
+        ).join('');
+      } else if (c.wines) {
+        dots = c.wines.slice(0,20).map(id => {
+          const w = DB.getWineById(id);
+          return `<div class="map-dot map-dot-filled" style="background:${this._typeColor((w||{}).type||'red')}"></div>`;
+        }).join('');
+      }
+      return `
+      <div class="cellar-mini-map" data-action="open-cellar" data-id="${c.id}">
+        <div class="mini-map-name">${this._esc(c.name)}</div>
+        <div class="mini-map-dots">${dots}</div>
+        ${pct !== null ? `<div class="mini-map-pct">${pct}%</div>` : `<div class="mini-map-pct">${stats.occupied}</div>`}
+      </div>`;
+    }).join('');
+
+    return `
+    <div class="cellar-map-section">
+      <div class="cellar-map-header" data-action="toggle-cellar-map">
+        <span class="cellar-map-title">${this.t('common.cellarMapTitle')}</span>
+        <span class="cellar-map-toggle">${isOpen ? this.t('common.cellarMapCollapse') : this.t('common.cellarMapExpand')}</span>
+      </div>
+      ${isOpen ? `<div class="cellar-mini-maps-row">${miniMaps}</div>` : ''}
     </div>`;
   },
 
@@ -1189,6 +1278,16 @@ const App = {
           <span>${cnt}</span>
         </div>`).join('');
 
+    // Cellar value — sum(price × quantity) for wines with a price
+    const winesWithPrice = allWines.filter(w => w.price != null && w.price > 0);
+    const cellarValue = winesWithPrice.reduce((s, w) => s + (w.price * (w.quantity || 1)), 0);
+    const cellarValuePill = winesWithPrice.length > 0 ? `
+      <div class="stat-divider"></div>
+      <div class="stat-pill">
+        <div class="stat-number" style="font-size:1.1rem">€${cellarValue.toLocaleString('nl-NL', {minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+        <div class="stat-label">${this.t('collection.cellarValue')}</div>
+      </div>` : '';
+
     // Drink window alerts
     const ready = allWines.filter(w => this._drinkStatus(w) === 'ready');
     const past  = allWines.filter(w => this._drinkStatus(w) === 'past');
@@ -1210,19 +1309,42 @@ const App = {
       </div>
       <div class="stat-divider"></div>
       <div class="stats-type-row">${typeItems}</div>
+      ${cellarValuePill}
     </div>
     ${alerts}`;
   },
 
-  buildCollectionView() {
-    let wines = DB.getWines();
+  _buildReadyTonightBanner(allWines) {
     const placementMap = DB.getWinePlacementMap();
+    const readyInCellar = allWines.filter(w =>
+      this._drinkStatus(w) === 'ready' && placementMap[w.id]
+    );
+    if (readyInCellar.length === 0) return '';
+    return `
+    <div class="ready-tonight-banner" data-action="filter-ready-cellar">
+      <div class="ready-tonight-icon">🍷</div>
+      <div class="ready-tonight-text">
+        <div class="ready-tonight-count">${this.t('collection.readyTonight', {count: readyInCellar.length})}</div>
+        <div class="ready-tonight-sub">${this.t('collection.readyTonightBtn')}</div>
+      </div>
+      <div class="ready-tonight-arrow">→</div>
+    </div>`;
+  },
+
+  buildCollectionView() {
+    const allWines = DB.getWines();
+    let wines = allWines.slice();
+    const placementMap = DB.getWinePlacementMap();
+
+    // Collect unique tags across all wines
+    const allTags = [...new Set(allWines.flatMap(w => w.tags || []))].filter(Boolean).sort();
 
     // Filter
     if (this.collectionFilter !== 'all') {
       if      (this.collectionFilter === 'in-cellar')  wines = wines.filter(w => placementMap[w.id]);
       else if (this.collectionFilter === 'not-placed') wines = wines.filter(w => !placementMap[w.id]);
       else if (this.collectionFilter === 'drink-now')  wines = wines.filter(w => this._drinkStatus(w) === 'ready' || this._drinkStatus(w) === 'past');
+      else if (allTags.includes(this.collectionFilter)) wines = wines.filter(w => (w.tags||[]).includes(this.collectionFilter));
       else wines = wines.filter(w => w.type === this.collectionFilter);
     }
 
@@ -1231,7 +1353,8 @@ const App = {
     if (q) wines = wines.filter(w =>
       w.name.toLowerCase().includes(q) ||
       (w.producer||'').toLowerCase().includes(q) ||
-      (w.region||'').toLowerCase().includes(q)
+      (w.region||'').toLowerCase().includes(q) ||
+      (w.tags||[]).some(t => t.toLowerCase().includes(q))
     );
 
     // Sort
@@ -1242,9 +1365,6 @@ const App = {
       return b.addedAt - a.addedAt;
     });
 
-    const totalBottles = DB.getWines().reduce((s, w) => s + (w.quantity||1), 0);
-    const typeSummary = [...new Set(DB.getWines().map(w => this.t('types.'+w.type)))].join(', ');
-
     const filters = [
       { id: 'all',        label: this.t('collection.filterAll') },
       { id: 'red',        label: this.t('types.red') },
@@ -1253,7 +1373,30 @@ const App = {
       { id: 'sparkling',  label: this.t('types.sparkling') },
       { id: 'in-cellar',  label: this.t('collection.inCellar') },
       { id: 'drink-now',  label: '🍷 ' + this.t('collection.drinkDue') },
+      ...allTags.map(tag => ({ id: tag, label: '#' + tag })),
     ];
+
+    // Batch select mode header
+    const batchHeader = this.batchSelectMode ? `
+      <div class="batch-select-bar">
+        <span class="batch-count">${this.t('collection.selectedCount', {count: this.batchSelected.size})}</span>
+        <button class="btn btn-secondary btn-sm" data-action="batch-set-qty">${this.t('collection.batchSetQty')}</button>
+        <button class="btn btn-secondary btn-sm" data-action="batch-add-tag">${this.t('collection.batchAddTag')}</button>
+        <button class="btn btn-danger btn-sm" data-action="batch-delete">${this.t('collection.batchDelete')}</button>
+        <button class="btn btn-primary btn-sm" data-action="toggle-select-mode">${this.t('collection.selectDone')}</button>
+      </div>` : '';
+
+    const isGallery = this.collectionView === 'gallery';
+
+    // Render wine list content
+    let wineContent;
+    if (wines.length === 0) {
+      wineContent = `<div class="empty-state">${this._iconWineLg()}<p>${this.t('collection.noWines')}</p></div>`;
+    } else if (isGallery) {
+      wineContent = `<div class="wine-gallery">${wines.map(w => this._buildWineGalleryCard(w)).join('')}</div>`;
+    } else {
+      wineContent = wines.map(w => this._buildWineListCard(w, placementMap)).join('');
+    }
 
     return `
     <div class="page-header">
@@ -1266,10 +1409,16 @@ const App = {
           <option value="vintage"${this.collectionSort==='vintage'?' selected':''}>${this.t('collection.sortVintage')}</option>
           <option value="type"${this.collectionSort==='type'?' selected':''}>${this.t('collection.sortType')}</option>
         </select>
+        <button class="btn btn-secondary btn-sm" data-action="toggle-gallery" title="${isGallery ? this.t('collection.listToggle') : this.t('collection.galleryToggle')}">
+          ${isGallery ? this._iconList() : this._iconGrid()}
+        </button>
+        <button class="btn btn-secondary btn-sm" data-action="toggle-select-mode">${this.t('collection.selectMode')}</button>
         <button class="btn btn-primary btn-sm" data-action="manual-add-wine">${this.t('collection.addWine')}</button>
       </div>
     </div>
-    ${DB.getWines().length > 0 ? this._buildCollectionStatsBar(DB.getWines()) : ''}
+    ${allWines.length > 0 ? this._buildReadyTonightBanner(allWines) : ''}
+    ${allWines.length > 0 ? this._buildCollectionStatsBar(allWines) : ''}
+    ${batchHeader}
     <div class="collection-toolbar">
       <div class="search-input-wrap">
         ${this._iconSearch()}
@@ -1283,10 +1432,8 @@ const App = {
         <button class="filter-chip${this.collectionFilter===f.id?' active':''}"
                 onclick="App.collectionFilter='${f.id}';App.renderView()">${f.label}</button>`).join('')}
     </div>
-    <div class="wine-grid" id="collection-wine-grid">
-      ${wines.length === 0
-        ? `<div class="empty-state">${this._iconWineLg()}<p>${this.t('collection.noWines')}</p></div>`
-        : wines.map(w => this._buildWineListCard(w, placementMap)).join('')}
+    <div class="${isGallery ? '' : 'wine-grid'}" id="collection-wine-grid">
+      ${wineContent}
     </div>`;
   },
 
@@ -1296,17 +1443,20 @@ const App = {
     if (!grid) { this.renderView(); return; }
     let wines = DB.getWines();
     const placementMap = DB.getWinePlacementMap();
+    const allTags = [...new Set(wines.flatMap(w => w.tags || []))].filter(Boolean);
     if (this.collectionFilter !== 'all') {
       if      (this.collectionFilter === 'in-cellar')  wines = wines.filter(w => placementMap[w.id]);
       else if (this.collectionFilter === 'not-placed') wines = wines.filter(w => !placementMap[w.id]);
       else if (this.collectionFilter === 'drink-now')  wines = wines.filter(w => this._drinkStatus(w) === 'ready' || this._drinkStatus(w) === 'past');
+      else if (allTags.includes(this.collectionFilter)) wines = wines.filter(w => (w.tags||[]).includes(this.collectionFilter));
       else wines = wines.filter(w => w.type === this.collectionFilter);
     }
     const q = this.collectionSearch.toLowerCase();
     if (q) wines = wines.filter(w =>
       w.name.toLowerCase().includes(q) ||
       (w.producer||'').toLowerCase().includes(q) ||
-      (w.region||'').toLowerCase().includes(q)
+      (w.region||'').toLowerCase().includes(q) ||
+      (w.tags||[]).some(t => t.toLowerCase().includes(q))
     );
     wines = [...wines].sort((a,b) => {
       if (this.collectionSort === 'name') return a.name.localeCompare(b.name);
@@ -1337,8 +1487,17 @@ const App = {
     const leftCol = thumbSrc
       ? `<img src="${thumbSrc}" class="wine-card-thumb" alt="" loading="lazy">`
       : `<div class="wine-card-dot" style="background:${this._typeColor(w.type)}"></div>`;
+    const tags = (w.tags||[]).filter(Boolean);
+    const tagPills = tags.length ? `<div class="wine-tag-row">${tags.map(t => `<span class="wine-tag-pill">#${this._esc(t)}</span>`).join('')}</div>` : '';
+
+    // Batch select checkbox
+    const checkbox = this.batchSelectMode
+      ? `<div class="batch-checkbox${this.batchSelected.has(w.id)?' checked':''}" data-action="toggle-wine-select" data-id="${w.id}"></div>` : '';
+
     return `
-    <div class="wine-card" data-action="edit-wine" data-id="${w.id}">
+    <div class="wine-card${this.batchSelectMode?' batch-selectable':''}${this.batchSelected.has(w.id)?' batch-selected':''}"
+         data-action="${this.batchSelectMode ? 'toggle-wine-select' : 'edit-wine'}" data-id="${w.id}">
+      ${checkbox}
       ${leftCol}
       <div class="wine-card-body">
         <div class="wine-card-name">${this._esc(w.name)}</div>
@@ -1351,16 +1510,101 @@ const App = {
           ${drinkBadge}
           ${cellarTag ? `<span class="wine-cellar-tag">📍 ${this._esc(cellarTag)}</span>` : ''}
         </div>
+        ${tagPills}
       </div>
-      <button class="btn btn-icon btn-sm" data-action="delete-wine" data-id="${w.id}"
-              style="color:var(--text-lt)">${this._iconTrash()}</button>
+      ${!this.batchSelectMode ? `<button class="btn btn-icon btn-sm" data-action="delete-wine" data-id="${w.id}"
+              style="color:var(--text-lt)">${this._iconTrash()}</button>` : ''}
     </div>`;
+  },
+
+  _buildWineGalleryCard(w) {
+    const thumbSrc = w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}`
+                   : w.imageUrl  ? w.imageUrl
+                   : null;
+    if (thumbSrc) {
+      return `
+      <div class="gallery-card" data-action="edit-wine" data-id="${w.id}">
+        <img src="${thumbSrc}" class="gallery-card-img" alt="${this._esc(w.name)}" loading="lazy">
+        <div class="gallery-card-overlay">
+          <div class="gallery-card-name">${this._esc(w.name)}</div>
+          ${w.vintage ? `<div class="gallery-card-vintage">${w.vintage}</div>` : ''}
+        </div>
+      </div>`;
+    }
+    return `
+    <div class="gallery-card gallery-card-placeholder" data-action="edit-wine" data-id="${w.id}"
+         style="background:${this._typeColor(w.type)}22;border:2px solid ${this._typeColor(w.type)}44">
+      <div class="gallery-card-dot" style="background:${this._typeColor(w.type)}"></div>
+      <div class="gallery-card-overlay">
+        <div class="gallery-card-name">${this._esc(w.name)}</div>
+        ${w.vintage ? `<div class="gallery-card-vintage">${w.vintage}</div>` : ''}
+      </div>
+    </div>`;
+  },
+
+  // Batch select helpers
+  _toggleBatchSelect() {
+    this.batchSelectMode = !this.batchSelectMode;
+    this.batchSelected = new Set();
+    this.renderView();
+  },
+
+  _toggleWineSelect(id) {
+    if (this.batchSelected.has(id)) this.batchSelected.delete(id);
+    else this.batchSelected.add(id);
+    // Update UI without full re-render
+    const card = document.querySelector(`.wine-card[data-id="${id}"]`);
+    if (card) {
+      card.classList.toggle('batch-selected', this.batchSelected.has(id));
+      const cb = card.querySelector('.batch-checkbox');
+      if (cb) cb.classList.toggle('checked', this.batchSelected.has(id));
+    }
+    const countEl = document.querySelector('.batch-count');
+    if (countEl) countEl.textContent = this.t('collection.selectedCount', {count: this.batchSelected.size});
+  },
+
+  _batchSetQty() {
+    if (this.batchSelected.size === 0) { this.toast('No wines selected', 'error'); return; }
+    const qty = parseInt(prompt(this.t('collection.batchQtyPrompt'), '1'), 10);
+    if (!qty || qty < 0) return;
+    this.batchSelected.forEach(id => Sync.updateWine(id, { quantity: qty }));
+    this.batchSelected = new Set();
+    this.batchSelectMode = false;
+    this.renderView();
+    this.toast(this.t('common.save') + ' ✓', 'success');
+  },
+
+  _batchAddTag() {
+    if (this.batchSelected.size === 0) { this.toast('No wines selected', 'error'); return; }
+    const tag = (prompt(this.t('collection.batchTagPrompt'), '') || '').trim();
+    if (!tag) return;
+    this.batchSelected.forEach(id => {
+      const wine = DB.getWineById(id);
+      if (!wine) return;
+      const tags = [...new Set([...(wine.tags||[]), tag])];
+      Sync.updateWine(id, { tags });
+    });
+    this.batchSelected = new Set();
+    this.batchSelectMode = false;
+    this.renderView();
+    this.toast(this.t('common.save') + ' ✓', 'success');
+  },
+
+  _batchDelete() {
+    if (this.batchSelected.size === 0) { this.toast('No wines selected', 'error'); return; }
+    if (!confirm(`${this.t('common.delete')} ${this.batchSelected.size} wines?`)) return;
+    this.batchSelected.forEach(id => Sync.deleteWine(id));
+    this.batchSelected = new Set();
+    this.batchSelectMode = false;
+    this.renderView();
+    this.toast('Deleted', 'success');
   },
 
   _buildWineCardInner(w) {
     const imgSrc = w.image     ? `data:image/jpeg;base64,${w.image}`
                  : w.imageUrl  ? w.imageUrl
                  : w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}` : null;
+    const isRed = w.type === 'red';
     return `
     <div style="text-align:left">
       ${imgSrc ? `<img src="${imgSrc}" alt="${this._esc(w.name)}"
@@ -1383,7 +1627,136 @@ const App = {
           ${s==='ready' ? ' · '+this.t('collection.drinkReady') : s==='past' ? ' · '+this.t('collection.drinkPast') : ''}
         </div>`;
       })() : ''}
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        ${isRed ? `<button class="btn btn-secondary btn-sm" data-action="start-decant" data-id="${w.id}">🫗 ${this.t('scan.decantBtn')}</button>` : ''}
+        <button class="btn btn-secondary btn-sm" data-action="share-wine" data-id="${w.id}">${this._iconShare()} ${this.t('common.shareWine')}</button>
+      </div>
     </div>`;
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // WISHLIST VIEW
+  // ══════════════════════════════════════════════════════════════════════════
+  buildWishlistView() {
+    const items = DB.getWishlist();
+    const cards = items.length === 0
+      ? `<div class="empty-state">${this._iconHeart()}<p style="margin-top:12px">${this.t('wishlist.noItems')}</p></div>`
+      : items.map(item => this._buildWishlistCard(item)).join('');
+
+    return `
+    <div class="page-header">
+      <h1>${this.t('wishlist.title')}</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary btn-sm" data-action="add-wishlist-item">${this.t('wishlist.addItem')}</button>
+      </div>
+    </div>
+    <div class="wine-grid" style="padding-top:12px">${cards}</div>`;
+  },
+
+  _buildWishlistCard(item) {
+    return `
+    <div class="wine-card">
+      <div class="wine-card-dot" style="background:${this._typeColor(item.type||'red')}"></div>
+      <div class="wine-card-body">
+        <div class="wine-card-name">${this._esc(item.name)}</div>
+        <div class="wine-card-sub">${[item.producer, item.region].filter(Boolean).join(' · ')}</div>
+        <div class="wine-card-meta">
+          <span class="type-badge type-${(item.type||'red').replace('é','e')}">${this.t('types.'+(item.type||'red'))}</span>
+          ${item.vintage ? `<span style="font-size:.8rem;color:var(--text-lt)">${item.vintage}</span>` : ''}
+          ${item.price != null ? `<span style="font-size:.8rem;color:var(--text-lt)">€${Number(item.price).toFixed(2)}</span>` : ''}
+        </div>
+        ${item.notes ? `<div style="font-size:.8rem;color:var(--text-lt);margin-top:4px">${this._esc(item.notes)}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <button class="btn btn-primary btn-sm" data-action="move-wishlist-to-collection" data-id="${item.id}">${this.t('wishlist.moveBtn')}</button>
+        <button class="btn btn-icon btn-sm" data-action="delete-wishlist-item" data-id="${item.id}"
+                style="color:var(--text-lt)">${this._iconTrash()}</button>
+      </div>
+    </div>`;
+  },
+
+  showWishlistForm(idOrItem) {
+    const item = typeof idOrItem === 'string'
+      ? (DB.getWishlist().find(x => x.id === idOrItem) || {})
+      : (idOrItem || {});
+    const isEdit = !!item.id;
+    const types = ['red','white','rosé','sparkling','dessert','fortified'];
+    this._wishlistFormType = item.type || 'red';
+
+    const body = `
+      <div class="form-group">
+        <label>${this.t('wine.name')} *</label>
+        <input id="wl-name" class="form-control" value="${this._esc(item.name||'')}" placeholder="e.g. Pétrus">
+      </div>
+      <div class="form-group">
+        <label>${this.t('wine.producer')}</label>
+        <input id="wl-producer" class="form-control" value="${this._esc(item.producer||'')}">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>${this.t('wine.vintage')}</label>
+          <input id="wl-vintage" class="form-control" type="number" min="1800" max="${new Date().getFullYear()}" value="${item.vintage||''}">
+        </div>
+        <div class="form-group">
+          <label>${this.t('wine.price')}</label>
+          <input id="wl-price" class="form-control" type="number" min="0" step="0.01" value="${item.price||''}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>${this.t('wine.type')}</label>
+        <div class="type-selector" id="wl-type-sel">
+          ${types.map(tp => `<button class="type-option${this._wishlistFormType===tp?' selected':''}"
+            onclick="App._wishlistFormType='${tp}';document.querySelectorAll('#wl-type-sel .type-option').forEach(b=>b.classList.toggle('selected',b.textContent.trim()==='${this.t('types.'+tp)}'))">${this.t('types.'+tp)}</button>`).join('')}
+        </div>
+      </div>
+      <div class="form-group">
+        <label>${this.t('wine.region')}</label>
+        <input id="wl-region" class="form-control" value="${this._esc(item.region||'')}">
+      </div>
+      <div class="form-group">
+        <label>${this.t('wine.notes')}</label>
+        <textarea id="wl-notes" class="form-control">${this._esc(item.notes||'')}</textarea>
+      </div>`;
+
+    this.showModal(isEdit ? this.t('common.edit') : this.t('wishlist.form'), body, [
+      { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
+      { label: this.t('common.save'), cls: 'btn-primary', action: () => this._saveWishlistForm(item.id) }
+    ]);
+  },
+
+  _saveWishlistForm(editId) {
+    const name = document.getElementById('wl-name')?.value.trim();
+    if (!name) { this.toast(this.t('wine.name') + ' required', 'error'); return; }
+    const parse = id => document.getElementById(id)?.value.trim() || '';
+    const parseNum = id => { const v = document.getElementById(id)?.value; return v ? parseFloat(v) : null; };
+    const data = {
+      name,
+      producer: parse('wl-producer'),
+      vintage: parseNum('wl-vintage') ? parseInt(parse('wl-vintage'),10) : null,
+      price: parseNum('wl-price'),
+      type: this._wishlistFormType || 'red',
+      region: parse('wl-region'),
+      notes: parse('wl-notes')
+    };
+    if (editId) DB.updateWishlistItem(editId, data);
+    else DB.addWishlistItem(data);
+    this.closeModal();
+    this.renderView();
+    this.toast(this.t('common.save') + ' ✓', 'success');
+  },
+
+  _deleteWishlistItem(id) {
+    DB.deleteWishlistItem(id);
+    this.renderView();
+    this.toast('Deleted', 'success');
+  },
+
+  _moveWishlistToCollection(id) {
+    const item = DB.getWishlist().find(x => x.id === id);
+    if (!item) return;
+    // Store the wishlist id so saveWineForm can clean it up
+    this._pendingWishlistDeleteId = id;
+    this.showWineForm({ ...item, id: null });
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1536,6 +1909,7 @@ const App = {
       <h2>${this.t('settings.data')}</h2>
       <div style="display:flex;flex-direction:column;gap:10px">
         <button class="btn btn-ghost btn-full" data-action="export-data">${this.t('settings.exportData')}</button>
+        <button class="btn btn-ghost btn-full" data-action="export-pdf">${this.t('settings.exportPdf')}</button>
         <label class="btn btn-ghost btn-full" style="cursor:pointer;justify-content:center;display:flex;align-items:center">
           ${this.t('settings.importData')}
           <input type="file" accept=".json" id="import-file-input" style="display:none"
@@ -1590,6 +1964,55 @@ const App = {
     a.href = URL.createObjectURL(blob);
     a.download = `vinage-export-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
+  },
+
+  exportPdf() {
+    const wines = DB.getWines();
+    const types = TRANSLATIONS[this.lang].types || TRANSLATIONS.en.types;
+    const rows = wines.map(w => `
+      <tr>
+        <td>${this._esc(w.name)}</td>
+        <td>${this._esc(w.producer||'')}</td>
+        <td>${w.vintage||''}</td>
+        <td>${types[w.type]||w.type}</td>
+        <td>${this._esc(w.region||'')}</td>
+        <td style="text-align:center">${w.quantity||1}</td>
+        <td style="text-align:right">${w.price!=null?'€'+Number(w.price).toFixed(2):''}</td>
+        <td style="text-align:center">${w.rating?'★'.repeat(w.rating):''}</td>
+      </tr>`).join('');
+    const totalValue = wines.filter(w=>w.price>0).reduce((s,w)=>s+(w.price*(w.quantity||1)),0);
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+      <title>Vinage — Cellar Report</title>
+      <style>
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:#1E0E3A;padding:24px}
+        h1{font-size:22px;color:#5C2896;margin-bottom:4px}
+        .sub{font-size:11px;color:#8B72A8;margin-bottom:20px}
+        table{width:100%;border-collapse:collapse}
+        th{background:#5C2896;color:#fff;padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+        td{padding:7px 10px;border-bottom:1px solid #EEE6F7;vertical-align:top}
+        tr:nth-child(even) td{background:#FAF7FD}
+        .footer{margin-top:20px;font-size:11px;color:#8B72A8;display:flex;justify-content:space-between}
+        @media print{body{padding:0}}
+      </style>
+    </head><body>
+      <h1>Vinage — Cellar Report</h1>
+      <div class="sub">Generated ${new Date().toLocaleDateString()} &nbsp;·&nbsp; ${wines.length} wines &nbsp;·&nbsp; ${wines.reduce((s,w)=>s+(w.quantity||1),0)} bottles</div>
+      <table>
+        <thead><tr>
+          <th>Name</th><th>Producer</th><th>Vintage</th><th>Type</th>
+          <th>Region</th><th style="text-align:center">Qty</th>
+          <th style="text-align:right">Price</th><th style="text-align:center">Rating</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="footer">
+        <span>Vinage — Your Personal Wine Cellar</span>
+        ${totalValue > 0 ? `<span>Total cellar value: €${totalValue.toLocaleString('nl-NL',{minimumFractionDigits:2})}</span>` : ''}
+      </div>
+      <script>window.onload=function(){window.print();}<\/script>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    if (w) { w.document.write(html); w.document.close(); }
   },
 
   _handleImport(input) {
@@ -1689,6 +2112,349 @@ const App = {
   _syncLeave() {
     if (!confirm(this.t('settings.syncLeaveConfirm'))) return;
     Sync.leaveHousehold();
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // DECANTING TIMER (Feature 7)
+  // ══════════════════════════════════════════════════════════════════════════
+  _showDecantModal(wineId) {
+    const wine = DB.getWineById(wineId);
+    if (!wine) return;
+    const presets = [30, 45, 60, 90, 120];
+    const body = `
+      <p style="margin-bottom:12px;color:var(--text-md)">${this.t('scan.decantMins')}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        ${presets.map(m => `<button class="btn btn-secondary btn-sm decant-preset" data-mins="${m}" onclick="document.getElementById('decant-mins').value=${m}">${m} min</button>`).join('')}
+      </div>
+      <input id="decant-mins" class="form-control" type="number" min="1" max="480" value="60">`;
+    this.showModal(this.t('scan.decantTitle'), body, [
+      { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
+      { label: this.t('scan.decantStart'), cls: 'btn-primary', action: () => {
+        const mins = parseInt(document.getElementById('decant-mins')?.value || '60', 10);
+        this.closeModal();
+        this._startDecantTimer(wine, mins);
+      }}
+    ]);
+  },
+
+  _startDecantTimer(wine, mins) {
+    // Clear existing timer
+    if (this._decantTimer?.timerId) clearInterval(this._decantTimer.timerId);
+    const endTime = Date.now() + mins * 60000;
+    this._decantTimer = { wineId: wine.id, wineName: wine.name, endTime, timerId: null };
+    localStorage.setItem('vinage_decant_timer', JSON.stringify({ wineId: wine.id, wineName: wine.name, endTime }));
+    this._renderDecantBubble();
+  },
+
+  _renderDecantBubble() {
+    let bubble = document.getElementById('decant-bubble');
+    if (!bubble) {
+      bubble = document.createElement('div');
+      bubble.id = 'decant-bubble';
+      bubble.dataset.action = 'cancel-decant';
+      document.getElementById('app').appendChild(bubble);
+    }
+
+    const update = () => {
+      if (!this._decantTimer) { bubble.remove(); return; }
+      const remaining = this._decantTimer.endTime - Date.now();
+      if (remaining <= 0) {
+        bubble.remove();
+        this._decantTimer = null;
+        localStorage.removeItem('vinage_decant_timer');
+        const msg = this.t('scan.decantDone', { name: this._decantTimer?.wineName || '' });
+        this.toast(msg, 'success');
+        if (Notification.permission === 'granted') {
+          new Notification('Vinage', { body: this.t('scan.decantDone', { name: this._decantTimer?.wineName || '' }), icon: 'icons/apple-touch-icon.png' });
+        }
+        return;
+      }
+      const totalSec = Math.ceil(remaining / 1000);
+      const mm = String(Math.floor(totalSec / 60)).padStart(2,'0');
+      const ss = String(totalSec % 60).padStart(2,'0');
+      bubble.textContent = `🫗 ${mm}:${ss}`;
+    };
+
+    update();
+    if (this._decantTimer) {
+      // Fix: capture timer name before clearing
+      const wineName = this._decantTimer.wineName;
+      if (this._decantTimer.timerId) clearInterval(this._decantTimer.timerId);
+      this._decantTimer.timerId = setInterval(() => {
+        if (!this._decantTimer) { clearInterval(this._decantTimer?.timerId); return; }
+        const remaining = this._decantTimer.endTime - Date.now();
+        if (remaining <= 0) {
+          clearInterval(this._decantTimer.timerId);
+          bubble.remove();
+          this._decantTimer = null;
+          localStorage.removeItem('vinage_decant_timer');
+          const msg = this.t('scan.decantDone', { name: wineName });
+          this.toast(msg, 'success');
+          if (Notification.permission === 'granted') {
+            try { new Notification('Vinage', { body: msg, icon: 'icons/apple-touch-icon.png' }); } catch(_){}
+          }
+          return;
+        }
+        const totalSec = Math.ceil(remaining / 1000);
+        const mm = String(Math.floor(totalSec / 60)).padStart(2,'0');
+        const ss = String(totalSec % 60).padStart(2,'0');
+        bubble.textContent = `🫗 ${mm}:${ss}`;
+      }, 1000);
+    }
+  },
+
+  _cancelDecantTimer() {
+    if (!this._decantTimer) return;
+    if (!confirm(this.t('scan.decantCancel') + '?')) return;
+    if (this._decantTimer.timerId) clearInterval(this._decantTimer.timerId);
+    this._decantTimer = null;
+    localStorage.removeItem('vinage_decant_timer');
+    document.getElementById('decant-bubble')?.remove();
+  },
+
+  _restoreDecantTimer() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('vinage_decant_timer') || 'null');
+      if (saved && saved.endTime > Date.now()) {
+        this._decantTimer = { wineId: saved.wineId, wineName: saved.wineName, endTime: saved.endTime, timerId: null };
+        this._renderDecantBubble();
+      } else if (saved) {
+        localStorage.removeItem('vinage_decant_timer');
+      }
+    } catch(_) {}
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // SHARE WINE CARD (Feature 10)
+  // ══════════════════════════════════════════════════════════════════════════
+  _showShareModal(wineId) {
+    const wine = DB.getWineById(wineId);
+    if (!wine) return;
+    const body = `
+      <div style="text-align:center">
+        <canvas id="share-canvas" width="400" height="560" style="width:100%;max-width:300px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.2)"></canvas>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+          <button class="btn btn-secondary" data-action="download-share-card">${this.t('common.shareDownload')}</button>
+          <button class="btn btn-primary" data-action="native-share-card">${this.t('common.shareWine')}</button>
+        </div>
+      </div>`;
+    this.showModal(this.t('common.shareWine'), body, [
+      { label: this.t('common.close'), cls: 'btn-secondary', action: () => this.closeModal() }
+    ]);
+    // Render canvas after modal is in DOM
+    setTimeout(() => this._drawShareCard(wine), 50);
+  },
+
+  _drawShareCard(wine) {
+    const canvas = document.getElementById('share-canvas');
+    if (!canvas) return;
+    this._shareWine = wine;
+    const ctx = canvas.getContext('2d');
+    const W = 400, H = 560;
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#36165E');
+    grad.addColorStop(1, '#5C2896');
+    ctx.fillStyle = grad;
+    ctx.roundRect ? ctx.roundRect(0,0,W,H,20) : ctx.fillRect(0,0,W,H);
+    ctx.fill();
+
+    // Subtle pattern overlay
+    ctx.fillStyle = 'rgba(255,255,255,.04)';
+    for (let y=0; y<H; y+=30) for (let x=0; x<W; x+=30) { ctx.beginPath(); ctx.arc(x,y,1,0,Math.PI*2); ctx.fill(); }
+
+    // Wine type badge
+    const typeColors = { red:'#7B1A2E', white:'#C8A830', 'rosé':'#D47080', sparkling:'#6A9050', dessert:'#D4A030', fortified:'#8B4513' };
+    const tc = typeColors[wine.type] || '#7B1A2E';
+    ctx.fillStyle = tc + '44';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(20,20,120,30,15) : ctx.rect(20,20,120,30);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 12px -apple-system,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText((TRANSLATIONS[this.lang]?.types?.[wine.type]||wine.type).toUpperCase(), 32, 40);
+
+    // Vinage logo text
+    ctx.fillStyle = 'rgba(255,255,255,.4)';
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('VINAGE', W-20, 38);
+
+    // Image area (or coloured rect)
+    const imgY = 70, imgH = 220;
+    const thumbSrc = wine.thumbnail ? `data:image/jpeg;base64,${wine.thumbnail}` : wine.imageUrl || null;
+    const drawText = () => {
+      // Wine name
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 26px -apple-system,sans-serif';
+      const maxW = W - 40;
+      const name = wine.name;
+      ctx.fillText(name.length > 28 ? name.slice(0,26)+'…' : name, 20, imgY + imgH + 40);
+
+      // Producer
+      if (wine.producer) {
+        ctx.fillStyle = 'rgba(255,255,255,.65)';
+        ctx.font = '15px -apple-system,sans-serif';
+        ctx.fillText(wine.producer.length > 36 ? wine.producer.slice(0,34)+'…' : wine.producer, 20, imgY + imgH + 66);
+      }
+
+      // Vintage + Region
+      const meta = [wine.vintage, wine.region].filter(Boolean).join('  ·  ');
+      if (meta) {
+        ctx.fillStyle = 'rgba(255,255,255,.5)';
+        ctx.font = '13px -apple-system,sans-serif';
+        ctx.fillText(meta, 20, imgY + imgH + 90);
+      }
+
+      // Stars
+      if (wine.rating) {
+        ctx.fillStyle = '#C8913A';
+        ctx.font = '18px -apple-system,sans-serif';
+        ctx.fillText('★'.repeat(wine.rating), 20, imgY + imgH + 118);
+      }
+
+      // Notes excerpt
+      if (wine.notes) {
+        ctx.fillStyle = 'rgba(255,255,255,.45)';
+        ctx.font = '12px -apple-system,sans-serif';
+        const excerpt = wine.notes.slice(0,80) + (wine.notes.length > 80 ? '…' : '');
+        ctx.fillText(excerpt, 20, imgY + imgH + 145);
+      }
+
+      // Bottom line
+      ctx.strokeStyle = 'rgba(255,255,255,.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(20, H-36);
+      ctx.lineTo(W-20, H-36);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,.3)';
+      ctx.font = '11px -apple-system,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Tracked with Vinage', W/2, H-16);
+    };
+
+    if (thumbSrc) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.save();
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(20, imgY, W-40, imgH, 10);
+        else ctx.rect(20, imgY, W-40, imgH);
+        ctx.clip();
+        // Draw image centered/cropped
+        const aspect = img.width / img.height;
+        const targetAspect = (W-40) / imgH;
+        let sx=0, sy=0, sw=img.width, sh=img.height;
+        if (aspect > targetAspect) { sw = img.height * targetAspect; sx = (img.width-sw)/2; }
+        else { sh = img.width / targetAspect; sy = (img.height-sh)/2; }
+        ctx.drawImage(img, sx, sy, sw, sh, 20, imgY, W-40, imgH);
+        ctx.restore();
+        drawText();
+      };
+      img.onerror = () => {
+        ctx.fillStyle = tc + '33';
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(20, imgY, W-40, imgH, 10);
+        else ctx.rect(20, imgY, W-40, imgH);
+        ctx.fill();
+        drawText();
+      };
+      img.src = thumbSrc;
+    } else {
+      ctx.fillStyle = tc + '33';
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(20, imgY, W-40, imgH, 10);
+      else ctx.rect(20, imgY, W-40, imgH);
+      ctx.fill();
+      drawText();
+    }
+  },
+
+  _downloadShareCard() {
+    const canvas = document.getElementById('share-canvas');
+    if (!canvas) return;
+    const wine = this._shareWine;
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `${wine ? wine.name.replace(/[^a-z0-9]/gi,'_') : 'vinage'}-card.png`;
+    a.click();
+  },
+
+  async _nativeShare() {
+    const canvas = document.getElementById('share-canvas');
+    if (!canvas) return;
+    const wine = this._shareWine;
+    if (navigator.share && navigator.canShare) {
+      try {
+        canvas.toBlob(async blob => {
+          const file = new File([blob], `${wine?.name||'wine'}-card.png`, { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: wine?.name || 'Wine', text: `${wine?.name||''} ${wine?.vintage||''} — Tracked with Vinage` });
+          } else {
+            this._downloadShareCard();
+          }
+        }, 'image/png');
+      } catch(_) { this._downloadShareCard(); }
+    } else {
+      this._downloadShareCard();
+    }
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PUSH NOTIFICATIONS (Feature 11)
+  // ══════════════════════════════════════════════════════════════════════════
+  _maybePromptNotifications() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'default') return;
+    // Show a non-intrusive toast with Allow button
+    const el = document.createElement('div');
+    el.id = 'notif-prompt-toast';
+    el.className = 'notif-prompt-toast';
+    el.innerHTML = `
+      <span>${this.t('common.notifPrompt')}</span>
+      <button class="btn btn-primary btn-sm" data-action="allow-notif">${this.t('common.notifAllow')}</button>
+      <button class="btn btn-ghost btn-sm" data-action="dismiss-notif">${this.t('common.notifDismiss')}</button>`;
+    document.getElementById('toast-container').appendChild(el);
+    // Auto-dismiss after 12 seconds
+    setTimeout(() => el.remove(), 12000);
+  },
+
+  _requestNotifications() {
+    document.getElementById('notif-prompt-toast')?.remove();
+    if (!('Notification' in window)) return;
+    Notification.requestPermission().then(perm => {
+      if (perm === 'granted') {
+        this.toast(this.t('common.notifAllow') + ' ✓', 'success');
+        this._checkDrinkWindowNotifications();
+      }
+    });
+  },
+
+  _checkDrinkWindowNotifications() {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const currentYear = new Date().getFullYear();
+    DB.getWines().forEach(wine => {
+      if (this._drinkStatus(wine) === 'ready') {
+        const key = `vinage_notif_${wine.id}_${currentYear}`;
+        if (!localStorage.getItem(key)) {
+          localStorage.setItem(key, '1');
+          // Schedule a same-session notification with a small delay per wine
+          setTimeout(() => {
+            try {
+              new Notification('Vinage — Ready to drink!', {
+                body: `${wine.name}${wine.vintage ? ' ('+wine.vintage+')' : ''} is in its drink window.`,
+                icon: 'icons/apple-touch-icon.png'
+              });
+            } catch(_) {}
+          }, 2000);
+        }
+      }
+    });
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1822,6 +2588,27 @@ const App = {
     </svg>`;
   },
 
+  _iconHeart() {
+    return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+    </svg>`;
+  },
+  _iconGrid() {
+    return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="18" height="18">
+      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+    </svg>`;
+  },
+  _iconList() {
+    return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="18" height="18">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>`;
+  },
+  _iconShare() {
+    return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+    </svg>`;
+  },
   _iconGoogle() {
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="18" height="18">
       <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2v6h7.8c4.5-4.2 7.1-10.3 7.1-17.2z"/>
