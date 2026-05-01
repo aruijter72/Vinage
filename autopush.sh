@@ -12,6 +12,13 @@ cd "$(dirname "$0")"
 # Nothing to do if working tree is clean
 git diff --quiet && git diff --staged --quiet && [ -z "$(git ls-files --others --exclude-standard)" ] && exit 0
 
+# ── Cache-bust: stamp index.html with current unix timestamp ──────────────────
+# Replaces ?v=<anything> on all local JS/CSS <script>/<link> tags so Safari
+# and other browsers always fetch the latest files after each deploy.
+TS=$(date +%s)
+sed -i '' "s|\.css?v=[^\"']*|.css?v=${TS}|g; s|\.js?v=[^\"']*|.js?v=${TS}|g" index.html
+# ─────────────────────────────────────────────────────────────────────────────
+
 git add -A
 git diff --staged --quiet && exit 0   # staged nothing (e.g. only .DS_Store)
 
