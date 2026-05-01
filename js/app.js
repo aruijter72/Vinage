@@ -548,19 +548,22 @@ const App = {
     document.querySelectorAll('.type-option').forEach(b => b.classList.toggle('selected', b.dataset.type === type));
   },
 
-  // When the user edits the vintage, shift drinkFrom/drinkUntil by the same delta
+  // When the user finishes editing the vintage, shift drinkFrom/drinkUntil by the same delta.
+  // Uses onchange (fires on blur) so the full new year is known before we calculate.
   _onVintageChange(input) {
     const newVin = parseInt(input.value, 10);
     const oldVin = parseInt(input.dataset.prevVintage, 10);
-    if (!newVin || !oldVin || newVin === oldVin) return;
+    if (!newVin || isNaN(newVin) || !oldVin || isNaN(oldVin) || newVin === oldVin) return;
     const delta = newVin - oldVin;
 
     const fromEl  = document.getElementById('wf-drink-from');
     const untilEl = document.getElementById('wf-drink-until');
-    if (fromEl?.value)  fromEl.value  = parseInt(fromEl.value,  10) + delta;
-    if (untilEl?.value) untilEl.value = parseInt(untilEl.value, 10) + delta;
+    const fromVal  = parseInt(fromEl?.value,  10);
+    const untilVal = parseInt(untilEl?.value, 10);
+    if (fromEl  && !isNaN(fromVal))  fromEl.value  = fromVal  + delta;
+    if (untilEl && !isNaN(untilVal)) untilEl.value = untilVal + delta;
 
-    // Update baseline so repeated edits keep computing the right delta
+    // Move the baseline forward so a second edit works correctly too
     input.dataset.prevVintage = newVin;
   },
 
