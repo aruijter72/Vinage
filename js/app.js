@@ -995,6 +995,11 @@ const App = {
     const origW = inner.scrollWidth;
     const origH = inner.scrollHeight;
 
+    // Restore saved zoom for this cellar (falls back to in-memory value)
+    const zoomKey = `vinage_rack_zoom_${this.cellarDetailId}`;
+    const saved = parseFloat(localStorage.getItem(zoomKey));
+    if (!isNaN(saved)) this._rackZoom = saved;
+
     const applyZoom = (z) => {
       this._rackZoom = Math.max(0.35, Math.min(3.0, z));
       const sz = this._rackZoom;
@@ -1005,6 +1010,8 @@ const App = {
       container.style.minHeight = (origH * sz) + 'px';
       const lvl = document.getElementById('rack-zoom-level');
       if (lvl) lvl.textContent = Math.round(sz * 100) + '%';
+      // Persist per-cellar zoom so it survives navigation
+      localStorage.setItem(zoomKey, this._rackZoom);
     };
 
     document.getElementById('zoom-in-btn')?.addEventListener('click',    () => applyZoom(this._rackZoom + 0.2));
