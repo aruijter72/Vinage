@@ -1,6 +1,6 @@
 // Vinage — Data Layer (localStorage)
 const DB = {
-  KEYS: { wines: 'vinage_wines', cellars: 'vinage_cellars', settings: 'vinage_settings', wishlist: 'vinage_wishlist' },
+  KEYS: { wines: 'vinage_wines', cellars: 'vinage_cellars', settings: 'vinage_settings', wishlist: 'vinage_wishlist', consumption: 'vinage_consumption' },
 
   // ── Utility ──────────────────────────────────────────────────────────────
   uuid() {
