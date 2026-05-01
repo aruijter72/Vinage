@@ -3167,6 +3167,18 @@ const App = {
       <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
     </svg>`;
   },
+  _iconBottle() {
+    return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 3h6M9 3v2.5A2.5 2.5 0 007.5 8v9A3 3 0 0010.5 20h3a3 3 0 003-3V8A2.5 2.5 0 0015 5.5V3"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 13h9"/>
+    </svg>`;
+  },
+  _iconStats() {
+    return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 18v-6a9 9 0 0118 0v6"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 18a1 1 0 001 1h1a1 1 0 001-1v-2a1 1 0 00-1-1H4a1 1 0 00-1 1v2zM18 18a1 1 0 001 1h1a1 1 0 001-1v-2a1 1 0 00-1-1h-1a1 1 0 00-1 1v2z"/>
+    </svg>`;
+  },
   _iconGrid() {
     return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="18" height="18">
       <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
