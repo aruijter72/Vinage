@@ -1,7 +1,7 @@
 // Vinage — Translations (English & Dutch)
 const TRANSLATIONS = {
   en: {
-    nav: { scan: 'Scan', cellar: 'Cellar', collection: 'Collection', pairing: 'Pairing', settings: 'Settings', wishlist: 'Wishlist' },
+    nav: { scan: 'Scan', cellar: 'Cellar', collection: 'Collection', pairing: 'Pairing', settings: 'Settings', wishlist: 'Wishlist', stats: 'Stats' },
     scan: {
       title: 'Scan Wine',
       instruction: 'Point the camera at the label and tap Capture',
