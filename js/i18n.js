@@ -45,6 +45,7 @@ const TRANSLATIONS = {
       grapes: 'Grape Varieties',
       rating: 'My Rating',
       notes: 'Tasting Notes',
+      regenNotes: 'Generate',
       price: 'Price (€)',
       quantity: 'Bottles in stock',
       pairings: 'Food Pairings',

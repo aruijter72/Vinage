@@ -831,6 +831,45 @@ const App = {
     });
   },
 
+  // ── Regenerate tasting notes via AI ─────────────────────────────────────
+  async _regenNotes() {
+    const settings = DB.getSettings();
+    if (!settings.anthropicKey && !settings.openaiKey) {
+      this.toast(this.t('scan.apiKeyMissing'), 'error'); return;
+    }
+    const btn = document.getElementById('regen-notes-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+    // Collect current form values to give the AI context
+    const name     = document.getElementById('wf-name')?.value.trim()     || '';
+    const producer = document.getElementById('wf-producer')?.value.trim() || '';
+    const vintage  = document.getElementById('wf-vintage')?.value.trim()  || '';
+    const region   = document.getElementById('wf-region')?.value.trim()   || '';
+    const country  = document.getElementById('wf-country')?.value.trim()  || '';
+    const grapes   = document.getElementById('wf-grapes')?.value.trim()   || '';
+    const langNote = this.lang === 'nl'
+      ? 'Respond in Dutch.'
+      : 'Respond in English.';
+
+    const prompt = `You are an expert sommelier. Write a brief, elegant tasting note (2–3 sentences) for the following wine. ${langNote} Return only the tasting note text — no labels, no JSON.
+
+Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(', ')}`;
+
+    try {
+      const provider = settings.apiProvider || 'anthropic';
+      const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
+      const note = provider === 'anthropic'
+        ? await API._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+        : await API._openaiText(prompt, key, 'gpt-4o-mini');
+      const ta = document.getElementById('wf-notes');
+      if (ta) ta.value = note.trim();
+    } catch (e) {
+      this.toast('Could not generate notes: ' + e.message, 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = `✦ ${this.t('wine.regenNotes')}`; }
+    }
+  },
+
   // ── Duplicate detection ───────────────────────────────────────────────────
   _findDuplicate(scan) {
     if (!scan || !scan.name) return null;
