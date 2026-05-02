@@ -714,6 +714,96 @@ const App = {
       const extra = data.quantity - oldQty;
       setTimeout(() => this._promptCellarPlacement(editWineId, extra, 1), 400);
     }
+
+    // After editing, if quantity decreased free the excess cellar placements
+    if (editWineId && data.quantity < oldQty) {
+      setTimeout(() => this._freeCellarPlacementsAfterDecrease(editWineId, oldQty - data.quantity), 400);
+    }
+  },
+
+  // Free `count` cellar placements for a wine after a quantity decrease.
+  // If there is only one placement, it is removed automatically.
+  // If there are multiple, a picker is shown so the user chooses which slot to free.
+  _freeCellarPlacementsAfterDecrease(wineId, count) {
+    const wine = DB.getWineById(wineId);
+    if (!wine) return;
+    const map = DB.getWinePlacementMap();
+    const placements = map[wineId] || [];
+
+    // Nothing placed — nothing to free
+    if (!placements.length) return;
+
+    const doFree = (place) => {
+      if (place.slot !== null) {
+        DB.assignWineToSlot(place.cellarId, place.slot, null);
+      } else {
+        DB.removeWineFromShelf(place.cellarId, wineId);
+      }
+      this.renderView();
+    };
+
+    // Auto-free if only one placement exists or we need to free all of them
+    if (placements.length <= count) {
+      placements.forEach(p => doFree(p));
+      this.toast('📦 ' + this.t('cellar.slotFreed'), 'info');
+      return;
+    }
+
+    // Show a picker so the user selects which slots to free (one at a time)
+    this._pickPlacementToFree(wineId, wine, placements, count, 1);
+  },
+
+  // Picker modal that asks the user to choose which cellar slot to free.
+  _pickPlacementToFree(wineId, wine, placements, totalToFree, freeNum) {
+    const lang = this.lang;
+    const rows = placements.map(p => {
+      const coord = p.slot ? this._slotPositionLabel(p.slot) : '—';
+      const label = `${p.cellarName}${p.slot ? ' · ' + coord : ''}`;
+      return `<button class="btn btn-secondary pick-free-slot" data-cellar-id="${p.cellarId}" data-slot="${p.slot ?? ''}">${label}</button>`;
+    }).join('');
+    const title = lang === 'nl'
+      ? `Welk vak vrijmaken? (${freeNum}/${totalToFree})`
+      : `Which slot to free? (${freeNum}/${totalToFree})`;
+
+    this.showModal(`
+      <div class="modal-header"><h2>${title}</h2></div>
+      <div class="modal-body">
+        <p style="color:var(--text-secondary);margin-bottom:12px">
+          ${lang === 'nl'
+            ? `Je hebt de hoeveelheid verlaagd. Kies welk vak je wil vrijmaken voor <strong>${wine.name || wine.producer}</strong>.`
+            : `You reduced the quantity. Choose which slot to free for <strong>${wine.name || wine.producer}</strong>.`}
+        </p>
+        <div class="pick-slot-list" style="display:flex;flex-direction:column;gap:8px">${rows}</div>
+      </div>
+    `);
+
+    // One-shot delegate for picking
+    const handler = (e) => {
+      const btn = e.target.closest('.pick-free-slot');
+      if (!btn) return;
+      document.removeEventListener('click', handler);
+      const cellarId = btn.dataset.cellarId;
+      const slot     = btn.dataset.slot || null;
+      if (slot) {
+        DB.assignWineToSlot(cellarId, slot, null);
+      } else {
+        DB.removeWineFromShelf(cellarId, wineId);
+      }
+      this.closeModal();
+      this.renderView();
+
+      // If more slots still need to be freed, reopen the picker
+      if (freeNum < totalToFree) {
+        const updatedMap   = DB.getWinePlacementMap();
+        const updatedPlaces = updatedMap[wineId] || [];
+        if (updatedPlaces.length) {
+          setTimeout(() => this._pickPlacementToFree(wineId, wine, updatedPlaces, totalToFree, freeNum + 1), 300);
+        }
+      } else {
+        this.toast('📦 ' + this.t('cellar.slotFreed'), 'info');
+      }
+    };
+    setTimeout(() => document.addEventListener('click', handler), 50);
   },
 
   editWine(id) {
