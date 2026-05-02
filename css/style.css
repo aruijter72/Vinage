@@ -1419,6 +1419,11 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   gap: 2px;
   justify-content: center;
   min-height: 30px;
+  width: 100%;
+}
+/* grid/diamond cellars override display:grid via inline style */
+.map-dot {
+  flex-shrink: 0;
 }
 .map-dot {
   width: 8px;

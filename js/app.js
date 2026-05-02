@@ -1098,12 +1098,29 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       const stats = DB.getCellarStats(c);
       const pct = stats.capacity ? Math.round(stats.occupied / stats.capacity * 100) : null;
       let dots = '';
-      if (c.slots) {
-        const entries = Object.entries(c.slots).slice(0, 40);
-        dots = entries.map(([, wid]) => wid
-          ? `<div class="map-dot map-dot-filled" style="background:${this._typeColor((DB.getWineById(wid)||{}).type||'red')}"></div>`
-          : `<div class="map-dot map-dot-empty"></div>`
-        ).join('');
+      let dotsStyle = '';
+      if (c.slots && (c.type === 'grid' || c.type === 'diamond')) {
+        // Iterate in the exact same row → column order as the real rack
+        // so each dot sits in the correct position
+        const cols = c.cols || 8;
+        const rows = c.rows || 5;
+        for (let r = 0; r < rows; r++) {
+          for (let col = 0; col < cols; col++) {
+            const wid = c.slots[`${r}-${col}`];
+            dots += wid
+              ? `<div class="map-dot map-dot-filled" style="background:${this._typeColor((DB.getWineById(wid)||{}).type||'red')}"></div>`
+              : `<div class="map-dot map-dot-empty"></div>`;
+          }
+        }
+        // Use a CSS grid that mirrors the rack column count exactly
+        dotsStyle = `style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:2px;justify-items:center"`;
+      } else if (c.slots) {
+        // case rack (12 slots)
+        Object.values(c.slots).forEach(wid => {
+          dots += wid
+            ? `<div class="map-dot map-dot-filled" style="background:${this._typeColor((DB.getWineById(wid)||{}).type||'red')}"></div>`
+            : `<div class="map-dot map-dot-empty"></div>`;
+        });
       } else if (c.wines) {
         dots = c.wines.slice(0,20).map(id => {
           const w = DB.getWineById(id);
@@ -1113,7 +1130,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       return `
       <div class="cellar-mini-map" data-action="open-cellar" data-id="${c.id}">
         <div class="mini-map-name">${this._esc(c.name)}</div>
-        <div class="mini-map-dots">${dots}</div>
+        <div class="mini-map-dots" ${dotsStyle}>${dots}</div>
         ${pct !== null ? `<div class="mini-map-pct">${pct}%</div>` : `<div class="mini-map-pct">${stats.occupied}</div>`}
       </div>`;
     }).join('');
