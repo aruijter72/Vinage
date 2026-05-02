@@ -3166,8 +3166,8 @@ const App = {
   },
 
   _typeColor(type) {
-    return { red:'#7B1A2E', white:'#C8A830', 'rosé':'#D47080',
-             sparkling:'#6A9050', dessert:'#D4A030', fortified:'#8B4513' }[type] || '#7B1A2E';
+    return { red:'#C01020', white:'#C8A020', 'rosé':'#E0507A',
+             sparkling:'#3A9030', dessert:'#E08800', fortified:'#9A3A10' }[type] || '#C01020';
   },
 
   _typeClass(type) {
