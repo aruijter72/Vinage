@@ -128,30 +128,42 @@ const Sync = {
     if (!this._ready || !this.user) return;
     code = code.trim().toUpperCase();
 
-    const snap = await this._db.collection('households')
-      .where('inviteCode', '==', code).limit(1).get();
-    if (snap.empty) {
-      App.toast('Code not found. Check and try again.', 'error');
-      return;
+    try {
+      const snap = await this._db.collection('households')
+        .where('inviteCode', '==', code).limit(1).get();
+      if (snap.empty) {
+        App.toast('Code not found. Check and try again.', 'error');
+        return;
+      }
+
+      const hdoc = snap.docs[0];
+      this.householdId = hdoc.id;
+      this.inviteCode  = code;
+
+      // Add this user as a member, then persist householdId on user doc
+      await hdoc.ref.set(
+        { members: { [this.user.uid]: { name: this.user.displayName, email: this.user.email } } },
+        { merge: true }
+      );
+      await this._db.doc(`users/${this.user.uid}`).set({ householdId: this.householdId }, { merge: true });
+
+      // Small delay so Firestore can propagate the membership write before we read
+      await new Promise(r => setTimeout(r, 600));
+
+      // Pull household data into localStorage
+      await this._downloadToLocal();
+      this._startSync();
+      this._updateSyncUI();
+      App.toast('Joined household! ✓', 'success');
+      // Navigate to the collection so wines are immediately visible
+      App.navigate('collection');
+    } catch (e) {
+      console.error('Vinage: joinHousehold failed', e);
+      App.toast('Could not join household: ' + (e.message || e), 'error');
+      // Reset state so the user can retry
+      this.householdId = null;
+      this.inviteCode  = null;
     }
-
-    const hdoc = snap.docs[0];
-    this.householdId = hdoc.id;
-    this.inviteCode  = code;
-
-    // Add this user as a member
-    await hdoc.ref.set(
-      { members: { [this.user.uid]: { name: this.user.displayName, email: this.user.email } } },
-      { merge: true }
-    );
-    await this._db.doc(`users/${this.user.uid}`).set({ householdId: this.householdId }, { merge: true });
-
-    // Pull household data into localStorage
-    await this._downloadToLocal();
-    this._startSync();
-    this._updateSyncUI();
-    App.toast('Joined household!', 'success');
-    App.renderView();
   },
 
   async leaveHousehold() {
