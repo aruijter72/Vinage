@@ -287,6 +287,7 @@ const TRANSLATIONS = {
       grapes: 'Druivenrassen',
       rating: 'Mijn Beoordeling',
       notes: 'Proefnotities',
+      regenNotes: 'Genereer',
       price: 'Prijs (€)',
       quantity: 'Flessen op voorraad',
       pairings: 'Spijscombinaties',
