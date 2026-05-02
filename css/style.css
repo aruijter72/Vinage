@@ -183,12 +183,12 @@ ul { list-style: none; }
   text-transform: uppercase;
   letter-spacing: .04em;
 }
-.type-red      { background: #F5E0E5; color: var(--red-wine); }
-.type-white    { background: #FAF3DC; color: #7A6010; }
-.type-rosé     { background: #FDE8EC; color: #A0405A; }
-.type-sparkling{ background: #E8F5E0; color: #3D6030; }
-.type-dessert  { background: #FFF0D0; color: #8A5010; }
-.type-fortified{ background: #EDE0D8; color: var(--fortified); }
+.type-red      { background: #F8DDE0; color: #B00018; }
+.type-white    { background: #FBF3D0; color: #806000; }
+.type-rosé     { background: #FDE0EC; color: #C03060; }
+.type-sparkling{ background: #DDF5D8; color: #1F7018; }
+.type-dessert  { background: #FFF0C8; color: #A05800; }
+.type-fortified{ background: #F0E0D0; color: #8A2A08; }
 
 /* ── Stars ──────────────────────────────────────────────────────────────────── */
 .stars { color: var(--gold); letter-spacing: .1em; font-size: 1rem; }
