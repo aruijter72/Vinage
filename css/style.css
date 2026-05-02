@@ -526,13 +526,13 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   gap: 6px;
   margin-bottom: 6px;
 }
-.rack-corner { width: 22px; flex-shrink: 0; }
+.rack-corner { width: 26px; flex-shrink: 0; }
 .rack-col-label {
   width: var(--slot-w);
   text-align: center;
-  font-size: .52rem;
-  font-weight: 700;
-  color: rgba(100,70,40,.45);
+  font-size: .65rem;
+  font-weight: 800;
+  color: rgba(80,50,20,.70);
   letter-spacing: .06em;
   flex-shrink: 0;
 }
