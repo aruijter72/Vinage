@@ -1794,7 +1794,7 @@ const App = {
         <div class="wine-card-meta">
           <span class="type-badge type-${w.type.replace('é','e')}">${this.t('types.'+w.type)}</span>
           ${w.vintage ? `<span style="font-size:.8rem;color:var(--text-lt)">${w.vintage}</span>` : ''}
-          ${(w.quantity||1) > 1 ? `<span class="wine-qty">${w.quantity}×</span>` : ''}
+          <span class="wine-qty${w.quantity === 0 ? ' wine-qty--empty' : ''}">${w.quantity ?? 1}×</span>
           ${w.rating ? `<span class="stars" style="font-size:.8rem">${'★'.repeat(w.rating)}</span>` : ''}
           ${drinkBadge}
           ${cellarTag ? `<span class="wine-cellar-tag">📍 ${this._esc(cellarTag)}</span>` : ''}
