@@ -531,7 +531,13 @@ const App = {
         <input id="wf-tags" class="form-control" value="${this._esc((wine.tags||[]).join(', '))}" placeholder="Organic, Gift, Special Occasion">
       </div>
       <div class="form-group">
-        <label>${this.t('wine.notes')}</label>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <label style="margin-bottom:0">${this.t('wine.notes')}</label>
+          <button type="button" class="btn btn-ghost btn-sm" id="regen-notes-btn"
+                  data-action="regen-notes" style="font-size:.75rem;padding:2px 8px">
+            ✦ ${this.t('wine.regenNotes')}
+          </button>
+        </div>
         <textarea id="wf-notes" class="form-control">${this._esc(wine.notes||'')}</textarea>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
