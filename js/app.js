@@ -25,10 +25,9 @@ const App = {
 
   // ── Bootstrap ────────────────────────────────────────────────────────────
   init() {
-    this._showSplash();
     this.lang = detectLang();
     this.render();
-    this.navigate('scan');
+    this.navigate('cellar');
     document.addEventListener('click',  e => this._delegateClick(e));
     document.addEventListener('change', e => this._delegateChange(e));
     Sync.init();

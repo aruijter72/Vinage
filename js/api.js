@@ -2,7 +2,10 @@
 const API = {
 
   // ── Wine label identification ─────────────────────────────────────────────
-  async identifyWine(base64jpeg, settings) {
+  async identifyWine(base64jpeg, settings, lang = 'en') {
+    const langNote = lang === 'nl'
+      ? 'Write the "notes" and all "pairings" values in Dutch.'
+      : 'Write the "notes" and all "pairings" values in English.';
     const prompt = `You are an expert sommelier and wine identifier.
 Examine this wine bottle label image and extract all visible information.
 Return ONLY a valid JSON object — no explanation, no markdown — with exactly these fields
@@ -22,6 +25,7 @@ Return ONLY a valid JSON object — no explanation, no markdown — with exactly
   "confidence": "high|medium|low"
 }
 For drinkFrom/drinkUntil: use your sommelier knowledge to estimate the ideal drinking window based on the wine's type, region, producer, and vintage — even if not printed on the label. Return null only if you truly cannot make any estimate.
+${langNote}
 If this is clearly NOT a wine bottle, return: {"error":"not_a_wine"}`;
 
     const provider = settings.apiProvider || 'anthropic';
