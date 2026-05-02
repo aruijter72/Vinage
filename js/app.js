@@ -402,7 +402,7 @@ const App = {
     this._setScanStatus(`<span class="spinner"></span>${this.t('scan.analyzing')}`, '');
 
     try {
-      const result = await API.identifyWine(this.capturedImage, settings);
+      const result = await API.identifyWine(this.capturedImage, settings, this.lang);
       if (result.error) {
         this._setScanStatus(this.t('scan.notFound'), 'error');
         this.scanResult = null;

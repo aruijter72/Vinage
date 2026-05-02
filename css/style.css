@@ -632,12 +632,12 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 
 /* Capsule colours by wine type */
-.slot.red-wine   .bottle-top { background: radial-gradient(circle at 35% 30%, #C84060 0%, #8B1E3F 45%, #4A0F1E 100%); }
-.slot.white-wine .bottle-top { background: radial-gradient(circle at 35% 30%, #DDB840 0%, #A07820 45%, #6A5010 100%); }
-.slot.rosé       .bottle-top { background: radial-gradient(circle at 35% 30%, #F09090 0%, #C04060 45%, #8A2040 100%); }
-.slot.sparkling  .bottle-top { background: radial-gradient(circle at 35% 30%, #C8D860 0%, #8AA030 45%, #506020 100%); }
-.slot.dessert    .bottle-top { background: radial-gradient(circle at 35% 30%, #E8C040 0%, #C89010 45%, #8A6010 100%); }
-.slot.fortified  .bottle-top { background: radial-gradient(circle at 35% 30%, #C07850 0%, #9A5030 45%, #6B3010 100%); }
+.slot.red-wine   .bottle-top { background: radial-gradient(circle at 35% 30%, #E03030 0%, #A01010 45%, #580808 100%); }
+.slot.white-wine .bottle-top { background: radial-gradient(circle at 35% 30%, #F0D040 0%, #C09A10 45%, #806600 100%); }
+.slot.rosé       .bottle-top { background: radial-gradient(circle at 35% 30%, #F07090 0%, #D03068 45%, #901040 100%); }
+.slot.sparkling  .bottle-top { background: radial-gradient(circle at 35% 30%, #60D040 0%, #2E9820 45%, #185C10 100%); }
+.slot.dessert    .bottle-top { background: radial-gradient(circle at 35% 30%, #F0B020 0%, #C07808 45%, #805000 100%); }
+.slot.fortified  .bottle-top { background: radial-gradient(circle at 35% 30%, #D06030 0%, #A03010 45%, #601800 100%); }
 
 /* Position label — shows below the circle */
 .slot-label {
