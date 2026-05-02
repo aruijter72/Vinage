@@ -86,7 +86,15 @@ const Sync = {
     if (data.householdId) {
       this.householdId = data.householdId;
       await this._loadHousehold();
+      // Eagerly download so the collection is populated immediately on sign-in,
+      // before the onSnapshot listener fires (important on fresh devices).
+      try {
+        await this._downloadToLocal();
+      } catch (e) {
+        console.warn('[Sync] Initial download failed, will rely on snapshot', e);
+      }
       this._startSync();
+      if (App.view === 'collection' || App.view === 'cellar') App.renderView();
     }
     this._updateSyncUI();
   },
@@ -291,6 +299,7 @@ const Sync = {
 
     DB._saveWines(wines);
     DB._saveCellars(cellars);
+    console.log(`[Sync] Downloaded ${wines.length} wines, ${cellars.length} cellars`);
   },
 
   // ── Write-through helpers ─────────────────────────────────────────────────
