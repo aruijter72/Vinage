@@ -497,7 +497,11 @@ const App = {
         </div>
         <div class="form-group">
           <label>${this.t('wine.quantity')}</label>
-          <input id="wf-qty" class="form-control" type="number" min="0" value="${wine.quantity != null ? wine.quantity : 1}">
+          <div class="qty-stepper">
+            <button type="button" class="qty-btn" onclick="const i=document.getElementById('wf-qty');i.value=Math.max(0,(parseInt(i.value)||0)-1)">−</button>
+            <input id="wf-qty" class="form-control qty-input" type="number" min="0" value="${wine.quantity != null ? wine.quantity : 1}">
+            <button type="button" class="qty-btn" onclick="const i=document.getElementById('wf-qty');i.value=(parseInt(i.value)||0)+1">+</button>
+          </div>
         </div>
       </div>
       <div class="form-group">
@@ -972,6 +976,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     this._autoPlaceWineId    = wineId;
     this._autoPlaceTotalQty  = totalQty;
     this._autoPlaceBottleNum = bottleNum;
+    this._pendingPlaceWineId    = wineId;
+    this._pendingPlaceTotalQty  = totalQty;
+    this._pendingPlaceBottleNum = bottleNum;
   },
 
   // ── Consumption tracking ──────────────────────────────────────────────────
