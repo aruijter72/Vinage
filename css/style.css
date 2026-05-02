@@ -548,11 +548,11 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .rack-body-row:last-child { border-bottom: none; padding-bottom: 0; }
 .rack-row-lbl {
-  width: 22px;
+  width: 26px;
   text-align: center;
-  font-size: .52rem;
-  font-weight: 700;
-  color: rgba(100,70,40,.45);
+  font-size: .65rem;
+  font-weight: 800;
+  color: rgba(80,50,20,.70);
   flex-shrink: 0;
 }
 
@@ -675,9 +675,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 /* Position label on empty slot — centred inside the hole */
 .slot-pos {
-  font-size: .48rem;
-  font-weight: 700;
-  color: rgba(255,255,255,.18);
+  font-size: .58rem;
+  font-weight: 800;
+  color: rgba(255,255,255,.38);
   letter-spacing: .03em;
   user-select: none;
 }
