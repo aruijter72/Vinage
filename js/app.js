@@ -984,6 +984,18 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const wine = DB.getWineById(wineId);
     if (!wine) return;
     this.toast(`📍 ${this.t('cellar.assignWine')}: ${this._esc(wine.name)}`, 'success');
+    // If the current cellar is a shelf type, place directly — no slot click needed.
+    const currentCellar = DB.getCellars().find(c => c.id === this.cellarDetailId);
+    if (currentCellar && currentCellar.type === 'shelf') {
+      Sync.assignWineToSlot(currentCellar.id, '', wineId);
+      if (bottleNum < totalQty) {
+        setTimeout(() => this._promptCellarPlacement(wineId, totalQty, bottleNum + 1), 400);
+      } else {
+        this.toast('📍 ' + this.t('cellar.assignWine') + ' ✓', 'success');
+      }
+      return;
+    }
+
     // Store the pre-selected wine so handleSlotClick skips the wine-picker step
     this._autoPlaceWineId    = wineId;
     this._autoPlaceTotalQty  = totalQty;
