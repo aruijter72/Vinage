@@ -941,14 +941,26 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       document.querySelectorAll('[data-cellar-pick]').forEach(btn => {
         btn.onclick = () => {
           const cellarId = btn.dataset.cellarPick;
+          const cellar   = cellars.find(c => c.id === cellarId);
           this.closeModal();
-          // Navigate directly to the chosen cellar detail — bypass navigate()
-          // because navigate() resets cellarDetailId to null before rendering.
+
+          // ── Shelf (and any future unlimited type): no slots to click —
+          //    add the wine directly and move on.
+          if (cellar && cellar.type === 'shelf') {
+            Sync.assignWineToSlot(cellarId, '', wineId);
+            if (bottleNum < totalQty) {
+              setTimeout(() => this._promptCellarPlacement(wineId, totalQty, bottleNum + 1), 400);
+            } else {
+              this.toast('📍 ' + this.t('cellar.assignWine') + ' ✓', 'success');
+            }
+            return;
+          }
+
+          // ── Grid / diamond / case: navigate to cellar, let user click a slot.
           this.view = 'cellar';
           this.cellarDetailId = cellarId;
           this.renderView();
           this.renderNav();
-          // After render, arm the auto-place mode for this wine
           setTimeout(() => {
             this._pendingPlaceWineId    = wineId;
             this._pendingPlaceTotalQty  = totalQty;
