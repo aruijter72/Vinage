@@ -3228,7 +3228,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   _typeColor(type) {
-    return { red:'#C01020', white:'#C8A020', 'rosé':'#E0507A',
+    return { red:'#C01020', white:'#C8A020', 'rosé':'#F020A0',
              sparkling:'#3A9030', dessert:'#E08800', fortified:'#9A3A10' }[type] || '#C01020';
   },
 
