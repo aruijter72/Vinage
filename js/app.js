@@ -92,9 +92,9 @@ const App = {
       <div id="rack-tooltip"></div>
       <div id="sync-indicator" class="sync-indicator sync-off" title="Offline / not signed in"></div>`;
 
-    document.getElementById('modal-close-btn').onclick = () => this.closeModal();
+    document.getElementById('modal-close-btn').onclick = () => this._tryCloseModal();
     document.getElementById('modal-overlay').onclick = e => {
-      if (e.target === document.getElementById('modal-overlay')) this.closeModal();
+      if (e.target === document.getElementById('modal-overlay')) this._tryCloseModal();
     };
   },
 
