@@ -923,6 +923,15 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       `<p style="margin-bottom:12px">${body}</p>${cellarOpts}`,
       [{ label: this.t('scan.cellarPlaceSkip'), cls: 'btn-ghost', action: () => this.closeModal() }]
     );
+    // Guard against accidental overlay-tap dismissal during multi-bottle flow
+    if (isMulti) {
+      this._pendingPlaceWineId    = wineId;
+      this._pendingPlaceTotalQty  = totalQty;
+      this._pendingPlaceBottleNum = bottleNum;
+      this._modalDismissGuard = this.lang === 'nl'
+        ? `Fles ${bottleNum} van ${totalQty} is nog niet geplaatst. Wil je deze wijn overslaan?`
+        : `Bottle ${bottleNum} of ${totalQty} hasn't been placed yet. Skip this wine?`;
+    }
     // Wire cellar pick buttons
     setTimeout(() => {
       document.querySelectorAll('[data-cellar-pick]').forEach(btn => {
@@ -3203,7 +3212,48 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     document.getElementById('modal-overlay').classList.add('open');
   },
 
+  // Call this when the user taps the overlay or ✕ — respects the dismiss guard.
+  _tryCloseModal() {
+    if (this._modalDismissGuard) {
+      const msg = this._modalDismissGuard;
+      // Temporarily lift the guard so the confirm modal itself can open
+      this._modalDismissGuard = null;
+      const lang = this.lang;
+      this.showModal(
+        lang === 'nl' ? 'Wijn niet plaatsen?' : 'Skip placement?',
+        `<p>${msg}</p>`,
+        [
+          {
+            label: lang === 'nl' ? 'Ja, sla over' : 'Yes, skip',
+            cls: 'btn-secondary',
+            action: () => {
+              // Cancel the pending auto-place state
+              this._autoPlaceWineId   = null;
+              this._pendingPlaceWineId = null;
+              this.closeModal();
+            }
+          },
+          {
+            label: lang === 'nl' ? 'Terug' : 'Go back',
+            cls: 'btn-primary',
+            action: () => {
+              // Restore the guard and re-open the original placement modal
+              const wineId    = this._pendingPlaceWineId || this._autoPlaceWineId;
+              const totalQty  = this._pendingPlaceTotalQty  || 1;
+              const bottleNum = this._pendingPlaceBottleNum || 1;
+              this.closeModal();
+              if (wineId) setTimeout(() => this._promptCellarPlacement(wineId, totalQty, bottleNum), 200);
+            }
+          }
+        ]
+      );
+      return;
+    }
+    this.closeModal();
+  },
+
   closeModal() {
+    this._modalDismissGuard = null;
     document.getElementById('modal-overlay').classList.remove('open');
     this.capturedImage = this.capturedImage; // preserve if scan
   },
