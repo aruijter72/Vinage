@@ -497,7 +497,7 @@ const App = {
         </div>
         <div class="form-group">
           <label>${this.t('wine.quantity')}</label>
-          <input id="wf-qty" class="form-control" type="number" min="1" value="${wine.quantity||1}">
+          <input id="wf-qty" class="form-control" type="number" min="0" value="${wine.quantity != null ? wine.quantity : 1}">
         </div>
       </div>
       <div class="form-group">
@@ -649,7 +649,7 @@ const App = {
       thumbnail: this.capturedThumbnail || null,
       producer: parse('wf-producer'),
       vintage:  parseNum('wf-vintage') ? parseInt(parse('wf-vintage'),10) : null,
-      quantity: parseInt(parse('wf-qty'),10) || 1,
+      quantity: Math.max(0, parseInt(parse('wf-qty'), 10) || 0),
       type:     this._formType,
       region:   parse('wf-region'),
       country:  parse('wf-country'),
@@ -665,7 +665,7 @@ const App = {
 
     // Capture old quantity before saving (for quantity-increase detection)
     const oldWine    = this.editWineId ? DB.getWineById(this.editWineId) : null;
-    const oldQty     = oldWine ? (oldWine.quantity || 1) : 0;
+    const oldQty     = oldWine ? (oldWine.quantity ?? 1) : 0;
     const editWineId = this.editWineId; // stash before closeModal clears it
 
     let newWine = null;
