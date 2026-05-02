@@ -152,6 +152,7 @@ const App = {
       }
       case 'manual-add-wine':     this.showWineForm(null); break;
       case 'save-wine':           this.saveWineForm(); break;
+      case 'regen-notes':         this._regenNotes(); break;
       case 'edit-wine':           this.editWine(args.id); break;
       case 'delete-wine':         this.confirmDeleteWine(args.id); break;
       case 'open-cellar':         this.openCellarDetail(args.id); break;
