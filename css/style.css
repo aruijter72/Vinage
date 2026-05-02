@@ -196,6 +196,26 @@ ul { list-style: none; }
 /* ── Forms ──────────────────────────────────────────────────────────────────── */
 .form-group { margin-bottom: 16px; }
 .form-group label { display: block; font-size: .85rem; font-weight: 600; color: var(--text-md); margin-bottom: 6px; }
+
+/* Quantity stepper — −  [input]  + */
+.qty-stepper { display: flex; align-items: center; gap: 0; }
+.qty-btn {
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  border: 1.5px solid var(--cream-dk);
+  background: var(--cream);
+  color: var(--burgundy);
+  font-size: 1.3rem; font-weight: 700; line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.qty-btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); border-right: none; }
+.qty-btn:last-child  { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: none; }
+.qty-btn:active { background: var(--burgundy); color: var(--white); }
+.qty-input { border-radius: 0 !important; text-align: center; -moz-appearance: textfield; }
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .form-control {
   width: 100%;
   padding: 11px 14px;
