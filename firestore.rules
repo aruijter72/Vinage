@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── User profiles ─────────────────────────────────────────────────────────
+    // Each user can only read/write their own profile document.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ── Households ────────────────────────────────────────────────────────────
+    match /households/{householdId} {
+
+      // Any signed-in user can READ household metadata.
+      // This is required so the invite-code lookup query works:
+      //   db.collection('households').where('inviteCode', '==', code)
+      // Without this, a non-member gets "permission denied" before they can
+      // even find the household to join.
+      allow read: if request.auth != null;
+
+      // Any signed-in user can CREATE a new household.
+      allow create: if request.auth != null;
+
+      // Any signed-in user can UPDATE a household.
+      // This covers two cases:
+      //   1. An existing member making changes (name, etc.)
+      //   2. A new user adding themselves to the members map (joining).
+      allow update: if request.auth != null;
+
+      // Only the original creator can delete a household.
+      allow delete: if request.auth != null &&
+                       resource.data.createdBy == request.auth.uid;
+
+      // ── Wines subcollection ─────────────────────────────────────────────────
+      // Read and write are allowed only if the requesting user is listed in
+      // the parent household's members map.
+      match /wines/{wineId} {
+        allow read, write: if request.auth != null &&
+          get(/databases/$(database)/documents/households/$(householdId))
+            .data.members[request.auth.uid] != null;
+      }
+
+      // ── Cellars subcollection ───────────────────────────────────────────────
+      match /cellars/{cellarId} {
+        allow read, write: if request.auth != null &&
+          get(/databases/$(database)/documents/households/$(householdId))
+            .data.members[request.auth.uid] != null;
+      }
+    }
+  }
+}

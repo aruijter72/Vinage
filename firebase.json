@@ -1,0 +1,17 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "firestore.rules",
+      "autopush.sh",
+      ".git",
+      ".gitignore",
+      "*.md",
+      "node_modules"
+    ]
+  }
+}
