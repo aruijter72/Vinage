@@ -1307,17 +1307,25 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
   _buildShelfRack(c) {
     const wines = (c.wines || []).map(id => DB.getWineById(id)).filter(Boolean);
-    const items = wines.map(w => `
-      <div class="shelf-item">
-        <div class="shelf-bottle-dot" style="background:${this._typeColor(w.type)}"></div>
+    const items = wines.map(w => {
+      const thumb = w.thumbnail
+        ? `<img class="shelf-thumb" src="data:image/jpeg;base64,${w.thumbnail}" alt="">`
+        : `<div class="shelf-bottle-dot" style="background:${this._typeColor(w.type)}"></div>`;
+      return `
+      <div class="shelf-item" data-action="click-slot"
+           data-cellarid="${c.id}" data-slot="" data-wineid="${w.id}">
+        ${thumb}
         <div style="flex:1;min-width:0">
           <div class="shelf-wine-name">${this._esc(w.name)}</div>
           <div class="shelf-wine-meta">${[w.vintage, this.t('types.'+w.type), w.region].filter(Boolean).join(' · ')}</div>
         </div>
-        <button class="btn btn-icon btn-sm" data-action="remove-from-shelf" data-cellarid="${c.id}" data-wineid="${w.id}" title="Remove">
+        <button class="btn btn-icon btn-sm" data-action="remove-from-shelf"
+                data-cellarid="${c.id}" data-wineid="${w.id}" title="Remove"
+                onclick="event.stopPropagation()">
           ${this._iconX()}
         </button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
 
     return `
     <div class="shelf-list">
