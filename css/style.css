@@ -227,20 +227,20 @@ ul { list-style: none; }
 .form-control {
   width: 100%;
   padding: 11px 14px;
-  border: 1.5px solid var(--border-md);
+  border: 1.5px solid var(--cream-dk);
   border-radius: var(--radius-sm);
-  background: var(--surface-dk);
-  color: var(--cream);
+  background: var(--white);
+  color: var(--text);
   font-size: .95rem;
   transition: border-color var(--transition);
   appearance: none;
 }
-.form-control:focus { outline: none; border-color: var(--wine-red); }
+.form-control:focus { outline: none; border-color: var(--burgundy); }
 textarea.form-control { resize: vertical; min-height: 80px; }
-select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A3835B' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A4F38' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
 
 .star-picker { display: flex; gap: 6px; }
-.star-picker button { font-size: 1.6rem; color: var(--surface-lt); transition: color var(--transition); padding: 4px; }
+.star-picker button { font-size: 1.6rem; color: var(--cream-dk); transition: color var(--transition); padding: 4px; }
 .star-picker button.on { color: var(--gold); }
 
 /* ── Modal ──────────────────────────────────────────────────────────────────── */
