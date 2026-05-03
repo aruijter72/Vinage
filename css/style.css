@@ -482,12 +482,11 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .type-selector { display: flex; flex-wrap: wrap; gap: 8px; }
 .type-option {
   padding: 7px 14px; border-radius: 50px;
-  border: 1.5px solid var(--border-md);
-  color: var(--cream-dk);
+  border: 1.5px solid var(--cream-dk);
   font-size: .85rem; font-weight: 500; cursor: pointer;
   transition: all var(--transition);
 }
-.type-option.selected { border-color: var(--wine-red); background: var(--wine-red); color: var(--cream); }
+.type-option.selected { border-color: var(--burgundy); background: var(--burgundy); color: var(--white); }
 
 /* ════════════════════════════════════════════════════════════════════════════
    CELLAR VIEW
