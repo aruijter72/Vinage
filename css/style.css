@@ -816,36 +816,36 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .collection-toolbar {
   padding: 10px 16px;
   display: flex; gap: 8px; align-items: center;
-  border-bottom: 1px solid var(--cream-dk);
+  border-bottom: 1px solid var(--border);
 }
 .search-input-wrap { flex: 1; position: relative; }
 .search-input-wrap svg {
   position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-  color: var(--text-lt); width: 18px; height: 18px; pointer-events: none;
+  color: var(--cream-muted); width: 18px; height: 18px; pointer-events: none;
 }
 .search-input {
   width: 100%; padding: 9px 12px 9px 34px;
-  border: 1.5px solid var(--cream-dk);
-  border-radius: 50px; background: var(--cream); font-size: .9rem;
+  border: 1.5px solid var(--border-md);
+  border-radius: 50px; background: var(--surface-dk); color: var(--cream); font-size: .9rem;
 }
-.search-input:focus { outline: none; border-color: var(--burgundy); }
+.search-input:focus { outline: none; border-color: var(--wine-red); }
 
 .filter-strip {
   display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px;
-  scrollbar-width: none; border-bottom: 1px solid var(--cream-dk);
+  scrollbar-width: none; border-bottom: 1px solid var(--border);
 }
 .filter-strip::-webkit-scrollbar { display: none; }
 .filter-chip {
-  padding: 5px 14px; border-radius: 50px; border: 1.5px solid var(--cream-dk);
+  padding: 5px 14px; border-radius: 50px; border: 1.5px solid var(--border-md);
   font-size: .82rem; font-weight: 500; white-space: nowrap; cursor: pointer;
-  background: var(--white); transition: all var(--transition);
+  color: var(--cream-dk); background: var(--surface); transition: all var(--transition);
 }
-.filter-chip.active { background: var(--burgundy); color: var(--white); border-color: var(--burgundy); }
+.filter-chip.active { background: var(--wine-red); color: var(--cream); border-color: var(--wine-red); }
 
 .wine-grid { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
 .wine-card {
   display: flex; gap: 14px; align-items: flex-start;
-  padding: 14px; background: var(--white);
+  padding: 14px; background: var(--surface);
   border-radius: var(--radius); box-shadow: 0 1px 6px var(--shadow);
   cursor: pointer; transition: box-shadow var(--transition);
 }
@@ -857,8 +857,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   width: 44px; height: 62px;
   object-fit: cover; object-position: center top;
   border-radius: 6px; flex-shrink: 0;
-  box-shadow: 0 1px 5px rgba(0,0,0,.18);
-  background: var(--cream-dk);
+  box-shadow: 0 1px 5px rgba(0,0,0,.30);
+  background: var(--surface-lt);
 }
 .wine-card-body { flex: 1; min-width: 0; }
 .wine-card-name { font-size: .97rem; font-weight: 700; margin-bottom: 3px; }
