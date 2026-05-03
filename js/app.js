@@ -264,11 +264,11 @@ const App = {
         <div id="scan-status" class="scan-status">&nbsp;</div>
         <!-- Branded header: mark · camera button · wordmark -->
         <div class="scan-brand-row">
-          <img src="Vinage Logo Pic.png" class="scan-brand-mark" alt="" draggable="false">
+          <img src="Logo Vinage V-Bottle No Background.png" class="scan-brand-mark" alt="" draggable="false">
           <button class="capture-btn" id="capture-btn" data-action="start-camera" title="${this.t('scan.startCamera')}">
             ${this._iconCamera()}
           </button>
-          <img src="Vinage Logo Name.png" class="scan-brand-name" alt="Vinage" draggable="false">
+          <img src="Logo Vinage Name No Background.png" class="scan-brand-name" alt="Vinage" draggable="false">
         </div>
         <div id="scan-action-row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;">
           <button class="btn btn-secondary btn-icon" id="rotate-btn" data-action="rotate-camera"
@@ -2611,7 +2611,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
     <div class="about-info">
       <button class="btn btn-ghost btn-full" data-action="show-about" style="gap:10px;font-weight:600">
-        <img src="Vinage Logo Pic.png" style="height:24px;width:auto"> ${this.t('settings.about')}
+        <img src="Logo Vinage V-Bottle No Background.png" style="height:24px;width:auto"> ${this.t('settings.about')}
       </button>
       <div style="font-size:.8rem;color:var(--text-lt);margin-top:8px">${this.t('settings.version')} · ${this.t('settings.madeWith')}</div>
     </div>`;
@@ -2742,7 +2742,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           </picture>
         </div>
         <div class="about-content">
-          <img src="Vinage Logo Name.png" class="about-wordmark" alt="Vinage">
+          <img src="Logo Vinage Name No Background.png" class="about-wordmark" alt="Vinage">
           <p class="about-tagline">${this.t('settings.madeWith')}</p>
           <div class="about-features">
             <div class="about-feature-item">📷 ${this.lang === 'nl' ? 'Scannen & herkennen van wijnflessen' : 'Scan & identify wine bottles'}</div>
