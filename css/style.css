@@ -781,12 +781,12 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .shelf-item {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 14px;
-  background: var(--surface);
+  background: var(--white);
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--cream-dk);
   cursor: pointer;
 }
-.shelf-item:active { background: var(--surface-lt); }
+.shelf-item:active { background: var(--cream); }
 .shelf-bottle-dot {
   width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
 }
@@ -801,8 +801,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .shelf-wine-meta { font-size: .78rem; color: var(--text-lt); }
 .shelf-add-btn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px; border: 2px dashed var(--border-md);
-  border-radius: var(--radius-sm); color: var(--cream-muted);
+  padding: 12px; border: 2px dashed var(--cream-dk);
+  border-radius: var(--radius-sm); color: var(--text-lt);
   font-size: .9rem; cursor: pointer;
 }
 
@@ -860,8 +860,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .wine-card-name { font-size: .97rem; font-weight: 700; margin-bottom: 3px; }
 .wine-card-sub { font-size: .8rem; color: var(--text-lt); margin-bottom: 5px; }
 .wine-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.wine-qty { font-size: .8rem; font-weight: 600; color: var(--gold-lt); background: var(--surface-lt); padding: 2px 8px; border-radius: 50px; }
-.wine-qty--empty { color: var(--cream-muted); background: transparent; border: 1px dashed var(--border-md); }
+.wine-qty { font-size: .8rem; font-weight: 600; color: var(--burgundy); background: var(--cream-dk); padding: 2px 8px; border-radius: 50px; }
+.wine-qty--empty { color: var(--text-lt); background: transparent; border: 1px dashed var(--cream-dk); }
 .wine-cellar-tag { font-size: .75rem; color: var(--text-lt); }
 
 /* ── Collection stats bar ───────────────────────────────────────────────────── */
