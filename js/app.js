@@ -881,6 +881,26 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     }
   },
 
+  // ── Background image migration ────────────────────────────────────────────
+  async _migrateImagesToFirebase() {
+    if (!Sync._ready || !Sync.householdId) return;
+    const wines = DB.getWines().filter(w => !w.imageUrl);
+    if (!wines.length) return;
+    let count = 0;
+    for (const w of wines) {
+      try {
+        const img = await ImageDB.get(w.id);
+        if (img) {
+          await Sync._uploadImage(w.id, img);
+          count++;
+        }
+      } catch (e) {
+        console.warn('[Vinage] Failed to migrate image for', w.id, e.message);
+      }
+    }
+    if (count > 0) console.log(`[Vinage] Uploaded ${count} image(s) to Firebase Storage`);
+  },
+
   // ── Duplicate detection ───────────────────────────────────────────────────
   _findDuplicate(scan) {
     if (!scan || !scan.name) return null;
