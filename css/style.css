@@ -1699,9 +1699,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   align-items: center;
   gap: 4px;
   background: none;
-  border: 1.5px solid var(--burgundy);
+  border: 1.5px solid var(--gold);
   border-radius: 20px;
-  color: var(--burgundy);
+  color: var(--gold-lt);
   font-size: .8rem;
   font-weight: 600;
   padding: 3px 10px;
@@ -1711,8 +1711,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .location-cellar-name:hover,
 .location-cellar-name:active {
-  background: var(--burgundy);
-  color: var(--white);
+  background: var(--wine-red);
+  border-color: var(--wine-red);
+  color: var(--cream);
 }
 .location-coords {
   display: flex;
