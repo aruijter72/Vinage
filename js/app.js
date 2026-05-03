@@ -1356,8 +1356,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           <div class="shelf-wine-meta">${[w.vintage, this.t('types.'+w.type), w.region].filter(Boolean).join(' · ')}</div>
         </div>
         <button class="btn btn-icon btn-sm" data-action="remove-from-shelf"
-                data-cellarid="${c.id}" data-wineid="${w.id}" title="Remove"
-                onclick="event.stopPropagation()">
+                data-cellarid="${c.id}" data-wineid="${w.id}" title="Remove">
           ${this._iconX()}
         </button>
       </div>`;
@@ -1586,7 +1585,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             this.closeModal(); this.editWine(wineId);
           }},
           { label: this.t('cellar.removeWine'), cls: 'btn-danger', action: () => {
-            Sync.assignWineToSlot(cellarId, slot, null);
+            if (slot === '' || slot == null) {
+              Sync.removeWineFromShelf(cellarId, wineId);
+            } else {
+              Sync.assignWineToSlot(cellarId, slot, null);
+            }
             this.closeModal(); this.renderView();
           }},
         ]
