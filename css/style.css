@@ -629,119 +629,63 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
     0 1px 0 rgba(255,255,255,.50);
 }
 
-/* ── Bottle top — realistic capsule viewed from above ────────────────────────── */
-/*
-   Three zones (outer → inner):
-   1. Crimped outer ring  — repeating-conic-gradient, masked to the outer band
-   2. Annular flat area   — concentric shadow rings in the base background
-   3. Raised centre dome  — ::after, bright radial gradient + ring shadow
-   The neck collar is a box-shadow ring outside the element.
-*/
+/* ── Bottle top — small matte capsule sitting in the neck ───────────────────────
+   Proportions: ~42 % of the slot diameter, centred.
+   The slot.occupied background provides the dark glass + neck rings behind it.  */
 .bottle-top {
-  width: 72%;
-  height: 72%;
+  width: 42%;
+  height: 42%;
   border-radius: 50%;
   position: relative;
   overflow: hidden;
-  /* Dark neck collar + depth shadow */
+  /* Capsule edge: thin dark rim where foil meets the neck */
   box-shadow:
-    0 0 0 4px rgba(18,7,2,.95),
-    0 4px 10px rgba(0,0,0,.65),
-    inset 0 1px 2px rgba(255,255,255,.20);
+    0 0 0 2px rgba(0,0,0,.60),
+    0 2px 6px rgba(0,0,0,.70),
+    inset 0 1px 2px rgba(255,255,255,.15);
 }
 
-/* ① Crimped / serrated outer ring ─────────────────────────────────────────────
-   repeating-conic-gradient gives alternating light/dark segments around the edge.
-   A radial-gradient mask hides the inner 76 % so only the outer band shows.     */
+/* Concave inner ring — the slight depression in the capsule face */
 .bottle-top::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: repeating-conic-gradient(
-    rgba(0,0,0,.28)        0deg  5deg,
-    rgba(255,255,255,.14)  5deg 10deg
+  /* A single shadow ring ~65 % in, matching the reference photo */
+  background: radial-gradient(circle at 50% 50%,
+    transparent 58%,
+    rgba(0,0,0,.28) 62%,
+    rgba(0,0,0,.12) 68%,
+    transparent 72%
   );
-  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 74%, #000 77%);
-  mask:         radial-gradient(circle at 50% 50%, transparent 74%, #000 77%);
-  z-index: 3;
+  z-index: 1;
   pointer-events: none;
 }
 
-/* ③ Raised centre dome ─────────────────────────────────────────────────────────
-   A small circle with a bright off-centre highlight and a subtle shadow ring.    */
+/* Centre dome — very subtle raised disc with off-centre highlight */
 .bottle-top::after {
   content: '';
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 36%; height: 36%;
+  width: 55%; height: 55%;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%,
-    rgba(255,255,255,.75) 0%,
-    rgba(255,255,255,.15) 45%,
-    rgba(0,0,0,.08)       100%
+  background: radial-gradient(circle at 42% 38%,
+    rgba(255,255,255,.22) 0%,
+    rgba(255,255,255,.04) 55%,
+    transparent           100%
   );
-  box-shadow:
-    0 0 0 2px rgba(0,0,0,.25),
-    0 1px 4px rgba(0,0,0,.35),
-    inset 0 1px 1px rgba(255,255,255,.50);
-  z-index: 4;
+  z-index: 2;
   pointer-events: none;
 }
 
-/* ② Base colour + concentric depth rings (shared pattern, colour differs per type)
-   Layers (top to bottom):
-   a. concentric shadow rings → give the annular depth between dome and crimp
-   b. base colour radial gradient                                                  */
-.slot.red-wine   .bottle-top {
-  background:
-    radial-gradient(circle at 50% 50%,
-      transparent 32%, rgba(0,0,0,.20) 34%, transparent 36%,
-      transparent 50%, rgba(0,0,0,.14) 52%, transparent 54%,
-      transparent 66%, rgba(0,0,0,.10) 68%, transparent 70%),
-    radial-gradient(circle at 44% 38%, #F03838 0%, #B01010 48%, #600808 100%);
-}
-.slot.white-wine .bottle-top {
-  background:
-    radial-gradient(circle at 50% 50%,
-      transparent 32%, rgba(0,0,0,.18) 34%, transparent 36%,
-      transparent 50%, rgba(0,0,0,.13) 52%, transparent 54%,
-      transparent 66%, rgba(0,0,0,.09) 68%, transparent 70%),
-    radial-gradient(circle at 44% 38%, #FAE040 0%, #CCA010 48%, #806400 100%);
-}
-.slot.rosé       .bottle-top {
-  background:
-    radial-gradient(circle at 50% 50%,
-      transparent 32%, rgba(0,0,0,.20) 34%, transparent 36%,
-      transparent 50%, rgba(0,0,0,.14) 52%, transparent 54%,
-      transparent 66%, rgba(0,0,0,.10) 68%, transparent 70%),
-    radial-gradient(circle at 44% 38%, #FF38CC 0%, #D010AA 48%, #880878 100%);
-}
-.slot.sparkling  .bottle-top {
-  background:
-    radial-gradient(circle at 50% 50%,
-      transparent 32%, rgba(0,0,0,.18) 34%, transparent 36%,
-      transparent 50%, rgba(0,0,0,.13) 52%, transparent 54%,
-      transparent 66%, rgba(0,0,0,.09) 68%, transparent 70%),
-    radial-gradient(circle at 44% 38%, #6CE440 0%, #2EA018 48%, #145C08 100%);
-}
-.slot.dessert    .bottle-top {
-  background:
-    radial-gradient(circle at 50% 50%,
-      transparent 32%, rgba(0,0,0,.18) 34%, transparent 36%,
-      transparent 50%, rgba(0,0,0,.13) 52%, transparent 54%,
-      transparent 66%, rgba(0,0,0,.09) 68%, transparent 70%),
-    radial-gradient(circle at 44% 38%, #F8BC20 0%, #C07C08 48%, #784C00 100%);
-}
-.slot.fortified  .bottle-top {
-  background:
-    radial-gradient(circle at 50% 50%,
-      transparent 32%, rgba(0,0,0,.20) 34%, transparent 36%,
-      transparent 50%, rgba(0,0,0,.14) 52%, transparent 54%,
-      transparent 66%, rgba(0,0,0,.10) 68%, transparent 70%),
-    radial-gradient(circle at 44% 38%, #DC6030 0%, #A02808 48%, #581000 100%);
-}
+/* Capsule colours — matte base radial gradient per wine type */
+.slot.red-wine   .bottle-top { background: radial-gradient(circle at 44% 40%, #D83030 0%, #901010 55%, #4E0606 100%); }
+.slot.white-wine .bottle-top { background: radial-gradient(circle at 44% 40%, #E8D038 0%, #B88C08 55%, #706000 100%); }
+.slot.rosé       .bottle-top { background: radial-gradient(circle at 44% 40%, #EC28BE 0%, #C008A0 55%, #800870 100%); }
+.slot.sparkling  .bottle-top { background: radial-gradient(circle at 44% 40%, #58D838 0%, #269014 55%, #0E5006 100%); }
+.slot.dessert    .bottle-top { background: radial-gradient(circle at 44% 40%, #E8AC18 0%, #B07006 55%, #6A4400 100%); }
+.slot.fortified  .bottle-top { background: radial-gradient(circle at 44% 40%, #CC5828 0%, #962008 55%, #501200 100%); }
 
 /* Position label — shows below the circle */
 .slot-label {
