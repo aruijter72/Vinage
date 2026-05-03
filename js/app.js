@@ -588,12 +588,21 @@ const App = {
         if (!places || places.length === 0) return '';
         const byCellar = {};
         places.forEach(p => {
-          if (!byCellar[p.cellarId]) byCellar[p.cellarId] = { name: p.cellarName, id: p.cellarId, slots: [] };
+          if (!byCellar[p.cellarId]) byCellar[p.cellarId] = { name: p.cellarName, id: p.cellarId, slots: [], shelfCount: 0 };
           if (p.slot !== null) byCellar[p.cellarId].slots.push(this._slotPositionLabel(p.slot));
+          else byCellar[p.cellarId].shelfCount++;
         });
         const rows = Object.values(byCellar).map(c => {
-          const coords = c.slots.length
-            ? c.slots.map(s => `<span class="location-coord-pill">${s}</span>`).join('')
+          const sorted = c.slots.slice().sort((a, b) => {
+            const [, al='', an='0'] = a.match(/^([A-Z]*)(\d+)$/) || [];
+            const [, bl='', bn='0'] = b.match(/^([A-Z]*)(\d+)$/) || [];
+            return al.localeCompare(bl) || (parseInt(an) - parseInt(bn));
+          });
+          const coords = sorted.length || c.shelfCount
+            ? [
+                ...sorted.map(s => `<span class="location-coord-pill">${s}</span>`),
+                ...(c.shelfCount > 0 ? [`<span class="location-coord-pill">${c.shelfCount}×</span>`] : [])
+              ].join('')
             : `<span style="font-size:.78rem;opacity:.6">${this.lang==='nl'?'(Plank)':'(Shelf)'}</span>`;
           return `<div class="location-cellar-row">
             <button class="location-cellar-name" data-action="goto-cellar" data-cellarid="${c.id}">
@@ -2183,12 +2192,21 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         // Group by cellar
         const byCellar = {};
         places.forEach(p => {
-          if (!byCellar[p.cellarId]) byCellar[p.cellarId] = { name: p.cellarName, id: p.cellarId, slots: [] };
+          if (!byCellar[p.cellarId]) byCellar[p.cellarId] = { name: p.cellarName, id: p.cellarId, slots: [], shelfCount: 0 };
           if (p.slot !== null) byCellar[p.cellarId].slots.push(this._slotPositionLabel(p.slot));
+          else byCellar[p.cellarId].shelfCount++;
         });
         const rows = Object.values(byCellar).map(c => {
-          const coords = c.slots.length
-            ? c.slots.map(s => `<span class="location-coord-pill">${s}</span>`).join('')
+          const sorted = c.slots.slice().sort((a, b) => {
+            const [, al='', an='0'] = a.match(/^([A-Z]*)(\d+)$/) || [];
+            const [, bl='', bn='0'] = b.match(/^([A-Z]*)(\d+)$/) || [];
+            return al.localeCompare(bl) || (parseInt(an) - parseInt(bn));
+          });
+          const coords = sorted.length || c.shelfCount
+            ? [
+                ...sorted.map(s => `<span class="location-coord-pill">${s}</span>`),
+                ...(c.shelfCount > 0 ? [`<span class="location-coord-pill">${c.shelfCount}×</span>`] : [])
+              ].join('')
             : `<span style="font-size:.78rem;opacity:.6">${this.lang==='nl'?'(Plank)':'(Shelf)'}</span>`;
           return `<div class="location-cellar-row">
             <button class="location-cellar-name" data-action="goto-cellar" data-cellarid="${c.id}">
