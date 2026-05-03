@@ -785,12 +785,12 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .shelf-item {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 14px;
-  background: var(--white);
+  background: var(--surface);
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--cream-dk);
+  border: 1.5px solid var(--border);
   cursor: pointer;
 }
-.shelf-item:active { background: var(--cream); }
+.shelf-item:active { background: var(--surface-lt); }
 .shelf-bottle-dot {
   width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
 }
@@ -864,8 +864,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .wine-card-name { font-size: .97rem; font-weight: 700; margin-bottom: 3px; }
 .wine-card-sub { font-size: .8rem; color: var(--text-lt); margin-bottom: 5px; }
 .wine-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.wine-qty { font-size: .8rem; font-weight: 600; color: var(--burgundy); background: var(--cream-dk); padding: 2px 8px; border-radius: 50px; }
-.wine-qty--empty { color: var(--text-lt); background: transparent; border: 1px dashed var(--cream-dk); }
+.wine-qty { font-size: .8rem; font-weight: 600; color: var(--gold-lt); background: var(--surface-lt); padding: 2px 8px; border-radius: 50px; }
+.wine-qty--empty { color: var(--cream-muted); background: transparent; border: 1px dashed var(--border-md); }
 .wine-cellar-tag { font-size: .75rem; color: var(--text-lt); }
 
 /* ── Collection stats bar ───────────────────────────────────────────────────── */
