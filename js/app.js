@@ -60,7 +60,7 @@ const App = {
       obj = path.split('.').reduce((o,k) => o?.[k], TRANSLATIONS.en);
     }
     let s = obj ?? path;
-    if (vars) Object.entries(vars).forEach(([k,v]) => s = s.replace(`{${k}}`, v));
+    if (vars) Object.entries(vars).forEach(([k,v]) => s = s.replaceAll(`{${k}}`, v));
     return s;
   },
 
