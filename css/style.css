@@ -1201,11 +1201,10 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   display: flex; align-items: center; gap: 10px;
   padding: 11px 12px; border-radius: var(--radius-sm);
   cursor: pointer; transition: background var(--transition);
-  border: 1.5px solid var(--border);
-  color: var(--cream);
+  border: 1.5px solid var(--cream-dk);
 }
-.wine-picker-item:hover { background: var(--surface-lt); }
-.wine-picker-item.selected { border-color: var(--wine-red); background: var(--surface-lt); }
+.wine-picker-item:hover { background: var(--cream); }
+.wine-picker-item.selected { border-color: var(--burgundy); background: var(--cream-dk); }
 .picker-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .picker-name { font-size: .9rem; font-weight: 600; flex: 1; }
 .picker-meta { font-size: .78rem; color: var(--text-lt); }
@@ -1313,15 +1312,15 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 
 /* Invite code box */
 .sync-code-box {
-  background: var(--surface-dk);
-  border: 1.5px dashed var(--gold);
+  background: var(--cream-dk);
+  border: 1.5px dashed var(--burgundy-lt);
   border-radius: var(--radius-sm);
   padding: 14px 16px;
   text-align: center;
 }
-.sync-code-label  { font-size: .75rem; color: var(--cream-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
-.sync-code-value  { font-size: 2rem; font-weight: 800; letter-spacing: .22em; color: var(--gold-lt); font-family: 'SF Mono', 'Fira Code', monospace; }
-.sync-code-hint   { font-size: .78rem; color: var(--cream-muted); margin-top: 6px; }
+.sync-code-label  { font-size: .75rem; color: var(--text-lt); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
+.sync-code-value  { font-size: 2rem; font-weight: 800; letter-spacing: .22em; color: var(--burgundy); font-family: 'SF Mono', 'Fira Code', monospace; }
+.sync-code-hint   { font-size: .78rem; color: var(--text-lt); margin-top: 6px; }
 
 /* Join row */
 .sync-join-row {
