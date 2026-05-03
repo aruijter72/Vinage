@@ -226,9 +226,9 @@ ul { list-style: none; }
 .qty-btn {
   flex-shrink: 0;
   width: 44px; height: 44px;
-  border: 1.5px solid var(--cream-dk);
-  background: var(--cream);
-  color: var(--burgundy);
+  border: 1.5px solid var(--border-md);
+  background: var(--surface-lt);
+  color: var(--cream);
   font-size: 1.3rem; font-weight: 700; line-height: 1;
   cursor: pointer;
   transition: background var(--transition), color var(--transition);
@@ -236,7 +236,7 @@ ul { list-style: none; }
 }
 .qty-btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); border-right: none; }
 .qty-btn:last-child  { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: none; }
-.qty-btn:active { background: var(--burgundy); color: var(--white); }
+.qty-btn:active { background: var(--wine-red); color: var(--cream); }
 .qty-input { border-radius: 0 !important; text-align: center; -moz-appearance: textfield; }
 .qty-input::-webkit-outer-spin-button,
 .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
