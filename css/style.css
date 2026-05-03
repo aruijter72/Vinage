@@ -1515,13 +1515,13 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .map-dot-filled { opacity: .9; }
 .map-dot-empty {
-  background: var(--cream-dk);
-  border: 1px solid var(--cream-dk);
+  background: var(--surface-lt);
+  border: 1px solid var(--border-md);
 }
 .mini-map-pct {
   font-size: .68rem;
   font-weight: 700;
-  color: var(--burgundy);
+  color: var(--gold);
   margin-top: 5px;
 }
 
