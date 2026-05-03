@@ -1178,6 +1178,17 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   color: var(--text-lt);
   margin-top: 4px;
 }
+.about-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--cream-dk);
+  font-size: .74rem;
+  color: #A3835B;
+  letter-spacing: .03em;
+}
 
 /* ── Rack hover tooltip (desktop, hover-capable devices only) ───────────────── */
 #rack-tooltip {
