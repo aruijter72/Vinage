@@ -430,22 +430,22 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .capture-btn {
   width: 68px; height: 68px;
   border-radius: 50%;
-  background: var(--wine-red);
-  border: 4px solid var(--cream);
+  background: var(--white);
+  border: 4px solid var(--burgundy);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 20px rgba(128,26,51,.55);
+  box-shadow: 0 4px 20px rgba(128,26,51,.30);
   transition: transform var(--transition), box-shadow var(--transition);
 }
-.capture-btn:active { transform: scale(.90); box-shadow: 0 2px 8px rgba(128,26,51,.35); }
-.capture-btn svg { width: 30px; height: 30px; color: var(--cream); }
+.capture-btn:active { transform: scale(.90); box-shadow: 0 2px 8px rgba(128,26,51,.20); }
+.capture-btn svg { width: 30px; height: 30px; color: var(--burgundy); }
 
 .scan-status {
   text-align: center; padding: 12px;
-  font-size: .9rem; color: var(--cream-dk);
+  font-size: .9rem; color: var(--text-md);
   min-height: 44px; display: flex; align-items: center; justify-content: center;
 }
-.scan-status.found { color: #6FD89A; font-weight: 600; }
-.scan-status.error { color: #FF7A7A; }
+.scan-status.found { color: #2D6A4F; font-weight: 600; }
+.scan-status.error { color: #B30000; }
 
 .spinner {
   display: inline-block; width: 20px; height: 20px;
