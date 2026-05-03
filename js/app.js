@@ -791,17 +791,16 @@ const App = {
       ? `Welk vak vrijmaken? (${freeNum}/${totalToFree})`
       : `Which slot to free? (${freeNum}/${totalToFree})`;
 
-    this.showModal(`
-      <div class="modal-header"><h2>${title}</h2></div>
-      <div class="modal-body">
-        <p style="color:var(--text-secondary);margin-bottom:12px">
-          ${lang === 'nl'
-            ? `Je hebt de hoeveelheid verlaagd. Kies welk vak je wil vrijmaken voor <strong>${wine.name || wine.producer}</strong>.`
-            : `You reduced the quantity. Choose which slot to free for <strong>${wine.name || wine.producer}</strong>.`}
-        </p>
-        <div class="pick-slot-list" style="display:flex;flex-direction:column;gap:8px">${rows}</div>
-      </div>
-    `);
+    const bodyHtml = `
+      <p style="margin-bottom:12px">
+        ${lang === 'nl'
+          ? `Je hebt de hoeveelheid verlaagd. Kies welk vak je wil vrijmaken voor <strong>${wine.name || wine.producer}</strong>.`
+          : `You reduced the quantity. Choose which slot to free for <strong>${wine.name || wine.producer}</strong>.`}
+      </p>
+      <div class="pick-slot-list" style="display:flex;flex-direction:column;gap:8px">${rows}</div>`;
+    this.showModal(title, bodyHtml, [
+      { label: this.t('common.cancel'), cls: 'btn-ghost', action: () => this.closeModal() }
+    ]);
 
     // One-shot delegate for picking
     const handler = (e) => {
