@@ -138,7 +138,7 @@ ul { list-style: none; }
 .page-header .header-actions { display: flex; gap: 8px; align-items: center; width: 100%; justify-content: flex-end; padding-bottom: 4px; flex-wrap: wrap; }
 
 /* Wishlist cart toggle button — active state */
-.wishlist-active { color: var(--gold-lt) !important; }
+.wishlist-active { color: var(--burgundy) !important; }
 
 /* Sort dropdown — shrinks on narrow screens, never overflows */
 .collection-sort-select {
@@ -1663,7 +1663,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   box-shadow: 0 1px 4px rgba(0,0,0,.25);
   transition: transform .2s;
 }
-.toggle-switch input:checked + .toggle-slider { background: var(--wine-red); }
+.toggle-switch input:checked + .toggle-slider { background: var(--burgundy); }
 .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -1691,9 +1691,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   align-items: center;
   gap: 4px;
   background: none;
-  border: 1.5px solid var(--gold);
+  border: 1.5px solid var(--burgundy);
   border-radius: 20px;
-  color: var(--gold-lt);
+  color: var(--burgundy);
   font-size: .8rem;
   font-weight: 600;
   padding: 3px 10px;
@@ -1703,9 +1703,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .location-cellar-name:hover,
 .location-cellar-name:active {
-  background: var(--wine-red);
-  border-color: var(--wine-red);
-  color: var(--cream);
+  background: var(--burgundy);
+  color: var(--white);
 }
 .location-coords {
   display: flex;
