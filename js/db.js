@@ -121,7 +121,7 @@ const DB = {
     if (c.slots !== undefined) {
       c.slots[slotKey] = wineId || null;
     } else if (c.wines) {
-      if (wineId && !c.wines.includes(wineId)) c.wines.push(wineId);
+      if (wineId) c.wines.push(wineId);  // duplicates allowed — each entry = 1 bottle
     }
     this._saveCellars(cellars);
   },
@@ -130,7 +130,8 @@ const DB = {
     const cellars = this.getCellars();
     const c = cellars.find(c => c.id === cellarId);
     if (c && c.wines) {
-      c.wines = c.wines.filter(id => id !== wineId);
+      const idx = c.wines.indexOf(wineId);   // remove only ONE bottle, not all
+      if (idx !== -1) c.wines.splice(idx, 1);
       this._saveCellars(cellars);
     }
   },
