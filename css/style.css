@@ -421,13 +421,27 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   user-select: none;
   flex-shrink: 0;
 }
+.scan-brand-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
 .scan-brand-name {
-  height: 22px;
+  height: 20px;
   width: auto;
   object-fit: contain;
   pointer-events: none;
   user-select: none;
-  flex-shrink: 0;
+}
+.scan-brand-statement {
+  height: 11px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  opacity: .75;
 }
 .capture-btn-wrap { display: flex; justify-content: center; }
 .capture-btn {
