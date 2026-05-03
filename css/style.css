@@ -1207,10 +1207,11 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   display: flex; align-items: center; gap: 10px;
   padding: 11px 12px; border-radius: var(--radius-sm);
   cursor: pointer; transition: background var(--transition);
-  border: 1.5px solid var(--cream-dk);
+  border: 1.5px solid var(--border);
+  color: var(--cream);
 }
-.wine-picker-item:hover { background: var(--cream); }
-.wine-picker-item.selected { border-color: var(--burgundy); background: var(--cream-dk); }
+.wine-picker-item:hover { background: var(--surface-lt); }
+.wine-picker-item.selected { border-color: var(--wine-red); background: var(--surface-lt); }
 .picker-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .picker-name { font-size: .9rem; font-weight: 600; flex: 1; }
 .picker-meta { font-size: .78rem; color: var(--text-lt); }
@@ -1736,18 +1737,18 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   padding: 0 16px 16px;
 }
 .stats-card {
-  background: var(--white);
+  background: var(--surface);
   border-radius: var(--radius);
   padding: 16px;
   box-shadow: 0 1px 4px var(--shadow);
   text-align: center;
 }
-.stats-card--highlight { background: var(--burgundy); color: var(--white); }
-.stats-card--highlight .stats-card-label { color: rgba(255,255,255,.75); }
+.stats-card--highlight { background: var(--wine-red); color: var(--cream); }
+.stats-card--highlight .stats-card-label { color: rgba(242,235,225,.75); }
 .stats-card-value {
   font-size: 1.6rem;
   font-weight: 800;
-  color: var(--burgundy);
+  color: var(--gold-lt);
   line-height: 1.1;
 }
 .stats-card--highlight .stats-card-value { color: var(--white); }
@@ -1776,7 +1777,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .stats-bar-wrap {
   flex: 1;
   height: 8px;
-  background: var(--cream-dk);
+  background: var(--surface-lt);
   border-radius: 4px;
   overflow: hidden;
 }
