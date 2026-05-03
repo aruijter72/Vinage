@@ -384,59 +384,74 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 
 /* Branded scan controls header */
 .scan-controls {
-  padding: 12px 16px 16px;
-  display: flex; flex-direction: column; gap: 10px;
+  padding: 0 0 8px;
+  display: flex; flex-direction: column; gap: 0;
   align-items: center;
 }
-.scan-brand-row {
+
+/* Statement strip — cream band above dark panel */
+.scan-statement-strip {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px 6px;
+  background: var(--cream);
+}
+.scan-statement-img {
+  height: 12px;
+  width: auto;
+  object-fit: contain;
+  opacity: .70;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Dark gradient brand panel */
+.scan-brand-panel {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 0 4px;
+  padding: 16px 20px 18px;
+  background: linear-gradient(160deg, #5C1828 0%, #3B1422 60%, #2A0E14 100%);
 }
+
 .scan-brand-mark {
-  height: 52px;
+  height: 72px;
   width: auto;
   object-fit: contain;
-  pointer-events: none;
+  cursor: pointer;
   user-select: none;
   flex-shrink: 0;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.40));
+  transition: transform var(--transition), filter var(--transition);
+  -webkit-tap-highlight-color: transparent;
 }
-.scan-brand-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  flex-shrink: 0;
-}
+.scan-brand-mark:active { transform: scale(.93); }
+
 .scan-brand-name {
-  height: 20px;
+  height: 28px;
   width: auto;
   object-fit: contain;
   pointer-events: none;
   user-select: none;
+  flex-shrink: 0;
+  filter: brightness(0) invert(1) opacity(.90);
 }
-.scan-brand-statement {
-  height: 11px;
-  width: auto;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-  opacity: .75;
-}
+
 .capture-btn-wrap { display: flex; justify-content: center; }
 .capture-btn {
-  width: 68px; height: 68px;
+  width: 72px; height: 72px;
   border-radius: 50%;
   background: var(--white);
-  border: 4px solid var(--burgundy);
+  border: 3px solid rgba(255,255,255,.60);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 20px rgba(128,26,51,.30);
+  box-shadow: 0 4px 24px rgba(0,0,0,.40);
   transition: transform var(--transition), box-shadow var(--transition);
+  flex-shrink: 0;
 }
-.capture-btn:active { transform: scale(.90); box-shadow: 0 2px 8px rgba(128,26,51,.20); }
+.capture-btn:active { transform: scale(.90); box-shadow: 0 2px 10px rgba(0,0,0,.30); }
 .capture-btn svg { width: 30px; height: 30px; color: var(--burgundy); }
 
 .scan-status {
@@ -1070,7 +1085,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   width: 100%;
   max-width: 480px;             /* centered card on desktop */
   max-height: 96dvh;
-  background: linear-gradient(170deg, #5C1828 0%, #3B1422 55%, #2A0E14 100%);
+  background: var(--cream);
   border-radius: 24px 24px 0 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -1091,9 +1106,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .about-close-btn {
   position: absolute;
   top: 14px; right: 16px;
-  background: rgba(255,255,255,.15);
+  background: rgba(59,20,34,.12);
   border: none;
-  color: white;
+  color: var(--text);
   font-size: 1rem;
   width: 32px; height: 32px;
   border-radius: 50%;
@@ -1128,7 +1143,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .about-content {
   padding: 24px 24px 40px;
   text-align: center;
-  color: white;
+  color: var(--text);
 }
 .about-wordmark {
   height: 28px;
@@ -1136,8 +1151,11 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   margin-bottom: 4px;
 }
 .about-tagline {
-  color: rgba(255,255,255,.65);
-  font-size: .9rem;
+  color: #A3835B;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
   margin: 0 0 20px;
 }
 .about-features {
@@ -1148,16 +1166,16 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   text-align: left;
 }
 .about-feature-item {
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.12);
+  background: var(--white);
+  border: 1px solid var(--cream-dk);
   border-radius: 12px;
   padding: 11px 16px;
   font-size: .9rem;
-  color: rgba(255,255,255,.9);
+  color: var(--text);
 }
 .about-version {
   font-size: .78rem;
-  color: rgba(255,255,255,.35);
+  color: var(--text-lt);
   margin-top: 4px;
 }
 
