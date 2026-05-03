@@ -264,7 +264,7 @@ const App = {
         <div id="scan-status" class="scan-status">&nbsp;</div>
         <!-- Statement strip: cream band with slogan -->
         <div class="scan-statement-strip">
-          <span class="scan-statement-text">${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINES. YOUR COLLECTION.'}</span>
+          <span class="scan-statement-text">${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINE. YOUR COLLECTION.'}</span>
         </div>
         <!-- Dark brand panel: V-bottle (→ About) · camera button · wordmark -->
         <div class="scan-brand-panel">
@@ -2615,10 +2615,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     ${this._buildNotifSection()}
 
     <div class="about-info">
-      <button class="btn btn-ghost btn-full" data-action="show-about" style="gap:10px;font-weight:600">
-        <img src="Logo Vinage V-Bottle No Background.png" style="height:24px;width:auto"> ${this.t('settings.about')}
+      <button class="btn btn-full" data-action="show-about"
+              style="gap:10px;font-weight:600;background:#3B1421;color:#F2EBE1;border-radius:var(--radius);padding:14px 20px;justify-content:center;align-items:center;display:flex;">
+        <img src="Logo Vinage V-Bottle No Background.png" style="height:22px;width:auto;filter:brightness(0) invert(1) opacity(.90)"> ${this.t('settings.about')}
       </button>
-      <div style="font-size:.8rem;color:var(--text-lt);margin-top:8px">${this.t('settings.version')} · ${this.t('settings.madeWith')}</div>
+      <div style="font-size:.78rem;color:var(--text-lt);margin-top:10px;text-align:center;letter-spacing:.04em">
+        ${this.t('settings.version')} · ${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINE. YOUR COLLECTION.'}
+      </div>
     </div>`;
   },
 
@@ -2744,7 +2747,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           <img src="Logo Vinage V-Bottle No Background.png" class="about-hero-img" alt="Vinage">
         </div>
         <div class="about-content">
-          <p class="about-tagline">${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINES. YOUR COLLECTION.'}</p>
+          <p class="about-tagline">${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINE. YOUR COLLECTION.'}</p>
           <div class="about-features">
             <div class="about-feature-item">📷 ${this.lang === 'nl' ? 'Scannen & herkennen van wijnflessen' : 'Scan & identify wine bottles'}</div>
             <div class="about-feature-item">🗄️ ${this.lang === 'nl' ? 'Beheer jouw persoonlijke wijnkelder' : 'Manage your personal wine cellar'}</div>
