@@ -7,38 +7,22 @@
 
 /* ── Variables ─────────────────────────────────────────────────────────────── */
 :root {
-  /* ── Brand palette ──────────────────────────────────────────────── */
-  --bg:          #3B1422;   /* Aubergine — main background */
-  --surface:     #521B30;   /* card / panel surface */
-  --surface-lt:  #6A2240;   /* elevated surface / hover */
-  --surface-dk:  #2D0F1A;   /* sunken / nav / deepest level */
-
-  --wine-red:    #801A33;   /* primary action colour (Wijnrood) */
-  --wine-red-lt: #A0203F;   /* hover / lighter accent */
-  --wine-red-dk: #601228;   /* pressed */
-
-  --gold:        #A3835B;   /* Gold/Brons — secondary accent, slogan */
+  /* ── Brand palette — warm light theme ──────────────────────────── */
+  --burgundy:    #801A33;   /* wine-red — primary accent (was purple) */
+  --burgundy-dk: #3B1422;   /* aubergine deep — nav, gradient darks */
+  --burgundy-lt: #A5263F;   /* lighter wine-red — hovers */
+  --gold:        #A3835B;   /* Gold/Brons — secondary accent */
   --gold-lt:     #C4A478;   /* lighter gold */
-
-  --cream:       #F2EBE1;   /* Crème — primary text on dark */
-  --cream-dk:    #D4C8B8;   /* secondary text */
-  --cream-muted: #A8998A;   /* muted / tertiary */
-
+  --cream:       #F2EBE1;   /* Crème — warm background */
+  --cream-dk:    #E8DED2;   /* slightly darker cream — borders, secondary bg */
+  --brown:       #3B1422;   /* aubergine — deepest tone, replaces near-black */
+  --brown-md:    #7A4A3A;   /* mid warm brown */
+  --text:        #2A0E16;   /* near-black warm brown for body text */
+  --text-md:     #6B3A30;   /* medium warm text */
+  --text-lt:     #9A7060;   /* muted warm text */
   --white:       #FFFFFF;
-  --border:      rgba(242,235,225,.14);
-  --border-md:   rgba(242,235,225,.26);
-
-  /* ── Semantic aliases (legacy var names used across components) ─── */
-  --burgundy:    #801A33;
-  --burgundy-dk: #2D0F1A;
-  --burgundy-lt: #A0203F;
-  --brown:       #2D0F1A;
-  --brown-md:    #521B30;
-  --text:        #F2EBE1;
-  --text-md:     #D4C8B8;
-  --text-lt:     #A8998A;
-  --shadow:      rgba(0,0,0,.38);
-  --shadow-md:   rgba(0,0,0,.58);
+  --shadow:      rgba(59,20,34,.10);
+  --shadow-md:   rgba(59,20,34,.20);
 
   /* ── Wine type colours ──────────────────────────────────────────── */
   --red-wine:    #7B1A2E;
@@ -81,7 +65,7 @@
 html { font-size: 16px; -webkit-text-size-adjust: 100%; }
 body {
   font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
+  background: var(--cream);
   color: var(--text);
   min-height: 100dvh;
   overflow-x: hidden;
