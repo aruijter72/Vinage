@@ -742,15 +742,15 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .rack-zoom-btn {
   width: 28px; height: 28px;
   border-radius: 50%;
-  background: var(--surface-lt);
-  border: 1.5px solid var(--border-md);
+  background: var(--cream-dk);
+  border: 1.5px solid var(--cream-dk);
   font-size: 1.1rem; line-height: 1;
-  font-weight: 700; color: var(--cream-dk);
+  font-weight: 700; color: var(--text-md);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: background var(--transition), color var(--transition);
   flex-shrink: 0;
 }
-.rack-zoom-btn:hover { background: var(--wine-red); color: var(--cream); border-color: var(--wine-red); }
+.rack-zoom-btn:hover { background: var(--burgundy); color: var(--white); border-color: var(--burgundy); }
 .rack-zoom-level {
   font-size: .72rem; font-weight: 600;
   color: var(--text-lt); min-width: 36px; text-align: center;
@@ -1592,9 +1592,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
    FEATURE 11 — NOTIFICATION PROMPT TOAST
    ════════════════════════════════════════════════════════════════════════════ */
 .notif-prompt-toast {
-  background: var(--surface-dk);
-  color: var(--cream);
-  border: 1px solid var(--border-md);
+  background: var(--brown);
+  color: var(--white);
   padding: 12px 16px;
   border-radius: var(--radius-sm);
   font-size: .85rem;
