@@ -944,7 +944,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .drink-badge-ready  { background: #EDFAF0; color: #1A6B3C; }
 .drink-badge-past   { background: #FFF5E0; color: #8B5000; }
-.drink-badge-cellar { background: var(--surface-lt); color: var(--cream-muted); }
+.drink-badge-cellar { background: var(--cream-dk); color: var(--text-lt); }
 
 .empty-state {
   text-align: center; padding: 48px 24px;
@@ -1373,9 +1373,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   border-radius: 50px;
   font-size: .7rem;
   font-weight: 600;
-  background: var(--surface-lt);
-  color: var(--cream-dk);
-  border: 1px solid var(--border);
+  background: var(--cream-dk);
+  color: var(--text-md);
+  border: 1px solid rgba(128,26,51,.12);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -1393,7 +1393,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   border-radius: var(--radius-sm);
   overflow: hidden;
   cursor: pointer;
-  background: var(--surface-lt);
+  background: var(--cream-dk);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1715,8 +1715,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   align-items: center;
 }
 .location-coord-pill {
-  background: var(--surface-lt);
-  color: var(--cream-dk);
+  background: var(--cream-dk);
+  color: var(--text-md);
   border-radius: 6px;
   font-size: .75rem;
   font-weight: 600;
