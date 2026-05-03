@@ -1548,13 +1548,13 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   gap: 6px;
   flex-wrap: wrap;
   padding: 8px 16px;
-  background: var(--surface-lt);
-  border-bottom: 1px solid var(--border);
+  background: var(--cream-dk);
+  border-bottom: 1px solid var(--cream-dk);
 }
 .batch-count {
   font-size: .85rem;
   font-weight: 700;
-  color: var(--gold-lt);
+  color: var(--burgundy);
   flex: 1;
   white-space: nowrap;
 }
@@ -1562,15 +1562,15 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid var(--border-md);
+  border: 2px solid var(--cream-dk);
   flex-shrink: 0;
   cursor: pointer;
   transition: all var(--transition);
-  background: var(--surface);
+  background: var(--white);
 }
 .batch-checkbox.checked {
-  background: var(--wine-red);
-  border-color: var(--wine-red);
+  background: var(--burgundy);
+  border-color: var(--burgundy);
 }
 .batch-checkbox.checked::after {
   content: '✓';
@@ -1583,8 +1583,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   height: 100%;
 }
 .wine-card.batch-selected {
-  border: 2px solid var(--wine-red);
-  background: var(--surface-lt);
+  border: 2px solid var(--burgundy);
+  background: var(--cream);
 }
 .wine-card.batch-selectable { cursor: pointer; }
 
