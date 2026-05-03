@@ -262,13 +262,16 @@ const App = {
       </div>
       <div class="scan-controls">
         <div id="scan-status" class="scan-status">&nbsp;</div>
-        <!-- Branded header: mark · camera button · wordmark -->
+        <!-- Branded header: mark · camera button · wordmark + statement -->
         <div class="scan-brand-row">
           <img src="Logo Vinage V-Bottle No Background.png" class="scan-brand-mark" alt="" draggable="false">
           <button class="capture-btn" id="capture-btn" data-action="start-camera" title="${this.t('scan.startCamera')}">
             ${this._iconCamera()}
           </button>
-          <img src="Logo Vinage Name No Background.png" class="scan-brand-name" alt="Vinage" draggable="false">
+          <div class="scan-brand-right">
+            <img src="Logo Vinage Name No Background.png" class="scan-brand-name" alt="Vinage" draggable="false">
+            <img src="${this.lang === 'nl' ? 'Logo Vinage Statement No Background.png' : 'Logo Vinage Statement En No Background.png'}" class="scan-brand-statement" alt="" draggable="false">
+          </div>
         </div>
         <div id="scan-action-row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;">
           <button class="btn btn-secondary btn-icon" id="rotate-btn" data-action="rotate-camera"
