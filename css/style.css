@@ -1070,7 +1070,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   width: 100%;
   max-width: 480px;             /* centered card on desktop */
   max-height: 96dvh;
-  background: linear-gradient(170deg, #521B30 0%, #3B1422 60%, #2D0F1A 100%);
+  background: linear-gradient(170deg, #5C1828 0%, #3B1422 55%, #2A0E14 100%);
   border-radius: 24px 24px 0 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
