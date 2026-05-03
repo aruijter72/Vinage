@@ -1380,9 +1380,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   border-radius: 50px;
   font-size: .7rem;
   font-weight: 600;
-  background: var(--cream-dk);
-  color: var(--text-md);
-  border: 1px solid rgba(92,40,150,.15);
+  background: var(--surface-lt);
+  color: var(--cream-dk);
+  border: 1px solid var(--border);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -1555,13 +1555,13 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   gap: 6px;
   flex-wrap: wrap;
   padding: 8px 16px;
-  background: var(--cream-dk);
-  border-bottom: 1px solid var(--cream-dk);
+  background: var(--surface-lt);
+  border-bottom: 1px solid var(--border);
 }
 .batch-count {
   font-size: .85rem;
   font-weight: 700;
-  color: var(--burgundy);
+  color: var(--gold-lt);
   flex: 1;
   white-space: nowrap;
 }
@@ -1569,15 +1569,15 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid var(--cream-dk);
+  border: 2px solid var(--border-md);
   flex-shrink: 0;
   cursor: pointer;
   transition: all var(--transition);
-  background: var(--white);
+  background: var(--surface);
 }
 .batch-checkbox.checked {
-  background: var(--burgundy);
-  border-color: var(--burgundy);
+  background: var(--wine-red);
+  border-color: var(--wine-red);
 }
 .batch-checkbox.checked::after {
   content: '✓';
@@ -1590,8 +1590,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   height: 100%;
 }
 .wine-card.batch-selected {
-  border: 2px solid var(--burgundy);
-  background: var(--cream);
+  border: 2px solid var(--wine-red);
+  background: var(--surface-lt);
 }
 .wine-card.batch-selectable { cursor: pointer; }
 
