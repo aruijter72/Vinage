@@ -1010,37 +1010,37 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 /* ════════════════════════════════════════════════════════════════════════════
    SETTINGS VIEW
    ════════════════════════════════════════════════════════════════════════════ */
-.settings-section { padding: 16px; border-bottom: 1px solid var(--cream-dk); }
+.settings-section { padding: 16px; border-bottom: 1px solid var(--border); }
 .settings-section h2 {
-  font-size: .78rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .08em; color: var(--text-lt); margin-bottom: 14px;
+  font-size: .78rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--gold); margin-bottom: 14px;
 }
 .settings-row {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px; padding: 10px 0;
-  border-bottom: 1px solid var(--cream-dk);
+  border-bottom: 1px solid var(--border);
 }
 .settings-row:last-child { border-bottom: none; }
 .settings-row label { font-size: .95rem; font-weight: 500; }
 
 /* Lang toggle */
-.lang-toggle { display: flex; background: var(--cream-dk); border-radius: 50px; overflow: hidden; }
+.lang-toggle { display: flex; background: var(--surface-dk); border-radius: 50px; overflow: hidden; }
 .lang-toggle button {
   padding: 7px 16px; font-size: .85rem; font-weight: 600;
-  color: var(--text-lt); transition: all var(--transition); border-radius: 50px;
+  color: var(--cream-muted); transition: all var(--transition); border-radius: 50px;
 }
-.lang-toggle button.active { background: var(--burgundy); color: var(--white); }
+.lang-toggle button.active { background: var(--wine-red); color: var(--cream); }
 
 /* Provider toggle */
 .provider-toggle { display: flex; gap: 6px; }
 .provider-btn {
   padding: 7px 14px; border-radius: 50px;
-  border: 1.5px solid var(--cream-dk);
+  border: 1.5px solid var(--border-md);
   font-size: .85rem; font-weight: 600; cursor: pointer;
-  background: var(--white); color: var(--text-md);
+  background: var(--surface); color: var(--cream-dk);
   transition: all var(--transition);
 }
-.provider-btn.active { background: var(--burgundy); color: var(--white); border-color: var(--burgundy); }
+.provider-btn.active { background: var(--wine-red); color: var(--cream); border-color: var(--wine-red); }
 
 .key-hint { font-size: .75rem; color: var(--text-lt); margin-top: 5px; }
 .key-input-wrap { position: relative; }
