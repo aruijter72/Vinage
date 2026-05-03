@@ -971,7 +971,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   backdrop-filter: blur(4px);
 }
 .pairing-input::placeholder { color: rgba(255,255,255,.55); }
-.pairing-input:focus { outline: 2px solid var(--gold-lt); }
+.pairing-input:focus { outline: 2px solid var(--gold); }
 /* Keep button at its natural size; flex-wrap handles line breaks */
 .pairing-input-row .btn { flex-shrink: 0; }
 
@@ -1632,7 +1632,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   align-items: center;
   gap: 12px;
   padding: 10px 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--cream-dk);
 }
 .notif-toggle-label {
   flex: 1;
