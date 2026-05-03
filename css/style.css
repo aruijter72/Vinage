@@ -599,20 +599,34 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
     0 1px 0 rgba(255,255,255,.55);
 }
 
-/* Occupied slot — bottle top is visible, hole is shallower */
+/* Occupied slot — the full bottle viewed from above.
+   Outer area = dark glass with gloss highlight.
+   Inner rings = recessed neck with depth shading.
+   Capsule lives inside .bottle-top (only 42 % of the slot diameter).           */
 .slot.occupied {
-  background: radial-gradient(circle at 38% 32%, #2A1508 0%, #110702 100%);
+  background:
+    /* Gloss highlight — upper-left crescent on the bottle glass */
+    radial-gradient(ellipse 50% 36% at 28% 20%, rgba(255,255,255,.18) 0%, transparent 100%),
+    /* Neck depth — concentric shadow rings showing the recess */
+    radial-gradient(circle at 50% 50%,
+      rgba(0,0,0,.80) 0%,   rgba(0,0,0,.80) 37%,   /* deep neck well */
+      rgba(0,0,0,.35) 44%,  rgba(0,0,0,.60) 50%,   /* inner neck wall */
+      rgba(0,0,0,.20) 57%,  rgba(0,0,0,.55) 64%,   /* outer neck wall */
+      rgba(0,0,0,.10) 70%                           /* shoulder / glass */
+    ),
+    /* Bottle glass base: very dark olive-black */
+    radial-gradient(circle at 42% 35%, #2A2210 0%, #12100A 50%, #060503 100%);
   box-shadow:
-    inset 0 2px 8px rgba(0,0,0,.75),
-    0 1px 0 rgba(255,255,255,.5),
-    0 2px 4px rgba(0,0,0,.1);
+    inset 0 3px 10px rgba(0,0,0,.80),
+    0 1px 0 rgba(255,255,255,.45),
+    0 2px 6px rgba(0,0,0,.20);
 }
 .slot.occupied:hover {
   transform: translateY(-2px) scale(1.04);
   box-shadow:
-    inset 0 2px 6px rgba(0,0,0,.6),
-    0 6px 18px rgba(0,0,0,.22),
-    0 1px 0 rgba(255,255,255,.55);
+    inset 0 2px 8px rgba(0,0,0,.70),
+    0 6px 20px rgba(0,0,0,.28),
+    0 1px 0 rgba(255,255,255,.50);
 }
 
 /* ── Bottle top — realistic capsule viewed from above ────────────────────────── */
