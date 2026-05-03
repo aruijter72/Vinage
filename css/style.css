@@ -615,49 +615,91 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
     0 1px 0 rgba(255,255,255,.55);
 }
 
-/* ── Bottle top — bird's-eye view of the capsule ────────────────────────────── */
+/* ── Bottle top — realistic foil capsule seen from above ─────────────────────── */
 .bottle-top {
   width: 72%;
   height: 72%;
   border-radius: 50%;
   position: relative;
+  overflow: hidden;
+  /* Outer neck ring — dark rim around the capsule */
   box-shadow:
-    0 2px 6px rgba(0,0,0,.55),
-    inset 0 1px 2px rgba(255,255,255,.28),
-    inset 0 -1px 2px rgba(0,0,0,.4);
+    0 0 0 3px rgba(22,10,2,.88),
+    0 3px 8px rgba(0,0,0,.60),
+    inset 0 1px 3px rgba(255,255,255,.30);
 }
-/* Central neck opening — dark circle on top of the capsule */
-.bottle-top::after {
-  content: '';
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 30%;
-  height: 30%;
-  border-radius: 50%;
-  background: radial-gradient(circle, #1a0a02 0%, #0a0401 100%);
-  box-shadow: inset 0 1px 3px rgba(0,0,0,1);
-}
-/* Highlight arc — simulates foil/capsule sheen */
+
+/* Highlight crescent — large bright arc in upper-left, like real foil */
 .bottle-top::before {
   content: '';
   position: absolute;
-  top: 12%;
-  left: 18%;
-  width: 28%;
-  height: 20%;
+  top: 4%;  left: 6%;
+  width: 62%;  height: 50%;
   border-radius: 50%;
-  background: rgba(255,255,255,.22);
-  transform: rotate(-20deg);
+  background: radial-gradient(ellipse at 42% 42%,
+    rgba(255,255,255,.72) 0%,
+    rgba(255,255,255,.38) 38%,
+    rgba(255,255,255,.08) 68%,
+    transparent 100%
+  );
+  transform: rotate(-12deg);
+  z-index: 1;
+  pointer-events: none;
 }
 
-/* Capsule colours by wine type */
-.slot.red-wine   .bottle-top { background: radial-gradient(circle at 35% 30%, #E03030 0%, #A01010 45%, #580808 100%); }
-.slot.white-wine .bottle-top { background: radial-gradient(circle at 35% 30%, #F0D040 0%, #C09A10 45%, #806600 100%); }
-.slot.rosé       .bottle-top { background: radial-gradient(circle at 35% 30%, #F840C0 0%, #CC10A0 45%, #880870 100%); }
-.slot.sparkling  .bottle-top { background: radial-gradient(circle at 35% 30%, #60D040 0%, #2E9820 45%, #185C10 100%); }
-.slot.dessert    .bottle-top { background: radial-gradient(circle at 35% 30%, #F0B020 0%, #C07808 45%, #805000 100%); }
-.slot.fortified  .bottle-top { background: radial-gradient(circle at 35% 30%, #D06030 0%, #A03010 45%, #601800 100%); }
+/* Cork / neck opening — dark circle in the centre */
+.bottle-top::after {
+  content: '';
+  position: absolute;
+  top: 50%;  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 27%;  height: 27%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #2e1608 0%, #080301 100%);
+  box-shadow:
+    inset 0 1px 3px rgba(0,0,0,1),
+    0 0 0 2px rgba(0,0,0,.50);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Capsule colours — each type gets a base radial gradient + foil crosshatch texture */
+.slot.red-wine   .bottle-top {
+  background:
+    repeating-linear-gradient(55deg,  transparent 0px, transparent 3px, rgba(255,255,255,.07) 3px, rgba(255,255,255,.07) 4px),
+    repeating-linear-gradient(145deg, transparent 0px, transparent 3px, rgba(255,255,255,.04) 3px, rgba(255,255,255,.04) 4px),
+    radial-gradient(circle at 40% 35%, #F03838 0%, #B01010 50%, #5C0606 100%);
+}
+.slot.white-wine .bottle-top {
+  background:
+    repeating-linear-gradient(55deg,  transparent 0px, transparent 3px, rgba(255,255,255,.09) 3px, rgba(255,255,255,.09) 4px),
+    repeating-linear-gradient(145deg, transparent 0px, transparent 3px, rgba(255,255,255,.05) 3px, rgba(255,255,255,.05) 4px),
+    radial-gradient(circle at 40% 35%, #F8DC40 0%, #C89C08 50%, #806400 100%);
+}
+.slot.rosé       .bottle-top {
+  background:
+    repeating-linear-gradient(55deg,  transparent 0px, transparent 3px, rgba(255,255,255,.08) 3px, rgba(255,255,255,.08) 4px),
+    repeating-linear-gradient(145deg, transparent 0px, transparent 3px, rgba(255,255,255,.05) 3px, rgba(255,255,255,.05) 4px),
+    radial-gradient(circle at 40% 35%, #FF30C8 0%, #D010A8 50%, #880878 100%);
+}
+.slot.sparkling  .bottle-top {
+  background:
+    repeating-linear-gradient(55deg,  transparent 0px, transparent 3px, rgba(255,255,255,.09) 3px, rgba(255,255,255,.09) 4px),
+    repeating-linear-gradient(145deg, transparent 0px, transparent 3px, rgba(255,255,255,.05) 3px, rgba(255,255,255,.05) 4px),
+    radial-gradient(circle at 40% 35%, #68E040 0%, #2C9C18 50%, #145C08 100%);
+}
+.slot.dessert    .bottle-top {
+  background:
+    repeating-linear-gradient(55deg,  transparent 0px, transparent 3px, rgba(255,255,255,.09) 3px, rgba(255,255,255,.09) 4px),
+    repeating-linear-gradient(145deg, transparent 0px, transparent 3px, rgba(255,255,255,.05) 3px, rgba(255,255,255,.05) 4px),
+    radial-gradient(circle at 40% 35%, #F8B820 0%, #C07808 50%, #784C00 100%);
+}
+.slot.fortified  .bottle-top {
+  background:
+    repeating-linear-gradient(55deg,  transparent 0px, transparent 3px, rgba(255,255,255,.07) 3px, rgba(255,255,255,.07) 4px),
+    repeating-linear-gradient(145deg, transparent 0px, transparent 3px, rgba(255,255,255,.04) 3px, rgba(255,255,255,.04) 4px),
+    radial-gradient(circle at 40% 35%, #D86030 0%, #A02808 50%, #581000 100%);
+}
 
 /* Position label — shows below the circle */
 .slot-label {
