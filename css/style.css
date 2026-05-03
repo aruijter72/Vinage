@@ -1732,18 +1732,18 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   padding: 0 16px 16px;
 }
 .stats-card {
-  background: var(--surface);
+  background: var(--white);
   border-radius: var(--radius);
   padding: 16px;
   box-shadow: 0 1px 4px var(--shadow);
   text-align: center;
 }
-.stats-card--highlight { background: var(--wine-red); color: var(--cream); }
-.stats-card--highlight .stats-card-label { color: rgba(242,235,225,.75); }
+.stats-card--highlight { background: var(--burgundy); color: var(--white); }
+.stats-card--highlight .stats-card-label { color: rgba(255,255,255,.75); }
 .stats-card-value {
   font-size: 1.6rem;
   font-weight: 800;
-  color: var(--gold-lt);
+  color: var(--burgundy);
   line-height: 1.1;
 }
 .stats-card--highlight .stats-card-value { color: var(--white); }
@@ -1772,7 +1772,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .stats-bar-wrap {
   flex: 1;
   height: 8px;
-  background: var(--surface-lt);
+  background: var(--cream-dk);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -1804,7 +1804,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: var(--surface);
+  background: var(--white);
   border-radius: var(--radius-sm);
   box-shadow: 0 1px 3px var(--shadow);
 }
