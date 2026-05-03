@@ -2744,7 +2744,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <div class="about-overlay-inner">
         <button class="about-close-btn" data-action="close-about" aria-label="Close">✕</button>
         <div class="about-hero-wrap">
-          <img src="Logo Vinage V-Bottle No Background.png" class="about-hero-img" alt="Vinage">
+          <div class="about-hero-tile">
+            <img src="Logo Vinage V-Bottle No Background.png" class="about-hero-img" alt="Vinage">
+            <span class="about-tile-name">vinage</span>
+          </div>
         </div>
         <div class="about-content">
           <p class="about-tagline">${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINE. YOUR COLLECTION.'}</p>
