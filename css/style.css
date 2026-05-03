@@ -1438,7 +1438,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
    ════════════════════════════════════════════════════════════════════════════ */
 .cellar-map-section {
   margin: 12px 16px 0;
-  background: var(--surface);
+  background: var(--white);
   border-radius: var(--radius);
   box-shadow: 0 1px 6px var(--shadow);
   overflow: hidden;
@@ -1508,13 +1508,13 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .map-dot-filled { opacity: .9; }
 .map-dot-empty {
-  background: var(--surface-lt);
-  border: 1px solid var(--border-md);
+  background: var(--cream-dk);
+  border: 1px solid var(--cream-dk);
 }
 .mini-map-pct {
   font-size: .68rem;
   font-weight: 700;
-  color: var(--gold);
+  color: var(--burgundy);
   margin-top: 5px;
 }
 
