@@ -34,6 +34,7 @@
 
   /* ── Layout ─────────────────────────────────────────────────────── */
   --nav-h:       64px;
+  --safe-top:    env(safe-area-inset-top,    0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --radius:      14px;
   --radius-sm:   8px;
@@ -127,7 +128,7 @@ ul { list-style: none; }
   top: 0;
   background: var(--white);
   border-bottom: 1px solid var(--cream-dk);
-  padding: 10px 16px 8px;
+  padding: calc(10px + var(--safe-top)) 16px 8px;
   z-index: 50;
   display: flex;
   flex-wrap: wrap;

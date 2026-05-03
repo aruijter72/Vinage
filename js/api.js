@@ -22,9 +22,11 @@ Return ONLY a valid JSON object — no explanation, no markdown — with exactly
   "notes": "brief tasting note or description if visible on label",
   "drinkFrom": 2024,
   "drinkUntil": 2032,
+  "estimatedPrice": 24.99,
   "confidence": "high|medium|low"
 }
 For drinkFrom/drinkUntil: use your sommelier knowledge to estimate the ideal drinking window based on the wine's type, region, producer, and vintage — even if not printed on the label. Return null only if you truly cannot make any estimate.
+For estimatedPrice: provide a realistic estimated retail price in EUR based on the producer, region, vintage, and wine type. Use your knowledge of current market prices. Return null only if you truly cannot estimate.
 ${langNote}
 If this is clearly NOT a wine bottle, return: {"error":"not_a_wine"}`;
 

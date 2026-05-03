@@ -414,6 +414,10 @@ const App = {
         this._setScanStatus(this.t('scan.notFound'), 'error');
         this.scanResult = null;
       } else {
+        // Map estimatedPrice → price for form pre-fill (only if no price set)
+        if (result.estimatedPrice != null && result.price == null) {
+          result.price = result.estimatedPrice;
+        }
         this.scanResult = result;
         this._setScanStatus(this.t('scan.found'), 'found');
         actionRow.innerHTML = `
