@@ -395,16 +395,16 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px 6px;
+  padding: 10px 16px 8px;
   background: var(--cream);
 }
-.scan-statement-img {
-  height: 12px;
-  width: auto;
-  object-fit: contain;
-  opacity: .70;
+.scan-statement-text {
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  color: var(--gold);
+  text-transform: uppercase;
   user-select: none;
-  pointer-events: none;
 }
 
 /* Dark gradient brand panel */

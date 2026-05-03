@@ -264,7 +264,7 @@ const App = {
         <div id="scan-status" class="scan-status">&nbsp;</div>
         <!-- Statement strip: cream band with slogan -->
         <div class="scan-statement-strip">
-          <img src="${this.lang === 'nl' ? 'Logo Vinage Statement No Background.png' : 'Logo Vinage Statement En No Background.png'}" class="scan-statement-img" alt="" draggable="false">
+          <span class="scan-statement-text">${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINES. YOUR COLLECTION.'}</span>
         </div>
         <!-- Dark brand panel: V-bottle (→ About) · camera button · wordmark -->
         <div class="scan-brand-panel">
@@ -2744,7 +2744,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           <img src="Logo Vinage V-Bottle No Background.png" class="about-hero-img" alt="Vinage">
         </div>
         <div class="about-content">
-          <p class="about-tagline">YOUR WINES. YOUR COLLECTION.</p>
+          <p class="about-tagline">${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINES. YOUR COLLECTION.'}</p>
           <div class="about-features">
             <div class="about-feature-item">📷 ${this.lang === 'nl' ? 'Scannen & herkennen van wijnflessen' : 'Scan & identify wine bottles'}</div>
             <div class="about-feature-item">🗄️ ${this.lang === 'nl' ? 'Beheer jouw persoonlijke wijnkelder' : 'Manage your personal wine cellar'}</div>
