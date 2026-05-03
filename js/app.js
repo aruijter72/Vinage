@@ -2756,6 +2756,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             <div class="about-feature-item">🌐 ${this.lang === 'nl' ? 'Nederlands & Engels' : 'English & Dutch'}</div>
           </div>
           <div class="about-version">${this.t('settings.version')}</div>
+          <div class="about-footer">
+            <span>Vinage &copy;</span>
+            <span>${this.lang === 'nl' ? 'Door Arnold &amp; Marianne Ruijter' : 'By Arnold &amp; Marianne Ruijter'}</span>
+          </div>
         </div>
       </div>`;
 
