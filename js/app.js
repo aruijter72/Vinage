@@ -262,22 +262,24 @@ const App = {
       </div>
       <div class="scan-controls">
         <div id="scan-status" class="scan-status">&nbsp;</div>
-        <!-- Branded header: mark · camera button · wordmark + statement -->
-        <div class="scan-brand-row">
-          <img src="Logo Vinage V-Bottle No Background.png" class="scan-brand-mark" alt="" draggable="false">
+        <!-- Statement strip: cream band with slogan -->
+        <div class="scan-statement-strip">
+          <img src="${this.lang === 'nl' ? 'Logo Vinage Statement No Background.png' : 'Logo Vinage Statement En No Background.png'}" class="scan-statement-img" alt="" draggable="false">
+        </div>
+        <!-- Dark brand panel: V-bottle (→ About) · camera button · wordmark -->
+        <div class="scan-brand-panel">
+          <img src="Logo Vinage V-Bottle No Background.png" class="scan-brand-mark" alt="About Vinage"
+               data-action="show-about" draggable="false" role="button" tabindex="0" aria-label="About Vinage">
           <button class="capture-btn" id="capture-btn" data-action="start-camera" title="${this.t('scan.startCamera')}">
             ${this._iconCamera()}
           </button>
-          <div class="scan-brand-right">
-            <img src="Logo Vinage Name No Background.png" class="scan-brand-name" alt="Vinage" draggable="false">
-            <img src="${this.lang === 'nl' ? 'Logo Vinage Statement No Background.png' : 'Logo Vinage Statement En No Background.png'}" class="scan-brand-statement" alt="" draggable="false">
-          </div>
+          <img src="Logo Vinage Name No Background.png" class="scan-brand-name" alt="Vinage" draggable="false">
         </div>
-        <div id="scan-action-row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;">
+        <div id="scan-action-row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;padding:8px 16px 0;">
           <button class="btn btn-secondary btn-icon" id="rotate-btn" data-action="rotate-camera"
                   title="Rotate image" style="display:none">${this._iconRotate()}</button>
         </div>
-        <button class="btn btn-ghost btn-full" data-action="manual-add-wine" style="margin-top:4px">${this.t('scan.manualAdd')}</button>
+        <button class="btn btn-ghost btn-full" data-action="manual-add-wine" style="margin:8px 16px 0;width:calc(100% - 32px)">${this.t('scan.manualAdd')}</button>
       </div>
     </div>`;
   },
@@ -2739,11 +2741,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <div class="about-overlay-inner">
         <button class="about-close-btn" data-action="close-about" aria-label="Close">✕</button>
         <div class="about-hero-wrap">
-          <img src="Logo Vinage V-Bottle Full.png" class="about-hero-img" alt="Vinage">
+          <img src="Logo Vinage V-Bottle No Background.png" class="about-hero-img" alt="Vinage">
         </div>
         <div class="about-content">
-          <img src="Logo Vinage Name No Background.png" class="about-wordmark" alt="Vinage">
-          <p class="about-tagline">${this.t('settings.madeWith')}</p>
+          <p class="about-tagline">YOUR WINES. YOUR COLLECTION.</p>
           <div class="about-features">
             <div class="about-feature-item">📷 ${this.lang === 'nl' ? 'Scannen & herkennen van wijnflessen' : 'Scan & identify wine bottles'}</div>
             <div class="about-feature-item">🗄️ ${this.lang === 'nl' ? 'Beheer jouw persoonlijke wijnkelder' : 'Manage your personal wine cellar'}</div>
