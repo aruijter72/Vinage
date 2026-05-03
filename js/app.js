@@ -36,6 +36,8 @@ const App = {
     setTimeout(() => this._maybePromptNotifications(), 3000);
     // Migrate any full images still in localStorage → IndexedDB (frees storage space)
     ImageDB.migrate();
+    // After auth settles, upload any IndexedDB images that aren't yet on Firebase Storage
+    setTimeout(() => this._migrateImagesToFirebase(), 5000);
   },
 
   _showSplash() {
@@ -690,10 +692,15 @@ const App = {
       return;
     }
 
-    // Persist medium image to IndexedDB (no size limit, never blocks the save)
+    // Persist medium image to IndexedDB AND Firebase Storage (if signed in).
+    // IndexedDB is fast/offline; Firebase Storage is permanent and cross-device.
     const savedId = editWineId || newWine?.id;
     if (savedId && mediumForSave) {
       ImageDB.save(savedId, mediumForSave);
+      // Upload to Firebase Storage in the background — sets wine.imageUrl when done
+      if (Sync._ready && Sync.householdId) {
+        Sync._uploadImage(savedId, mediumForSave);
+      }
     }
 
     this.capturedImage     = null;
