@@ -746,15 +746,15 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .rack-zoom-btn {
   width: 28px; height: 28px;
   border-radius: 50%;
-  background: var(--cream-dk);
-  border: 1.5px solid var(--cream-dk);
+  background: var(--surface-lt);
+  border: 1.5px solid var(--border-md);
   font-size: 1.1rem; line-height: 1;
-  font-weight: 700; color: var(--text-md);
+  font-weight: 700; color: var(--cream-dk);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: background var(--transition), color var(--transition);
   flex-shrink: 0;
 }
-.rack-zoom-btn:hover { background: var(--burgundy); color: var(--white); border-color: var(--burgundy); }
+.rack-zoom-btn:hover { background: var(--wine-red); color: var(--cream); border-color: var(--wine-red); }
 .rack-zoom-level {
   font-size: .72rem; font-weight: 600;
   color: var(--text-lt); min-width: 36px; text-align: center;
@@ -1075,7 +1075,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   width: 100%;
   max-width: 480px;             /* centered card on desktop */
   max-height: 96dvh;
-  background: linear-gradient(170deg, #2a0a5e 0%, #1a0036 60%, #0d001f 100%);
+  background: linear-gradient(170deg, #521B30 0%, #3B1422 60%, #2D0F1A 100%);
   border-radius: 24px 24px 0 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
