@@ -946,6 +946,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .drink-alert-ready { background: #EDFAF0; color: #1A6B3C; border-bottom: 1px solid #C0EDD0; }
 .drink-alert-past  { background: #FFF5E0; color: #8B5000; border-bottom: 1px solid #F0D890; }
+.drink-alert-active.drink-alert-ready { background: #C0EDD0; font-weight: 700; }
+.drink-alert-active.drink-alert-past  { background: #F0D890; font-weight: 700; }
+.drink-alert-arrow { margin-left: auto; font-size: .8rem; opacity: .6; }
 
 /* ── Drink-window badges on wine cards ──────────────────────────────────────── */
 .drink-badge {
