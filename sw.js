@@ -1,6 +1,6 @@
 // Vinage Service Worker — network-first, cache as offline fallback
 // SW_VERSION is stamped automatically by autopush.sh on every deploy.
-const SW_VERSION = 'v1777867869';
+const SW_VERSION = 'v1777867880';
 const CACHE = `vinage-${SW_VERSION}`;
 
 // Files to pre-cache on install (app shell)
