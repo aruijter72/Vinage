@@ -80,12 +80,13 @@ const TRANSLATIONS = {
       deleteLocationConfirm: 'Delete this cellar location? Wines will remain in your collection.',
       types: {
         grid: 'Grid Rack', diamond: 'Diamond Rack',
-        case: 'Case / Box (12)', shelf: 'Free Shelf / Bin'
+        case: 'Case / Box (12)', case6: 'Case / Box (6)', shelf: 'Free Shelf / Bin'
       },
       typeDescriptions: {
         grid: 'Classic rack with rows & columns — you set the size',
         diamond: 'Diagonal / honeycomb layout — each bottle nestles between two below',
         case: 'A 12-bottle case as shipped',
+        case6: 'A 6-bottle half-case in a 3 × 2 layout',
         shelf: 'Unstructured pile or shelf — just a list'
       }
     },

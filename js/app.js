@@ -3363,7 +3363,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             <ul class="help-list">
               <li><strong>${nl?'Roosterrek':'Grid rack'}</strong> — ${nl?'Klassiek rij × kolom rek. Sla op per vakje.':'Classic row × column rack. Track each slot.'}</li>
               <li><strong>${nl?'Diamantrek':'Diamond rack'}</strong> — ${nl?'Diagonaal patroon voor speciale rekken.':'Diagonal layout for specialty racks.'}</li>
-              <li><strong>${nl?'Doos':'Case'}</strong> — ${nl?'12 flessen per doos, bijgehouden als eenheid.':'12-bottle case tracked as a unit.'}</li>
+              <li><strong>${nl?'Doos (12)':'Case / Box (12)'}</strong> — ${nl?'12 flessen per doos, bijgehouden als eenheid.':'12-bottle case tracked as a unit.'}</li>
+              <li><strong>${nl?'Doos (6)':'Case / Box (6)'}</strong> — ${nl?'Halve doos van 6 flessen in 3 × 2 indeling.':'Half-case of 6 bottles in a 3 × 2 layout.'}</li>
               <li><strong>${nl?'Vrije plank / bak':'Free shelf / bin'}</strong> — ${nl?'Ongestructureerde opslag (koelkast, krat, plank).':'Unstructured storage — fridge, crate, shelf.'}</li>
             </ul>
           </div>
