@@ -208,6 +208,7 @@ const App = {
       case 'start-decant':        this._showDecantModal(args.id); break;
       case 'cancel-decant':       this._cancelDecantTimer(); break;
       case 'toggle-dark-mode':    this.toggleDarkMode(); break;
+      case 'scan-mode-switch':    this.switchScanMode(args.mode); break;
       // Share wine card
       case 'share-wine':          this._shareWineAsHTML(args.id); break;
       case 'show-help':           this._showHelp(); break;
@@ -268,14 +269,29 @@ const App = {
   // SCAN VIEW
   // ══════════════════════════════════════════════════════════════════════════
   buildScanView() {
+    const mode = this._scanMode || 'label';
     return `
     <div id="scan-view">
       <div class="camera-area">
         <video id="camera-video" autoplay playsinline muted></video>
         <canvas id="camera-canvas"></canvas>
-        <div class="camera-overlay"><div class="camera-frame"></div></div>
+        <!-- Label mode frame -->
+        <div class="camera-overlay" id="label-overlay"><div class="camera-frame"></div></div>
+        <!-- Barcode mode frame + animated scan line -->
+        <div class="barcode-overlay${mode === 'barcode' ? ' active' : ''}" id="barcode-overlay">
+          <div class="barcode-frame"><div class="barcode-scanline"></div></div>
+        </div>
+        <!-- Mode toggle pill (floats over camera) -->
+        <div class="scan-mode-toggle">
+          <button class="scan-mode-btn${mode === 'label' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="label">
+            📷 ${this.t('scan.labelMode')}
+          </button>
+          <button class="scan-mode-btn${mode === 'barcode' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="barcode">
+            🔲 ${this.t('scan.barcodeMode')}
+          </button>
+        </div>
         <div class="camera-placeholder" id="camera-placeholder">
-          <p class="scan-instruction-text">${this.t('scan.instruction')}</p>
+          <p class="scan-instruction-text">${mode === 'barcode' ? this.t('scan.barcodeScanning') : this.t('scan.instruction')}</p>
         </div>
       </div>
       <div class="scan-controls">
@@ -288,7 +304,8 @@ const App = {
         <div class="scan-brand-panel">
           <img src="Logo Vinage V-Bottle No Background.png" class="scan-brand-mark" alt="About Vinage"
                data-action="show-about" draggable="false" role="button" tabindex="0" aria-label="About Vinage">
-          <button class="capture-btn" id="capture-btn" data-action="start-camera" title="${this.t('scan.startCamera')}">
+          <button class="capture-btn" id="capture-btn" data-action="start-camera" title="${this.t('scan.startCamera')}"
+                  style="${mode === 'barcode' ? 'display:none' : ''}">
             ${this._iconCamera()}
           </button>
           <img src="Logo Vinage Name No Background.png" class="scan-brand-name" alt="Vinage" draggable="false">
