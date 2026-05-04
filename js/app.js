@@ -2873,6 +2873,69 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           </div>`;
         }).join('');
 
+    // ── Spending over time (last 12 months) ─────────────────────────────────
+    const spendingChart = (() => {
+      // Build last-12-month buckets keyed YYYY-MM
+      const months = [];
+      const d = new Date();
+      for (let i = 11; i >= 0; i--) {
+        const m = new Date(d.getFullYear(), d.getMonth() - i, 1);
+        months.push({
+          key:   `${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}`,
+          label: m.toLocaleDateString(this.lang === 'nl' ? 'nl-NL' : 'en-GB', { month: 'short' }),
+          year:  m.getFullYear(),
+          total: 0,
+        });
+      }
+      const buckets = Object.fromEntries(months.map(m => [m.key, m]));
+
+      let anyData = false;
+      log.forEach(e => {
+        if (!e.price) return;
+        const key = new Date(e.date).toISOString().slice(0,7); // YYYY-MM
+        if (buckets[key]) { buckets[key].total += e.price; anyData = true; }
+      });
+
+      if (!anyData) {
+        return `<div class="spending-no-data">${this.t('stats.spendingEmpty')}</div>`;
+      }
+
+      const max = Math.max(...months.map(m => m.total), 1);
+      const grandTotal = months.reduce((s, m) => s + m.total, 0);
+      const W = 320; // viewBox width
+      const H = 120; // bar area height
+      const barW = Math.floor(W / months.length) - 3;
+      const pad  = 28; // bottom label area
+
+      const bars = months.map((m, i) => {
+        const bh  = m.total > 0 ? Math.max(4, Math.round((m.total / max) * H)) : 0;
+        const x   = i * (W / months.length) + 1;
+        const y   = H - bh;
+        const showYear = i === 0 || (i > 0 && m.year !== months[i-1].year);
+        const label = showYear && (i === 0 || i === 11)
+          ? m.label + ' '' + String(m.year).slice(2)
+          : m.label;
+        return `
+          <rect x="${x}" y="${y}" width="${barW}" height="${bh}"
+                rx="3" fill="var(--burgundy)" opacity="${m.total > 0 ? '.85' : '.12'}"/>
+          ${m.total > 0 ? `<text x="${x + barW/2}" y="${y - 3}" text-anchor="middle" font-size="7" fill="var(--gold)" font-weight="600">€${Math.round(m.total)}</text>` : ''}
+          <text x="${x + barW/2}" y="${H + pad - 4}" text-anchor="middle" font-size="8" fill="var(--text-lt)">${label}</text>`;
+      }).join('');
+
+      return `
+        <div class="spending-chart-wrap">
+          <svg class="spending-chart-svg" viewBox="0 0 ${W} ${H + pad}" xmlns="http://www.w3.org/2000/svg">
+            <!-- grid lines -->
+            ${[0.25, 0.5, 0.75, 1].map(f => {
+              const y = H - Math.round(f * H);
+              return `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="var(--cream-dk)" stroke-width="1"/>`;
+            }).join('')}
+            ${bars}
+          </svg>
+          <div class="spending-chart-total">${this.t('stats.spendingTotal')}: <strong>€${grandTotal.toFixed(0)}</strong></div>
+        </div>`;
+    })();
+
     // ── Consumption history ──────────────────────────────────────────────────
     const historyRows = log.length === 0
       ? `<div class="empty-state" style="padding:24px 0">${this.t('stats.noHistory')}</div>`
