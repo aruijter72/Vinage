@@ -1128,26 +1128,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             }
           }},
           { label: this.t('consume.remove'), cls: 'btn-danger', action: () => {
-            // Offer decant BEFORE deleting so the modal can still reference the wine
-            const doDelete = () => {
-              Sync.deleteWine(wine.id);
-              ImageDB.delete(wine.id);
-              this.closeModal(); this.renderView();
-              this.toast(this.t('consume.toasted'), 'success');
-            };
+            Sync.deleteWine(wine.id);
+            ImageDB.delete(wine.id);
+            this.closeModal(); this.renderView();
+            this.toast(this.t('consume.toasted'), 'success');
+            // Decant uses snapshot — wine object still valid even after DB deletion
             if (['red','fortified','dessert'].includes(wineSnap.type)) {
-              this.closeModal();
-              setTimeout(() => {
-                this._showDecantModal(wineSnap);
-                // Replace the decant cancel with one that also runs doDelete
-                const orig = this._decantTimer;
-                // After decant modal shown, append delete to both paths via a wrapper
-                const origClose = this.closeModal.bind(this);
-                // Simplest: run delete after a tick regardless; decant runs in background
-                doDelete();
-              }, 50);
-            } else {
-              doDelete();
+              setTimeout(() => this._showDecantModal(wineSnap), 600);
             }
           }},
         ]
