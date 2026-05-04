@@ -94,6 +94,10 @@ const DB = {
     } else if (cellar.type === 'case') {
       cellar.slots = {};
       for (let i = 0; i < 12; i++) cellar.slots[String(i)] = null;
+    } else if (cellar.type === 'case6') {
+      cellar.slots = {};
+      // Half-case: 6 slots keyed h0–h5 (prefix distinguishes them from case-12 slots in label lookups)
+      for (let i = 0; i < 6; i++) cellar.slots[`h${i}`] = null;
     } else {
       cellar.wines = [];
     }
