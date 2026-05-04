@@ -1318,7 +1318,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     let rackHtml = '';
     if      (c.type === 'grid')    rackHtml = this._buildGridRack(c, false);
     else if (c.type === 'diamond') rackHtml = this._buildGridRack(c, true);
-    else if (c.type === 'case')    rackHtml = this._buildCaseRack(c);
+    else if (c.type === 'case' || c.type === 'case6') rackHtml = this._buildCaseRack(c);
     else                           rackHtml = this._buildShelfRack(c);
 
     return `
@@ -1741,7 +1741,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   showAddCellarModal() {
-    const types = ['grid', 'diamond', 'case', 'shelf'];
+    const types = ['grid', 'diamond', 'case', 'case6', 'shelf'];
     const body = `
       <div class="form-group">
         <label>${this.t('cellar.locationName')}</label>
