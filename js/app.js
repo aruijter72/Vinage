@@ -1177,10 +1177,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             if (entry.fromSlot) {
               Sync.assignWineToSlot(entry.fromCellarId, entry.fromSlot, wine.id);
             } else {
-              // shelf — use Sync wrapper so the cellar update reaches Firestore
-              Sync.removeWineFromShelf && Sync.assignWineToSlot
-                ? Sync.assignWineToSlot(entry.fromCellarId, null, wine.id)
-                : DB.assignWineToSlot(entry.fromCellarId, null, wine.id);
+              // shelf — Sync.assignWineToSlot with null slot pushes to wines[] and syncs to Firestore
+              Sync.assignWineToSlot(entry.fromCellarId, null, wine.id);
             }
           }
           // Remove from consumption log
