@@ -2876,13 +2876,17 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
       const tiles = `
         <div class="health-highlights">
-          <div class="health-tile">
+          <div class="health-tile${oldest ? ' health-tile--link' : ''}"
+               ${oldest ? `data-action="edit-wine" data-id="${oldest.id}"` : ''}>
             <div class="health-tile-value">${oldest ? oldest.vintage : this.t('stats.healthNoVintage')}</div>
             <div class="health-tile-label">${this.t('stats.healthOldest')}</div>
+            ${oldest ? `<div class="health-tile-name">${this._esc(oldest.name)}</div>` : ''}
           </div>
-          <div class="health-tile">
+          <div class="health-tile${topValue ? ' health-tile--link' : ''}"
+               ${topValue ? `data-action="edit-wine" data-id="${topValue.id}"` : ''}>
             <div class="health-tile-value">${topValue ? '€' + Math.round(topValue.price * (topValue.quantity||1)) : '—'}</div>
             <div class="health-tile-label">${this.t('stats.healthTopValue')}</div>
+            ${topValue ? `<div class="health-tile-name">${this._esc(topValue.name)}</div>` : ''}
           </div>
           <div class="health-tile">
             <div class="health-tile-value">${avgVintage || this.t('stats.healthNoVintage')}</div>
