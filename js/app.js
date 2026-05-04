@@ -419,6 +419,8 @@ const App = {
         if (result.estimatedPrice != null && result.price == null) {
           result.price = result.estimatedPrice;
         }
+        // Normalize country to the app's current language
+        if (result.country) result.country = this._localizeCountry(result.country);
         this.scanResult = result;
         this._setScanStatus(this.t('scan.found'), 'found');
         actionRow.innerHTML = `
