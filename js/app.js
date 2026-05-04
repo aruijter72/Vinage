@@ -82,7 +82,7 @@ const App = {
 
   // ── Navigation ────────────────────────────────────────────────────────────
   navigate(view) {
-    if (this.stream && view !== 'scan') this.stopCamera();
+    if (view !== 'scan') { this.stopCamera(); this.stopBarcodeScanner(); }
     this.view = view;
     this.cellarDetailId = null;
     this.renderView();
