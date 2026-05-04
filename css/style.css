@@ -1975,6 +1975,31 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   text-transform: uppercase;
   letter-spacing: .04em;
 }
+/* ── Spending chart ──────────────────────────────────────────────────────── */
+.spending-chart-wrap {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px 12px 10px;
+  box-shadow: 0 1px 4px var(--shadow);
+}
+.spending-chart-svg {
+  width: 100%;
+  display: block;
+}
+.spending-chart-total {
+  font-size: .75rem;
+  color: var(--text-lt);
+  text-align: right;
+  margin-top: 6px;
+  font-weight: 500;
+}
+.spending-no-data {
+  text-align: center;
+  padding: 20px 0;
+  font-size: .85rem;
+  color: var(--text-lt);
+}
+
 .stats-section {
   padding: 0 16px 24px;
 }
