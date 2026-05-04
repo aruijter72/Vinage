@@ -672,6 +672,40 @@ const App = {
     input.dataset.prevVintage = newVin;
   },
 
+  // Maps English country names → Dutch (and vice-versa for reverse lookup).
+  // Applied at save time so both scan results and manual entry are normalized.
+  _localizeCountry(raw) {
+    if (!raw) return raw;
+    const EN_TO_NL = {
+      'france':'Frankrijk','italy':'Italië','spain':'Spanje','portugal':'Portugal',
+      'germany':'Duitsland','austria':'Oostenrijk','switzerland':'Zwitserland',
+      'netherlands':'Nederland','belgium':'België','luxembourg':'Luxemburg',
+      'united states':'Verenigde Staten','usa':'Verenigde Staten','us':'Verenigde Staten',
+      'australia':'Australië','new zealand':'Nieuw-Zeeland','south africa':'Zuid-Afrika',
+      'argentina':'Argentinië','chile':'Chili','uruguay':'Uruguay','brazil':'Brazilië',
+      'greece':'Griekenland','hungary':'Hongarije','romania':'Roemenië',
+      'bulgaria':'Bulgarije','croatia':'Kroatië','slovenia':'Slovenië',
+      'czech republic':'Tsjechië','slovakia':'Slowakije','poland':'Polen',
+      'serbia':'Servië','moldova':'Moldavië','georgia':'Georgië',
+      'turkey':'Turkije','israel':'Israël','lebanon':'Libanon',
+      'england':'Engeland','united kingdom':'Verenigd Koninkrijk','uk':'Verenigd Koninkrijk',
+      'russia':'Rusland','ukraine':'Oekraïne','sweden':'Zweden',
+      'denmark':'Denemarken','norway':'Noorwegen','finland':'Finland',
+      'north macedonia':'Noord-Macedonië','albania':'Albanië',
+      'montenegro':'Montenegro','cyprus':'Cyprus','malta':'Malta',
+      'morocco':'Marokko','tunisia':'Tunesië','algeria':'Algerije',
+      'canada':'Canada','mexico':'Mexico','japan':'Japan','china':'China',
+      'india':'India','peru':'Peru','bolivia':'Bolivia',
+    };
+    const NL_TO_EN = Object.fromEntries(Object.entries(EN_TO_NL).map(([en,nl])=>[nl.toLowerCase(),en.charAt(0).toUpperCase()+en.slice(1)]));
+    const key = raw.trim().toLowerCase();
+    if (this.lang === 'nl') {
+      return EN_TO_NL[key] || raw; // translate to Dutch; keep original if not in map
+    } else {
+      return NL_TO_EN[key] || raw; // translate to English; keep original if not in map
+    }
+  },
+
   saveWineForm() {
     const name = document.getElementById('wf-name')?.value.trim();
     if (!name) { this.toast(this.t('wine.name') + ' is required', 'error'); return; }
@@ -691,7 +725,7 @@ const App = {
       quantity: Math.max(0, parseInt(parse('wf-qty'), 10) || 0),
       type:     this._formType,
       region:   parse('wf-region'),
-      country:  parse('wf-country'),
+      country:  this._localizeCountry(parse('wf-country')),
       grapes:   parseList('wf-grapes'),
       pairings: parseList('wf-pairings'),
       tags:     parseList('wf-tags'),
