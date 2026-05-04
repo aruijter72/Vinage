@@ -33,7 +33,7 @@ const App = {
     Sync.init();
     this._restoreDecantTimer();
     this._checkDrinkWindowNotifications();
-    setTimeout(() => this._maybePromptNotifications(), 3000);
+    // Notification prompt removed — users can enable from Settings instead
     // Migrate any full images still in localStorage → IndexedDB (frees storage space)
     ImageDB.migrate();
     // After auth settles, upload any IndexedDB images that aren't yet on Firebase Storage
