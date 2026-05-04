@@ -4,8 +4,8 @@ const API = {
   // ── Wine label identification ─────────────────────────────────────────────
   async identifyWine(base64jpeg, settings, lang = 'en') {
     const langNote = lang === 'nl'
-      ? 'Write the "notes" and all "pairings" values in Dutch.'
-      : 'Write the "notes" and all "pairings" values in English.';
+      ? 'Write the "notes" and all "pairings" values in Dutch. Also write the "country" field in Dutch (e.g. "Nederland", "Frankrijk", "Duitsland", "Italië", "Spanje").'
+      : 'Write the "notes" and all "pairings" values in English. Write the "country" field in English.';
     const prompt = `You are an expert sommelier and wine identifier.
 Examine this wine bottle label image and extract all visible information.
 Return ONLY a valid JSON object — no explanation, no markdown — with exactly these fields
