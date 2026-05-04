@@ -493,6 +493,16 @@ const TRANSLATIONS = {
       keep: 'Bewaren',
       remove: 'Verwijderen',
       toasted: '🍷 Proost! Fles geregistreerd.',
+      serveAt: 'Serveer op',
+      servingTemp: 'Serveertemperatuur',
+      openConfirm: 'Deze fles openen?',
+      openBtn: 'Fles openen',
+      tastingTitle: 'Hoe was het?',
+      tastingSubtitle: 'Beoordeel deze fles (optioneel)',
+      tastingNotePlaceholder: 'Beschrijf de smaak, aroma\'s, afdronk…',
+      tastingSkip: 'Overslaan',
+      tastingSave: 'Nota opslaan',
+      tastingSaved: 'Proevernota opgeslagen.',
     },
     stats: {
       title: 'Kelder Statistieken',
@@ -505,6 +515,11 @@ const TRANSLATIONS = {
       noHistory: 'Nog geen flessen geopend.',
       unknownCellar: 'Geen locatie',
       bottles: 'flessen',
+      drinkSoon: 'Snel Drinken',
+      drinkSoonEmpty: 'Geen flessen met een bekend drinkvenster.',
+      pastPeak: 'Voorbij piek',
+      readyNow: 'Nu drinken',
+      opensSoon: 'Opent in {n} mnd.',
     }
   }
 };
