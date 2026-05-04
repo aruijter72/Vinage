@@ -1114,6 +1114,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
     if (newQty <= 0) {
       // Last bottle — ask keep or delete
+      const wineSnap = { ...wine }; // snapshot before any deletion
       this.showModal(
         this.t('consume.lastBottleTitle'),
         `<p>${this.t('consume.lastBottleBody', { name: this._esc(wine.name) })}</p>`,
@@ -1122,12 +1123,32 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             Sync.updateWine(wine.id, { quantity: 0 });
             this.closeModal(); this.renderView();
             this.toast(this.t('consume.toasted'), 'success');
+            if (['red','fortified','dessert'].includes(wineSnap.type)) {
+              setTimeout(() => this._showDecantModal(wineSnap), 600);
+            }
           }},
           { label: this.t('consume.remove'), cls: 'btn-danger', action: () => {
-            Sync.deleteWine(wine.id);
-            ImageDB.delete(wine.id);
-            this.closeModal(); this.renderView();
-            this.toast(this.t('consume.toasted'), 'success');
+            // Offer decant BEFORE deleting so the modal can still reference the wine
+            const doDelete = () => {
+              Sync.deleteWine(wine.id);
+              ImageDB.delete(wine.id);
+              this.closeModal(); this.renderView();
+              this.toast(this.t('consume.toasted'), 'success');
+            };
+            if (['red','fortified','dessert'].includes(wineSnap.type)) {
+              this.closeModal();
+              setTimeout(() => {
+                this._showDecantModal(wineSnap);
+                // Replace the decant cancel with one that also runs doDelete
+                const orig = this._decantTimer;
+                // After decant modal shown, append delete to both paths via a wrapper
+                const origClose = this.closeModal.bind(this);
+                // Simplest: run delete after a tick regardless; decant runs in background
+                doDelete();
+              }, 50);
+            } else {
+              doDelete();
+            }
           }},
         ]
       );
@@ -1135,10 +1156,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       Sync.updateWine(wine.id, { quantity: newQty });
       this.renderView();
       this.toast(this.t('consume.toasted'), 'success');
-      // Offer decant timer for wines that benefit from breathing
-      const decantTypes = ['red', 'fortified', 'dessert'];
-      if (decantTypes.includes(wine.type)) {
-        setTimeout(() => this._showDecantModal(wine.id), 600);
+      if (['red','fortified','dessert'].includes(wine.type)) {
+        setTimeout(() => this._showDecantModal(wine), 600);
       }
     }
   },
@@ -3009,8 +3028,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   // ══════════════════════════════════════════════════════════════════════════
   // DECANTING TIMER (Feature 7)
   // ══════════════════════════════════════════════════════════════════════════
-  _showDecantModal(wineId) {
-    const wine = DB.getWineById(wineId);
+  _showDecantModal(wineOrId) {
+    const wine = (typeof wineOrId === 'object') ? wineOrId : DB.getWineById(wineOrId);
     if (!wine) return;
     const presets = [30, 45, 60, 90, 120];
     const body = `
