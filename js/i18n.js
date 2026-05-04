@@ -232,6 +232,16 @@ const TRANSLATIONS = {
       keep: 'Keep',
       remove: 'Remove',
       toasted: '🍷 Cheers! Bottle logged.',
+      serveAt: 'Serve at',
+      servingTemp: 'Serving temperature',
+      openConfirm: 'Open this bottle?',
+      openBtn: 'Open bottle',
+      tastingTitle: 'How was it?',
+      tastingSubtitle: 'Rate this bottle (optional)',
+      tastingNotePlaceholder: 'Describe the taste, aromas, finish…',
+      tastingSkip: 'Skip',
+      tastingSave: 'Save note',
+      tastingSaved: 'Tasting note saved.',
     },
     stats: {
       title: 'Cellar Stats',
@@ -244,6 +254,11 @@ const TRANSLATIONS = {
       noHistory: 'No bottles opened yet.',
       unknownCellar: 'No location',
       bottles: 'bottles',
+      drinkSoon: 'Drink Soon',
+      drinkSoonEmpty: 'No bottles with a known drinking window.',
+      pastPeak: 'Past peak',
+      readyNow: 'Ready now',
+      opensSoon: 'Opens in {n} mo.',
     }
   },
   nl: {
