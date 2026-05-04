@@ -196,7 +196,8 @@ const App = {
       case 'native-share-card':   this._nativeShare(); break;
       // Consumption
       case 'consume-bottle':      this._consumeBottle(args.id); break;
-      case 'delete-consumption':  DB.deleteConsumptionEntry(args.id); this.renderView(); break;
+      case 'delete-consumption':  Sync.deleteConsumptionEntry(args.id); this.renderView(); break;
+      case 'restore-consumption': this._restoreConsumption(args.id); break;
       // Wishlist
       case 'add-wishlist-item':   this.showWishlistForm(null); break;
       case 'edit-wishlist-item':  this.showWishlistForm(args.id); break;
@@ -1098,8 +1099,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       }
     }
 
-    // Log to consumption history
-    DB.logConsumption({
+    // Log to consumption history (synced)
+    Sync.logConsumption({
       wineId:        wine.id,
       wineName:      wine.name,
       wineType:      wine.type,
@@ -1135,6 +1136,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       Sync.updateWine(wine.id, { quantity: newQty });
       this.renderView();
       this.toast(this.t('consume.toasted'), 'success');
+      // Offer decant timer for wines that benefit from breathing
+      const decantTypes = ['red', 'fortified', 'dessert'];
+      if (decantTypes.includes(wine.type)) {
+        setTimeout(() => this._showDecantModal(wine.id), 600);
+      }
     }
   },
 
@@ -2527,8 +2533,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
                 <div class="stats-history-meta">${date} · ${loc}</div>
               </div>
             </div>
-            <button class="btn btn-icon btn-sm" data-action="delete-consumption" data-id="${e.id}"
-                    style="color:var(--text-lt);flex-shrink:0">${this._iconTrash()}</button>
+            <div style="display:flex;gap:6px;flex-shrink:0;align-items:center">
+              ${e.wineId ? `<button class="btn btn-ghost btn-sm" data-action="restore-consumption" data-id="${e.id}"
+                      style="font-size:.75rem;padding:4px 8px;color:var(--gold)" title="${this.lang==='nl'?'Terugplaatsen':'Put back'}">↩</button>` : ''}
+              <button class="btn btn-icon btn-sm" data-action="delete-consumption" data-id="${e.id}"
+                      style="color:var(--text-lt)">${this._iconTrash()}</button>
+            </div>
           </div>`;
         }).join('');
 
