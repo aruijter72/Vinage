@@ -46,32 +46,53 @@ If this is clearly NOT a wine bottle, return: {"error":"not_a_wine"}`;
   },
 
   // ── Meal → wine pairing ───────────────────────────────────────────────────
-  async suggestPairings(dish, wines, settings, lang) {
+  async suggestPairings(dish, wines, settings, lang, city) {
     const listItems = wines.map((w, i) =>
       `${i}: ${w.name}${w.vintage ? ' ' + w.vintage : ''} — ${w.type}${w.region ? ', ' + w.region : ''}${w.grapes?.length ? ' (' + w.grapes.join(', ') + ')' : ''}`
     ).join('\n');
 
     const langNote = lang === 'nl'
-      ? 'Respond in Dutch. Keep reasons concise (max 1 sentence each).'
-      : 'Respond in English. Keep reasons concise (max 1 sentence each).';
+      ? 'Respond entirely in Dutch. Keep reasons concise (1 sentence each).'
+      : 'Respond entirely in English. Keep reasons concise (1 sentence each).';
 
-    const prompt = `You are a top sommelier. The user is cooking: "${dish}"
+    const locationNote = city
+      ? (lang === 'nl'
+          ? `De gebruiker is gevestigd in of nabij ${city}. Geef bij availability hints over waar dit type wijn normaal verkrijgbaar is (supermarkt, slijterij, wijnhandel).`
+          : `The user is based in or near ${city}. For availability, give a brief hint on where this type of wine is typically found (supermarket, wine shop, specialist).`)
+      : '';
 
-Their cellar contains (index: wine):
+    const prompt = `You are an expert sommelier. The user is preparing: "${dish}"
+
+Their cellar (index: wine):
 ${listItems}
 
 ${langNote}
+${locationNote}
 
-Return ONLY valid JSON — no markdown — with this structure:
+Return ONLY valid JSON — no markdown — exactly matching this structure:
 {
   "matches": [
-    {"index": 0, "reason": "why it pairs well"},
-    {"index": 3, "reason": "why it pairs well"}
+    {"index": 0, "reason": "one sentence why this pairs well"}
   ],
-  "generalSuggestion": "one short paragraph on what wine style suits this dish best, even if not in the cellar"
+  "generalSuggestion": "1–2 sentences on what wine style suits this dish best",
+  "externalSuggestions": [
+    {
+      "name": "Pouilly-Fumé",
+      "producer": "Didier Dagueneau",
+      "vintage": "2022",
+      "type": "white",
+      "region": "Loire Valley, France",
+      "reason": "one sentence why this pairs well with the dish",
+      "priceRange": "€28–40",
+      "availability": "Available at wine specialists and online"
+    }
+  ]
 }
 
-Rank at most 3 wines. If none suit the dish at all, return an empty matches array.`;
+Rules:
+- matches: rank up to 3 wines from the cellar list above. If none match well, use an empty array.
+- externalSuggestions: exactly 3 specific real bottles the user could buy, not in their cellar. Include realistic EUR price ranges and brief availability note.
+- All text fields must be in the response language.`;
 
     const provider = settings.apiProvider || 'anthropic';
     const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
