@@ -323,12 +323,13 @@ const TRANSLATIONS = {
       deleteLocationConfirm: 'Locatie verwijderen? Wijnen blijven in jouw collectie.',
       types: {
         grid: 'Roosterrek', diamond: 'Diamantrek',
-        case: 'Kist / Doos (12)', shelf: 'Vrije Plank / Bak'
+        case: 'Kist / Doos (12)', case6: 'Kist / Doos (6)', shelf: 'Vrije Plank / Bak'
       },
       typeDescriptions: {
         grid: 'Klassiek rek met rijen en kolommen — jij bepaalt de afmeting',
         diamond: 'Diagonale / honingraatindeling — elke fles rust tussen twee eronder',
         case: 'Een kist van 12 flessen zoals geleverd',
+        case6: 'Een halve kist van 6 flessen in een 3 × 2 indeling',
         shelf: 'Ongestructureerde stapel of plank — gewoon een lijst'
       }
     },
