@@ -1952,3 +1952,119 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   color: var(--text-lt);
   margin-top: 2px;
 }
+.stats-history-tasting {
+  font-size: .72rem;
+  color: var(--text-md);
+  margin-top: 3px;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+.stats-tasting-stars {
+  color: var(--gold);
+  font-size: .75rem;
+  letter-spacing: 1px;
+}
+
+/* ── Drink Soon section ──────────────────────────────────────── */
+.drink-soon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.drink-soon-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 3px var(--shadow);
+}
+.drink-soon-urgency {
+  flex-shrink: 0;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 20px;
+}
+.drink-soon-urgency--past {
+  background: #fde8e8;
+  color: #c0392b;
+}
+.drink-soon-urgency--ready {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.drink-soon-urgency--soon {
+  background: #fff8e1;
+  color: #e65100;
+}
+.drink-soon-info {
+  flex: 1;
+  min-width: 0;
+}
+.drink-soon-name {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.drink-soon-meta {
+  font-size: .73rem;
+  color: var(--text-lt);
+  margin-top: 2px;
+}
+.drink-soon-qty {
+  flex-shrink: 0;
+  font-size: .8rem;
+  color: var(--text-md);
+  font-weight: 600;
+}
+
+/* ── Serving temperature badge ───────────────────────────────── */
+.serving-temp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--cream);
+  border: 1px solid var(--cream-dk);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 10px auto 0;
+}
+.serving-temp-badge .temp-icon {
+  font-size: 1rem;
+}
+
+/* ── Star rating ─────────────────────────────────────────────── */
+.star-rating {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin: 8px 0;
+}
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--cream-dk);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color .15s, transform .1s;
+}
+.star-btn:hover,
+.star-btn.active {
+  color: var(--gold);
+  transform: scale(1.15);
+}
