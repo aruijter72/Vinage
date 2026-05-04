@@ -2913,7 +2913,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         const y   = H - bh;
         const showYear = i === 0 || (i > 0 && m.year !== months[i-1].year);
         const label = showYear && (i === 0 || i === 11)
-          ? m.label + ' '' + String(m.year).slice(2)
+          ? m.label + ' \'' + String(m.year).slice(2)
           : m.label;
         return `
           <rect x="${x}" y="${y}" width="${barW}" height="${bh}"
