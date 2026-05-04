@@ -962,7 +962,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     });
     // Build cellar selector
     const cellarOpts = cellars.map(c => {
-      const cap = c.type === 'shelf' ? '∞' : (c.rows||0) * (c.cols||0);
+      const cap = c.type === 'shelf' ? '∞'
+                : c.type === 'case6' ? 6
+                : c.type === 'case'  ? 12
+                : (c.rows||0) * (c.cols||0);
       return `<button class="btn btn-secondary" style="width:100%;margin-bottom:6px;text-align:left"
                 data-cellar-pick="${c.id}">${this._esc(c.name)} <small style="opacity:.6">${cap} slots</small></button>`;
     }).join('');
