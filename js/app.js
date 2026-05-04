@@ -1144,6 +1144,50 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     }
   },
 
+  _restoreConsumption(entryId) {
+    const log = DB.getConsumptionLog();
+    const entry = log.find(e => e.id === entryId);
+    if (!entry) return;
+    const wine = DB.getWineById(entry.wineId);
+    if (!wine) {
+      this.toast(this.lang === 'nl' ? 'Wijn niet meer gevonden in collectie' : 'Wine no longer in collection', 'error');
+      return;
+    }
+    const wineLabel = this._esc(wine.name);
+    const locLabel  = entry.fromCellarName
+      ? `${this._esc(entry.fromCellarName)}${entry.fromSlot ? ' · ' + this._slotPositionLabel(entry.fromSlot) : ''}`
+      : (this.lang === 'nl' ? 'geen locatie' : 'no location');
+    this.showModal(
+      this.lang === 'nl' ? 'Fles terugplaatsen?' : 'Put bottle back?',
+      `<p>${this.lang === 'nl'
+        ? `<strong>${wineLabel}</strong> wordt teruggeplaatst naar <strong>${locLabel}</strong> en de voorraad wordt met 1 verhoogd.`
+        : `<strong>${wineLabel}</strong> will be placed back to <strong>${locLabel}</strong> and stock increased by 1.`}</p>`,
+      [
+        { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
+        { label: this.lang === 'nl' ? '↩ Terugplaatsen' : '↩ Put back', cls: 'btn-primary', action: () => {
+          // Restore quantity
+          Sync.updateWine(wine.id, { quantity: (wine.quantity || 0) + 1 });
+          // Restore cellar placement
+          if (entry.fromCellarId) {
+            if (entry.fromSlot) {
+              Sync.assignWineToSlot(entry.fromCellarId, entry.fromSlot, wine.id);
+            } else {
+              Sync.logConsumption; // shelf — use assignWineToSlot with null slot
+              DB.assignWineToSlot(entry.fromCellarId, null, wine.id);
+              const cellar = DB.getCellars().find(c => c.id === entry.fromCellarId);
+              if (cellar) Sync._pushCellar?.(cellar);
+            }
+          }
+          // Remove from consumption log
+          Sync.deleteConsumptionEntry(entryId);
+          this.closeModal();
+          this.renderView();
+          this.toast(this.lang === 'nl' ? '↩ Fles teruggeplaatst' : '↩ Bottle put back', 'success');
+        }},
+      ]
+    );
+  },
+
   confirmDeleteWine(id) {
     const wine = DB.getWineById(id);
     if (!wine) return;
