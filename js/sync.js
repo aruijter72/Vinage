@@ -195,8 +195,9 @@ const Sync = {
     this._stopSync();
     if (!this.householdId) return;
 
-    const wineRef   = this._db.collection(`households/${this.householdId}/wines`);
-    const cellarRef = this._db.collection(`households/${this.householdId}/cellars`);
+    const wineRef    = this._db.collection(`households/${this.householdId}/wines`);
+    const cellarRef  = this._db.collection(`households/${this.householdId}/cellars`);
+    const consRef    = this._db.collection(`households/${this.householdId}/consumption`);
 
     // Wines listener — thumbnail comes from Firestore; full image stays local
     const u1 = wineRef.onSnapshot(snap => {
@@ -222,7 +223,17 @@ const Sync = {
       if (App.view === 'cellar') App.renderView();
     }, err => console.warn('Vinage: cellars sync error', err));
 
-    this._unsubs = [u1, u2];
+    // Consumption listener — syncs open-bottle history across all devices
+    const u3 = consRef.onSnapshot(snap => {
+      if (snap.metadata.hasPendingWrites) return;
+      const remote = [];
+      snap.forEach(d => remote.push({ id: d.id, ...d.data() }));
+      remote.sort((a, b) => (b.date || 0) - (a.date || 0));
+      DB._saveConsumptionLog(remote);
+      if (App.view === 'stats') App.renderView();
+    }, err => console.warn('Vinage: consumption sync error', err));
+
+    this._unsubs = [u1, u2, u3];
     this._setSyncIndicator('live');
   },
 
