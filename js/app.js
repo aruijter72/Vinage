@@ -1894,12 +1894,20 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <div class="stat-label">${this.t('collection.cellarValue')}</div>
       </div>` : '';
 
-    // Drink window alerts
+    // Drink window alerts — clickable to set filter
     const ready = allWines.filter(w => this._drinkStatus(w) === 'ready');
     const past  = allWines.filter(w => this._drinkStatus(w) === 'past');
+    const readyActive = this.collectionFilters.has('drink-now');
+    const pastActive  = this.collectionFilters.has('drink-past');
     const alerts = [
-      ready.length ? `<div class="drink-alert drink-alert-ready">🍷 ${this.t('collection.drinkDueAlert', {count: ready.length})}</div>` : '',
-      past.length  ? `<div class="drink-alert drink-alert-past">⚠️ ${this.t('collection.drinkPastAlert',  {count: past.length})}</div>` : ''
+      ready.length ? `<div class="drink-alert drink-alert-ready${readyActive?' drink-alert-active':''}"
+        onclick="App._setExclusiveFilter('drink-now')" style="cursor:pointer">
+        🍷 ${this.t('collection.drinkDueAlert', {count: ready.length})}
+        <span class="drink-alert-arrow">${readyActive?'✕':'→'}</span></div>` : '',
+      past.length  ? `<div class="drink-alert drink-alert-past${pastActive?' drink-alert-active':''}"
+        onclick="App._setExclusiveFilter('drink-past')" style="cursor:pointer">
+        ⚠️ ${this.t('collection.drinkPastAlert', {count: past.length})}
+        <span class="drink-alert-arrow">${pastActive?'✕':'→'}</span></div>` : ''
     ].join('');
 
     return `
