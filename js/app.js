@@ -1869,6 +1869,40 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     return 'ready';
   },
 
+  // Returns { min, max } °C serving range, or null if unknown
+  _servingTemp(wine) {
+    const ranges = {
+      red:       { min: 16, max: 18 },
+      white:     { min: 8,  max: 10 },
+      rosé:      { min: 8,  max: 12 },
+      sparkling: { min: 6,  max: 9  },
+      dessert:   { min: 8,  max: 12 },
+      fortified: { min: 12, max: 16 },
+    };
+    const r = ranges[wine.type];
+    if (!r) return null;
+    // Light reds (Pinot Noir, Gamay/Beaujolais) are better a touch cooler
+    if (wine.type === 'red') {
+      const grapes = (wine.grapes || []).map(g => g.toLowerCase());
+      if (grapes.some(g => ['pinot noir','gamay','beaujolais','zweigelt','st. laurent'].some(lg => g.includes(lg)))) {
+        return { min: 12, max: 15 };
+      }
+    }
+    return r;
+  },
+
+  // Returns a small HTML badge string for serving temperature
+  _servingTempBadge(wine) {
+    const r = this._servingTemp(wine);
+    if (!r) return '';
+    return `<div style="text-align:center;margin-top:12px">
+      <span class="serving-temp-badge">
+        <span class="temp-icon">🌡️</span>
+        ${this.t('consume.serveAt')} ${r.min}–${r.max}°C
+      </span>
+    </div>`;
+  },
+
   _buildCollectionStatsBar(allWines) {
     const wineCount   = allWines.length;
     const bottleCount = allWines.reduce((s, w) => s + (w.quantity || 1), 0);
