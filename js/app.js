@@ -3315,11 +3315,15 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       </div>
       <input id="decant-mins" class="form-control" type="number" min="1" max="480" value="${suggestedMins}">`;
     this.showModal(this.t('scan.decantTitle'), body, [
-      { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
+      { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => {
+        this.closeModal();
+        afterClose?.();
+      }},
       { label: this.t('scan.decantStart'), cls: 'btn-primary', action: () => {
         const mins = parseInt(document.getElementById('decant-mins')?.value || '60', 10);
         this.closeModal();
         this._startDecantTimer(wine, mins);
+        afterClose?.();
       }}
     ]);
   },
