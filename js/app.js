@@ -3494,6 +3494,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
           <div class="help-section">
             <div class="help-section-title">☁️ ${nl?'Kelder delen — stap voor stap':'Sharing a cellar — step by step'}</div>
+            <p style="font-size:.86rem;color:var(--text-md);line-height:1.6;margin-bottom:12px">
+              ${nl
+                ? `Vinage slaat jouw collectie standaard lokaal op je apparaat op. Om je kelder te <strong>delen met anderen</strong> — of om op meerdere apparaten te werken — wordt er gebruik gemaakt van <strong>Firebase</strong>, een clouddienst van Google. Firebase fungeert als een beveiligde, centrale database: wanneer jij een wijn toevoegt of een fles opent, wordt die wijziging automatisch naar de cloud gestuurd en ontvangen door alle gekoppelde apparaten. Zonder deze database zien apparaten elkaars wijzigingen niet. Je hebt hiervoor een Google-account nodig, zodat Firebase weet wie toegang mag krijgen tot welk huishouden.`
+                : `Vinage stores your collection locally on your device by default. To <strong>share your cellar with others</strong> — or to use it across multiple devices — the app uses <strong>Firebase</strong>, a cloud service by Google. Firebase acts as a secure, central database: when you add a wine or open a bottle, that change is sent to the cloud and received by all connected devices. Without this database, devices would have no way of seeing each other's changes. A Google account is required so Firebase knows who is allowed to access which household.`}
+            </p>
             <ul class="help-list">
               <li><strong>${nl?'Stap 1 — Aanmelden':'Step 1 — Sign in'}</strong><br>
                 ${nl?'Ga naar <em>Instellingen → Sync &amp; Delen</em> en tik op <em>Inloggen met Google</em>. Doe dit op alle apparaten die je wilt koppelen (bijv. jij en je partner).':'Go to <em>Settings → Sync &amp; Sharing</em> and tap <em>Sign in with Google</em>. Do this on every device you want to connect (e.g. you and your partner).'}
