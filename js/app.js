@@ -506,7 +506,7 @@ const App = {
         this._setScanStatus(this.t('scan.barcodeNotFound'), 'error');
         if (actionRow) actionRow.innerHTML = `
           <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
-          <button class="btn btn-secondary btn-sm" data-action="scan-mode-switch" data-mode="barcode">${this.t('scan.retake')}</button>`;
+          <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
         return;
       }
 
@@ -514,13 +514,13 @@ const App = {
       this._setScanStatus(this.t('scan.barcodeFound'), 'found');
       if (actionRow) actionRow.innerHTML = `
         <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
-        <button class="btn btn-secondary btn-sm" data-action="scan-mode-switch" data-mode="barcode">${this.t('scan.retake')}</button>`;
+        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
 
     } catch (err) {
       this._setScanStatus(this.t('scan.barcodeError'), 'error');
       if (actionRow) actionRow.innerHTML = `
         <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
-        <button class="btn btn-secondary btn-sm" data-action="scan-mode-switch" data-mode="barcode">${this.t('scan.retake')}</button>`;
+        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
     }
   },
 
