@@ -41,6 +41,21 @@ const App = {
     setTimeout(() => this._migrateImagesToFirebase(), 5000);
   },
 
+  // ── Dark mode ─────────────────────────────────────────────────────────────
+  _applyTheme() {
+    const dark = DB.getSettings().darkMode === true;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  },
+
+  toggleDarkMode() {
+    const s = DB.getSettings();
+    s.darkMode = !s.darkMode;
+    DB.saveSettings(s);
+    this._applyTheme();
+    // Re-render settings so the toggle reflects the new state
+    if (this.view === 'settings') this.renderView();
+  },
+
   _showSplash() {
     const el = document.createElement('div');
     el.id = 'splash-screen';
