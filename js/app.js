@@ -285,20 +285,22 @@ const App = {
         <div class="barcode-overlay${mode === 'barcode' ? ' active' : ''}" id="barcode-overlay">
           <div class="barcode-frame"><div class="barcode-scanline"></div></div>
         </div>
-        <!-- Mode toggle pill (floats over camera) -->
-        <div class="scan-mode-toggle">
-          <button class="scan-mode-btn${mode === 'label' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="label">
-            📷 ${this.t('scan.labelMode')}
-          </button>
-          <button class="scan-mode-btn${mode === 'barcode' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="barcode">
-            🔲 ${this.t('scan.barcodeMode')}
-          </button>
-        </div>
         <div class="camera-placeholder" id="camera-placeholder">
           <p class="scan-instruction-text">${mode === 'barcode' ? this.t('scan.barcodeScanning') : this.t('scan.instruction')}</p>
         </div>
       </div>
       <div class="scan-controls">
+        <!-- Mode toggle — lives in controls so it clears the safe-area notch -->
+        <div class="scan-mode-toggle-bar">
+          <div class="scan-mode-toggle">
+            <button class="scan-mode-btn${mode === 'label' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="label">
+              📷 ${this.t('scan.labelMode')}
+            </button>
+            <button class="scan-mode-btn${mode === 'barcode' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="barcode">
+              🔲 ${this.t('scan.barcodeMode')}
+            </button>
+          </div>
+        </div>
         <div id="scan-status" class="scan-status">&nbsp;</div>
         <!-- Statement strip: cream band with slogan -->
         <div class="scan-statement-strip">
