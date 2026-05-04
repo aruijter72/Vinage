@@ -2799,6 +2799,108 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const fmt = n => n > 0 ? '€' + n.toFixed(0) : '—';
     const fmtAvg = n => n > 0 ? '€' + n.toFixed(0) : '—';
 
+    // ── Cellar health ─────────────────────────────────────────────────────────
+    const healthSection = (() => {
+      if (wines.length === 0) return '';
+
+      // Readiness counts (by bottle)
+      let pastCount = 0, readyCount2 = 0, cellarCount = 0, unknownCount = 0;
+      wines.forEach(w => {
+        const qty = w.quantity || 1;
+        const s   = this._drinkStatus(w);
+        if      (s === 'past')   pastCount   += qty;
+        else if (s === 'ready')  readyCount2 += qty;
+        else if (s === 'cellar') cellarCount += qty;
+        else                     unknownCount += qty;
+      });
+      const knownTotal = pastCount + readyCount2 + cellarCount + unknownCount || 1;
+
+      // Health score: penalise past-peak, reward ready, neutral for ageing
+      // score 0-100: 100 = all ready, 0 = all past peak
+      const actionable = pastCount + readyCount2;
+      let scoreLabel, scoreCls, scoreIcon;
+      if (actionable === 0) {
+        scoreLabel = this.t('stats.healthScoreGood');
+        scoreCls   = 'health-score-badge--good';
+        scoreIcon  = '🟢';
+      } else {
+        const pastRatio = pastCount / knownTotal;
+        if (pastRatio > 0.25) {
+          scoreLabel = this.t('stats.healthScorePoor');
+          scoreCls   = 'health-score-badge--poor';
+          scoreIcon  = '🔴';
+        } else if (pastRatio > 0.08 || readyCount2 / knownTotal > 0.6) {
+          scoreLabel = this.t('stats.healthScoreOk');
+          scoreCls   = 'health-score-badge--ok';
+          scoreIcon  = '🟡';
+        } else {
+          scoreLabel = this.t('stats.healthScoreGood');
+          scoreCls   = 'health-score-badge--good';
+          scoreIcon  = '🟢';
+        }
+      }
+
+      // Segmented bar segments (skip 0-width)
+      const seg = (pct, color, title) => pct > 0
+        ? `<div class="readiness-bar-segment" style="width:${pct}%;background:${color}" title="${title}"></div>`
+        : '';
+      const pastPct    = Math.round(pastCount    / knownTotal * 100);
+      const readyPct   = Math.round(readyCount2  / knownTotal * 100);
+      const cellarPct  = Math.round(cellarCount  / knownTotal * 100);
+      const unknownPct = 100 - pastPct - readyPct - cellarPct;
+
+      const bar = `
+        <div class="readiness-bar">
+          ${seg(pastPct,    '#c0392b', this.t('stats.healthPastPeak'))}
+          ${seg(readyPct,   '#2e7d32', this.t('stats.healthReady'))}
+          ${seg(cellarPct,  '#A3835B', this.t('stats.healthCellar'))}
+          ${seg(unknownPct > 0 ? unknownPct : 0, '#D8C8BC', this.t('stats.healthUnknown'))}
+        </div>
+        <div class="readiness-legend">
+          ${pastCount   > 0 ? `<div class="readiness-legend-item"><span class="readiness-dot" style="background:#c0392b"></span>${pastCount} ${this.t('stats.healthPastPeak')}</div>` : ''}
+          ${readyCount2 > 0 ? `<div class="readiness-legend-item"><span class="readiness-dot" style="background:#2e7d32"></span>${readyCount2} ${this.t('stats.healthReady')}</div>` : ''}
+          ${cellarCount > 0 ? `<div class="readiness-legend-item"><span class="readiness-dot" style="background:#A3835B"></span>${cellarCount} ${this.t('stats.healthCellar')}</div>` : ''}
+          ${unknownCount > 0 ? `<div class="readiness-legend-item"><span class="readiness-dot" style="background:#D8C8BC"></span>${unknownCount} ${this.t('stats.healthUnknown')}</div>` : ''}
+        </div>`;
+
+      // Highlight tiles
+      const winesInStock = wines.filter(w => (w.quantity || 1) > 0);
+      const oldest = winesInStock.filter(w => w.vintage)
+        .sort((a, b) => a.vintage - b.vintage)[0];
+      const topValue = winesInStock.filter(w => w.price)
+        .sort((a, b) => (b.price * (b.quantity||1)) - (a.price * (a.quantity||1)))[0];
+      const vintages = winesInStock.filter(w => w.vintage).map(w => w.vintage);
+      const avgVintage = vintages.length
+        ? Math.round(vintages.reduce((s, v) => s + v, 0) / vintages.length)
+        : null;
+
+      const tiles = `
+        <div class="health-highlights">
+          <div class="health-tile">
+            <div class="health-tile-value">${oldest ? oldest.vintage : this.t('stats.healthNoVintage')}</div>
+            <div class="health-tile-label">${this.t('stats.healthOldest')}</div>
+          </div>
+          <div class="health-tile">
+            <div class="health-tile-value">${topValue ? '€' + Math.round(topValue.price * (topValue.quantity||1)) : '—'}</div>
+            <div class="health-tile-label">${this.t('stats.healthTopValue')}</div>
+          </div>
+          <div class="health-tile">
+            <div class="health-tile-value">${avgVintage || this.t('stats.healthNoVintage')}</div>
+            <div class="health-tile-label">${this.t('stats.healthAvgVintage')}</div>
+          </div>
+        </div>`;
+
+      return `
+        <div class="health-card">
+          <div class="health-score-row">
+            <span class="health-score-label">${this.t('stats.healthScore')}</span>
+            <span class="health-score-badge ${scoreCls}">${scoreIcon} ${scoreLabel}</span>
+          </div>
+          ${bar}
+          ${tiles}
+        </div>`;
+    })();
+
     // ── By type ──────────────────────────────────────────────────────────────
     const types = ['red','white','rosé','sparkling','dessert','fortified'];
     const byType = types.map(tp => {
@@ -2991,6 +3093,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <div class="stats-card-label">${this.t('stats.readyToDrink')}</div>
       </div>
     </div>
+
+    ${healthSection ? `
+    <div class="stats-section">
+      <h2 class="stats-section-title">🏥 ${this.t('stats.health')}</h2>
+      ${healthSection}
+    </div>` : ''}
 
     <div class="stats-section">
       <h2 class="stats-section-title">${this.t('stats.byType')}</h2>
