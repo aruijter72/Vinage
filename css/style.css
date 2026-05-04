@@ -119,8 +119,8 @@ ul { list-style: none; }
   min-width: 0;
 }
 .nav-item.active { color: var(--burgundy); }
-.nav-item svg { width: 24px; height: 24px; }
-.nav-item span { font-size: .68rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.nav-item svg { width: 22px; height: 22px; }
+.nav-item span { font-size: .62rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
 /* ── Page header ────────────────────────────────────────────────────────────── */
 .page-header {
