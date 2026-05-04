@@ -3006,6 +3006,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     </div>
 
     <div class="stats-section">
+      <h2 class="stats-section-title">📈 ${this.t('stats.spending')}</h2>
+      ${spendingChart}
+    </div>
+
+    <div class="stats-section">
       <h2 class="stats-section-title">${this.t('stats.history')} ${log.length > 0 ? `<span style="font-size:.8rem;font-weight:400;color:var(--text-lt)">(${log.length})</span>` : ''}</h2>
       <div class="stats-history-list">${historyRows}</div>
     </div>`;
