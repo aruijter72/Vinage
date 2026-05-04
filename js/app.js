@@ -1262,6 +1262,54 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     );
   },
 
+  // ── Post-drink tasting note modal ────────────────────────────────────────
+  _showTastingNoteModal(entryId) {
+    this._tastingStarRating = 0;
+    const body = `
+      <div style="text-align:center;margin-bottom:16px">
+        <p style="font-size:.88rem;color:var(--text-md);margin-bottom:10px">${this.t('consume.tastingSubtitle')}</p>
+        <div class="star-rating" id="tasting-stars">
+          ${[1,2,3,4,5].map(i =>
+            `<button class="star-btn" data-star="${i}" onclick="App._setStarRating(${i})">★</button>`
+          ).join('')}
+        </div>
+      </div>
+      <div class="form-group">
+        <textarea id="tasting-note-text" class="form-control" rows="3"
+          placeholder="${this.t('consume.tastingNotePlaceholder')}"
+          style="resize:none;font-size:.9rem"></textarea>
+      </div>`;
+    this.showModal(
+      this.t('consume.tastingTitle'),
+      body,
+      [
+        { label: this.t('consume.tastingSkip'), cls: 'btn-ghost', action: () => this.closeModal() },
+        { label: this.t('consume.tastingSave'), cls: 'btn-primary', action: () => {
+          const note   = document.getElementById('tasting-note-text')?.value?.trim() || null;
+          const rating = this._tastingStarRating || null;
+          if (note || rating) {
+            Sync.updateConsumptionEntry(entryId, { tastingNote: note, tastingRating: rating });
+            this.toast(this.t('consume.tastingSaved'), 'success');
+          }
+          this.closeModal();
+        }},
+      ]
+    );
+    // Render initial star state after modal DOM is ready
+    setTimeout(() => this._renderTastingStars(0), 60);
+  },
+
+  _setStarRating(n) {
+    this._tastingStarRating = n;
+    this._renderTastingStars(n);
+  },
+
+  _renderTastingStars(active) {
+    document.querySelectorAll('#tasting-stars .star-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i < active);
+    });
+  },
+
   confirmDeleteWine(id) {
     const wine = DB.getWineById(id);
     if (!wine) return;
@@ -3247,7 +3295,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     return       { mins: 60, reason: nl ? 'Rode wijn — standaard decanteertijd' : 'Red wine — standard decant time' };
   },
 
-    _showDecantModal(wineOrId) {
+    _showDecantModal(wineOrId, afterClose = null) {
     const wine = (typeof wineOrId === 'object') ? wineOrId : DB.getWineById(wineOrId);
     if (!wine) return;
     const { mins: suggestedMins, reason } = this._estimateDecantTime(wine);
