@@ -2804,7 +2804,6 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     // ── Drink Soon list ──────────────────────────────────────────────────────
     const now = new Date();
     const nowYear = now.getFullYear();
-    const nowMs   = now.getTime();
     const drinkSoonItems = wines
       .filter(w => w.drinkFrom || w.drinkUntil)
       .map(w => {
