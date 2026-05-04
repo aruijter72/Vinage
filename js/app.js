@@ -135,7 +135,11 @@ const App = {
   renderView() {
     const el = document.getElementById('main-content');
     switch (this.view) {
-      case 'scan':       el.innerHTML = this.buildScanView(); this.initCamera(); break;
+      case 'scan':
+        el.innerHTML = this.buildScanView();
+        if (this._scanMode === 'barcode') { this.startBarcodeScanner(); }
+        else { this.initCamera(); }
+        break;
       case 'cellar':
         el.innerHTML = this.cellarDetailId ? this.buildCellarDetail() : this.buildCellarList();
         if (this.cellarDetailId) setTimeout(() => { this._initRackHover(); this._initRackZoom(); }, 0);
