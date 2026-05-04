@@ -189,7 +189,9 @@ const TRANSLATIONS = {
       notifDrinkWindowHint: 'Notify when a wine enters its ideal drinking window',
       notifDecant: 'Decanting timer alert',
       notifDecantHint: 'Notify when the decanting countdown finishes',
-      notifTestBtn: 'Send test notification'
+      notifTestBtn: 'Send test notification',
+      darkMode: 'Dark Mode',
+      darkModeHint: 'Easy on the eyes in low light'
     },
     common: {
       save: 'Save', cancel: 'Cancel', delete: 'Delete',
