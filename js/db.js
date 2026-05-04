@@ -165,6 +165,15 @@ const DB = {
     return record; // returned so Sync can push without a re-lookup
   },
 
+  updateConsumptionEntry(id, patch) {
+    const log = this.getConsumptionLog();
+    const idx = log.findIndex(e => e.id === id);
+    if (idx === -1) return null;
+    log[idx] = { ...log[idx], ...patch };
+    this._saveConsumptionLog(log);
+    return log[idx];
+  },
+
   deleteConsumptionEntry(id) {
     this._saveConsumptionLog(this.getConsumptionLog().filter(e => e.id !== id));
   },

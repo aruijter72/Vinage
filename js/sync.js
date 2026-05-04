@@ -423,6 +423,13 @@ const Sync = {
   logConsumption(entry) {
     const saved = DB.logConsumption(entry); // returns the created record with its id
     this._pushConsumption(saved);
+    return saved; // allow callers to chain tasting note etc.
+  },
+
+  updateConsumptionEntry(id, patch) {
+    const updated = DB.updateConsumptionEntry(id, patch);
+    if (updated) this._pushConsumption(updated);
+    return updated;
   },
 
   deleteConsumptionEntry(id) {
