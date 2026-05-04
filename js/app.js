@@ -1393,13 +1393,17 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   _buildCaseRack(c) {
+    const isHalf = c.type === 'case6';
+    const count  = isHalf ? 6 : 12;
+    const cols   = isHalf ? 3 : 4;
     let cells = '';
-    for (let i = 0; i < 12; i++) {
-      const wineId = c.slots[String(i)];
-      const wine = wineId ? DB.getWineById(wineId) : null;
-      cells += this._buildSlot(c.id, String(i), wine);
+    for (let i = 0; i < count; i++) {
+      const key    = isHalf ? `h${i}` : String(i);
+      const wineId = c.slots[key];
+      const wine   = wineId ? DB.getWineById(wineId) : null;
+      cells += this._buildSlot(c.id, key, wine);
     }
-    return `<div class="rack-wood-frame" style="display:inline-block;min-width:auto"><div class="rack-case">${cells}</div></div>`;
+    return `<div class="rack-wood-frame" style="display:inline-block;min-width:auto"><div class="rack-case" style="grid-template-columns:repeat(${cols},1fr)">${cells}</div></div>`;
   },
 
   _buildShelfRack(c) {
@@ -1439,7 +1443,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       // Excel: column = letter (A,B,C…) across top; row = number down left  e.g. D3
       return String.fromCharCode(65 + c % 26) + (r + 1);
     }
-    // Case rack 0-11: cols A-D repeat across, rows 1-3 downward
+    if (s.startsWith('h')) {
+      // Half-case / Box(6): 3 cols × 2 rows → A1 B1 C1 / A2 B2 C2
+      const i = parseInt(s.slice(1), 10);
+      return String.fromCharCode(65 + (i % 3)) + (Math.floor(i / 3) + 1);
+    }
+    // Case rack 0-11: 4 cols × 3 rows → A1 B1 C1 D1 / A2 … / A3 …
     const i = parseInt(s, 10);
     return String.fromCharCode(65 + (i % 4)) + (Math.floor(i / 4) + 1);
   },
