@@ -2967,6 +2967,18 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           <button class="${this.lang==='nl'?'active':''}" data-action="toggle-lang" data-lang="nl">NL</button>
         </div>
       </div>
+      <div class="settings-row" style="margin-top:10px">
+        <div>
+          <label style="display:block;font-weight:600">${this.t('settings.darkMode')}</label>
+          <span style="font-size:.75rem;color:var(--text-lt)">${this.t('settings.darkModeHint')}</span>
+        </div>
+        <div class="dark-toggle" data-action="toggle-dark-mode" style="cursor:pointer">
+          <div class="dark-toggle-track${s.darkMode ? ' on' : ''}">
+            <div class="dark-toggle-thumb"></div>
+          </div>
+          <span class="dark-toggle-label">${s.darkMode ? (this.lang==='nl' ? 'Aan' : 'On') : (this.lang==='nl' ? 'Uit' : 'Off')}</span>
+        </div>
+      </div>
     </div>
 
     <div class="settings-section">
