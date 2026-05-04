@@ -2488,18 +2488,36 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     resultsEl.innerHTML = `<div class="scan-status"><span class="spinner"></span>${this.t('pairing.finding')}</div>`;
 
     const wines = DB.getWines();
-    if (wines.length === 0) {
-      resultsEl.innerHTML = `<div class="empty-state">${this.t('pairing.noWines')}</div>`;
-      return;
-    }
-
     const settings = DB.getSettings();
     const hasKey = settings.anthropicKey || settings.openaiKey;
-    let result;
 
+    // Try to get user's city for local store guidance (best-effort, non-blocking)
+    let city = null;
+    if (hasKey && navigator.geolocation) {
+      try {
+        city = await new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            async pos => {
+              try {
+                const r = await fetch(
+                  `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`,
+                  { headers: { 'Accept-Language': this.lang === 'nl' ? 'nl' : 'en' } }
+                );
+                const d = await r.json();
+                resolve(d.address?.city || d.address?.town || d.address?.village || null);
+              } catch { resolve(null); }
+            },
+            () => resolve(null),
+            { timeout: 4000 }
+          );
+        });
+      } catch { city = null; }
+    }
+
+    let result;
     try {
       if (hasKey) {
-        result = await API.suggestPairings(dish, wines, settings, this.lang);
+        result = await API.suggestPairings(dish, wines, settings, this.lang, city);
       } else {
         result = API.ruleBasedPairing(dish, wines);
       }
@@ -2508,7 +2526,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       return;
     }
 
-    const { matches, generalSuggestion, rulesBased } = result;
+    const { matches, generalSuggestion, externalSuggestions, rulesBased } = result;
     const matchedWines = (matches || []).map(m => ({ wine: wines[m.index], reason: m.reason })).filter(x => x.wine);
 
     let html = '';
@@ -2516,8 +2534,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       html += `<div style="font-size:.8rem;color:var(--text-lt);margin-bottom:8px">${this.t('pairing.rulesBased')}</div>`;
     }
 
+    // ── Section 1: Cellar matches ────────────────────────────────────────────
+    html += `<div class="pairing-section-title">${this.t('pairing.fromCellar')}</div>`;
     if (matchedWines.length > 0) {
-      html += `<div class="pairing-section-title">${this.t('pairing.fromCellar')}</div>`;
       html += matchedWines.map(({ wine: w, reason }) => `
         <div class="pairing-wine-card" style="border-left-color:${this._typeColor(w.type)}">
           <div style="flex:1">
@@ -2525,13 +2544,14 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
               <span style="font-weight:700">${this._esc(w.name)}</span>
               ${w.vintage ? `<span style="font-size:.8rem;color:var(--text-lt)">${w.vintage}</span>` : ''}
               <span class="pairing-match-badge">${this.t('pairing.match')}</span>
+              ${w.quantity === 0 ? `<span style="font-size:.75rem;color:var(--text-lt);opacity:.7">(${this.lang==='nl'?'geen voorraad':'out of stock'})</span>` : ''}
             </div>
             <div style="font-size:.82rem;color:var(--text-lt)">${[w.producer, this.t('types.'+w.type), w.region].filter(Boolean).join(' · ')}</div>
             ${reason ? `<div class="pairing-reason">${this._esc(reason)}</div>` : ''}
           </div>
         </div>`).join('');
     } else {
-      html += `<div class="empty-state" style="padding:24px"><p>${this.t('pairing.noMatch')}</p></div>`;
+      html += `<div style="padding:16px 0 8px;color:var(--text-lt);font-size:.9rem">${this.t('pairing.noMatch')}</div>`;
     }
 
     if (generalSuggestion) {
@@ -2539,6 +2559,31 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <strong>${this.t('pairing.generalSuggestion')}</strong>
         ${this._esc(generalSuggestion)}
       </div>`;
+    }
+
+    // ── Section 2: External suggestions ─────────────────────────────────────
+    if (externalSuggestions?.length > 0) {
+      const mapsCity = encodeURIComponent((city ? city + ' ' : '') + (this.lang === 'nl' ? 'wijnwinkel' : 'wine shop'));
+      html += `<div class="pairing-section-title" style="margin-top:20px">${this.t('pairing.topPicks')}</div>`;
+      html += externalSuggestions.map(s => `
+        <div class="pairing-wine-card pairing-external-card" style="border-left-color:${this._typeColor(s.type||'red')}">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+              <span style="font-weight:700">${this._esc(s.name)}</span>
+              ${s.producer ? `<span style="font-size:.8rem;color:var(--text-lt)">${this._esc(s.producer)}</span>` : ''}
+              ${s.vintage ? `<span style="font-size:.8rem;color:var(--text-lt)">${s.vintage}</span>` : ''}
+            </div>
+            <div style="font-size:.82rem;color:var(--text-lt);margin-bottom:6px">${[this.t('types.'+(s.type||'red')), s.region].filter(Boolean).join(' · ')}</div>
+            ${s.reason ? `<div class="pairing-reason">${this._esc(s.reason)}</div>` : ''}
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px">
+              ${s.priceRange ? `<span class="pairing-price-badge">💶 ${this._esc(s.priceRange)}</span>` : ''}
+              ${s.availability ? `<span style="font-size:.78rem;color:var(--text-lt)">${this._esc(s.availability)}</span>` : ''}
+            </div>
+          </div>
+        </div>`).join('');
+      html += `<a class="pairing-find-store-btn" href="https://maps.google.com/?q=${mapsCity}" target="_blank" rel="noopener">
+        📍 ${city ? this.t('pairing.findNear').replace('{city}', city) : this.t('pairing.findStores')}
+      </a>`;
     }
 
     resultsEl.innerHTML = html;
