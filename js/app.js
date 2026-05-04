@@ -389,6 +389,172 @@ const App = {
     }
   },
 
+  // ── Barcode scanning ──────────────────────────────────────────────────────
+  switchScanMode(mode) {
+    if (this._scanMode === mode) return;
+    // Stop whatever is currently running
+    this.stopCamera();
+    this.stopBarcodeScanner();
+    this._scanMode = mode;
+    // Re-render the scan view in the new mode
+    const el = document.getElementById('main-content');
+    if (el && this.view === 'scan') {
+      el.innerHTML = this.buildScanView();
+      if (mode === 'barcode') this.startBarcodeScanner();
+      else this.initCamera();
+    }
+  },
+
+  async startBarcodeScanner() {
+    if (!window.ZXing) {
+      this._setScanStatus('ZXing library not loaded.', 'error');
+      return;
+    }
+    const video = document.getElementById('camera-video');
+    const placeholder = document.getElementById('camera-placeholder');
+    if (!video) return;
+
+    this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeScanning')}`, '');
+    if (placeholder) placeholder.style.display = 'none';
+
+    try {
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.EAN_13,
+        ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A,
+        ZXing.BarcodeFormat.UPC_E,
+        ZXing.BarcodeFormat.CODE_128,
+      ]);
+      this._barcodeReader = new ZXing.BrowserMultiFormatReader(hints);
+
+      await this._barcodeReader.decodeFromConstraints(
+        { video: { facingMode: { ideal: 'environment' } } },
+        video,
+        (result, err) => {
+          if (result) {
+            const code = result.getText();
+            this._barcodeReader.reset();
+            this._barcodeReader = null;
+            this._onBarcodeDetected(code);
+          }
+          // NotFoundException fires on every empty frame — ignore it
+        }
+      );
+    } catch (err) {
+      this._setScanStatus(this.t('scan.cameraError'), 'error');
+    }
+  },
+
+  stopBarcodeScanner() {
+    if (this._barcodeReader) {
+      try { this._barcodeReader.reset(); } catch (_) {}
+      this._barcodeReader = null;
+    }
+  },
+
+  async _onBarcodeDetected(code) {
+    const actionRow = document.getElementById('scan-action-row');
+    this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeLookingUp')}`, '');
+
+    try {
+      // ── 1. Open Food Facts lookup ─────────────────────────────────────────
+      let partial = await this._lookupOpenFoodFacts(code);
+
+      // ── 2. AI enrichment ──────────────────────────────────────────────────
+      const settings = DB.getSettings();
+      const hasKey = settings.anthropicKey || settings.openaiKey;
+
+      if (hasKey) {
+        this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeEnriching')}`, '');
+        try {
+          const enriched = await API.enrichWineData(partial, settings, this.lang);
+          if (!enriched.error) {
+            // Merge: enriched fields win except for name/producer if OFF had good values
+            partial = {
+              ...enriched,
+              name:     partial.name     || enriched.name,
+              producer: partial.producer || enriched.producer,
+              type:     partial.type     || enriched.type,
+              country:  partial.country  || enriched.country,
+            };
+          }
+        } catch (_) { /* enrichment optional — continue with OFF data */ }
+      }
+
+      // Apply estimated price mapping
+      if (partial.estimatedPrice != null && partial.price == null) {
+        partial.price = partial.estimatedPrice;
+      }
+      // Localize country
+      if (partial.country) partial.country = this._localizeCountry(partial.country);
+
+      if (!partial.name) {
+        this._setScanStatus(this.t('scan.barcodeNotFound'), 'error');
+        if (actionRow) actionRow.innerHTML = `
+          <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
+          <button class="btn btn-secondary btn-sm" data-action="scan-mode-switch" data-mode="barcode">${this.t('scan.retake')}</button>`;
+        return;
+      }
+
+      this.scanResult = partial;
+      this._setScanStatus(this.t('scan.barcodeFound'), 'found');
+      if (actionRow) actionRow.innerHTML = `
+        <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
+        <button class="btn btn-secondary btn-sm" data-action="scan-mode-switch" data-mode="barcode">${this.t('scan.retake')}</button>`;
+
+    } catch (err) {
+      this._setScanStatus(this.t('scan.barcodeError'), 'error');
+      if (actionRow) actionRow.innerHTML = `
+        <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
+        <button class="btn btn-secondary btn-sm" data-action="scan-mode-switch" data-mode="barcode">${this.t('scan.retake')}</button>`;
+    }
+  },
+
+  async _lookupOpenFoodFacts(barcode) {
+    const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(barcode)}.json`;
+    const res  = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return {};
+    const data = await res.json();
+    if (data.status !== 1 || !data.product) return {};
+
+    const p    = data.product;
+    const cats = (p.categories_tags || []).map(c => c.toLowerCase());
+
+    // Detect wine type from categories
+    let type = null;
+    if (cats.some(c => /white.wine|wines-white/.test(c)))                                  type = 'white';
+    else if (cats.some(c => /ros[eé].wine|wines-ros/.test(c)))                             type = 'rosé';
+    else if (cats.some(c => /sparkling|champagne|prosecco|cava|cremant|sekt/.test(c)))     type = 'sparkling';
+    else if (cats.some(c => /port|sherry|madeira|fortified|vin.doux/.test(c)))            type = 'fortified';
+    else if (cats.some(c => /dessert.wine|sweet.wine|ice.wine|sauterne/.test(c)))          type = 'dessert';
+    else if (cats.some(c => /red.wine|wines-red|vin.rouge/.test(c)))                       type = 'red';
+    // If categories mention wine but type unclear, default to red (most common)
+    else if (cats.some(c => /wine|wijn|vin\b/.test(c)))                                    type = 'red';
+
+    // Country from tags like "en:france" → "France"
+    const countryTag = (p.countries_tags || [])
+      .find(t => t.startsWith('en:'));
+    const country = countryTag
+      ? countryTag.slice(3).split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      : null;
+
+    // Try to extract vintage year from product name
+    const nameStr = p.product_name || p.product_name_en || '';
+    const vintageMatch = nameStr.match(/\b(19|20)\d{2}\b/);
+    const vintage = vintageMatch ? parseInt(vintageMatch[0], 10) : null;
+    // Clean name — remove the year if we extracted it
+    const name = nameStr.replace(/\s*\b(19|20)\d{2}\b/, '').trim() || null;
+
+    return {
+      name,
+      producer: p.brands || null,
+      type,
+      country,
+      vintage,
+    };
+  },
+
   async captureAndAnalyze() {
     const video = document.getElementById('camera-video');
     const canvas = document.getElementById('camera-canvas');
