@@ -2047,6 +2047,17 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     </div>`;
   },
 
+  // Sets one filter exclusively (toggling it off if already active), clearing all others.
+  // Used by the drink-alert bars so they act like radio buttons.
+  _setExclusiveFilter(id) {
+    if (this.collectionFilters.has(id)) {
+      this.collectionFilters = new Set();
+    } else {
+      this.collectionFilters = new Set([id]);
+    }
+    this.renderView();
+  },
+
   _toggleFilter(id) {
     if (this.collectionFilters.has(id)) {
       this.collectionFilters.delete(id);
@@ -2073,7 +2084,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     if (fs.size === 0) return wines;
 
     const TYPE_FILTERS   = new Set(['red','white','rosé','sparkling','dessert','fortified']);
-    const STATUS_FILTERS = new Set(['in-cellar','drink-now','not-placed']);
+    const STATUS_FILTERS = new Set(['in-cellar','drink-now','drink-past','not-placed']);
 
     const activeTypes   = [...fs].filter(f => TYPE_FILTERS.has(f));
     const activeStatus  = [...fs].filter(f => STATUS_FILTERS.has(f));
@@ -2089,8 +2100,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         if (s === 'in-cellar'  && !placementMap[w.id]) return false;
         if (s === 'not-placed' && placementMap[w.id])  return false;
         if (s === 'drink-now') {
-          const st = this._drinkStatus(w);
-          if (st !== 'ready' && st !== 'past') return false;
+          // Green bar: ready to drink only (not past peak)
+          if (this._drinkStatus(w) !== 'ready') return false;
+        }
+        if (s === 'drink-past') {
+          // Yellow bar: past peak only
+          if (this._drinkStatus(w) !== 'past') return false;
         }
       }
       return true;
