@@ -1164,8 +1164,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       }
     }
 
-    // Log to consumption history (synced)
-    Sync.logConsumption({
+    // Log to consumption history (synced) — returns the saved entry with its id
+    const entry = Sync.logConsumption({
       wineId:        wine.id,
       wineName:      wine.name,
       wineType:      wine.type,
@@ -1175,6 +1175,18 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       fromSlot:      place?.slot       || null,
       price:         wine.price        || null,
     });
+
+    // Helper: called after all modals are resolved to prompt for tasting note
+    const showTasting = (wineSnap) => {
+      const needsDecant = ['red','fortified','dessert'].includes(wineSnap.type);
+      if (needsDecant) {
+        setTimeout(() => this._showDecantModal(wineSnap, () => {
+          setTimeout(() => this._showTastingNoteModal(entry.id), 400);
+        }), 600);
+      } else {
+        setTimeout(() => this._showTastingNoteModal(entry.id), 600);
+      }
+    };
 
     const newQty = (wine.quantity || 1) - 1;
 
@@ -1189,19 +1201,14 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             Sync.updateWine(wine.id, { quantity: 0 });
             this.closeModal(); this.renderView();
             this.toast(this.t('consume.toasted'), 'success');
-            if (['red','fortified','dessert'].includes(wineSnap.type)) {
-              setTimeout(() => this._showDecantModal(wineSnap), 600);
-            }
+            showTasting(wineSnap);
           }},
           { label: this.t('consume.remove'), cls: 'btn-danger', action: () => {
             Sync.deleteWine(wine.id);
             ImageDB.delete(wine.id);
             this.closeModal(); this.renderView();
             this.toast(this.t('consume.toasted'), 'success');
-            // Decant uses snapshot — wine object still valid even after DB deletion
-            if (['red','fortified','dessert'].includes(wineSnap.type)) {
-              setTimeout(() => this._showDecantModal(wineSnap), 600);
-            }
+            showTasting(wineSnap);
           }},
         ]
       );
@@ -1209,9 +1216,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       Sync.updateWine(wine.id, { quantity: newQty });
       this.renderView();
       this.toast(this.t('consume.toasted'), 'success');
-      if (['red','fortified','dessert'].includes(wine.type)) {
-        setTimeout(() => this._showDecantModal(wine), 600);
-      }
+      showTasting(wine);
     }
   },
 
