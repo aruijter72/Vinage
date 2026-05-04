@@ -2000,6 +2000,109 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   color: var(--text-lt);
 }
 
+/* ── Cellar Health ───────────────────────────────────────────────────────── */
+.health-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 1px 4px var(--shadow);
+}
+
+/* Readiness segmented bar */
+.readiness-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  gap: 2px;
+  margin-bottom: 12px;
+}
+.readiness-bar-segment {
+  height: 100%;
+  transition: width .4s ease;
+}
+.readiness-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+.readiness-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  color: var(--text-md);
+}
+.readiness-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Health score badge */
+.health-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--cream-dk);
+}
+.health-score-label {
+  font-size: .78rem;
+  color: var(--text-lt);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-weight: 600;
+}
+.health-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: .8rem;
+  font-weight: 700;
+}
+.health-score-badge--good { background: #e8f5e9; color: #2e7d32; }
+.health-score-badge--ok   { background: #fff8e1; color: #e65100; }
+.health-score-badge--poor { background: #fde8e8; color: #c0392b; }
+[data-theme="dark"] .health-score-badge--good { background: #0d2e12; color: #81c784; }
+[data-theme="dark"] .health-score-badge--ok   { background: #2e1e00; color: #ffb74d; }
+[data-theme="dark"] .health-score-badge--poor { background: #3d1010; color: #e57373; }
+
+/* Highlight tiles */
+.health-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.health-tile {
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 10px 8px;
+  text-align: center;
+}
+[data-theme="dark"] .health-tile { background: var(--cream-dk); }
+.health-tile-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--burgundy);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.health-tile-label {
+  font-size: .65rem;
+  color: var(--text-lt);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-top: 4px;
+}
+
 .stats-section {
   padding: 0 16px 24px;
 }
