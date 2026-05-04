@@ -1,0 +1,13 @@
+[debug] [2026-05-04T09:27:11.569Z] ----------------------------------------------------------------------
+[debug] [2026-05-04T09:27:11.580Z] Command:       /usr/local/bin/node /Users/arnoldruijter/.npm-global/bin/firebase projects:list
+[debug] [2026-05-04T09:27:11.580Z] CLI Version:   15.16.0
+[debug] [2026-05-04T09:27:11.580Z] Platform:      darwin
+[debug] [2026-05-04T09:27:11.580Z] Node Version:  v24.12.0
+[debug] [2026-05-04T09:27:11.581Z] Time:          Mon May 04 2026 11:27:11 GMT+0200 (Midden-Europese zomertijd)
+[debug] [2026-05-04T09:27:11.581Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-05-04T09:27:11.775Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-05-04T09:27:11.775Z] > authorizing via signed-in user (arnoldruijter@gmail.com)
+[debug] [2026-05-04T09:27:11.781Z] Checked if tokens are valid: true, expires at: 1777890333014
+[debug] [2026-05-04T09:27:11.781Z] Checked if tokens are valid: true, expires at: 1777890333014
+[debug] [2026-05-04T09:27:11.782Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
