@@ -1103,10 +1103,28 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     if (!wine) return;
 
     const places = (DB.getWinePlacementMap()[wineId] || []);
+    const tempBadge = this._servingTempBadge(wine);
 
     if (places.length <= 1) {
-      // 0 or 1 location — no picker needed
-      this._doConsumeBottle(wine, places[0] || null);
+      // 0 or 1 location — show confirm dialog with serving temp
+      const place = places[0] || null;
+      const locLine = place
+        ? `<div style="font-size:.82rem;color:var(--text-lt);text-align:center;margin-top:6px">📍 ${this._esc(place.cellarName)}${place.slot ? ' · ' + this._slotPositionLabel(place.slot) : ''}</div>`
+        : '';
+      this.showModal(
+        this.t('consume.openConfirm'),
+        `<div style="text-align:center">
+          <div style="font-size:1rem;font-weight:700;color:var(--text)">${this._esc(wine.name)}${wine.vintage ? ' <span style="font-weight:400;color:var(--text-md)">' + wine.vintage + '</span>' : ''}</div>
+          ${locLine}
+        </div>${tempBadge}`,
+        [
+          { label: this.t('common.cancel'), cls: 'btn-ghost', action: () => this.closeModal() },
+          { label: this.t('consume.openBtn'), cls: 'btn-primary', action: () => {
+            this.closeModal();
+            this._doConsumeBottle(wine, place);
+          }},
+        ]
+      );
     } else {
       // Multiple locations — let user pick which bottle
       const opts = places.map(p => {
@@ -1119,7 +1137,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       }).join('');
       this.showModal(
         this.t('consume.openBottle'),
-        `<p style="margin-bottom:12px">${this.t('consume.pickLocation')}</p>${opts}`,
+        `<p style="margin-bottom:12px">${this.t('consume.pickLocation')}</p>${opts}${tempBadge}`,
         [{ label: this.t('common.cancel'), cls: 'btn-ghost', action: () => this.closeModal() }]
       );
       setTimeout(() => {
