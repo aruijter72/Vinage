@@ -1172,7 +1172,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             if (entry.fromSlot) {
               Sync.assignWineToSlot(entry.fromCellarId, entry.fromSlot, wine.id);
             } else {
-              Sync.logConsumption; // shelf — use assignWineToSlot with null slot
+              // shelf — use DB directly then push cellar
               DB.assignWineToSlot(entry.fromCellarId, null, wine.id);
               const cellar = DB.getCellars().find(c => c.id === entry.fromCellarId);
               if (cellar) Sync._pushCellar?.(cellar);
