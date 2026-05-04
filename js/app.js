@@ -207,6 +207,7 @@ const App = {
       // Decanting timer
       case 'start-decant':        this._showDecantModal(args.id); break;
       case 'cancel-decant':       this._cancelDecantTimer(); break;
+      case 'toggle-dark-mode':    this.toggleDarkMode(); break;
       // Share wine card
       case 'share-wine':          this._shareWineAsHTML(args.id); break;
       case 'show-help':           this._showHelp(); break;
