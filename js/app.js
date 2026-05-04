@@ -2801,6 +2801,62 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       </div>`;
     }).join('');
 
+    // ── Drink Soon list ──────────────────────────────────────────────────────
+    const now = new Date();
+    const nowYear = now.getFullYear();
+    const nowMs   = now.getTime();
+    const drinkSoonItems = wines
+      .filter(w => w.drinkFrom || w.drinkUntil)
+      .map(w => {
+        const status = this._drinkStatus(w);
+        if (!status || status === 'cellar') {
+          // Show 'cellar' wines only if they open within 12 months
+          if (status === 'cellar' && w.drinkFrom) {
+            const monthsAway = (w.drinkFrom - nowYear) * 12;
+            if (monthsAway > 12) return null;
+            return { w, urgency: 2, monthsAway };
+          }
+          return null;
+        }
+        if (status === 'past')  return { w, urgency: 0, monthsAway: null };
+        if (status === 'ready') return { w, urgency: 1, monthsAway: null };
+        return null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        if (a.urgency !== b.urgency) return a.urgency - b.urgency;
+        if (a.urgency <= 1) return (a.w.drinkUntil || 9999) - (b.w.drinkUntil || 9999);
+        return (a.monthsAway || 0) - (b.monthsAway || 0);
+      })
+      .slice(0, 15);
+
+    const drinkSoonRows = drinkSoonItems.length === 0
+      ? `<div class="empty-state" style="padding:16px 0;font-size:.85rem">${this.t('stats.drinkSoonEmpty')}</div>`
+      : drinkSoonItems.map(({ w, urgency, monthsAway }) => {
+          let pillCls, pillLabel;
+          if (urgency === 0) {
+            pillCls   = 'drink-soon-urgency--past';
+            pillLabel = this.t('stats.pastPeak');
+          } else if (urgency === 1) {
+            pillCls   = 'drink-soon-urgency--ready';
+            pillLabel = this.t('stats.readyNow');
+          } else {
+            pillCls   = 'drink-soon-urgency--soon';
+            pillLabel = this.t('stats.opensSoon', { n: monthsAway });
+          }
+          const qty = w.quantity || 1;
+          const window = [w.drinkFrom, w.drinkUntil].filter(Boolean).join('–');
+          return `
+          <div class="drink-soon-row" data-action="open-wine" data-id="${w.id}" style="cursor:pointer">
+            <span class="drink-soon-urgency ${pillCls}">${pillLabel}</span>
+            <div class="drink-soon-info">
+              <div class="drink-soon-name">${this._esc(w.name)}${w.vintage ? ' <span style="font-weight:400;color:var(--text-lt)">' + w.vintage + '</span>' : ''}</div>
+              ${window ? `<div class="drink-soon-meta">${window}</div>` : ''}
+            </div>
+            <span class="drink-soon-qty">${qty}×</span>
+          </div>`;
+        }).join('');
+
     // ── Consumption history ──────────────────────────────────────────────────
     const historyRows = log.length === 0
       ? `<div class="empty-state" style="padding:24px 0">${this.t('stats.noHistory')}</div>`
@@ -2810,13 +2866,20 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           const loc  = e.fromCellarName
             ? `📍 ${this._esc(e.fromCellarName)}${e.fromSlot ? ' · ' + this._slotPositionLabel(e.fromSlot) : ''}`
             : this.t('stats.unknownCellar');
+          const stars = e.tastingRating
+            ? `<span class="stats-tasting-stars">${'★'.repeat(e.tastingRating)}${'☆'.repeat(5 - e.tastingRating)}</span>`
+            : '';
+          const note  = e.tastingNote
+            ? `<div class="stats-history-tasting">${stars ? stars + ' ' : ''}"${this._esc(e.tastingNote)}"</div>`
+            : (stars ? `<div class="stats-history-tasting">${stars}</div>` : '');
           return `
           <div class="stats-history-row">
             <div class="stats-history-main">
               <span class="type-badge type-${(e.wineType||'red').replace('é','e')}" style="font-size:.65rem;padding:2px 6px"></span>
-              <div>
+              <div style="min-width:0;flex:1">
                 <div class="stats-history-name">${this._esc(e.wineName)}${e.wineVintage ? ' <span style="opacity:.6;font-weight:400">'+e.wineVintage+'</span>' : ''}</div>
                 <div class="stats-history-meta">${date} · ${loc}</div>
+                ${note}
               </div>
             </div>
             <div style="display:flex;gap:6px;flex-shrink:0;align-items:center">
