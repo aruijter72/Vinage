@@ -3015,16 +3015,68 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   // ══════════════════════════════════════════════════════════════════════════
   // DECANTING TIMER (Feature 7)
   // ══════════════════════════════════════════════════════════════════════════
-  _showDecantModal(wineOrId) {
+  _estimateDecantTime(wine) {
+    // Rule-based decant estimate — returns { mins, reason }
+    const nl      = this.lang === 'nl';
+    const age     = wine.vintage ? new Date().getFullYear() - wine.vintage : 6;
+    const grapes  = (wine.grapes || []).map(g => g.toLowerCase().trim());
+    const region  = (wine.region  || '').toLowerCase();
+    const type    = wine.type || 'red';
+
+    if (type === 'fortified') {
+      return { mins: 45, reason: nl ? 'Gefortificeerde wijn heeft matige beluchting nodig' : 'Fortified wine benefits from moderate breathing' };
+    }
+    if (type === 'dessert') {
+      return { mins: 20, reason: nl ? 'Dessertwijn heeft slechts een korte decanteer nodig' : 'Dessert wine needs only a brief decant' };
+    }
+
+    // Red wine — judge by age first
+    if (age >= 20) {
+      return { mins: 30, reason: nl ? `${age} jaar oud — kort decanteren om sediment te verwijderen` : `${age} years old — brief decant to separate sediment` };
+    }
+    if (age >= 15) {
+      return { mins: 45, reason: nl ? 'Rijpe wijn — matig decanteren aanbevolen' : 'Mature wine — moderate decant recommended' };
+    }
+
+    // Determine body from grapes / region
+    const boldGrapes  = ['cabernet sauvignon','cabernet','syrah','shiraz','nebbiolo','tannat','malbec','sagrantino','monastrell','mourvèdre','mouvedre','aglianico','tinta roriz','touriga nacional'];
+    const lightGrapes = ['pinot noir','gamay','grenache','dolcetto','barbera','zweigelt','frappato','trousseau','poulsard','nerello'];
+    const boldRegions = ['barolo','barbaresco','barossa','napa','bordeaux','rioja','cahors','priorat','amarone','brunello','bolgheri','ribera','douro','hermitage','châteauneuf','chateauneuf'];
+    const lightRegions= ['burgundy','beaujolais','bourgogne','loire','alsace','volnay','chambolle','vosne'];
+
+    const isBold  = boldGrapes.some(g => grapes.some(wg => wg.includes(g)))  || boldRegions.some(r => region.includes(r));
+    const isLight = lightGrapes.some(g => grapes.some(wg => wg.includes(g))) || lightRegions.some(r => region.includes(r));
+
+    if (isBold && age <= 5)  return { mins: 120, reason: nl ? 'Jong en tanninrijk — laat uitgebreid ademen' : 'Young and tannic — needs extended breathing' };
+    if (isBold && age <= 10) return { mins: 90,  reason: nl ? 'Vol en stevig — ruime beluchting nodig' : 'Full-bodied with firm tannins — generous decant' };
+    if (isBold)              return { mins: 60,  reason: nl ? 'Vol van stijl — standaard decanteertijd' : 'Full-bodied style — standard decant time' };
+    if (isLight && age <= 5) return { mins: 30,  reason: nl ? 'Lichte stijl — kort ademen om te openen' : 'Lighter style — brief decant to open up' };
+    if (isLight)             return { mins: 20,  reason: nl ? 'Licht en elegant — slechts even decanteren' : 'Light and elegant — just a short decant' };
+
+    // Unknown / medium body
+    if (age <= 5) return { mins: 75, reason: nl ? 'Jonge rode wijn — standaard beluchting' : 'Young red — standard breathing time' };
+    return       { mins: 60, reason: nl ? 'Rode wijn — standaard decanteertijd' : 'Red wine — standard decant time' };
+  },
+
+    _showDecantModal(wineOrId) {
     const wine = (typeof wineOrId === 'object') ? wineOrId : DB.getWineById(wineOrId);
     if (!wine) return;
-    const presets = [30, 45, 60, 90, 120];
+    const { mins: suggestedMins, reason } = this._estimateDecantTime(wine);
+    const presets = [20, 30, 45, 60, 90, 120];
     const body = `
-      <p style="margin-bottom:12px;color:var(--text-md)">${this.t('scan.decantMins')}</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-        ${presets.map(m => `<button class="btn btn-secondary btn-sm decant-preset" data-mins="${m}" onclick="document.getElementById('decant-mins').value=${m}">${m} min</button>`).join('')}
+      <div style="background:var(--cream);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:1.1rem;flex-shrink:0">💡</span>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px">${this.lang==='nl'?'Advies voor deze wijn':'Advised for this wine'}</div>
+          <div style="font-size:.88rem;color:var(--text);font-weight:600">${suggestedMins} ${this.lang==='nl'?'minuten':'minutes'}</div>
+          <div style="font-size:.78rem;color:var(--text-md);margin-top:2px">${reason}</div>
+        </div>
       </div>
-      <input id="decant-mins" class="form-control" type="number" min="1" max="480" value="60">`;
+      <p style="margin-bottom:10px;color:var(--text-md);font-size:.9rem">${this.t('scan.decantMins')}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        ${presets.map(m => `<button class="btn btn-secondary btn-sm decant-preset${m===suggestedMins?' btn-primary':''}" data-mins="${m}" onclick="document.getElementById('decant-mins').value=${m}">${m}</button>`).join('')}
+      </div>
+      <input id="decant-mins" class="form-control" type="number" min="1" max="480" value="${suggestedMins}">`;
     this.showModal(this.t('scan.decantTitle'), body, [
       { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
       { label: this.t('scan.decantStart'), cls: 'btn-primary', action: () => {
