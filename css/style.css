@@ -1209,6 +1209,57 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   letter-spacing: .03em;
 }
 
+
+/* ── Help overlay (reuses about-overlay styles) ─────────────────────────────── */
+#help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(10,4,30,.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+#help-overlay.about-overlay-visible { opacity: 1; }
+@media (min-width: 520px) {
+  #help-overlay { align-items: center; }
+}
+.help-section {
+  margin-bottom: 24px;
+}
+.help-section-title {
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--burgundy);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.help-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.help-list li {
+  font-size: .88rem;
+  color: var(--text);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.5;
+}
+.help-list li::before {
+  content: '·';
+  position: absolute;
+  left: 4px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
 /* ── Rack hover tooltip (desktop, hover-capable devices only) ───────────────── */
 #rack-tooltip {
   position: fixed;

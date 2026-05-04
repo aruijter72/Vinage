@@ -2696,6 +2696,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
               style="gap:10px;font-weight:600;background:#3B1421;color:#F2EBE1;border-radius:var(--radius);padding:14px 20px;justify-content:center;align-items:center;display:flex;">
         <img src="Logo Vinage V-Bottle No Background.png" style="height:22px;width:auto;filter:brightness(0) invert(1) opacity(.90)"> ${this.t('settings.about')}
       </button>
+      <button class="btn btn-ghost btn-full" data-action="show-help"
+              style="gap:8px;margin-top:8px;color:var(--gold);font-weight:600;border:1px solid var(--cream-dk);">
+        📖 ${this.lang==='nl'?'Hulp &amp; Functies':'Help &amp; Features'}
+      </button>
       <div style="font-size:.78rem;color:var(--text-lt);margin-top:10px;text-align:center;letter-spacing:.04em">
         ${this.t('settings.version')} · ${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINE. YOUR COLLECTION.'}
       </div>
