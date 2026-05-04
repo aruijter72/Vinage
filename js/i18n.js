@@ -138,7 +138,10 @@ const TRANSLATIONS = {
       noWines: 'Add wines to your collection first.',
       match: 'match',
       apiKeyMissing: 'Add an API key in Settings to use AI pairing.',
-      rulesBased: 'Showing rule-based suggestions (no API key set).'
+      rulesBased: 'Showing rule-based suggestions (no API key set).',
+      topPicks: 'Top Picks to Buy',
+      findNear: 'Find wine shops near {city}',
+      findStores: 'Find wine shops near me'
     },
     settings: {
       title: 'Settings',
