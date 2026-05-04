@@ -109,6 +109,58 @@ Rules:
     }
   },
 
+  // ── Wine enrichment from barcode metadata ────────────────────────────────
+  // Takes partial wine info (name, producer, type, country) from Open Food Facts
+  // and asks the AI to fill in region, grapes, drinkFrom/Until, price, notes.
+  async enrichWineData(partial, settings, lang = 'en') {
+    const langNote = lang === 'nl'
+      ? 'Write "notes" and "pairings" in Dutch. Write "country" in Dutch.'
+      : 'Write "notes" and "pairings" in English. Write "country" in English.';
+
+    const prompt = `You are an expert sommelier. Based on the following wine information, fill in the missing details.
+
+Known information:
+- Name: ${partial.name || 'unknown'}
+- Producer: ${partial.producer || 'unknown'}
+- Type: ${partial.type || 'unknown'}
+- Country: ${partial.country || 'unknown'}
+- Vintage: ${partial.vintage || 'unknown'}
+
+Return ONLY a valid JSON object with exactly these fields (use null for anything you cannot determine with reasonable confidence):
+{
+  "name": "full wine name",
+  "producer": "winery or producer name",
+  "vintage": 2019,
+  "region": "wine region or appellation",
+  "country": "country of origin",
+  "type": "red|white|rosé|sparkling|dessert|fortified",
+  "grapes": ["Grape1", "Grape2"],
+  "pairings": ["food1", "food2", "food3"],
+  "notes": "brief tasting note or style description",
+  "drinkFrom": 2024,
+  "drinkUntil": 2032,
+  "estimatedPrice": 24.99,
+  "confidence": "high|medium|low"
+}
+
+${langNote}
+If you cannot identify this wine at all, return: {"error":"unknown_wine"}`;
+
+    const provider = settings.apiProvider || 'anthropic';
+    const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
+    if (!key) throw new Error('no_api_key');
+
+    try {
+      const raw = provider === 'anthropic'
+        ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+        : await this._openaiText(prompt, key, 'gpt-4o-mini');
+      return this._parseJSON(raw);
+    } catch (e) {
+      if (e.message === 'no_api_key') throw e;
+      throw new Error('api_error: ' + e.message);
+    }
+  },
+
   // ── Rule-based fallback pairing (no API key needed) ───────────────────────
   ruleBasedPairing(dish, wines) {
     const d = dish.toLowerCase();
