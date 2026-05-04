@@ -213,6 +213,7 @@ const App = {
       case 'cancel-decant':       this._cancelDecantTimer(); break;
       case 'toggle-dark-mode':    this.toggleDarkMode(); break;
       case 'scan-mode-switch':    this.switchScanMode(args.mode); break;
+      case 'retake-barcode':      this._restartBarcodeScanner(); break;
       // Share wine card
       case 'share-wine':          this._shareWineAsHTML(args.id); break;
       case 'show-help':           this._showHelp(); break;
@@ -453,6 +454,16 @@ const App = {
       try { this._barcodeReader.reset(); } catch (_) {}
       this._barcodeReader = null;
     }
+  },
+
+  _restartBarcodeScanner() {
+    // Reset UI state then restart scanning
+    this.stopBarcodeScanner();
+    this.scanResult = null;
+    this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeScanning')}`, '');
+    const actionRow = document.getElementById('scan-action-row');
+    if (actionRow) actionRow.innerHTML = '';
+    this.startBarcodeScanner();
   },
 
   async _onBarcodeDetected(code) {
