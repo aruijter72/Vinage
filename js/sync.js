@@ -276,6 +276,10 @@ const Sync = {
       batch.set(this._db.doc(`${base}/cellars/${c.id}`), c);
     });
 
+    DB.getConsumptionLog().forEach(e => {
+      batch.set(this._db.doc(`${base}/consumption/${e.id}`), e);
+    });
+
     await batch.commit();
 
     // Upload full images to Storage in background
@@ -286,9 +290,10 @@ const Sync = {
     if (!this.householdId) return;
     const base = `households/${this.householdId}`;
 
-    const [wSnap, cSnap] = await Promise.all([
+    const [wSnap, cSnap, consSnap] = await Promise.all([
       this._db.collection(`${base}/wines`).get(),
-      this._db.collection(`${base}/cellars`).get()
+      this._db.collection(`${base}/cellars`).get(),
+      this._db.collection(`${base}/consumption`).get()
     ]);
 
     const wines = [];
@@ -296,10 +301,14 @@ const Sync = {
     wSnap.forEach(d => wines.push({ image: null, ...d.data(), id: d.id }));
     const cellars = [];
     cSnap.forEach(d => cellars.push({ id: d.id, ...d.data() }));
+    const consumption = [];
+    consSnap.forEach(d => consumption.push({ id: d.id, ...d.data() }));
+    consumption.sort((a, b) => (b.date || 0) - (a.date || 0));
 
     DB._saveWines(wines);
     DB._saveCellars(cellars);
-    console.log(`[Sync] Downloaded ${wines.length} wines, ${cellars.length} cellars`);
+    DB._saveConsumptionLog(consumption);
+    console.log(`[Sync] Downloaded ${wines.length} wines, ${cellars.length} cellars, ${consumption.length} consumption entries`);
   },
 
   // ── Write-through helpers ─────────────────────────────────────────────────
@@ -334,6 +343,20 @@ const Sync = {
     this._db.doc(`households/${this.householdId}/cellars/${id}`)
       .delete()
       .catch(e => console.warn('Vinage: del cellar failed', e));
+  },
+
+  _pushConsumption(entry) {
+    if (!this._ready || !this.householdId || !entry) return;
+    this._db.doc(`households/${this.householdId}/consumption/${entry.id}`)
+      .set(entry)
+      .catch(e => console.warn('Vinage: push consumption failed', e));
+  },
+
+  _delConsumption(id) {
+    if (!this._ready || !this.householdId) return;
+    this._db.doc(`households/${this.householdId}/consumption/${id}`)
+      .delete()
+      .catch(e => console.warn('Vinage: del consumption failed', e));
   },
 
   // ── Public write-through API (mirrors DB.*) ───────────────────────────────
@@ -384,6 +407,17 @@ const Sync = {
     DB.removeWineFromShelf(cellarId, wineId);
     const cellar = DB.getCellars().find(c => c.id === cellarId);
     this._pushCellar(cellar);
+  },
+
+  logConsumption(entry) {
+    DB.logConsumption(entry);
+    const saved = DB.getConsumptionLog().find(e => e.wineName === entry.wineName && e.date >= Date.now() - 5000);
+    if (saved) this._pushConsumption(saved);
+  },
+
+  deleteConsumptionEntry(id) {
+    DB.deleteConsumptionEntry(id);
+    this._delConsumption(id);
   },
 
   // ── UI helpers ────────────────────────────────────────────────────────────
