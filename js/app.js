@@ -1094,7 +1094,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       if (place.slot) {
         Sync.assignWineToSlot(place.cellarId, place.slot, null);
       } else {
-        DB.removeWineFromShelf(place.cellarId, wine.id);
+        Sync.removeWineFromShelf(place.cellarId, wine.id);
       }
     }
 

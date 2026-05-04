@@ -421,9 +421,8 @@ const Sync = {
   },
 
   logConsumption(entry) {
-    DB.logConsumption(entry);
-    const saved = DB.getConsumptionLog().find(e => e.wineName === entry.wineName && e.date >= Date.now() - 5000);
-    if (saved) this._pushConsumption(saved);
+    const saved = DB.logConsumption(entry); // returns the created record with its id
+    this._pushConsumption(saved);
   },
 
   deleteConsumptionEntry(id) {
