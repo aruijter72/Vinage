@@ -46,6 +46,15 @@ service cloud.firestore {
           get(/databases/$(database)/documents/households/$(householdId))
             .data.members[request.auth.uid] != null;
       }
+
+      // ── Consumption subcollection ────────────────────────────────────────────
+      // Stores open-bottle history. All household members can read and write,
+      // so Stats sync correctly across all devices in real time.
+      match /consumption/{entryId} {
+        allow read, write: if request.auth != null &&
+          get(/databases/$(database)/documents/households/$(householdId))
+            .data.members[request.auth.uid] != null;
+      }
     }
   }
 }
