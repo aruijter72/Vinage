@@ -105,7 +105,7 @@ const App = {
       { id: 'scan',       icon: this._iconCamera(),    label: this.t('nav.scan') },
       { id: 'cellar',     icon: this._iconCellar(),    label: this.t('nav.cellar') },
       { id: 'collection', icon: this._iconWine(),      label: this.t('nav.collection') },
-      { id: 'wishlist',   icon: this._iconHeart(),     label: this.t('nav.wishlist') },
+      { id: 'pairing',    icon: this._iconFork(),      label: this.t('nav.pairing') },
       { id: 'stats',      icon: this._iconStats(),     label: this.t('nav.stats') },
       { id: 'settings',   icon: this._iconGear(),      label: this.t('nav.settings') },
     ];
