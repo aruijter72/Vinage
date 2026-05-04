@@ -2847,7 +2847,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           const qty = w.quantity || 1;
           const window = [w.drinkFrom, w.drinkUntil].filter(Boolean).join('–');
           return `
-          <div class="drink-soon-row" data-action="open-wine" data-id="${w.id}" style="cursor:pointer">
+          <div class="drink-soon-row" data-action="edit-wine" data-id="${w.id}" style="cursor:pointer">
             <span class="drink-soon-urgency ${pillCls}">${pillLabel}</span>
             <div class="drink-soon-info">
               <div class="drink-soon-name">${this._esc(w.name)}${w.vintage ? ' <span style="font-weight:400;color:var(--text-lt)">' + w.vintage + '</span>' : ''}</div>
