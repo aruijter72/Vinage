@@ -261,6 +261,9 @@ const TRANSLATIONS = {
       pastPeak: 'Past peak',
       readyNow: 'Ready now',
       opensSoon: 'Opens in {n} mo.',
+      spending: 'Spending Over Time',
+      spendingEmpty: 'Open a bottle with a price to track spending.',
+      spendingTotal: 'Total spent',
     }
   },
   nl: {
@@ -452,7 +455,9 @@ const TRANSLATIONS = {
       notifDrinkWindowHint: 'Melding wanneer een wijn zijn ideale drinkperiode bereikt',
       notifDecant: 'Decanteertimer-melding',
       notifDecantHint: 'Melding wanneer de decanteertimer afloopt',
-      notifTestBtn: 'Testmelding verzenden'
+      notifTestBtn: 'Testmelding verzenden',
+      darkMode: 'Donkere Modus',
+      darkModeHint: 'Rustiger voor de ogen bij weinig licht'
     },
     common: {
       save: 'Opslaan', cancel: 'Annuleren', delete: 'Verwijderen',
