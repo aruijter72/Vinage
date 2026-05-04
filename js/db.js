@@ -155,8 +155,10 @@ const DB = {
 
   logConsumption(entry) {
     const log = this.getConsumptionLog();
-    log.unshift({ id: this.uuid(), date: Date.now(), ...entry });
+    const record = { id: this.uuid(), date: Date.now(), ...entry };
+    log.unshift(record);
     this._saveConsumptionLog(log);
+    return record; // returned so Sync can push without a re-lookup
   },
 
   deleteConsumptionEntry(id) {
