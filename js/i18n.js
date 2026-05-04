@@ -33,7 +33,15 @@ const TRANSLATIONS = {
       decantMins: 'Decanting time (minutes)',
       decantStart: 'Start Timer',
       decantCancel: 'Cancel Timer',
-      decantDone: 'Time to open your {name}!'
+      decantDone: 'Time to open your {name}!',
+      labelMode: 'Label',
+      barcodeMode: 'Barcode',
+      barcodeScanning: 'Point at the barcode…',
+      barcodeLookingUp: 'Found barcode, looking up…',
+      barcodeEnriching: 'Enriching with AI…',
+      barcodeFound: 'Wine found!',
+      barcodeNotFound: 'Barcode not recognised. Fill in manually.',
+      barcodeError: 'Lookup failed. Fill in manually.',
     },
     wine: {
       name: 'Wine Name',
@@ -312,7 +320,15 @@ const TRANSLATIONS = {
       decantMins: 'Decanteertijd (minuten)',
       decantStart: 'Start Timer',
       decantCancel: 'Timer Annuleren',
-      decantDone: 'Tijd om {name} te openen!'
+      decantDone: 'Tijd om {name} te openen!',
+      labelMode: 'Label',
+      barcodeMode: 'Barcode',
+      barcodeScanning: 'Richt op de barcode…',
+      barcodeLookingUp: 'Barcode gevonden, opzoeken…',
+      barcodeEnriching: 'Verrijken met AI…',
+      barcodeFound: 'Wijn gevonden!',
+      barcodeNotFound: 'Barcode niet herkend. Vul handmatig in.',
+      barcodeError: 'Opzoeken mislukt. Vul handmatig in.',
     },
     wine: {
       name: 'Wijnnaam',
