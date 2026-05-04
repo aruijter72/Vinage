@@ -185,7 +185,7 @@ const App = {
       case 'batch-add-tag':       this._batchAddTag(); break;
       case 'batch-delete':        this._batchDelete(); break;
       case 'toggle-wine-select':  this._toggleWineSelect(args.id); break;
-      case 'filter-ready-cellar': this.collectionFilters = new Set(['drink-now']); this.renderView(); break;
+      case 'filter-ready-cellar': this._setExclusiveFilter('drink-now'); break;
       // Cellar map
       case 'toggle-cellar-map':   this._cellarMapOpen = !this._cellarMapOpen; this.renderView(); break;
       // Decanting timer
@@ -3493,11 +3493,26 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           </div>
 
           <div class="help-section">
-            <div class="help-section-title">☁️ ${nl?'Huishoudsync':'Household sync'}</div>
+            <div class="help-section-title">☁️ ${nl?'Kelder delen — stap voor stap':'Sharing a cellar — step by step'}</div>
             <ul class="help-list">
-              <li>${nl?'Maak een huishouden aan via Instellingen → Sync & Delen':'Create a household in Settings → Sync & Sharing'}</li>
-              <li>${nl?'Deel de uitnodigingscode met gezinsleden':'Share the invite code with family members'}</li>
-              <li>${nl?'Alle apparaten synchroniseren automatisch':'All devices sync automatically in real time'}</li>
+              <li><strong>${nl?'Stap 1 — Aanmelden':'Step 1 — Sign in'}</strong><br>
+                ${nl?'Ga naar <em>Instellingen → Sync &amp; Delen</em> en tik op <em>Inloggen met Google</em>. Doe dit op alle apparaten die je wilt koppelen (bijv. jij en je partner).':'Go to <em>Settings → Sync &amp; Sharing</em> and tap <em>Sign in with Google</em>. Do this on every device you want to connect (e.g. you and your partner).'}
+              </li>
+              <li><strong>${nl?'Stap 2 — Huishouden aanmaken (één persoon)':'Step 2 — Create a household (one person)'}</strong><br>
+                ${nl?'Tik op <em>Gedeelde kelder aanmaken</em>. Je krijgt een unieke 6-tekens uitnodigingscode. Jouw bestaande collectie wordt meteen geüpload.':'Tap <em>Create shared cellar</em>. You\'ll receive a unique 6-character invite code. Your existing collection is uploaded immediately.'}
+              </li>
+              <li><strong>${nl?'Stap 3 — Uitnodigingscode delen':'Step 3 — Share the code'}</strong><br>
+                ${nl?'Stuur de code naar je partner via WhatsApp, sms of zeg hem gewoon. De code staat zichtbaar in Instellingen → Sync & Delen.':'Send the code to your partner via WhatsApp, text, or just say it out loud. The code is always visible in Settings → Sync & Sharing.'}
+              </li>
+              <li><strong>${nl?'Stap 4 — Deelnemen (andere persoon)':'Step 4 — Join (the other person)'}</strong><br>
+                ${nl?'Op het andere apparaat: ga naar <em>Instellingen → Sync &amp; Delen</em>, tik op <em>Deelnemen met code</em> en voer de 6-tekens code in. De kelder wordt meteen gesynchroniseerd.':'On the other device: go to <em>Settings → Sync &amp; Sharing</em>, tap <em>Join with code</em> and enter the 6-character code. The cellar syncs immediately.'}
+              </li>
+              <li><strong>${nl?'Wat wordt gesynchroniseerd?':'What syncs?'}</strong><br>
+                ${nl?'Alle wijnen, kelderlocaties en drinkgeschiedenis (Statistieken) synchroniseren live op alle apparaten. Wijzigingen zijn binnen seconden zichtbaar.':'All wines, cellar locations and consumption history (Stats) sync live across all devices. Changes appear within seconds.'}
+              </li>
+              <li><strong>${nl?'Tip — Als iets niet synchroniseert':'Tip — If something doesn\'t sync'}</strong><br>
+                ${nl?'Sluit de app volledig af en open hem opnieuw, of doe een harde herlaad in de browser (⟳). Controleer of je bent aangemeld en een actieve internetverbinding hebt.':'Force-close and reopen the app, or do a hard reload in the browser (⟳). Check that you\'re signed in and have an active internet connection.'}
+              </li>
             </ul>
           </div>
 
