@@ -191,9 +191,8 @@ const App = {
       case 'start-decant':        this._showDecantModal(args.id); break;
       case 'cancel-decant':       this._cancelDecantTimer(); break;
       // Share wine card
-      case 'share-wine':          this._showShareModal(args.id); break;
-      case 'download-share-card': this._downloadShareCard(); break;
-      case 'native-share-card':   this._nativeShare(); break;
+      case 'share-wine':          this._shareWineAsHTML(args.id); break;
+      case 'show-help':           this._showHelp(); break;
       // Consumption
       case 'consume-bottle':      this._consumeBottle(args.id); break;
       case 'delete-consumption':  Sync.deleteConsumptionEntry(args.id); this.renderView(); break;
@@ -3116,185 +3115,225 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   // ══════════════════════════════════════════════════════════════════════════
   // SHARE WINE CARD (Feature 10)
   // ══════════════════════════════════════════════════════════════════════════
-  _showShareModal(wineId) {
+  // ══════════════════════════════════════════════════════════════════════════
+  // SHARE — single wine as standalone HTML page
+  // ══════════════════════════════════════════════════════════════════════════
+  async _shareWineAsHTML(wineId) {
     const wine = DB.getWineById(wineId);
     if (!wine) return;
-    const body = `
-      <div style="text-align:center">
-        <canvas id="share-canvas" width="400" height="560" style="width:100%;max-width:300px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.2)"></canvas>
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">
-          <button class="btn btn-secondary" data-action="download-share-card">${this.t('common.shareDownload')}</button>
-          <button class="btn btn-primary" data-action="native-share-card">${this.t('common.shareWine')}</button>
-        </div>
-      </div>`;
-    this.showModal(this.t('common.shareWine'), body, [
-      { label: this.t('common.close'), cls: 'btn-secondary', action: () => this.closeModal() }
-    ]);
-    // Render canvas after modal is in DOM
-    setTimeout(() => this._drawShareCard(wine), 50);
+
+    // Try to get the best available image
+    let imgSrc = null;
+    try {
+      const medium = await ImageDB.get(wineId);  // 360px JPEG base64
+      if (medium) imgSrc = `data:image/jpeg;base64,${medium}`;
+    } catch(_) {}
+    if (!imgSrc && wine.imageUrl) imgSrc = wine.imageUrl;
+    if (!imgSrc && wine.thumbnail) imgSrc = `data:image/jpeg;base64,${wine.thumbnail}`;
+
+    const html = this._buildShareHTML(wine, imgSrc);
+    const blob = new Blob([html], { type: 'text/html' });
+    const filename = `${(wine.name||'wine').replace(/[^a-z0-9]/gi,'_')}_Vinage.html`;
+
+    // Try Web Share API with file first (Android/iOS), fall back to download
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], filename, { type: 'text/html' });
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: wine.name, text: `${wine.name}${wine.vintage?' '+wine.vintage:''} — Vinage` });
+          return;
+        } catch(_) {}
+      }
+    }
+    // Download fallback
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
   },
 
-  _drawShareCard(wine) {
-    const canvas = document.getElementById('share-canvas');
-    if (!canvas) return;
-    this._shareWine = wine;
-    const ctx = canvas.getContext('2d');
-    const W = 400, H = 560;
-
-    // Background gradient
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#36165E');
-    grad.addColorStop(1, '#5C2896');
-    ctx.fillStyle = grad;
-    ctx.roundRect ? ctx.roundRect(0,0,W,H,20) : ctx.fillRect(0,0,W,H);
-    ctx.fill();
-
-    // Subtle pattern overlay
-    ctx.fillStyle = 'rgba(255,255,255,.04)';
-    for (let y=0; y<H; y+=30) for (let x=0; x<W; x+=30) { ctx.beginPath(); ctx.arc(x,y,1,0,Math.PI*2); ctx.fill(); }
-
-    // Wine type badge
-    const typeColors = { red:'#7B1A2E', white:'#C8A830', 'rosé':'#D47080', sparkling:'#6A9050', dessert:'#D4A030', fortified:'#8B4513' };
+  _buildShareHTML(wine, imgSrc) {
+    const lang   = this.lang;
+    const typeLabel = (TRANSLATIONS[lang]?.types?.[wine.type] || wine.type || '').toUpperCase();
+    const typeColors = { red:'#7B1A2E', white:'#8B6914', 'rosé':'#B54060', sparkling:'#4A7840', dessert:'#B07020', fortified:'#7A3010' };
     const tc = typeColors[wine.type] || '#7B1A2E';
-    ctx.fillStyle = tc + '44';
-    ctx.beginPath();
-    ctx.roundRect ? ctx.roundRect(20,20,120,30,15) : ctx.rect(20,20,120,30);
-    ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 12px -apple-system,sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText((TRANSLATIONS[this.lang]?.types?.[wine.type]||wine.type).toUpperCase(), 32, 40);
-
-    // Vinage logo text
-    ctx.fillStyle = 'rgba(255,255,255,.4)';
-    ctx.font = '11px -apple-system,sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText('VINAGE', W-20, 38);
-
-    // Image area (or coloured rect)
-    const imgY = 70, imgH = 220;
-    const thumbSrc = wine.thumbnail ? `data:image/jpeg;base64,${wine.thumbnail}` : wine.imageUrl || null;
-    const drawText = () => {
-      // Wine name
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'left';
-      ctx.font = 'bold 26px -apple-system,sans-serif';
-      const maxW = W - 40;
-      const name = wine.name;
-      ctx.fillText(name.length > 28 ? name.slice(0,26)+'…' : name, 20, imgY + imgH + 40);
-
-      // Producer
-      if (wine.producer) {
-        ctx.fillStyle = 'rgba(255,255,255,.65)';
-        ctx.font = '15px -apple-system,sans-serif';
-        ctx.fillText(wine.producer.length > 36 ? wine.producer.slice(0,34)+'…' : wine.producer, 20, imgY + imgH + 66);
-      }
-
-      // Vintage + Region
-      const meta = [wine.vintage, wine.region].filter(Boolean).join('  ·  ');
-      if (meta) {
-        ctx.fillStyle = 'rgba(255,255,255,.5)';
-        ctx.font = '13px -apple-system,sans-serif';
-        ctx.fillText(meta, 20, imgY + imgH + 90);
-      }
-
-      // Stars
-      if (wine.rating) {
-        ctx.fillStyle = '#C8913A';
-        ctx.font = '18px -apple-system,sans-serif';
-        ctx.fillText('★'.repeat(wine.rating), 20, imgY + imgH + 118);
-      }
-
-      // Notes excerpt
-      if (wine.notes) {
-        ctx.fillStyle = 'rgba(255,255,255,.45)';
-        ctx.font = '12px -apple-system,sans-serif';
-        const excerpt = wine.notes.slice(0,80) + (wine.notes.length > 80 ? '…' : '');
-        ctx.fillText(excerpt, 20, imgY + imgH + 145);
-      }
-
-      // Bottom line
-      ctx.strokeStyle = 'rgba(255,255,255,.15)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(20, H-36);
-      ctx.lineTo(W-20, H-36);
-      ctx.stroke();
-      ctx.fillStyle = 'rgba(255,255,255,.3)';
-      ctx.font = '11px -apple-system,sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Tracked with Vinage', W/2, H-16);
+    const stars = wine.rating ? '★'.repeat(wine.rating) + '☆'.repeat(5 - wine.rating) : '';
+    const meta  = [wine.vintage, wine.region, wine.country].filter(Boolean).join(' · ');
+    const grapes = (wine.grapes||[]).join(', ');
+    const pairings = (wine.pairings||[]).join(', ');
+    const drinkFrom = wine.drinkFrom || '';
+    const drinkUntil = wine.drinkUntil || '';
+    const drinkWindow = drinkFrom && drinkUntil ? `${drinkFrom} – ${drinkUntil}` : drinkFrom || drinkUntil || '';
+    const label = {
+      producer: lang==='nl'?'Producent':'Producer',
+      vintage:  lang==='nl'?'Oogstjaar':'Vintage',
+      region:   lang==='nl'?'Regio':'Region',
+      grapes:   lang==='nl'?'Druivensoort':'Grapes',
+      drink:    lang==='nl'?'Drinkvenster':'Drink window',
+      notes:    lang==='nl'?'Notities':'Tasting notes',
+      pairings: lang==='nl'?'Spijscombinaties':'Food pairings',
+      price:    lang==='nl'?'Prijs':'Price',
+      sharedWith: lang==='nl'?'Gedeeld via Vinage':'Shared via Vinage',
     };
 
-    if (thumbSrc) {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        ctx.save();
-        ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(20, imgY, W-40, imgH, 10);
-        else ctx.rect(20, imgY, W-40, imgH);
-        ctx.clip();
-        // Draw image centered/cropped
-        const aspect = img.width / img.height;
-        const targetAspect = (W-40) / imgH;
-        let sx=0, sy=0, sw=img.width, sh=img.height;
-        if (aspect > targetAspect) { sw = img.height * targetAspect; sx = (img.width-sw)/2; }
-        else { sh = img.width / targetAspect; sy = (img.height-sh)/2; }
-        ctx.drawImage(img, sx, sy, sw, sh, 20, imgY, W-40, imgH);
-        ctx.restore();
-        drawText();
-      };
-      img.onerror = () => {
-        ctx.fillStyle = tc + '33';
-        ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(20, imgY, W-40, imgH, 10);
-        else ctx.rect(20, imgY, W-40, imgH);
-        ctx.fill();
-        drawText();
-      };
-      img.src = thumbSrc;
-    } else {
-      ctx.fillStyle = tc + '33';
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(20, imgY, W-40, imgH, 10);
-      else ctx.rect(20, imgY, W-40, imgH);
-      ctx.fill();
-      drawText();
-    }
-  },
+    return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${this._esc(wine.name)} — Vinage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Helvetica Neue',Helvetica,sans-serif;background:#F2EBE1;color:#2A0E16;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 48px}
+  .hero{width:100%;max-width:520px;background:linear-gradient(160deg,#5C1828 0%,#3B1422 60%,#2A0E14 100%);padding:28px 24px 32px;display:flex;flex-direction:column;align-items:center;gap:20px}
+  .logo-row{display:flex;align-items:center;gap:10px;align-self:flex-start}
+  .logo-v{font-family:'Fraunces',Georgia,serif;font-weight:300;font-size:1.3rem;color:#F2EBE1;letter-spacing:.08em}
+  .logo-name{font-size:.7rem;color:#A3835B;letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
+  .wine-img-wrap{width:180px;height:240px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+  .wine-img-wrap img{width:100%;height:100%;object-fit:cover}
+  .wine-img-placeholder{font-size:4rem;opacity:.3}
+  .type-badge{display:inline-block;background:${tc}33;color:${tc};border:1px solid ${tc}66;border-radius:20px;padding:4px 14px;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .card{width:100%;max-width:520px;background:#fff;border-radius:0 0 20px 20px;padding:28px 24px 32px;box-shadow:0 4px 24px rgba(59,20,34,.10)}
+  .wine-name{font-family:'Fraunces',Georgia,serif;font-weight:300;font-size:1.8rem;color:#3B1422;line-height:1.2;margin:8px 0 4px}
+  .wine-producer{font-size:1rem;color:#A3835B;margin-bottom:4px}
+  .wine-meta{font-size:.85rem;color:#6B3A30;margin-bottom:16px}
+  .stars{color:#A3835B;font-size:1.1rem;margin-bottom:20px;letter-spacing:.05em}
+  .divider{border:none;border-top:1px solid #E8DED2;margin:20px 0}
+  .section-label{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A3835B;margin-bottom:8px}
+  .section-value{font-size:.95rem;color:#2A0E16;line-height:1.6}
+  .row{margin-bottom:18px}
+  .pill-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .pill{background:#F2EBE1;border:1px solid #E8DED2;border-radius:20px;padding:4px 12px;font-size:.82rem;color:#3B1422}
+  .notes{background:#F9F5F0;border-left:3px solid #A3835B;border-radius:0 8px 8px 0;padding:12px 16px;font-size:.9rem;color:#3B1422;line-height:1.6;font-style:italic}
+  .footer{margin-top:32px;text-align:center;font-size:.75rem;color:#A3835B;letter-spacing:.06em}
+  .footer strong{font-family:'Fraunces',Georgia,serif;font-weight:300;font-size:.9rem;color:#3B1422}
+  @media(max-width:520px){.hero{border-radius:0}.card{border-radius:0 0 0 0}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="logo-row">
+    <div>
+      <div class="logo-v">vinage</div>
+      <div class="logo-name">${label.sharedWith}</div>
+    </div>
+  </div>
+  <div class="wine-img-wrap">
+    ${imgSrc ? `<img src="${imgSrc}" alt="${this._esc(wine.name)}">` : '<span class="wine-img-placeholder">🍷</span>'}
+  </div>
+  <span class="type-badge">${typeLabel}</span>
+</div>
 
-  _downloadShareCard() {
-    const canvas = document.getElementById('share-canvas');
-    if (!canvas) return;
-    const wine = this._shareWine;
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL('image/png');
-    a.download = `${wine ? wine.name.replace(/[^a-z0-9]/gi,'_') : 'vinage'}-card.png`;
-    a.click();
-  },
+<div class="card">
+  <div class="wine-name">${this._esc(wine.name)}</div>
+  ${wine.producer ? `<div class="wine-producer">${this._esc(wine.producer)}</div>` : ''}
+  ${meta ? `<div class="wine-meta">${this._esc(meta)}</div>` : ''}
+  ${stars ? `<div class="stars">${stars}</div>` : ''}
 
-  async _nativeShare() {
-    const canvas = document.getElementById('share-canvas');
-    if (!canvas) return;
-    const wine = this._shareWine;
-    if (navigator.share && navigator.canShare) {
-      try {
-        canvas.toBlob(async blob => {
-          const file = new File([blob], `${wine?.name||'wine'}-card.png`, { type: 'image/png' });
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: wine?.name || 'Wine', text: `${wine?.name||''} ${wine?.vintage||''} — Tracked with Vinage` });
-          } else {
-            this._downloadShareCard();
-          }
-        }, 'image/png');
-      } catch(_) { this._downloadShareCard(); }
-    } else {
-      this._downloadShareCard();
-    }
+  <hr class="divider">
+
+  ${grapes ? `<div class="row"><div class="section-label">${label.grapes}</div><div class="pill-list">${(wine.grapes||[]).map(g=>`<span class="pill">${this._esc(g)}</span>`).join('')}</div></div>` : ''}
+  ${drinkWindow ? `<div class="row"><div class="section-label">${label.drink}</div><div class="section-value">${drinkWindow}</div></div>` : ''}
+  ${wine.price != null ? `<div class="row"><div class="section-label">${label.price}</div><div class="section-value">€${Number(wine.price).toFixed(2)}</div></div>` : ''}
+
+  ${wine.notes ? `<hr class="divider"><div class="row"><div class="section-label">${label.notes}</div><div class="notes">${this._esc(wine.notes)}</div></div>` : ''}
+
+  ${pairings ? `<hr class="divider"><div class="row"><div class="section-label">${label.pairings}</div><div class="pill-list">${(wine.pairings||[]).map(p=>`<span class="pill">${this._esc(p)}</span>`).join('')}</div></div>` : ''}
+
+  <hr class="divider">
+  <div class="footer"><strong>vinage</strong><br>${label.sharedWith}</div>
+</div>
+</body>
+</html>`;
   },
 
   // ══════════════════════════════════════════════════════════════════════════
+  // HELP OVERLAY
+  // ══════════════════════════════════════════════════════════════════════════
+  _showHelp() {
+    const nl = this.lang === 'nl';
+    const el = document.createElement('div');
+    el.id = 'help-overlay';
+    el.innerHTML = `
+      <div class="about-overlay-inner">
+        <button class="about-close-btn" data-action="close-help" aria-label="Close">✕</button>
+        <div class="about-hero-wrap" style="padding:28px 24px 20px">
+          <div class="about-hero-tile" style="width:auto;padding:20px 32px;gap:8px">
+            <span style="font-size:1.5rem">📖</span>
+            <span class="about-tile-name" style="font-size:1.1rem">${nl?'Hulp & Functies':'Help & Features'}</span>
+          </div>
+        </div>
+        <div class="about-content" style="text-align:left">
+
+          <div class="help-section">
+            <div class="help-section-title">📷 ${nl?'Wijn scannen':'Scanning a wine'}</div>
+            <ul class="help-list">
+              <li>${nl?'Zorg voor goede belichting en houd de telefoon stil':'Good lighting and a steady hand make a big difference'}</li>
+              <li>${nl?'Richt de camera recht op het etiket':'Point the camera straight at the label'}</li>
+              <li>${nl?'Werkt het beste met duidelijke, schone etiketten':'Works best with clean, front-facing labels'}</li>
+              <li>${nl?'De AI herkent druif, regio, oogstjaar en meer':'The AI identifies grape, region, vintage and more'}</li>
+              <li>${nl?'Geen API-sleutel? Voeg handmatig toe via + Handmatig toevoegen':'No API key? Use + Add manually on the scan screen'}</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">🗄️ ${nl?'Kelderlocaties':'Cellar locations'}</div>
+            <ul class="help-list">
+              <li><strong>${nl?'Roosterrek':'Grid rack'}</strong> — ${nl?'Klassiek rij × kolom rek. Sla op per vakje.':'Classic row × column rack. Track each slot.'}</li>
+              <li><strong>${nl?'Diamantrek':'Diamond rack'}</strong> — ${nl?'Diagonaal patroon voor speciale rekken.':'Diagonal layout for specialty racks.'}</li>
+              <li><strong>${nl?'Doos':'Case'}</strong> — ${nl?'12 flessen per doos, bijgehouden als eenheid.':'12-bottle case tracked as a unit.'}</li>
+              <li><strong>${nl?'Vrije plank / bak':'Free shelf / bin'}</strong> — ${nl?'Ongestructureerde opslag (koelkast, krat, plank).':'Unstructured storage — fridge, crate, shelf.'}</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">🟢 ${nl?'Drinkvenster kleuren':'Drink window colours'}</div>
+            <ul class="help-list">
+              <li><span style="color:#2D6A4F">●</span> ${nl?'<strong>Groen</strong> — nu op zijn best':'<strong>Green</strong> — drinking now at its best'}</li>
+              <li><span style="color:#A3835B">●</span> ${nl?'<strong>Goud</strong> — bijna of net voorbij optimum':'<strong>Gold</strong> — approaching or just past peak'}</li>
+              <li><span style="color:var(--text-lt)">●</span> ${nl?'<strong>Grijs</strong> — nog te vroeg of te laat':'<strong>Grey</strong> — too early or too late to drink'}</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">☁️ ${nl?'Huishoudsync':'Household sync'}</div>
+            <ul class="help-list">
+              <li>${nl?'Maak een huishouden aan via Instellingen → Sync & Delen':'Create a household in Settings → Sync & Sharing'}</li>
+              <li>${nl?'Deel de uitnodigingscode met gezinsleden':'Share the invite code with family members'}</li>
+              <li>${nl?'Alle apparaten synchroniseren automatisch':'All devices sync automatically in real time'}</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">✨ ${nl?'Overige functies':'Other features'}</div>
+            <ul class="help-list">
+              <li><strong>${nl?'Verlanglijst':'Wishlist'}</strong> — ${nl?'Sla wijnen op die je wilt kopen.':'Save wines you want to buy.'}</li>
+              <li><strong>${nl?'Decanteerklok':'Decant timer'}</strong> — ${nl?'Stel een afteltimer in voor luchten.':'Set a countdown for breathing time.'}</li>
+              <li><strong>${nl?'Spijscombinaties':'Food pairings'}</strong> — ${nl?'AI stelt wijnen voor bij een gerecht.':'AI suggests wines to match a dish.'}</li>
+              <li><strong>${nl?'Statistieken':'Statistics'}</strong> — ${nl?'Kelderwaarde, gemiddelde prijs en drinkklaar overzicht.':'Cellar value, average price and ready-to-drink overview.'}</li>
+              <li><strong>${nl?'Fles openen':'Open a bottle'}</strong> — ${nl?'Registreert consumptie en verwijdert uit kelder. Herstelbaar via Statistieken.':'Logs consumption and removes from cellar. Undoable from Stats.'}</li>
+              <li><strong>${nl?'Delen':'Share'}</strong> — ${nl?'Exporteer een wijn als mooi HTML-bestand om te delen.':'Export any wine as a beautiful HTML file to share.'}</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>`;
+
+    document.body.appendChild(el);
+    el.addEventListener('click', e => {
+      if (e.target.dataset.action === 'close-help' || e.target === el) {
+        el.classList.remove('about-overlay-visible');
+        setTimeout(() => el.remove(), 350);
+      }
+    });
+    requestAnimationFrame(() => el.classList.add('about-overlay-visible'));
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PUSH NOTIFICATIONS
+    // ══════════════════════════════════════════════════════════════════════════
   // PUSH NOTIFICATIONS (Feature 11)
   // ══════════════════════════════════════════════════════════════════════════
   _maybePromptNotifications() {
