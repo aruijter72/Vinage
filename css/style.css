@@ -42,6 +42,70 @@
   --slot-w:      40px;
 }
 
+/* ── Dark theme ─────────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --cream:       #160B0F;   /* near-black warm background */
+  --cream-dk:    #221018;   /* dark surface borders / secondary bg */
+  --white:       #1D0E14;   /* dark card surface */
+  --text:        #F0E8DE;   /* cream → primary text */
+  --text-md:     #C09060;   /* warm mid text */
+  --text-lt:     #7A5848;   /* muted warm text */
+  --shadow:      rgba(0,0,0,.40);
+  --shadow-md:   rgba(0,0,0,.65);
+  /* brand + type colours intentionally unchanged */
+}
+
+/* Dark overrides for elements with hardcoded colours ────────────────────────── */
+[data-theme="dark"] body { background: var(--cream); }
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: var(--cream-dk);
+  color: var(--text);
+  border-color: #3A1A24;
+}
+[data-theme="dark"] .form-control::placeholder,
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder { color: var(--text-lt); }
+
+[data-theme="dark"] .modal-overlay { background: rgba(0,0,0,.75); }
+[data-theme="dark"] .modal-box     { background: var(--white); border: 1px solid var(--cream-dk); }
+
+[data-theme="dark"] #bottom-nav   { background: var(--white); border-color: #3A1A24; }
+[data-theme="dark"] .page-header  { background: var(--white); border-color: #3A1A24; }
+
+[data-theme="dark"] .stats-card       { background: var(--white); }
+[data-theme="dark"] .settings-section { border-color: #3A1A24; }
+[data-theme="dark"] .settings-row     { border-color: #3A1A24; }
+
+/* Urgency pills in dark mode — darken backgrounds to work on dark cards */
+[data-theme="dark"] .drink-soon-urgency--past  { background: #3d1010; color: #e57373; }
+[data-theme="dark"] .drink-soon-urgency--ready { background: #0d2e12; color: #81c784; }
+[data-theme="dark"] .drink-soon-urgency--soon  { background: #2e1e00; color: #ffb74d; }
+
+/* Toast stays readable in dark mode */
+[data-theme="dark"] .toast { box-shadow: 0 4px 16px rgba(0,0,0,.5); }
+
+/* Key input wrapper */
+[data-theme="dark"] .key-input-wrap { background: var(--cream-dk); border-radius: var(--radius-sm); }
+
+/* Decant bubble */
+[data-theme="dark"] #decant-bubble { background: var(--white); border-color: #3A1A24; }
+
+/* Scan panel */
+[data-theme="dark"] .scan-panel { background: var(--white); }
+
+/* Cellar map */
+[data-theme="dark"] .cellar-section { background: var(--white); }
+
+/* Pairing cards */
+[data-theme="dark"] .pairing-external-card { background: var(--white); }
+
+/* Stats bars */
+[data-theme="dark"] .stats-bar-wrap { background: #3A1A24; }
+
 /* ── Splash screen ──────────────────────────────────────────────────────────── */
 #splash-screen {
   position: fixed;
