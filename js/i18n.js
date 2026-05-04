@@ -527,6 +527,9 @@ const TRANSLATIONS = {
       pastPeak: 'Voorbij piek',
       readyNow: 'Nu drinken',
       opensSoon: 'Opent in {n} mnd.',
+      spending: 'Uitgaven Over Tijd',
+      spendingEmpty: 'Open een fles met prijs om uitgaven bij te houden.',
+      spendingTotal: 'Totaal uitgegeven',
     }
   }
 };

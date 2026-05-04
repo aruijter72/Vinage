@@ -26,6 +26,7 @@ const App = {
   // ── Bootstrap ────────────────────────────────────────────────────────────
   init() {
     this.lang = detectLang();
+    this._applyTheme();  // apply dark/light before first render
     this.render();
     this.navigate('cellar');
     document.addEventListener('click',  e => this._delegateClick(e));
