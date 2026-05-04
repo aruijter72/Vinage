@@ -384,7 +384,10 @@ const TRANSLATIONS = {
       noWines: 'Voeg eerst wijnen toe aan jouw collectie.',
       match: 'match',
       apiKeyMissing: 'Voeg een API-sleutel toe in Instellingen voor AI-combinaties.',
-      rulesBased: 'Op basis van regels (geen API-sleutel ingesteld).'
+      rulesBased: 'Op basis van regels (geen API-sleutel ingesteld).',
+      topPicks: 'Top Aanbevelingen om te Kopen',
+      findNear: 'Vind wijnwinkels bij {city}',
+      findStores: 'Vind wijnwinkels bij mij in de buurt'
     },
     settings: {
       title: 'Instellingen',
