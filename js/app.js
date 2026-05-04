@@ -2016,7 +2016,6 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <button class="btn btn-primary btn-sm" data-action="manual-add-wine">${this.t('collection.addWine')}</button>
       </div>
     </div>
-    ${allWines.length > 0 ? this._buildReadyTonightBanner(allWines) : ''}
     ${allWines.length > 0 ? this._buildCollectionStatsBar(allWines) : ''}
     ${batchHeader}
     <div class="collection-toolbar">
@@ -2117,7 +2116,17 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
   _buildWineListCard(w, placementMap) {
     const places    = placementMap[w.id];
-    const cellarTag = places ? places.map(p => p.cellarName).join(', ') : '';
+    // Group by cellar ID and show count when > 1 (e.g. "Wijnrek: 2, Koelkast: 2, Doos 1: 1")
+    const cellarTag = places ? (() => {
+      const byId = {};
+      places.forEach(p => {
+        if (!byId[p.cellarId]) byId[p.cellarId] = { name: p.cellarName, count: 0 };
+        byId[p.cellarId].count++;
+      });
+      return Object.values(byId)
+        .map(c => c.count > 1 ? `${c.name}: ${c.count}` : c.name)
+        .join(', ');
+    })() : '';
     const status    = this._drinkStatus(w);
     const drinkBadge = status === 'ready'
       ? `<span class="drink-badge drink-badge-ready">🍷 ${this.t('collection.drinkReady')}</span>`
