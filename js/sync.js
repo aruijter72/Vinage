@@ -38,6 +38,14 @@ const Sync = {
       this._storage = firebase.storage();
       this._ready   = true;
 
+      // Handle redirect result first (fires after Google sends user back)
+      this._auth.getRedirectResult().catch(e => {
+        if (e && e.code !== 'auth/no-current-user') {
+          console.warn('Vinage: redirect sign-in error', e);
+          App.toast('Sign-in failed: ' + (e.message || e), 'error');
+        }
+      });
+
       this._auth.onAuthStateChanged(user => {
         this.user = user;
         if (user) {
@@ -59,8 +67,8 @@ const Sync = {
     if (!this._ready) return;
     const provider = new firebase.auth.GoogleAuthProvider();
     try {
-      await this._auth.signInWithPopup(provider);
-      // onAuthStateChanged will fire and call _onSignedIn
+      await this._auth.signInWithRedirect(provider);
+      // Page will reload; getRedirectResult() in init() handles the result
     } catch (e) {
       console.warn('Vinage: sign-in failed', e);
       App.toast('Sign-in failed: ' + (e.message || e), 'error');
