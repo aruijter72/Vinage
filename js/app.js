@@ -656,6 +656,102 @@ const App = {
     }
   },
 
+  // ── OrigoVero / GS1 Digital Link QR handler ──────────────────────────────
+  async _handleOrigoVeroScan(url) {
+    this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeLookingUp')}`, '');
+
+    // ── Extract GTIN-14 from GS1 Digital Link path ────────────────────────
+    // Format: https://www.origovero.com/01/{GTIN-14}/21/{serial}?qk={token}
+    const gtinMatch = url.match(/\/01\/(\d{14})/);
+
+    if (!gtinMatch) {
+      // No GTIN in URL — show the URL and let user add manually
+      this._setScanStatus(
+        this.lang === 'nl'
+          ? 'OrigoVero QR gevonden, maar geen product-ID herkend.'
+          : 'OrigoVero QR detected, but no product ID found.',
+        'error'
+      );
+      const actionRow = document.getElementById('scan-action-row');
+      if (actionRow) actionRow.innerHTML = `
+        <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
+        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+      return;
+    }
+
+    const gtin14 = gtinMatch[1];
+
+    // GTIN-14 → EAN-13: strip leading indicator digit if it is '0'
+    const ean13 = gtin14.startsWith('0') ? gtin14.slice(1) : gtin14;
+
+    try {
+      // ── 1. Open Food Facts lookup with EAN-13 ─────────────────────────────
+      let partial = await this._lookupOpenFoodFacts(ean13);
+
+      // Inject GTIN/EAN so the user can see where this came from
+      partial._sourceGtin = gtin14;
+      partial._sourceEan  = ean13;
+      partial._sourceUrl  = url;
+
+      // ── 2. AI enrichment ──────────────────────────────────────────────────
+      const settings = DB.getSettings();
+      const hasKey = settings.anthropicKey || settings.openaiKey;
+
+      if (hasKey) {
+        this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeEnriching')}`, '');
+        try {
+          const enriched = await API.enrichWineData(partial, settings, this.lang);
+          if (!enriched.error) {
+            partial = {
+              ...enriched,
+              name:     partial.name     || enriched.name,
+              producer: partial.producer || enriched.producer,
+              type:     partial.type     || enriched.type,
+              country:  partial.country  || enriched.country,
+            };
+          }
+        } catch (_) { /* enrichment optional */ }
+      }
+
+      if (partial.estimatedPrice != null && partial.price == null) {
+        partial.price = partial.estimatedPrice;
+      }
+      if (partial.country) partial.country = this._localizeCountry(partial.country);
+
+      const actionRow = document.getElementById('scan-action-row');
+
+      if (!partial.name) {
+        // OFF had no result — still show action buttons so user can add manually
+        this._setScanStatus(
+          this.lang === 'nl'
+            ? `OrigoVero QR herkend (GTIN: ${ean13}), product niet gevonden in database.`
+            : `OrigoVero QR recognised (GTIN: ${ean13}), product not found in database.`,
+          'error'
+        );
+        if (actionRow) actionRow.innerHTML = `
+          <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
+          <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+        return;
+      }
+
+      this.scanResult = partial;
+      this._setScanStatus(
+        `${this.t('scan.barcodeFound')} · OrigoVero`,
+        'found'
+      );
+      if (actionRow) actionRow.innerHTML = `
+        <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
+        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+
+    } catch (err) {
+      this._setScanStatus(this.t('scan.barcodeError'), 'error');
+      const actionRow = document.getElementById('scan-action-row');
+      if (actionRow) actionRow.innerHTML = `
+        <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
+        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+    }
+  },
+
   async _lookupOpenFoodFacts(barcode) {
     const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(barcode)}.json`;
     const res  = await fetch(url, { signal: AbortSignal.timeout(8000) });
