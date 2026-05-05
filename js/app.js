@@ -593,6 +593,13 @@ const App = {
 
   async _onBarcodeDetected(code) {
     const actionRow = document.getElementById('scan-action-row');
+
+    // ── OrigoVero / GS1 Digital Link QR code detection ───────────────────────
+    if (code.includes('origovero.com')) {
+      this._handleOrigoVeroScan(code);
+      return;
+    }
+
     this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeLookingUp')}`, '');
 
     try {
