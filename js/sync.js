@@ -149,6 +149,7 @@ const Sync = {
 
     this.householdId = hid;
     this.inviteCode  = code;
+    this._members    = { [this.user.uid]: { name: this.user.displayName, email: this.user.email } };
 
     // Upload existing local data to the new household
     await this._uploadLocal();
@@ -259,6 +260,7 @@ const Sync = {
     }, err => console.warn('Vinage: consumption sync error', err));
 
     this._unsubs = [u1, u2, u3];
+    this._startHouseholdListener();
     this._setSyncIndicator('live');
   },
 
