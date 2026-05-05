@@ -138,6 +138,7 @@ const App = {
       case 'scan':
         el.innerHTML = this.buildScanView();
         if (this._scanMode === 'barcode') { this.startBarcodeScanner(); }
+        else if (this._scanMode === 'search') { this._initSearchInput(); }
         else { this.initCamera(); }
         break;
       case 'cellar':
