@@ -2221,11 +2221,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 /* Highlight tiles */
 .health-highlights {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-}
-.health-tile:last-child {
-  grid-column: 1 / -1;
 }
 .health-tile {
   background: var(--cream);
