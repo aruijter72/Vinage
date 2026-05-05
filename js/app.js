@@ -551,6 +551,8 @@ const App = {
         ZXing.BarcodeFormat.UPC_A,
         ZXing.BarcodeFormat.UPC_E,
         ZXing.BarcodeFormat.CODE_128,
+        ZXing.BarcodeFormat.QR_CODE,
+        ZXing.BarcodeFormat.DATA_MATRIX,
       ]);
       this._barcodeReader = new ZXing.BrowserMultiFormatReader(hints);
 
