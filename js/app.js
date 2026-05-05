@@ -411,7 +411,7 @@ const App = {
     }
   },
 
-  _searchResultToWine(idx, wishlist = false) {
+  _searchResultToWine(idx, toWishlist = false) {
     const w = (this._searchResults || [])[idx];
     if (!w) return;
     const wineData = {
@@ -426,17 +426,16 @@ const App = {
       notes:          w.notes    || '',
       drinkFrom:      w.drinkFrom  || null,
       drinkUntil:     w.drinkUntil || null,
-      estimatedPrice: w.estimatedPrice || null,
+      price:          w.estimatedPrice || null,
       quantity:       1,
-      wishlist:       wishlist,
     };
-    if (wishlist) {
-      Sync.addWine(wineData);
+    if (toWishlist) {
+      // Wishlist is stored separately from the wine collection
+      DB.addWishlistItem(wineData);
       this.toast(this.lang === 'nl' ? 'Toegevoegd aan verlanglijst!' : 'Added to Wishlist!', 'success');
     } else {
-      // Pre-fill scan result and open the add form
-      this.scanResult = wineData;
-      this._showAddWineModal(wineData);
+      // Open the pre-filled wine form — saveWineForm() will trigger cellar placement
+      this.showWineForm(wineData);
     }
   },
 
