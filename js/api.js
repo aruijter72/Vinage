@@ -161,6 +161,60 @@ If you cannot identify this wine at all, return: {"error":"unknown_wine"}`;
     }
   },
 
+  // ── Wine search by free-text query ───────────────────────────────────────
+  async searchWines(query, settings, lang = 'en') {
+    const langNote = lang === 'nl'
+      ? 'Write "notes" and all "pairings" values in Dutch. Write "country" in Dutch (e.g. "Frankrijk", "Italië", "Spanje", "Duitsland").'
+      : 'Write "notes" and all "pairings" values in English. Write "country" in English.';
+
+    const prompt = `You are an expert sommelier and wine encyclopaedia.
+The user is searching for: "${query}"
+
+Return ONLY a valid JSON array of up to 5 real, specific wines that best match this query.
+Each item must follow this exact structure (use null for unknown fields):
+{
+  "name": "full wine name",
+  "producer": "winery or producer name",
+  "vintage": 2019,
+  "region": "wine region or appellation",
+  "country": "country of origin",
+  "type": "red|white|rosé|sparkling|dessert|fortified",
+  "grapes": ["Grape1", "Grape2"],
+  "pairings": ["food1", "food2", "food3"],
+  "notes": "2–3 sentence tasting description and why this wine matches the query",
+  "drinkFrom": 2024,
+  "drinkUntil": 2032,
+  "estimatedPrice": 24.99,
+  "confidence": "high|medium|low"
+}
+
+Rules:
+- Return ONLY the JSON array, no markdown, no explanation.
+- Recommend real, purchasable wines — be specific with producer and name.
+- Vary the results (different producers, regions, price points) unless the query is very specific.
+- If the query names a specific wine/vintage, put the best match first and include alternatives.
+${langNote}
+If no wines can be meaningfully matched, return: []`;
+
+    const provider = settings.apiProvider || 'anthropic';
+    const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
+    if (!key) throw new Error('no_api_key');
+
+    try {
+      const raw = provider === 'anthropic'
+        ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+        : await this._openaiText(prompt, key, 'gpt-4o-mini');
+      // Parse array response
+      const clean = raw.replace(/```json?\s*/gi, '').replace(/```/g, '').trim();
+      const match = clean.match(/\[[\s\S]*\]/);
+      if (!match) return [];
+      return JSON.parse(match[0]);
+    } catch (e) {
+      if (e.message === 'no_api_key') throw e;
+      throw new Error('api_error: ' + e.message);
+    }
+  },
+
   // ── Rule-based fallback pairing (no API key needed) ───────────────────────
   ruleBasedPairing(dish, wines) {
     const d = dish.toLowerCase();
