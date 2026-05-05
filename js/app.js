@@ -3697,6 +3697,39 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     }
 
     // mode === 'syncing'
+    // Build members list
+    const members = status.members || {};
+    const myUid   = status.user.uid;
+    const memberRows = Object.entries(members).map(([uid, m]) => {
+      const isYou    = uid === myUid;
+      const initial  = this._esc(((m.name || m.email || '?')[0]).toUpperCase());
+      const name     = this._esc(m.name  || m.email || 'Unknown');
+      const email    = this._esc(m.email || '');
+      const lastSeen = m.lastSeen
+        ? (() => {
+            const diff = Date.now() - m.lastSeen;
+            const mins = Math.floor(diff / 60000);
+            const hrs  = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            if (mins < 2)   return this.lang === 'nl' ? 'Zojuist' : 'Just now';
+            if (mins < 60)  return `${mins}m`;
+            if (hrs  < 24)  return `${hrs}h`;
+            return `${days}d`;
+          })()
+        : '';
+      return `
+        <div class="sync-member-row">
+          <div class="sync-member-avatar${isYou ? ' sync-member-avatar--you' : ''}">${initial}</div>
+          <div class="sync-member-info">
+            <div class="sync-member-name">${name}</div>
+            ${email ? `<div class="sync-member-email">${email}</div>` : ''}
+          </div>
+          ${isYou
+            ? `<div class="sync-member-badge">${this.t('settings.syncMembersYou')}</div>`
+            : lastSeen ? `<div class="sync-member-lastseen">${lastSeen}</div>` : ''}
+        </div>`;
+    }).join('');
+
     return `
     <div class="settings-section">
       <h2>${this.t('settings.sync')}</h2>
@@ -3713,6 +3746,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <div class="sync-code-value">${this._esc(status.inviteCode || '—')}</div>
         <div class="sync-code-hint">${this.t('settings.syncCodeHint')}</div>
       </div>
+      ${Object.keys(members).length > 0 ? `
+        <div class="sync-members-title">${this.t('settings.syncMembers')}</div>
+        <div class="sync-members-list">${memberRows}</div>
+      ` : ''}
       <button class="btn btn-ghost btn-full" data-action="sync-leave" style="margin-top:8px;color:var(--text-lt)">${this.t('settings.syncLeave')}</button>
     </div>`;
   },
