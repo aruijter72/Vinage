@@ -494,7 +494,8 @@ const Sync = {
       mode:        'syncing',
       user:        this.user,
       householdId: this.householdId,
-      inviteCode:  this.inviteCode
+      inviteCode:  this.inviteCode,
+      members:     this._members
     };
   }
 };
