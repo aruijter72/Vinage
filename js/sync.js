@@ -63,7 +63,8 @@ const Sync = {
       // onAuthStateChanged will fire and call _onSignedIn
     } catch (e) {
       console.warn('Vinage: sign-in failed', e);
-      App.toast('Sign-in failed: ' + (e.message || e), 'error');
+      const detail = (e.code ? '[' + e.code + '] ' : '') + (e.message || e);
+      App.toast('Sign-in failed: ' + detail, 'error');
     }
   },
 
