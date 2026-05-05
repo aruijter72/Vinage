@@ -15,6 +15,7 @@ const Sync = {
   user:        null,   // firebase.User
   householdId: null,   // Firestore household document ID
   inviteCode:  null,   // 6-char sharing code
+  _members:    {},     // { uid: { name, email, lastSeen? } }
   _unsubs:     [],     // Firestore unsubscribe callbacks
   _ready:      false,  // Firebase initialised?
   _db:         null,   // Firestore instance
@@ -103,8 +104,32 @@ const Sync = {
     if (!this.householdId) return;
     const doc = await this._db.doc(`households/${this.householdId}`).get();
     if (doc.exists) {
-      this.inviteCode = doc.data().inviteCode || null;
+      const data = doc.data();
+      this.inviteCode = data.inviteCode || null;
+      this._members   = data.members   || {};
     }
+  },
+
+  // Live listener on the household doc — keeps members up-to-date in real time
+  _startHouseholdListener() {
+    if (!this.householdId) return;
+    const unsub = this._db.doc(`households/${this.householdId}`)
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const data = snap.data();
+        this._members  = data.members   || {};
+        this.inviteCode = data.inviteCode || this.inviteCode;
+        // Enrich with lastSeen from each user's doc (best-effort, no await)
+        Object.keys(this._members).forEach(uid => {
+          this._db.doc(`users/${uid}`).get().then(ud => {
+            if (ud.exists && this._members[uid]) {
+              this._members[uid].lastSeen = ud.data().lastSeen || null;
+            }
+          }).catch(() => {});
+        });
+        if (App.view === 'settings') App.renderView();
+      }, () => {});
+    this._unsubs.push(unsub);
   },
 
   // ── Household management ─────────────────────────────────────────────────
