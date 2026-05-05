@@ -495,7 +495,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .scan-mode-toggle-bar {
   display: flex;
   justify-content: center;
-  padding: 8px 16px 0;
+  padding: calc(8px + var(--safe-top)) 16px 0;
   background: var(--cream);
 }
 .scan-mode-toggle {
