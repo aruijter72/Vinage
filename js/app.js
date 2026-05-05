@@ -214,6 +214,9 @@ const App = {
       case 'toggle-dark-mode':    this.toggleDarkMode(); break;
       case 'scan-mode-switch':    this.switchScanMode(args.mode); break;
       case 'retake-barcode':      this._restartBarcodeScanner(); break;
+      case 'do-wine-search':      this._doWineSearch(); break;
+      case 'search-add-collection': this._searchResultToWine(Number(args.idx), false); break;
+      case 'search-add-wishlist':   this._searchResultToWine(Number(args.idx), true);  break;
       // Share wine card
       case 'share-wine':          this._shareWineAsHTML(args.id); break;
       case 'show-help':           this._showHelp(); break;
@@ -275,6 +278,39 @@ const App = {
   // ══════════════════════════════════════════════════════════════════════════
   buildScanView() {
     const mode = this._scanMode || 'label';
+    const isSearch = mode === 'search';
+
+    const toggleBar = `
+      <div class="scan-mode-toggle-bar">
+        <div class="scan-mode-toggle">
+          <button class="scan-mode-btn${mode === 'label' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="label">
+            📷 ${this.t('scan.labelMode')}
+          </button>
+          <button class="scan-mode-btn${mode === 'barcode' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="barcode">
+            🔲 ${this.t('scan.barcodeMode')}
+          </button>
+          <button class="scan-mode-btn${mode === 'search' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="search">
+            🔍 ${this.t('scan.searchMode')}
+          </button>
+        </div>
+      </div>`;
+
+    if (isSearch) {
+      return `
+      <div id="scan-view" style="display:flex;flex-direction:column;height:100%">
+        ${toggleBar}
+        <div class="search-mode-wrap" id="search-mode-wrap">
+          <div class="search-input-row">
+            <input id="search-query-input" class="form-control" type="search"
+                   placeholder="${this.t('scan.searchPlaceholder')}"
+                   value="${this._esc(this._lastSearchQuery || '')}">
+            <button class="btn btn-primary" data-action="do-wine-search">${this.t('scan.searchBtn')}</button>
+          </div>
+          <div id="search-results">${this._renderSearchResults()}</div>
+        </div>
+      </div>`;
+    }
+
     return `
     <div id="scan-view">
       <div class="camera-area">
@@ -292,16 +328,7 @@ const App = {
       </div>
       <div class="scan-controls">
         <!-- Mode toggle — lives in controls so it clears the safe-area notch -->
-        <div class="scan-mode-toggle-bar">
-          <div class="scan-mode-toggle">
-            <button class="scan-mode-btn${mode === 'label' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="label">
-              📷 ${this.t('scan.labelMode')}
-            </button>
-            <button class="scan-mode-btn${mode === 'barcode' ? ' active' : ''}" data-action="scan-mode-switch" data-mode="barcode">
-              🔲 ${this.t('scan.barcodeMode')}
-            </button>
-          </div>
-        </div>
+        ${toggleBar}
         <div id="scan-status" class="scan-status">&nbsp;</div>
         <!-- Statement strip: cream band with slogan -->
         <div class="scan-statement-strip">
@@ -324,6 +351,92 @@ const App = {
         <button class="btn btn-ghost btn-full" data-action="manual-add-wine" style="margin:8px 16px 0;width:calc(100% - 32px)">${this.t('scan.manualAdd')}</button>
       </div>
     </div>`;
+  },
+
+  _renderSearchResults() {
+    const results = this._searchResults;
+    if (!results) return '';
+    if (results.length === 0) {
+      return `<div class="search-status">${this.t('scan.searchNoResults')}</div>`;
+    }
+    const typeColor = { red:'#8B1A2E', white:'#C8A84B', 'rosé':'#E8A0A0', sparkling:'#A0C8E8', dessert:'#C8A800', fortified:'#7A4A8A' };
+    return `
+      <div class="search-results-title">${this.t('scan.searchResultsTitle')} (${results.length})</div>
+      ${results.map((w, i) => `
+        <div class="search-result-card">
+          <div class="search-result-header">
+            <div class="search-result-type-dot" style="background:${typeColor[w.type] || '#999'}"></div>
+            <div class="search-result-title-block">
+              <div class="search-result-name">${this._esc(w.name || '—')}</div>
+              <div class="search-result-producer">${this._esc(w.producer || '')}${w.vintage ? ' · ' + w.vintage : ''}</div>
+            </div>
+            ${w.estimatedPrice ? `<div class="search-result-price">~€${w.estimatedPrice}</div>` : ''}
+          </div>
+          <div class="search-result-meta">
+            ${w.region  ? `<span class="search-result-tag">${this._esc(w.region)}</span>` : ''}
+            ${w.country ? `<span class="search-result-tag">${this._esc(w.country)}</span>` : ''}
+            ${w.type    ? `<span class="search-result-tag">${this._esc(w.type)}</span>` : ''}
+            ${(w.grapes||[]).map(g => `<span class="search-result-tag">${this._esc(g)}</span>`).join('')}
+          </div>
+          ${w.notes ? `<div class="search-result-notes">${this._esc(w.notes)}</div>` : ''}
+          <div class="search-result-actions">
+            <button class="btn btn-primary" data-action="search-add-collection" data-idx="${i}">${this.t('scan.searchAddCollection')}</button>
+            <button class="btn btn-secondary" data-action="search-add-wishlist" data-idx="${i}">${this.t('scan.searchAddWishlist')}</button>
+          </div>
+        </div>`).join('')}`;
+  },
+
+  async _doWineSearch() {
+    const input = document.getElementById('search-query-input');
+    const query = input?.value?.trim();
+    if (!query) return;
+    this._lastSearchQuery = query;
+
+    const resultsEl = document.getElementById('search-results');
+    if (resultsEl) resultsEl.innerHTML = `<div class="search-status">${this.t('scan.searching')}</div>`;
+
+    const settings = DB.getSettings();
+    if (!settings.anthropicKey && !settings.openaiKey) {
+      if (resultsEl) resultsEl.innerHTML = `<div class="search-status">${this.t('scan.apiKeyMissing')}</div>`;
+      return;
+    }
+
+    try {
+      const results = await API.searchWines(query, settings, this.lang);
+      this._searchResults = results;
+      if (resultsEl) resultsEl.innerHTML = this._renderSearchResults();
+    } catch (e) {
+      if (resultsEl) resultsEl.innerHTML = `<div class="search-status">${this.t('scan.barcodeError')}</div>`;
+    }
+  },
+
+  _searchResultToWine(idx, wishlist = false) {
+    const w = (this._searchResults || [])[idx];
+    if (!w) return;
+    const wineData = {
+      name:           w.name     || '',
+      producer:       w.producer || '',
+      vintage:        w.vintage  || null,
+      region:         w.region   || '',
+      country:        w.country  || '',
+      type:           w.type     || 'red',
+      grapes:         w.grapes   || [],
+      pairings:       w.pairings || [],
+      notes:          w.notes    || '',
+      drinkFrom:      w.drinkFrom  || null,
+      drinkUntil:     w.drinkUntil || null,
+      estimatedPrice: w.estimatedPrice || null,
+      quantity:       1,
+      wishlist:       wishlist,
+    };
+    if (wishlist) {
+      Sync.addWine(wineData);
+      this.toast(this.lang === 'nl' ? 'Toegevoegd aan verlanglijst!' : 'Added to Wishlist!', 'success');
+    } else {
+      // Pre-fill scan result and open the add form
+      this.scanResult = wineData;
+      this._showAddWineModal(wineData);
+    }
   },
 
   initCamera() {
