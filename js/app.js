@@ -517,8 +517,18 @@ const App = {
     if (el && this.view === 'scan') {
       el.innerHTML = this.buildScanView();
       if (mode === 'barcode') this.startBarcodeScanner();
+      else if (mode === 'search') this._initSearchInput();
       else this.initCamera();
     }
+  },
+
+  _initSearchInput() {
+    const input = document.getElementById('search-query-input');
+    if (!input) return;
+    input.focus();
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); this._doWineSearch(); }
+    });
   },
 
   async startBarcodeScanner() {
