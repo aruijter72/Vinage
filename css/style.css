@@ -1115,7 +1115,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
    ════════════════════════════════════════════════════════════════════════════ */
 .pairing-hero {
   background: linear-gradient(135deg, var(--burgundy-dk) 0%, var(--burgundy) 60%, var(--burgundy-lt) 100%);
-  padding: 24px 16px;
+  padding: calc(24px + var(--safe-top)) 16px 24px;
   color: var(--white);
 }
 .pairing-hero h2 { font-size: 1.05rem; margin-bottom: 12px; opacity: .85; }
