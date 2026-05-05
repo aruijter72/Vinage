@@ -1620,6 +1620,76 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .sync-code-value  { font-size: 2rem; font-weight: 800; letter-spacing: .22em; color: var(--burgundy); font-family: 'SF Mono', 'Fira Code', monospace; }
 .sync-code-hint   { font-size: .78rem; color: var(--text-lt); margin-top: 6px; }
 
+/* Members list */
+.sync-members-title {
+  font-size: .75rem;
+  color: var(--text-lt);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin: 16px 0 8px;
+}
+.sync-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sync-member-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--cream-dk);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+.sync-member-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--burgundy);
+  color: #fff;
+  font-size: .9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sync-member-avatar--you { background: var(--gold); color: var(--burgundy); }
+.sync-member-info { flex: 1; min-width: 0; }
+.sync-member-name {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sync-member-email {
+  font-size: .74rem;
+  color: var(--text-lt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sync-member-badge {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(163,131,91,.12);
+  border-radius: 20px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+.sync-member-lastseen {
+  font-size: .68rem;
+  color: var(--text-lt);
+  flex-shrink: 0;
+  text-align: right;
+}
+[data-theme="dark"] .sync-member-row { background: #2A1020; }
+
 /* Join row */
 .sync-join-row {
   display: flex;
