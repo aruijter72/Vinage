@@ -334,7 +334,7 @@ const TRANSLATIONS = {
       pairMeal: 'Combineer met maaltijd',
       scanBottle: 'Scannen',
       readyStat: '{n} klaar',
-      expiringStat: '{n} verloopt',
+      expiringStat: '{n} verlopen',
       totalStat: '{n} flessen',
       myCellars: 'Mijn Kelders',
       manageCellars: 'Beheren',
