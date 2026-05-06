@@ -1773,23 +1773,207 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // CELLAR VIEW — List
+  // ══════════════════════════════════════════════════════════════════════════
+  // HOME — Decision-first screen
   // ══════════════════════════════════════════════════════════════════════════
   buildCellarList() {
-    const cellars = DB.getCellars();
-    const mapSection = cellars.length > 0 ? this._buildCellarMapSection(cellars) : '';
+    const wines    = DB.getWines();
+    const cellars  = DB.getCellars();
+    const placementMap = DB.getWinePlacementMap();
+
+    // ── Tonight's picks ──────────────────────────────────────────────────
+    const picks       = this._getTonightPicks(wines, placementMap);
+    const picksHtml   = this._buildPicksSection(picks, wines, placementMap);
+
+    // ── Stats strip ──────────────────────────────────────────────────────
+    const statsStrip  = this._buildHomeStatsStrip(wines, placementMap);
+
+    // ── Quick actions ────────────────────────────────────────────────────
+    const quickActions = this._buildHomeQuickActions();
+
+    // ── Cellars section ──────────────────────────────────────────────────
+    const mapSection  = cellars.length > 0 ? this._buildCellarMapSection(cellars) : '';
+    const cellarCards = cellars.length === 0
+      ? `<div class="empty-state" style="padding:24px 0">${this._iconCellarLg()}<p>${this.t('cellar.noLocations')}</p></div>`
+      : `<div class="cellar-list">${cellars.map(c => this._buildCellarCard(c)).join('')}</div>`;
+
     return `
-    <div class="page-header">
-      <h1>${this.t('cellar.title')}</h1>
-      <div class="header-actions">
-        <button class="btn btn-primary btn-sm" data-action="add-cellar">${this.t('cellar.addLocation')}</button>
+    ${picksHtml}
+    ${statsStrip}
+    ${quickActions}
+    <div>
+      <div class="home-cellars-header">
+        <span class="home-cellars-title">${this.t('home.myCellars')}</span>
+        <button class="home-manage-btn" data-action="add-cellar">${this.t('home.manageCellars')} +</button>
       </div>
-    </div>
-    ${mapSection}
-    <div class="cellar-list">
-      ${cellars.length === 0
-        ? `<div class="empty-state">${this._iconCellarLg()}<p>${this.t('cellar.noLocations')}</p></div>`
-        : cellars.map(c => this._buildCellarCard(c)).join('')}
+      ${mapSection}
+      ${cellarCards}
+    </div>`;
+  },
+
+  // ── Tonight's picks algorithm ─────────────────────────────────────────
+  _getTonightPicks(wines, placementMap) {
+    const y = new Date().getFullYear();
+    const scored = wines
+      .filter(w => (w.quantity == null || w.quantity > 0))
+      .map(w => {
+        const status = this._drinkStatus(w);
+        if (!status) return null; // no drink window — skip
+
+        let score = 0;
+        let tag   = 'ready';
+
+        if (status === 'past') {
+          score = 20;
+          tag   = 'past';
+        } else if (status === 'ready') {
+          const yearsLeft = w.drinkUntil ? w.drinkUntil - y : 99;
+          if (yearsLeft <= 1)      { score = 16; tag = 'peak'; }
+          else if (yearsLeft <= 3) { score = 13; tag = 'peak'; }
+          else                     { score = 10; tag = 'ready'; }
+        } else if (status === 'cellar') {
+          const yearsAway = w.drinkFrom ? w.drinkFrom - y : 99;
+          if (yearsAway <= 1)      { score = 5; tag = 'soon'; }
+          else if (yearsAway <= 2) { score = 2; tag = 'soon'; }
+          else return null; // not opening soon enough to recommend
+        }
+
+        // Cellar placement bonus (we know exactly where it is)
+        if (placementMap[w.id]?.length) score += 2;
+        // Rating bonus
+        if (w.rating) score += w.rating * 0.4;
+
+        return { w, score, tag };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+
+    return scored;
+  },
+
+  // ── Tonight's picks HTML ──────────────────────────────────────────────
+  _buildPicksSection(picks, allWines, placementMap) {
+    const y = new Date().getFullYear();
+
+    const header = `
+    <div class="home-tonight-header">
+      <span class="home-tonight-icon">🍷</span>
+      <span class="home-tonight-title">${this.t('home.tonightTitle')}</span>
+    </div>`;
+
+    if (allWines.length === 0) {
+      return header + `
+      <div class="home-empty-picks">
+        <div class="home-empty-picks-icon">🏚️</div>
+        <div class="home-empty-picks-title">${this.t('home.noWinesTitle')}</div>
+        <div class="home-empty-picks-sub">${this.t('home.noWinesSub')}</div>
+      </div>`;
+    }
+
+    if (picks.length === 0) {
+      return header + `
+      <div class="home-empty-picks">
+        <div class="home-empty-picks-icon">📅</div>
+        <div class="home-empty-picks-title">${this.t('home.noPicksTitle')}</div>
+        <div class="home-empty-picks-sub">${this.t('home.noPicksSub')}</div>
+      </div>`;
+    }
+
+    const cards = picks.map(({ w, tag }, idx) => {
+      const isPrimary = idx === 0;
+      const dot = `<div class="home-pick-dot" style="background:${this._typeColor(w.type)}"></div>`;
+
+      // Status pill
+      let pillCls, pillText;
+      if (tag === 'past') {
+        pillCls  = 'status-past';
+        pillText = `⚠️ ${this.t('home.pastPeak')}`;
+      } else if (tag === 'peak') {
+        const yearsLeft = w.drinkUntil ? w.drinkUntil - y : 1;
+        pillCls  = 'status-peak';
+        pillText = `🔥 ${this.t('home.peakEnding', { n: yearsLeft })}`;
+      } else if (tag === 'soon') {
+        const yearsAway = w.drinkFrom ? w.drinkFrom - y : 1;
+        pillCls  = 'status-soon';
+        pillText = `🔒 ${this.t('home.almostReady', { n: yearsAway })}`;
+      } else {
+        pillCls  = 'status-ready';
+        pillText = `✓ ${this.t('home.readyNow')}`;
+      }
+
+      // Location
+      const places = placementMap[w.id];
+      const locHtml = places?.length
+        ? `<span class="home-pick-location">📍 ${this._esc(places[0].cellarName)}${places[0].slot ? ' · ' + this._slotPositionLabel(places[0].slot) : ''}</span>`
+        : '';
+
+      // Qty
+      const qty = w.quantity ?? 1;
+      const qtyHtml = qty > 1 ? `<span class="home-pick-qty">${qty}×</span>` : '';
+
+      return `
+      <div class="home-pick-card${isPrimary ? ' home-pick-primary' : ''}"  data-wine-id="${w.id}">
+        <div class="home-pick-top">
+          ${dot}
+          <div class="home-pick-main">
+            <div class="home-pick-name">${this._esc(w.name)}${w.vintage ? ' <span style="font-weight:400;opacity:.7">' + w.vintage + '</span>' : ''}</div>
+            ${w.producer ? `<div class="home-pick-producer">${this._esc(w.producer)}${w.region ? ' · ' + this._esc(w.region) : ''}</div>` : ''}
+          </div>
+        </div>
+        <div class="home-pick-badges">
+          <span class="home-pick-status ${pillCls}">${pillText}</span>
+          ${locHtml}
+          ${qtyHtml}
+        </div>
+        <div class="home-pick-actions">
+          <button class="home-pick-btn-open" data-action="consume-bottle" data-id="${w.id}">${this.t('home.openBtn')} 🥂</button>
+          <button class="home-pick-btn-view" data-action="edit-wine" data-id="${w.id}">${this.t('home.viewWine')}</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    return header + `<div class="home-picks-list">${cards}</div>`;
+  },
+
+  // ── Stats strip ───────────────────────────────────────────────────────
+  _buildHomeStatsStrip(wines, placementMap) {
+    if (wines.length === 0) return '';
+    const y = new Date().getFullYear();
+    const totalBottles = wines.reduce((s, w) => s + (w.quantity ?? 1), 0);
+    const ready   = wines.filter(w => this._drinkStatus(w) === 'ready').length;
+    const expiring = wines.filter(w => {
+      const s = this._drinkStatus(w);
+      if (s === 'past') return true;
+      if (s === 'ready' && w.drinkUntil && (w.drinkUntil - y) <= 1) return true;
+      return false;
+    }).length;
+
+    const pills = [
+      `<span class="home-stat-pill">${this.t('home.totalStat', { n: totalBottles })}</span>`,
+      ready    > 0 ? `<span class="home-stat-pill pill-ready">${this.t('home.readyStat', { n: ready })}</span>` : '',
+      expiring > 0 ? `<span class="home-stat-pill pill-warn">${this.t('home.expiringStat', { n: expiring })}</span>` : '',
+    ].filter(Boolean).join('');
+
+    return `<div class="home-stats-strip">${pills}</div>`;
+  },
+
+  // ── Quick actions ─────────────────────────────────────────────────────
+  _buildHomeQuickActions() {
+    return `
+    <div class="home-quick-actions">
+      <button class="home-quick-btn" data-nav="pairing">
+        <span class="home-quick-btn-icon">🍽️</span>
+        <span class="home-quick-btn-label">${this.t('home.pairMeal')}</span>
+      </button>
+      <button class="home-quick-btn" data-nav="scan">
+        <span class="home-quick-btn-icon">📷</span>
+        <span class="home-quick-btn-label">${this.t('home.scanBottle')}</span>
+      </button>
+      <button class="home-quick-btn" data-nav="collection">
+        <span class="home-quick-btn-icon">🗂️</span>
+        <span class="home-quick-btn-label">${this.t('nav.collection')}</span>
+      </button>
     </div>`;
   },
 
