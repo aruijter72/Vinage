@@ -2565,3 +2565,289 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   color: var(--gold);
   transform: scale(1.15);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME — Decision-first screen
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tonight header ─────────────────────────────────────────────────── */
+.home-tonight-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 4px;
+}
+.home-tonight-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.home-tonight-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+/* ── Pick cards ──────────────────────────────────────────────────────── */
+.home-picks-list {
+  padding: 12px 16px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.home-pick-card {
+  background: var(--white);
+  border: 1.5px solid var(--cream-dk);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: 0 2px 6px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: box-shadow .15s, border-color .15s;
+}
+.home-pick-card:active {
+  box-shadow: 0 1px 3px var(--shadow);
+  border-color: var(--burgundy);
+}
+.home-pick-card.home-pick-primary {
+  border-color: var(--burgundy);
+  border-width: 2px;
+  background: linear-gradient(135deg, #fff 0%, #fdf4f6 100%);
+}
+.home-pick-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.home-pick-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.home-pick-main {
+  flex: 1;
+  min-width: 0;
+}
+.home-pick-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.home-pick-producer {
+  font-size: .82rem;
+  color: var(--text-md);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-pick-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.home-pick-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+.home-pick-status.status-ready   { background: #e8f5e9; color: #2e7d32; }
+.home-pick-status.status-peak    { background: #fff3e0; color: #e65100; }
+.home-pick-status.status-past    { background: #fce4ec; color: #b71c1c; }
+.home-pick-status.status-soon    { background: #e3f2fd; color: #1565c0; }
+.home-pick-location {
+  font-size: .75rem;
+  color: var(--text-lt);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.home-pick-qty {
+  font-size: .75rem;
+  color: var(--text-lt);
+}
+.home-pick-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+.home-pick-btn-open {
+  flex: 1;
+  background: var(--burgundy);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: .02em;
+  transition: background .15s;
+}
+.home-pick-btn-open:active { background: var(--burgundy-lt); }
+.home-pick-btn-view {
+  background: var(--cream);
+  color: var(--text-md);
+  border: 1.5px solid var(--cream-dk);
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  font-size: .88rem;
+  cursor: pointer;
+  transition: background .15s;
+}
+.home-pick-btn-view:active { background: var(--cream-dk); }
+
+/* ── Empty / nudge state ─────────────────────────────────────────────── */
+.home-empty-picks {
+  margin: 12px 16px 4px;
+  background: var(--cream);
+  border: 1.5px dashed var(--cream-dk);
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  text-align: center;
+}
+.home-empty-picks-icon { font-size: 2rem; margin-bottom: 8px; }
+.home-empty-picks-title {
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.home-empty-picks-sub {
+  font-size: .85rem;
+  color: var(--text-lt);
+  line-height: 1.5;
+}
+
+/* ── Quick actions ───────────────────────────────────────────────────── */
+.home-quick-actions {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px 6px;
+}
+.home-quick-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: var(--white);
+  border: 1.5px solid var(--cream-dk);
+  border-radius: var(--radius);
+  padding: 14px 8px 12px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+  box-shadow: 0 1px 4px var(--shadow);
+}
+.home-quick-btn:active {
+  background: var(--cream);
+  border-color: var(--burgundy);
+  transform: scale(.97);
+}
+.home-quick-btn-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.home-quick-btn-label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text-md);
+  letter-spacing: .02em;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ── Cellar summary strip ────────────────────────────────────────────── */
+.home-stats-strip {
+  display: flex;
+  gap: 8px;
+  padding: 6px 16px 2px;
+  flex-wrap: wrap;
+}
+.home-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--cream);
+  border: 1px solid var(--cream-dk);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: .75rem;
+  color: var(--text-md);
+  font-weight: 500;
+}
+.home-stat-pill.pill-warn { background: #fce4ec; color: #b71c1c; border-color: #f48fb1; }
+.home-stat-pill.pill-ready { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+
+/* ── Cellars section header ──────────────────────────────────────────── */
+.home-cellars-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 4px;
+}
+.home-cellars-title {
+  font-weight: 700;
+  color: var(--text);
+  font-size: .95rem;
+}
+.home-manage-btn {
+  font-size: .8rem;
+  color: var(--burgundy);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+/* ── Dark mode overrides ─────────────────────────────────────────────── */
+[data-theme="dark"] .home-pick-card {
+  background: #2A1520;
+  border-color: #4A2535;
+}
+[data-theme="dark"] .home-pick-card.home-pick-primary {
+  background: linear-gradient(135deg, #2A1520 0%, #3A1828 100%);
+  border-color: var(--burgundy-lt);
+}
+[data-theme="dark"] .home-pick-name { color: #F2EBE1; }
+[data-theme="dark"] .home-pick-producer { color: #9A7060; }
+[data-theme="dark"] .home-pick-status.status-ready  { background: #1b3a1e; color: #81c784; }
+[data-theme="dark"] .home-pick-status.status-peak   { background: #3a2000; color: #ffb74d; }
+[data-theme="dark"] .home-pick-status.status-past   { background: #3a1018; color: #ef9a9a; }
+[data-theme="dark"] .home-pick-status.status-soon   { background: #0d2a3a; color: #64b5f6; }
+[data-theme="dark"] .home-pick-btn-view {
+  background: #1E0E14;
+  border-color: #4A2535;
+  color: #C4A478;
+}
+[data-theme="dark"] .home-empty-picks {
+  background: #1E0E14;
+  border-color: #4A2535;
+}
+[data-theme="dark"] .home-empty-picks-title { color: #F2EBE1; }
+[data-theme="dark"] .home-quick-btn {
+  background: #2A1520;
+  border-color: #4A2535;
+}
+[data-theme="dark"] .home-quick-btn:active { background: #3A1828; }
+[data-theme="dark"] .home-quick-btn-label { color: #C4A478; }
+[data-theme="dark"] .home-stat-pill { background: #1E0E14; border-color: #4A2535; color: #9A7060; }
+[data-theme="dark"] .home-stat-pill.pill-warn  { background: #3a1018; color: #ef9a9a; border-color: #7a2030; }
+[data-theme="dark"] .home-stat-pill.pill-ready { background: #1b3a1e; color: #81c784; border-color: #2e7d32; }
+[data-theme="dark"] .home-cellars-title { color: #F2EBE1; }
+[data-theme="dark"] .home-tonight-title { color: #F2EBE1; }
