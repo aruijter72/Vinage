@@ -1134,7 +1134,8 @@ const TRANSLATIONS = {
       notifEnable: 'Activar notificaciones', notifDrinkWindow: 'Recordatorios de ventana de consumo',
       notifDrinkWindowHint: 'Notificar cuando un vino entra en su ventana ideal',
       notifDecant: 'Alerta de temporizador de decantación', notifDecantHint: 'Notificar cuando termina la cuenta atrás',
-      notifTestBtn: 'Enviar notificación de prueba', darkMode: 'Modo oscuro', darkModeHint: 'Más suave para los ojos con poca luz'
+      notifTestBtn: 'Enviar notificación de prueba', darkMode: 'Modo oscuro', darkModeHint: 'Más suave para los ojos con poca luz',
+      origovero: 'OrigoVero DPP', origoveroKeyId: 'ID de clave', origoveroKeySecret: 'Secreto de clave', origoveroBaseUrl: 'URL base de API',
     },
     common: {
       save: 'Guardar', cancel: 'Cancelar', delete: 'Eliminar', edit: 'Editar', add: 'Añadir',
@@ -1311,7 +1312,8 @@ const TRANSLATIONS = {
       notifEnable: 'Benachrichtigungen aktivieren', notifDrinkWindow: 'Trinkezeitfenster-Erinnerungen',
       notifDrinkWindowHint: 'Benachrichtigen, wenn ein Wein sein ideales Trinkezeitfenster erreicht',
       notifDecant: 'Dekantier-Timer-Alarm', notifDecantHint: 'Benachrichtigen, wenn der Countdown endet',
-      notifTestBtn: 'Testbenachrichtigung senden', darkMode: 'Dunkelmodus', darkModeHint: 'Schonend für die Augen bei wenig Licht'
+      notifTestBtn: 'Testbenachrichtigung senden', darkMode: 'Dunkelmodus', darkModeHint: 'Schonend für die Augen bei wenig Licht',
+      origovero: 'OrigoVero DPP', origoveroKeyId: 'Schlüssel-ID', origoveroKeySecret: 'Schlüsselgeheimnis', origoveroBaseUrl: 'API-Basis-URL',
     },
     common: {
       save: 'Speichern', cancel: 'Abbrechen', delete: 'Löschen', edit: 'Bearbeiten', add: 'Hinzufügen',
