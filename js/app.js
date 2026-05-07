@@ -660,74 +660,95 @@ const App = {
   async _handleOrigoVeroScan(url) {
     this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeLookingUp')}`, '');
 
-    // ── Extract GTIN-14 from GS1 Digital Link path ────────────────────────
-    // Format: https://www.origovero.com/01/{GTIN-14}/21/{serial}?qk={token}
-    const gtinMatch = url.match(/\/01\/(\d{14})/);
+    // Extract GTIN-14 and optional per-bottle serial from GS1 Digital Link
+    // Format: https://dev.origovero.com/01/{GTIN-14}/21/{serial}
+    const gtinMatch   = url.match(/\/01\/(\d{14})/);
+    const serialMatch = url.match(/\/21\/([^/?&#]+)/);
 
     if (!gtinMatch) {
-      // No GTIN in URL — show the URL and let user add manually
-      this._setScanStatus(
-        this.lang === 'nl'
-          ? 'OrigoVero QR gevonden, maar geen product-ID herkend.'
-          : 'OrigoVero QR detected, but no product ID found.',
-        'error'
-      );
-      const actionRow = document.getElementById('scan-action-row');
-      if (actionRow) actionRow.innerHTML = `
+      this._setScanStatus('OrigoVero QR detected, but no product ID found.', 'error');
+      const ar = document.getElementById('scan-action-row');
+      if (ar) ar.innerHTML = `
         <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
         <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
       return;
     }
 
     const gtin14 = gtinMatch[1];
-
-    // GTIN-14 → EAN-13: strip leading indicator digit if it is '0'
-    const ean13 = gtin14.startsWith('0') ? gtin14.slice(1) : gtin14;
+    const serial = serialMatch ? serialMatch[1] : null;
+    const ean13  = gtin14.startsWith('0') ? gtin14.slice(1) : gtin14;
+    const settings = DB.getSettings();
+    let partial = {};
 
     try {
-      // ── 1. Open Food Facts lookup with EAN-13 ─────────────────────────────
-      let partial = await this._lookupOpenFoodFacts(ean13);
+      // ── Phase 2: OrigoVero DPP API ──────────────────────────────────────
+      if (settings.origoveroKeyId && settings.origoveroKeySecret) {
+        try {
+          this._setScanStatus(`<span class="spinner"></span>${this.t('scan.dppLookingUp')}`, '');
+          const product = await this._lookupOrigoVeroDpp(gtin14);
+          if (product && !product.error) {
+            partial = this._mapOrigoVeroProduct(product);
+            if (serial) partial._serialNumber = serial;
+          }
+        } catch (_) { /* fall through to OFF */ }
+      }
 
-      // Inject GTIN/EAN so the user can see where this came from
-      partial._sourceGtin = gtin14;
+      // ── Phase 1 fallback: Open Food Facts ───────────────────────────────
+      if (!partial.name) {
+        try {
+          const off = await this._lookupOpenFoodFacts(ean13);
+          // Merge: DPP fields win; OFF fills what DPP didn't have
+          partial = { ...off, ...partial };
+        } catch (_) {}
+      }
+
+      // Always stamp provenance
+      partial._sourceGtin = partial._sourceGtin || gtin14;
       partial._sourceEan  = ean13;
       partial._sourceUrl  = url;
 
-      // ── 2. AI enrichment ──────────────────────────────────────────────────
-      const settings = DB.getSettings();
-      const hasKey = settings.anthropicKey || settings.openaiKey;
-
-      if (hasKey) {
+      // ── AI enrichment — fills producer + any remaining gaps ─────────────
+      const hasAiKey = settings.anthropicKey || settings.openaiKey;
+      if (hasAiKey) {
         this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeEnriching')}`, '');
         try {
           const enriched = await API.enrichWineData(partial, settings, this.lang);
           if (!enriched.error) {
+            // DPP-sourced fields win; AI fills what's still missing
             partial = {
               ...enriched,
-              name:     partial.name     || enriched.name,
-              producer: partial.producer || enriched.producer,
-              type:     partial.type     || enriched.type,
-              country:  partial.country  || enriched.country,
+              name:       partial.name       || enriched.name,
+              vintage:    partial.vintage    || enriched.vintage,
+              region:     partial.region     || enriched.region,
+              type:       partial.type       || enriched.type,
+              country:    partial.country    || enriched.country,
+              grapes:     (partial.grapes?.length ? partial.grapes : null) || enriched.grapes,
+              notes:      partial.notes      || enriched.notes,
+              drinkFrom:  partial.drinkFrom  || enriched.drinkFrom,
+              drinkUntil: partial.drinkUntil || enriched.drinkUntil,
+              producer:   partial.producer   || enriched.producer,
+              // Preserve all DPP metadata
+              _passportId:        partial._passportId,
+              _sourceGtin:        partial._sourceGtin,
+              _sourceEan:         partial._sourceEan,
+              _sourceUrl:         partial._sourceUrl,
+              _serialNumber:      partial._serialNumber,
+              _dppCertifications: partial._dppCertifications,
+              _dppMaterialOrigin: partial._dppMaterialOrigin,
+              _dppDescription:    partial._dppDescription,
+              _dppImageUrl:       partial._dppImageUrl,
             };
           }
         } catch (_) { /* enrichment optional */ }
       }
 
-      if (partial.estimatedPrice != null && partial.price == null) {
-        partial.price = partial.estimatedPrice;
-      }
+      if (partial.estimatedPrice != null && partial.price == null) partial.price = partial.estimatedPrice;
       if (partial.country) partial.country = this._localizeCountry(partial.country);
 
       const actionRow = document.getElementById('scan-action-row');
 
       if (!partial.name) {
-        // OFF had no result — still show action buttons so user can add manually
-        this._setScanStatus(
-          this.lang === 'nl'
-            ? `OrigoVero QR herkend (GTIN: ${ean13}), product niet gevonden in database.`
-            : `OrigoVero QR recognised (GTIN: ${ean13}), product not found in database.`,
-          'error'
-        );
+        this._setScanStatus(`OrigoVero QR recognised (GTIN: ${ean13}), product not found.`, 'error');
         if (actionRow) actionRow.innerHTML = `
           <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
           <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
@@ -735,10 +756,8 @@ const App = {
       }
 
       this.scanResult = partial;
-      this._setScanStatus(
-        `${this.t('scan.barcodeFound')} · OrigoVero`,
-        'found'
-      );
+      const badge = partial._passportId ? this.t('scan.dppFound') : `${this.t('scan.barcodeFound')} · OrigoVero`;
+      this._setScanStatus(badge, 'found');
       if (actionRow) actionRow.innerHTML = `
         <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
         <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
@@ -1264,6 +1283,13 @@ const App = {
       drinkFrom:  parseNum('wf-drink-from')  ? parseInt(parse('wf-drink-from'),  10) : null,
       drinkUntil: parseNum('wf-drink-until') ? parseInt(parse('wf-drink-until'), 10) : null,
     };
+
+    // Carry DPP metadata from scan result (new wines only)
+    if (!this.editWineId && this.scanResult) {
+      const dppKeys = ['_passportId','_sourceGtin','_sourceEan','_sourceUrl','_serialNumber',
+                       '_dppCertifications','_dppMaterialOrigin','_dppDescription','_dppImageUrl'];
+      for (const k of dppKeys) { if (this.scanResult[k] != null) data[k] = this.scanResult[k]; }
+    }
 
     // Capture old quantity before saving (for quantity-increase detection)
     const oldWine    = this.editWineId ? DB.getWineById(this.editWineId) : null;
