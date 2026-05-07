@@ -62,6 +62,8 @@ const TRANSLATIONS = {
       barcodeFound: 'Wine found!',
       barcodeNotFound: 'Barcode not recognised. Fill in manually.',
       barcodeError: 'Lookup failed. Fill in manually.',
+      dppLookingUp: 'Fetching DPP data from OrigoVero…',
+      dppFound: 'DPP · OrigoVero',
       searchMode: 'Search',
       searchPlaceholder: 'e.g. "Château Margaux 2018" or "great Burgundy under €30"',
       searchBtn: 'Find wines',
@@ -89,7 +91,8 @@ const TRANSLATIONS = {
       cellarLocation: 'Cellar Location',
       drinkFrom: 'Drink from (year)',
       drinkUntil: 'Drink until (year)',
-      tags: 'Tags'
+      tags: 'Tags',
+      viewDpp: 'View Digital Passport',
     },
     types: {
       red: 'Red', white: 'White', rosé: 'Rosé',
