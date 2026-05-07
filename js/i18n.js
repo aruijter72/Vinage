@@ -1,4 +1,4 @@
-// Vinage — Translations (English & Dutch)
+// Vinage — Translations (English, Dutch, Italian, French, Spanish, German)
 const TRANSLATIONS = {
   en: {
     nav: { scan: 'Scan', cellar: 'Cellar', collection: 'Collection', pairing: 'Pairing', settings: 'Settings', wishlist: 'Wishlist', stats: 'Stats' },
