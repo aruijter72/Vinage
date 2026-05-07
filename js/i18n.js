@@ -705,7 +705,8 @@ const TRANSLATIONS = {
       rating: 'Il mio voto', notes: 'Note di degustazione', regenNotes: 'Genera',
       price: 'Prezzo (€)', quantity: 'Bottiglie in stock', pairings: 'Abbinamenti',
       addedOn: 'Aggiunto', cellarLocation: 'Posizione in cantina',
-      drinkFrom: 'Bere dal (anno)', drinkUntil: 'Bere fino al (anno)', tags: 'Etichette'
+      drinkFrom: 'Bere dal (anno)', drinkUntil: 'Bere fino al (anno)', tags: 'Etichette',
+      viewDpp: 'Visualizza Passaporto Digitale',
     },
     types: { red: 'Rosso', white: 'Bianco', rosé: 'Rosato', sparkling: 'Spumante', dessert: 'Passito', fortified: 'Vino liquoroso' },
     cellar: {
