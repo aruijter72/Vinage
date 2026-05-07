@@ -415,7 +415,8 @@ const TRANSLATIONS = {
       cellarLocation: 'Kelderlocatie',
       drinkFrom: 'Drinken vanaf (jaar)',
       drinkUntil: 'Drinken tot (jaar)',
-      tags: 'Labels'
+      tags: 'Labels',
+      viewDpp: 'Digitaal Paspoort Bekijken',
     },
     types: {
       red: 'Rood', white: 'Wit', rosé: 'Rosé',
@@ -555,7 +556,11 @@ const TRANSLATIONS = {
       notifDecantHint: 'Melding wanneer de decanteertimer afloopt',
       notifTestBtn: 'Testmelding verzenden',
       darkMode: 'Donkere Modus',
-      darkModeHint: 'Rustiger voor de ogen bij weinig licht'
+      darkModeHint: 'Rustiger voor de ogen bij weinig licht',
+      origovero: 'OrigoVero DPP',
+      origoveroKeyId: 'Sleutel ID',
+      origoveroKeySecret: 'Geheime sleutel',
+      origoveroBaseUrl: 'API-basis-URL',
     },
     common: {
       save: 'Opslaan', cancel: 'Annuleren', delete: 'Verwijderen',
@@ -686,6 +691,8 @@ const TRANSLATIONS = {
       barcodeEnriching: 'Arricchimento con AI…', barcodeFound: 'Vino trovato!',
       barcodeNotFound: 'Codice non riconosciuto. Inserisci manualmente.',
       barcodeError: 'Ricerca fallita. Inserisci manualmente.',
+      dppLookingUp: 'Recupero dati DPP da OrigoVero…',
+      dppFound: 'DPP · OrigoVero',
       searchMode: 'Cerca', searchPlaceholder: 'es. "Château Margaux 2018" o "ottimo Barolo sotto €30"',
       searchBtn: 'Trova vini', searching: 'Ricerca…',
       searchNoResults: 'Nessun vino trovato. Prova una ricerca diversa.',
