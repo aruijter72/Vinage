@@ -882,7 +882,8 @@ const TRANSLATIONS = {
       rating: 'Ma note', notes: 'Notes de dégustation', regenNotes: 'Générer',
       price: 'Prix (€)', quantity: 'Bouteilles en stock', pairings: 'Accords mets-vins',
       addedOn: 'Ajouté le', cellarLocation: 'Emplacement en cave',
-      drinkFrom: 'À boire à partir de (année)', drinkUntil: "À boire jusqu'en (année)", tags: 'Étiquettes'
+      drinkFrom: 'À boire à partir de (année)', drinkUntil: "À boire jusqu'en (année)", tags: 'Étiquettes',
+      viewDpp: 'Voir le Passeport Numérique',
     },
     types: { red: 'Rouge', white: 'Blanc', rosé: 'Rosé', sparkling: 'Effervescent', dessert: 'Vin de dessert', fortified: 'Vin fortifié' },
     cellar: {
@@ -1058,7 +1059,8 @@ const TRANSLATIONS = {
       rating: 'Mi puntuación', notes: 'Notas de cata', regenNotes: 'Generar',
       price: 'Precio (€)', quantity: 'Botellas en stock', pairings: 'Maridajes',
       addedOn: 'Añadido', cellarLocation: 'Ubicación en bodega',
-      drinkFrom: 'Beber desde (año)', drinkUntil: 'Beber hasta (año)', tags: 'Etiquetas'
+      drinkFrom: 'Beber desde (año)', drinkUntil: 'Beber hasta (año)', tags: 'Etiquetas',
+      viewDpp: 'Ver Pasaporte Digital',
     },
     types: { red: 'Tinto', white: 'Blanco', rosé: 'Rosado', sparkling: 'Espumoso', dessert: 'Vino de postre', fortified: 'Vino generoso' },
     cellar: {
@@ -1234,7 +1236,8 @@ const TRANSLATIONS = {
       rating: 'Meine Bewertung', notes: 'Verkostungsnotizen', regenNotes: 'Generieren',
       price: 'Preis (€)', quantity: 'Flaschen auf Lager', pairings: 'Speisebegleitung',
       addedOn: 'Hinzugefügt', cellarLocation: 'Kellerplatz',
-      drinkFrom: 'Trinken ab (Jahr)', drinkUntil: 'Trinken bis (Jahr)', tags: 'Tags'
+      drinkFrom: 'Trinken ab (Jahr)', drinkUntil: 'Trinken bis (Jahr)', tags: 'Tags',
+      viewDpp: 'Digitalen Pass anzeigen',
     },
     types: { red: 'Rotwein', white: 'Weißwein', rosé: 'Roséwein', sparkling: 'Sekt / Schaumwein', dessert: 'Dessertwein', fortified: 'Verstärkter Wein' },
     cellar: {
