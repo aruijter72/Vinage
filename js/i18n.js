@@ -956,7 +956,8 @@ const TRANSLATIONS = {
       notifEnable: 'Activer les notifications', notifDrinkWindow: 'Rappels de fenêtre de dégustation',
       notifDrinkWindowHint: 'Notifier quand un vin entre dans sa fenêtre idéale',
       notifDecant: 'Alerte minuteur de décantation', notifDecantHint: 'Notifier quand le compte à rebours se termine',
-      notifTestBtn: 'Envoyer une notification test', darkMode: 'Mode sombre', darkModeHint: 'Reposant pour les yeux en basse lumière'
+      notifTestBtn: 'Envoyer une notification test', darkMode: 'Mode sombre', darkModeHint: 'Reposant pour les yeux en basse lumière',
+      origovero: 'OrigoVero DPP', origoveroKeyId: 'ID de clé', origoveroKeySecret: 'Secret de clé', origoveroBaseUrl: "URL de base de l'API",
     },
     common: {
       save: 'Enregistrer', cancel: 'Annuler', delete: 'Supprimer', edit: 'Modifier', add: 'Ajouter',
