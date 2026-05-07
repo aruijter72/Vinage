@@ -3921,6 +3921,32 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       </div>
     </div>
 
+    <div class="settings-section">
+      <h2>${this.t('settings.origovero')}</h2>
+      <div class="form-group">
+        <label>${this.t('settings.origoveroKeyId')}</label>
+        <input id="s-origovero-key-id" class="form-control" type="text"
+               placeholder="361688abe94c32401c8d645e61e4f657"
+               value="${this._esc(s.origoveroKeyId||'')}">
+      </div>
+      <div class="form-group">
+        <label>${this.t('settings.origoveroKeySecret')}</label>
+        <div class="key-input-wrap">
+          <input id="s-origovero-key-secret" class="form-control" type="password"
+                 placeholder="…"
+                 value="${this._esc(s.origoveroKeySecret||'')}">
+          <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-origovero-key-secret">show</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>${this.t('settings.origoveroBaseUrl')}</label>
+        <input id="s-origovero-base-url" class="form-control" type="text"
+               placeholder="https://dev.origovero.com"
+               value="${this._esc(s.origoveroBaseUrl||'')}">
+        <div class="key-hint">${this.t('settings.keyHint')}</div>
+      </div>
+    </div>
+
     <div class="settings-btn-row">
       <button class="btn btn-primary btn-full" data-action="save-settings">${this.t('settings.save')}</button>
     </div>
@@ -3960,10 +3986,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
   saveSettings() {
     const s = DB.getSettings();
-    s.anthropicKey = document.getElementById('s-anthropic-key')?.value.trim() || '';
-    s.openaiKey    = document.getElementById('s-openai-key')?.value.trim()    || '';
-    s.lang         = this.lang;
-    s.apiProvider  = s.apiProvider || 'anthropic';
+    s.anthropicKey       = document.getElementById('s-anthropic-key')?.value.trim()        || '';
+    s.openaiKey          = document.getElementById('s-openai-key')?.value.trim()           || '';
+    s.origoveroKeyId     = document.getElementById('s-origovero-key-id')?.value.trim()     || '';
+    s.origoveroKeySecret = document.getElementById('s-origovero-key-secret')?.value.trim() || '';
+    s.origoveroBaseUrl   = document.getElementById('s-origovero-base-url')?.value.trim()   || '';
+    s.lang        = this.lang;
+    s.apiProvider = s.apiProvider || 'anthropic';
     DB.saveSettings(s);
     this.toast(this.t('settings.saved'), 'success');
   },
