@@ -3751,10 +3751,14 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     <div class="settings-section">
       <h2>${this.t('settings.language')}</h2>
       <div class="settings-row">
-        <label>Language / Taal</label>
+        <label>Language / Taal / Lingua / Langue / Idioma / Sprache</label>
         <div class="lang-toggle">
           <button class="${this.lang==='en'?'active':''}" data-action="toggle-lang" data-lang="en">EN</button>
           <button class="${this.lang==='nl'?'active':''}" data-action="toggle-lang" data-lang="nl">NL</button>
+          <button class="${this.lang==='it'?'active':''}" data-action="toggle-lang" data-lang="it">IT</button>
+          <button class="${this.lang==='fr'?'active':''}" data-action="toggle-lang" data-lang="fr">FR</button>
+          <button class="${this.lang==='es'?'active':''}" data-action="toggle-lang" data-lang="es">ES</button>
+          <button class="${this.lang==='de'?'active':''}" data-action="toggle-lang" data-lang="de">DE</button>
         </div>
       </div>
       <div class="settings-row" style="margin-top:10px">
