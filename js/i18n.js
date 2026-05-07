@@ -232,7 +232,11 @@ const TRANSLATIONS = {
       notifDecantHint: 'Notify when the decanting countdown finishes',
       notifTestBtn: 'Send test notification',
       darkMode: 'Dark Mode',
-      darkModeHint: 'Easy on the eyes in low light'
+      darkModeHint: 'Easy on the eyes in low light',
+      origovero: 'OrigoVero DPP',
+      origoveroKeyId: 'Key ID',
+      origoveroKeySecret: 'Key Secret',
+      origoveroBaseUrl: 'API Base URL',
     },
     common: {
       save: 'Save', cancel: 'Cancel', delete: 'Delete',
@@ -382,6 +386,8 @@ const TRANSLATIONS = {
       barcodeFound: 'Wijn gevonden!',
       barcodeNotFound: 'Barcode niet herkend. Vul handmatig in.',
       barcodeError: 'Opzoeken mislukt. Vul handmatig in.',
+      dppLookingUp: 'DPP-data ophalen van OrigoVero…',
+      dppFound: 'DPP · OrigoVero',
       searchMode: 'Zoeken',
       searchPlaceholder: 'bijv. "Château Margaux 2018" of "goede Bourgogne onder €30"',
       searchBtn: 'Wijnen zoeken',
