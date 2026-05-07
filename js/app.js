@@ -796,6 +796,88 @@ const App = {
     };
   },
 
+  // ── OrigoVero DPP helpers ─────────────────────────────────────────────────
+
+  // Sign a request using HMAC-SHA256 via WebCrypto (no server needed)
+  async _signOrigoVeroRequest(keySecret, method, path, body = '') {
+    const ts = Math.floor(Date.now() / 1000).toString();
+    const signingString = `${ts}\n${method.toUpperCase()}\n${path}\n${body}`;
+    const encoder    = new TextEncoder();
+    const cryptoKey  = await crypto.subtle.importKey(
+      'raw', encoder.encode(keySecret),
+      { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    );
+    const sigBytes = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(signingString));
+    const sig = Array.from(new Uint8Array(sigBytes)).map(b => b.toString(16).padStart(2, '0')).join('');
+    return { ts, sig };
+  },
+
+  // Fetch a single product by GTIN-14 from the OrigoVero DPP API
+  async _lookupOrigoVeroDpp(gtin14) {
+    const s       = DB.getSettings();
+    const baseUrl = (s.origoveroBaseUrl || 'https://dev.origovero.com').replace(/\/$/, '');
+    const path    = `/api/v1/products/${gtin14}`;
+    const { ts, sig } = await this._signOrigoVeroRequest(s.origoveroKeySecret, 'GET', path);
+    const res = await fetch(`${baseUrl}${path}`, {
+      headers: {
+        'X-API-Key-Id':    s.origoveroKeyId,
+        'X-API-Timestamp': ts,
+        'X-API-Signature': sig,
+      },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  },
+
+  // Infer wine type from appellation + varietal strings
+  _inferWineTypeFromAppellation(appellation = '', varietal = '') {
+    const s = (appellation + ' ' + varietal).toLowerCase();
+    if (/prosecco|franciacorta|champagne|cava|sekt|crémant|cremant|pétillant|petillant|sparkling/.test(s)) return 'sparkling';
+    if (/rosato|rosé|rose|rosado/.test(s)) return 'rosé';
+    if (/porto|port\b|sherry|jerez|madeira|marsala|banyuls|mavrodaphne|fortif/.test(s)) return 'fortified';
+    if (/passito|sauternes|tokaj|eiswein|recioto|vin.santo|late.harvest|dolce/.test(s)) return 'dessert';
+    // White grapes / appellations
+    if (/lugana|greco|vermentino|soave|pinot.grigio|trebbiano|verdicchio|vernaccia|gavi|arneis|falanghina|fiano|ribolla|chardonnay|sauvignon.blanc|riesling|gewürz|gewurz|muscat|viognier|albarino|albariño|verdejo|godello|vinho.verde|grüner|gruner|chablis|burgundy.blanc|bourgogne.blanc/.test(s)) return 'white';
+    // Default to red for everything else (most wine appellations are red)
+    return 'red';
+  },
+
+  // Map an OrigoVero API product object → Vinage wine model
+  _mapOrigoVeroProduct(product) {
+    const ws = product.vertical_metadata?.wine_spirits || {};
+    const ISO2 = {
+      IT:'Italy', FR:'France', ES:'Spain', DE:'Germany', PT:'Portugal',
+      AT:'Austria', CH:'Switzerland', US:'United States', AU:'Australia',
+      NZ:'New Zealand', ZA:'South Africa', AR:'Argentina', CL:'Chile',
+      GR:'Greece', HU:'Hungary', RO:'Romania', HR:'Croatia', SI:'Slovenia',
+      BG:'Bulgaria', GE:'Georgia', TR:'Turkey', IL:'Israel', LB:'Lebanon',
+    };
+    const countryRaw  = ISO2[product.country_of_origin] || product.country_of_origin || '';
+    const expiryYear  = product.expiration_date ? parseInt(product.expiration_date.slice(0, 4), 10) : null;
+    let certifications = [];
+    try { certifications = JSON.parse(product.certifications || '[]'); } catch (_) {}
+    const baseUrl = (DB.getSettings().origoveroBaseUrl || 'https://dev.origovero.com').replace(/\/$/, '');
+
+    return {
+      name:       (product.product_name || '').replace(/\s*\(Demo\)/gi, '').trim(),
+      vintage:    ws.vintage  || null,
+      region:     ws.appellation || '',
+      country:    this._localizeCountry(countryRaw),
+      grapes:     ws.varietal ? ws.varietal.split(',').map(g => g.trim()).filter(Boolean) : [],
+      notes:      ws.tasting_notes || '',
+      type:       this._inferWineTypeFromAppellation(ws.appellation || '', ws.varietal || ''),
+      drinkUntil: expiryYear,
+      // DPP metadata stored on the wine record
+      _passportId:         product.passport_id   || null,
+      _sourceGtin:         product.gtin          || null,
+      _dppCertifications:  certifications,
+      _dppMaterialOrigin:  product.material_origin || null,
+      _dppDescription:     product.description    || null,
+      _dppImageUrl:        product.image_url ? `${baseUrl}${product.image_url}` : null,
+    };
+  },
+
   async captureAndAnalyze() {
     const video = document.getElementById('camera-video');
     const canvas = document.getElementById('camera-canvas');
