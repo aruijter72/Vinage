@@ -778,7 +778,8 @@ const TRANSLATIONS = {
       notifEnable: 'Abilita notifiche', notifDrinkWindow: 'Promemoria finestra di consumo',
       notifDrinkWindowHint: 'Notifica quando un vino entra nella finestra ideale',
       notifDecant: 'Avviso timer decantazione', notifDecantHint: 'Notifica quando il conto alla rovescia finisce',
-      notifTestBtn: 'Invia notifica di prova', darkMode: 'Modalità scura', darkModeHint: 'Più riposante con poca luce'
+      notifTestBtn: 'Invia notifica di prova', darkMode: 'Modalità scura', darkModeHint: 'Più riposante con poca luce',
+      origovero: 'OrigoVero DPP', origoveroKeyId: 'ID chiave', origoveroKeySecret: 'Segreto chiave', origoveroBaseUrl: 'URL base API',
     },
     common: {
       save: 'Salva', cancel: 'Annulla', delete: 'Elimina', edit: 'Modifica', add: 'Aggiungi',
@@ -867,6 +868,8 @@ const TRANSLATIONS = {
       barcodeEnriching: 'Enrichissement par IA…', barcodeFound: 'Vin trouvé !',
       barcodeNotFound: 'Code-barres non reconnu. Saisissez manuellement.',
       barcodeError: 'Recherche échouée. Saisissez manuellement.',
+      dppLookingUp: 'Récupération des données DPP depuis OrigoVero…',
+      dppFound: 'DPP · OrigoVero',
       searchMode: 'Rechercher', searchPlaceholder: 'ex. "Château Margaux 2018" ou "grand Bourgogne à moins de 30 €"',
       searchBtn: 'Trouver des vins', searching: 'Recherche…',
       searchNoResults: 'Aucun vin trouvé. Essayez une autre recherche.',
