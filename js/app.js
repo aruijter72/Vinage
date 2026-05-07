@@ -3304,7 +3304,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
               try {
                 const r = await fetch(
                   `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`,
-                  { headers: { 'Accept-Language': this.lang === 'nl' ? 'nl' : 'en' } }
+                  { headers: { 'Accept-Language': ['nl','it','fr','es','de'].includes(this.lang) ? this.lang : 'en' } }
                 );
                 const d = await r.json();
                 resolve(d.address?.city || d.address?.town || d.address?.village || null);
