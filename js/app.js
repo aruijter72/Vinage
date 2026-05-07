@@ -1181,6 +1181,14 @@ const App = {
           this._shareWineAsHTML(wid);
         }}
       );
+      // DPP passport button (only when the wine was scanned via OrigoVero)
+      if (w?._passportId) {
+        const baseUrl = (DB.getSettings().origoveroBaseUrl || 'https://dev.origovero.com').replace(/\/$/, '');
+        const passportUrl = `${baseUrl}/b2c/product/${w._passportId}`;
+        footerBtns.splice(footerBtns.length - 1, 0,
+          { label: '🔖 ' + this.t('wine.viewDpp'), cls: 'btn-ghost', action: () => window.open(passportUrl, '_blank') }
+        );
+      }
       // Open a bottle (only when stock > 0)
       if (w && (w.quantity || 1) > 0) {
         footerBtns.unshift({ label: '🍷 ' + this.t('consume.openBottle'), cls: 'btn-ghost', action: () => {
