@@ -2208,27 +2208,26 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const stats = DB.getCellarStats(c);
     const typeLabel = this.t('cellar.types.' + c.type);
     return `
-    <div class="card cellar-card" data-action="open-cellar" data-id="${c.id}">
-      <div class="cellar-card-header">
-        <h3>${this._esc(c.name)}</h3>
-        <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
-          <span class="cellar-type-tag">${typeLabel}</span>
-          <div class="cellar-order-btns" style="display:flex;flex-direction:column;gap:2px">
-            <button class="btn btn-icon btn-xs cellar-order-btn" data-action="move-cellar-up"
-                    data-id="${c.id}" title="Move up"
-                    ${idx === 0 ? 'disabled' : ''} style="line-height:1;padding:1px 5px;font-size:.7rem">▲</button>
-            <button class="btn btn-icon btn-xs cellar-order-btn" data-action="move-cellar-down"
-                    data-id="${c.id}" title="Move down"
-                    ${idx === total - 1 ? 'disabled' : ''} style="line-height:1;padding:1px 5px;font-size:.7rem">▼</button>
-          </div>
-        </div>
+    <div class="card cellar-card" data-action="open-cellar" data-id="${c.id}" data-cellar-id="${c.id}">
+      <div class="cellar-drag-handle" title="Drag to reorder">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+          <circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/>
+          <circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/>
+          <circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/>
+        </svg>
       </div>
-      <div class="cellar-card-stats">
-        <span class="cellar-stat"><strong>${stats.occupied}</strong> ${this.t('cellar.occupied')}</span>
-        ${stats.capacity !== null
-          ? `<span class="cellar-stat"><strong>${stats.empty}</strong> ${this.t('cellar.empty')}</span>
-             <span class="cellar-stat">${this.t('cellar.capacity')}: <strong>${stats.capacity}</strong></span>`
-          : ''}
+      <div class="cellar-card-body">
+        <div class="cellar-card-header">
+          <h3>${this._esc(c.name)}</h3>
+          <span class="cellar-type-tag">${typeLabel}</span>
+        </div>
+        <div class="cellar-card-stats">
+          <span class="cellar-stat"><strong>${stats.occupied}</strong> ${this.t('cellar.occupied')}</span>
+          ${stats.capacity !== null
+            ? `<span class="cellar-stat"><strong>${stats.empty}</strong> ${this.t('cellar.empty')}</span>
+               <span class="cellar-stat">${this.t('cellar.capacity')}: <strong>${stats.capacity}</strong></span>`
+            : ''}
+        </div>
       </div>
     </div>`;
   },
