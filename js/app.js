@@ -151,6 +151,8 @@ const App = {
     window.scrollTo(0, 0);
     const el = document.getElementById('main-content');
     switch (this.view) {
+      case 'home':
+        el.innerHTML = this.buildHomeView(); break;
       case 'scan':
         el.innerHTML = this.buildScanView();
         if (this._scanMode === 'barcode') { this.startBarcodeScanner(); }
