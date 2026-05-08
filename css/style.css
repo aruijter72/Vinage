@@ -787,13 +787,25 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
    ════════════════════════════════════════════════════════════════════════════ */
 .cellar-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
 
-.cellar-card { cursor: pointer; }
+.cellar-card { cursor: pointer; display: flex; align-items: stretch; }
+.cellar-drag-handle {
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; min-width: 44px;
+  background: var(--burgundy-dk);
+  border-radius: var(--radius) 0 0 var(--radius);
+  color: rgba(255,255,255,.5);
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+}
+.cellar-drag-handle:active { cursor: grabbing; color: rgba(255,255,255,.85); }
+.cellar-card-body { flex: 1; min-width: 0; }
 .cellar-card-header {
   padding: 14px 16px;
   display: flex; align-items: center; gap: 12px;
   background: var(--burgundy);
   color: var(--white);
-  border-radius: var(--radius) var(--radius) 0 0;
+  border-radius: 0 var(--radius) 0 0;
 }
 .cellar-card-header h3 { flex: 1; font-size: 1rem; font-weight: 700; }
 .cellar-type-tag {

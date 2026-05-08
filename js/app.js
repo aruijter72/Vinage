@@ -2776,18 +2776,137 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     if (idx < 0) return;
     const newIdx = idx + delta;
     if (newIdx < 0 || newIdx >= cellars.length) return;
-    // Swap in array and persist locally
     [cellars[idx], cellars[newIdx]] = [cellars[newIdx], cellars[idx]];
     DB._saveCellars(cellars);
-    // Push both affected cellars to Firestore so remote state stays current
     if (typeof Sync !== 'undefined') {
       Sync.updateCellar(cellars[idx].id, {});
       Sync.updateCellar(cellars[newIdx].id, {});
     }
-    // Re-render but restore scroll position so the user doesn't lose their place
     const savedScroll = window.scrollY;
     this.renderView();
     requestAnimationFrame(() => window.scrollTo(0, savedScroll));
+  },
+
+  _saveCellarOrder(ids) {
+    const cellars = DB.getCellars();
+    const ordered = ids.map(id => cellars.find(c => c.id === id)).filter(Boolean);
+    // Keep any not in ids (safety net)
+    cellars.forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
+    DB._saveCellars(ordered);
+    if (typeof Sync !== 'undefined') {
+      ordered.forEach(c => Sync.updateCellar(c.id, {}));
+    }
+    const savedScroll = window.scrollY;
+    this.renderView();
+    requestAnimationFrame(() => window.scrollTo(0, savedScroll));
+  },
+
+  _initCellarDrag() {
+    const list = document.querySelector('.cellar-list');
+    if (!list) return;
+
+    let dragging  = null;   // DOM card being dragged
+    let ghost     = null;   // fixed clone that follows pointer
+    let moved     = false;  // true once pointer travels >4px
+    let startY    = 0;
+    let offsetY   = 0;      // pointer offset within the card
+
+    const getCards = () => [...list.querySelectorAll('[data-cellar-id]')];
+
+    list.addEventListener('pointerdown', e => {
+      const handle = e.target.closest('.cellar-drag-handle');
+      if (!handle) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const card = handle.closest('[data-cellar-id]');
+      if (!card) return;
+
+      const rect = card.getBoundingClientRect();
+      startY  = e.clientY;
+      offsetY = e.clientY - rect.top;
+      moved   = false;
+      dragging = card;
+
+      // Floating ghost clone
+      ghost = card.cloneNode(true);
+      ghost.style.cssText = [
+        'position:fixed',
+        `left:${rect.left}px`,
+        `top:${rect.top}px`,
+        `width:${rect.width}px`,
+        'opacity:0.88',
+        'z-index:999',
+        'pointer-events:none',
+        'box-shadow:0 8px 28px rgba(59,20,34,.35)',
+        'border-radius:12px',
+        'transition:none',
+      ].join(';');
+      document.body.appendChild(ghost);
+
+      card.style.opacity = '0.25';
+      list.setPointerCapture(e.pointerId);
+    });
+
+    list.addEventListener('pointermove', e => {
+      if (!dragging || !ghost) return;
+      e.preventDefault();
+
+      if (!moved && Math.abs(e.clientY - startY) > 4) moved = true;
+      if (!moved) return;
+
+      ghost.style.top = (e.clientY - offsetY) + 'px';
+
+      // Live DOM reorder: find first card whose midpoint is below pointer
+      const others = getCards().filter(c => c !== dragging);
+      let inserted = false;
+      for (const card of others) {
+        const rect = card.getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height / 2) {
+          list.insertBefore(dragging, card);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) list.appendChild(dragging);
+    });
+
+    const finish = (e) => {
+      if (!dragging) return;
+      if (ghost) { ghost.remove(); ghost = null; }
+      dragging.style.opacity = '';
+      dragging.style.transition = '';
+
+      if (moved) {
+        // Suppress the next click on this card (prevents accidental open)
+        this._suppressNextCellarOpen = dragging.dataset.cellarId;
+        const ids = getCards().map(c => c.dataset.cellarId);
+        this._saveCellarOrder(ids);
+      }
+
+      dragging = null;
+      moved    = false;
+    };
+
+    const cancel = () => {
+      if (ghost) { ghost.remove(); ghost = null; }
+      if (dragging) { dragging.style.opacity = ''; }
+      dragging = null; moved = false;
+      this.renderView();
+    };
+
+    list.addEventListener('pointerup',     finish);
+    list.addEventListener('pointercancel', cancel);
+
+    // Suppress card-open if drag just ended
+    list.addEventListener('click', e => {
+      const card = e.target.closest('[data-cellar-id]');
+      if (!card) return;
+      if (this._suppressNextCellarOpen === card.dataset.cellarId) {
+        this._suppressNextCellarOpen = null;
+        e.stopPropagation();
+      }
+    }, true); // capture phase — runs before delegation
   },
 
   showAddCellarModal() {
