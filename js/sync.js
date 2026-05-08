@@ -277,6 +277,13 @@ const Sync = {
       if (snap.metadata.hasPendingWrites) return;
       const remote = [];
       snap.forEach(d => remote.push({ id: d.id, ...d.data() }));
+      // Sort by explicit order index so user-defined order survives app restarts
+      remote.sort((a, b) => {
+        if (a.order != null && b.order != null) return a.order - b.order;
+        if (a.order != null) return -1;
+        if (b.order != null) return 1;
+        return 0;
+      });
       DB._saveCellars(remote);
       if (App.view === 'cellar') App.renderView();
     }, err => console.warn('Vinage: cellars sync error', err));
@@ -371,6 +378,12 @@ const Sync = {
     wSnap.forEach(d => wines.push({ image: null, ...d.data(), id: d.id }));
     const cellars = [];
     cSnap.forEach(d => cellars.push({ id: d.id, ...d.data() }));
+    cellars.sort((a, b) => {
+      if (a.order != null && b.order != null) return a.order - b.order;
+      if (a.order != null) return -1;
+      if (b.order != null) return 1;
+      return 0;
+    });
     const consumption = [];
     consSnap.forEach(d => consumption.push({ id: d.id, ...d.data() }));
     consumption.sort((a, b) => (b.date || 0) - (a.date || 0));
