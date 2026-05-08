@@ -124,6 +124,8 @@ const TRANSLATIONS = {
       moveTitle: 'Move to Another Location',
       tapToPlace: 'Tap a slot to place the wine',
       viewWine: 'View wine',
+      renameLocation: 'Rename',
+      renameLocationPlaceholder: 'Location name',
       deleteLocation: 'Delete Location',
       deleteLocationConfirm: 'Delete this cellar location? Wines will remain in your collection.',
       types: {
