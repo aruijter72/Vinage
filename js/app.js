@@ -2782,7 +2782,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       Sync.updateCellar(cellars[idx].id, {});
       Sync.updateCellar(cellars[newIdx].id, {});
     }
+    // Re-render but restore scroll position so the user doesn't lose their place
+    const savedScroll = window.scrollY;
     this.renderView();
+    requestAnimationFrame(() => window.scrollTo(0, savedScroll));
   },
 
   showAddCellarModal() {
