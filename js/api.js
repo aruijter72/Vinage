@@ -1,4 +1,18 @@
 // Vinage — API Layer (Claude + OpenAI)
+//
+// ── GDPR / AVG Training opt-out notice ────────────────────────────────────────
+// Anthropic: API usage is NOT used for model training by default per Anthropic's
+//   API usage policy (https://www.anthropic.com/policies/api-usage-policy).
+//   No additional header is required; this is the default for all API customers.
+//
+// OpenAI: API usage is NOT used for model training by default per OpenAI's
+//   API data usage policy (https://openai.com/policies/api-data-usage-policies).
+//   We additionally pass a `user` field in each request for GDPR accountability
+//   (pseudonymised — no personal data transmitted).
+//
+// Scan images are processed in-memory only; they are never stored by Vinage.
+// ──────────────────────────────────────────────────────────────────────────────
+
 const API = {
 
   // ── Wine label identification ─────────────────────────────────────────────
@@ -323,6 +337,7 @@ If no wines can be meaningfully matched, return: []`;
       body: JSON.stringify({
         model: 'gpt-4o',
         max_tokens: 1024,
+        user: 'vinage_user', // GDPR accountability — pseudonymised, no personal data
         messages: [{
           role: 'user',
           content: [
@@ -344,6 +359,7 @@ If no wines can be meaningfully matched, return: []`;
       body: JSON.stringify({
         model,
         max_tokens: 1024,
+        user: 'vinage_user', // GDPR accountability — pseudonymised, no personal data
         messages: [{ role: 'user', content: prompt }]
       })
     });
