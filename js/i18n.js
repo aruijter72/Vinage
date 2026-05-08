@@ -1289,7 +1289,7 @@ const TRANSLATIONS = {
 
   // ─── GERMAN ──────────────────────────────────────────────────────────────────
   de: {
-    nav: { scan: 'Scannen', cellar: 'Keller', collection: 'Sammlung', pairing: 'Pairing', settings: 'Einstellungen', wishlist: 'Wunschliste', stats: 'Statistiken' },
+    nav: { home: 'Startseite', scan: 'Scannen', cellar: 'Keller', collection: 'Sammlung', pairing: 'Pairing', settings: 'Einstellungen', wishlist: 'Wunschliste', stats: 'Statistiken' },
     home: {
       tonightTitle: 'Was trinken wir heute Abend?',
       openBtn: 'Öffnen', viewWine: 'Wein ansehen',
