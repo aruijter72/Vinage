@@ -2774,10 +2774,14 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     if (idx < 0) return;
     const newIdx = idx + delta;
     if (newIdx < 0 || newIdx >= cellars.length) return;
-    // Swap
+    // Swap in array and persist locally
     [cellars[idx], cellars[newIdx]] = [cellars[newIdx], cellars[idx]];
     DB._saveCellars(cellars);
-    if (typeof Sync !== 'undefined' && Sync._pushCellars) Sync._pushCellars();
+    // Push both affected cellars to Firestore so remote state stays current
+    if (typeof Sync !== 'undefined') {
+      Sync.updateCellar(cellars[idx].id, {});
+      Sync.updateCellar(cellars[newIdx].id, {});
+    }
     this.renderView();
   },
 
