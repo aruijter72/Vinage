@@ -2805,100 +2805,92 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const list = document.querySelector('.cellar-list');
     if (!list) return;
 
-    let dragging  = null;   // DOM card being dragged
-    let ghost     = null;   // fixed clone that follows pointer
-    let moved     = false;  // true once pointer travels >4px
-    let startY    = 0;
-    let offsetY   = 0;      // pointer offset within the card
-
     const getCards = () => [...list.querySelectorAll('[data-cellar-id]')];
 
     list.addEventListener('pointerdown', e => {
       const handle = e.target.closest('.cellar-drag-handle');
       if (!handle) return;
+
       e.preventDefault();
       e.stopPropagation();
 
       const card = handle.closest('[data-cellar-id]');
       if (!card) return;
 
-      const rect = card.getBoundingClientRect();
-      startY  = e.clientY;
-      offsetY = e.clientY - rect.top;
-      moved   = false;
-      dragging = card;
+      // Capture the pointer on the handle so move/up always reach us,
+      // even when the finger slides outside the list / over the scroll area.
+      handle.setPointerCapture(e.pointerId);
 
-      // Floating ghost clone
-      ghost = card.cloneNode(true);
+      const rect   = card.getBoundingClientRect();
+      const startY = e.clientY;
+      const offsetY = e.clientY - rect.top;
+      let   moved  = false;
+
+      // Ghost that follows the finger
+      const ghost = card.cloneNode(true);
       ghost.style.cssText = [
         'position:fixed',
         `left:${rect.left}px`,
         `top:${rect.top}px`,
         `width:${rect.width}px`,
-        'opacity:0.88',
-        'z-index:999',
+        'opacity:.88',
+        'z-index:9999',
         'pointer-events:none',
-        'box-shadow:0 8px 28px rgba(59,20,34,.35)',
+        'box-shadow:0 8px 28px rgba(59,20,34,.38)',
         'border-radius:12px',
-        'transition:none',
       ].join(';');
       document.body.appendChild(ghost);
+      card.style.opacity = '.25';
 
-      card.style.opacity = '0.25';
-      list.setPointerCapture(e.pointerId);
-    });
+      const onMove = e => {
+        e.preventDefault();
+        if (!moved && Math.abs(e.clientY - startY) > 4) moved = true;
+        if (!moved) return;
 
-    list.addEventListener('pointermove', e => {
-      if (!dragging || !ghost) return;
-      e.preventDefault();
+        ghost.style.top = (e.clientY - offsetY) + 'px';
 
-      if (!moved && Math.abs(e.clientY - startY) > 4) moved = true;
-      if (!moved) return;
-
-      ghost.style.top = (e.clientY - offsetY) + 'px';
-
-      // Live DOM reorder: find first card whose midpoint is below pointer
-      const others = getCards().filter(c => c !== dragging);
-      let inserted = false;
-      for (const card of others) {
-        const rect = card.getBoundingClientRect();
-        if (e.clientY < rect.top + rect.height / 2) {
-          list.insertBefore(dragging, card);
-          inserted = true;
-          break;
+        // Shift cards in DOM as ghost passes their midpoint
+        const others = getCards().filter(c => c !== card);
+        let placed = false;
+        for (const other of others) {
+          const r = other.getBoundingClientRect();
+          if (e.clientY < r.top + r.height / 2) {
+            list.insertBefore(card, other);
+            placed = true;
+            break;
+          }
         }
-      }
-      if (!inserted) list.appendChild(dragging);
+        if (!placed) list.appendChild(card);
+      };
+
+      const onUp = () => {
+        ghost.remove();
+        card.style.opacity = '';
+        handle.removeEventListener('pointermove',   onMove);
+        handle.removeEventListener('pointerup',     onUp);
+        handle.removeEventListener('pointercancel', onCancel);
+
+        if (moved) {
+          this._suppressNextCellarOpen = card.dataset.cellarId;
+          this._saveCellarOrder(getCards().map(c => c.dataset.cellarId));
+        }
+      };
+
+      const onCancel = () => {
+        ghost.remove();
+        card.style.opacity = '';
+        handle.removeEventListener('pointermove',   onMove);
+        handle.removeEventListener('pointerup',     onUp);
+        handle.removeEventListener('pointercancel', onCancel);
+        this.renderView();
+      };
+
+      handle.addEventListener('pointermove',   onMove,   { passive: false });
+      handle.addEventListener('pointerup',     onUp);
+      handle.addEventListener('pointercancel', onCancel);
     });
 
-    const finish = (e) => {
-      if (!dragging) return;
-      if (ghost) { ghost.remove(); ghost = null; }
-      dragging.style.opacity = '';
-      dragging.style.transition = '';
-
-      if (moved) {
-        // Suppress the next click on this card (prevents accidental open)
-        this._suppressNextCellarOpen = dragging.dataset.cellarId;
-        const ids = getCards().map(c => c.dataset.cellarId);
-        this._saveCellarOrder(ids);
-      }
-
-      dragging = null;
-      moved    = false;
-    };
-
-    const cancel = () => {
-      if (ghost) { ghost.remove(); ghost = null; }
-      if (dragging) { dragging.style.opacity = ''; }
-      dragging = null; moved = false;
-      this.renderView();
-    };
-
-    list.addEventListener('pointerup',     finish);
-    list.addEventListener('pointercancel', cancel);
-
-    // Suppress card-open if drag just ended
+    // Suppress card-open tap immediately after a drag
     list.addEventListener('click', e => {
       const card = e.target.closest('[data-cellar-id]');
       if (!card) return;
@@ -2906,7 +2898,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         this._suppressNextCellarOpen = null;
         e.stopPropagation();
       }
-    }, true); // capture phase — runs before delegation
+    }, true);
   },
 
   showAddCellarModal() {
