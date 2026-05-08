@@ -1976,7 +1976,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     <div class="page-header">
       <h1>${this.t('home.myCellars')}</h1>
       <div class="header-actions">
-        <button class="btn btn-primary btn-sm" data-action="add-cellar">${this.t('home.manageCellars')} +</button>
+        <button class="btn btn-primary btn-sm" data-action="add-cellar">${this.t('cellar.addLocation')}</button>
       </div>
     </div>
     <div>
