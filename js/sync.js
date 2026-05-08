@@ -201,6 +201,37 @@ const Sync = {
     }
   },
 
+  // ── Account deletion (GDPR right to erasure) ─────────────────────────────
+  async deleteAccount() {
+    if (!this._ready || !this.user) return;
+    this._stopSync();
+    const uid = this.user.uid;
+
+    try {
+      // 1. Remove from household members list (if in a household)
+      if (this.householdId) {
+        const patch = {};
+        patch[`members.${uid}`] = firebase.firestore.FieldValue.delete();
+        try { await this._db.doc(`households/${this.householdId}`).update(patch); } catch (e) { /* ignore */ }
+      }
+
+      // 2. Delete user document from Firestore
+      try { await this._db.doc(`users/${uid}`).delete(); } catch (e) { /* ignore */ }
+
+      // 3. Delete Firebase Auth account
+      await this._auth.currentUser.delete();
+      // onAuthStateChanged will fire and clear state
+
+    } catch (e) {
+      // Firebase Auth requires recent sign-in for account deletion.
+      // If we get requires-recent-login, inform the user they need to re-sign-in.
+      if (e.code === 'auth/requires-recent-login') {
+        throw new Error('requires_recent_login');
+      }
+      throw e;
+    }
+  },
+
   async leaveHousehold() {
     if (!this._ready || !this.user || !this.householdId) return;
     this._stopSync();
