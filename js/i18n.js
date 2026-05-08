@@ -248,6 +248,13 @@ const TRANSLATIONS = {
       deleteAccountConfirm: 'Delete my account',
       deleteAccountSuccess: 'Account deleted.',
       deleteAccountReauth: 'For security, please sign out and sign in again before deleting your account.',
+      consentTitle: 'Welcome to Vinage',
+      consentBody: 'Before you start, a brief note about your data:',
+      consentPoint1: 'Your wine collection is stored <strong>locally on this device</strong>.',
+      consentPoint2: 'When you scan a bottle, the image is sent to your AI provider (Anthropic or OpenAI) for identification. It is not stored by Vinage.',
+      consentPoint3: 'Cloud Sharing (optional) uses Google Firebase. Your data is never sold or used for advertising.',
+      consentPrivacy: 'Read our Privacy Policy and Terms of Service in Settings → Legal.',
+      consentAccept: 'Accept & Start',
     },
     common: {
       save: 'Save', cancel: 'Cancel', delete: 'Delete',
