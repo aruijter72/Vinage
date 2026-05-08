@@ -734,6 +734,74 @@ const App = {
     }
   },
 
+  // ── Generic wine QR URL → fetch page text + AI extract ──────────────────────
+  async _handleGenericQRUrl(url) {
+    const actionRow = document.getElementById('scan-action-row');
+    const settings  = DB.getSettings();
+    const hasKey    = settings.anthropicKey || settings.openaiKey;
+
+    if (!hasKey) {
+      // No AI key — just open the URL so the user can read it themselves
+      this._setScanStatus(this.t('scan.qrOpening'), '');
+      if (actionRow) actionRow.innerHTML = `
+        <a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
+        <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
+      return;
+    }
+
+    this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrFetching')}`, '');
+
+    try {
+      // Fetch the page text via the AI proxy helper
+      const pageText = await API.fetchPageText(url, settings);
+
+      if (!pageText || pageText.length < 20) {
+        // Nothing useful — open in browser as fallback
+        this._setScanStatus(this.t('scan.qrNoData'), 'error');
+        if (actionRow) actionRow.innerHTML = `
+          <a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
+          <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
+        return;
+      }
+
+      this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrParsing')}`, '');
+
+      const extracted = await API.extractWineFromQRPage(pageText, settings, this.lang);
+
+      if (!extracted || extracted.error || !extracted.name) {
+        this._setScanStatus(this.t('scan.qrNoData'), 'error');
+        if (actionRow) actionRow.innerHTML = `
+          <a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
+          <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
+        return;
+      }
+
+      // Tag source URL
+      extracted._sourceUrl = url;
+      if (extracted.country) extracted.country = this._localizeCountry(extracted.country);
+
+      // Check if result is partial (missing key fields)
+      const isPartial = !extracted.vintage || !extracted.region;
+      this.scanResult = extracted;
+
+      if (isPartial) {
+        this._setScanStatus(this.t('scan.qrPartial'), 'found');
+      } else {
+        this._setScanStatus(this.t('scan.barcodeFound'), 'found');
+      }
+
+      if (actionRow) actionRow.innerHTML = `
+        <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
+        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+
+    } catch (err) {
+      this._setScanStatus(this.t('scan.barcodeError'), 'error');
+      if (actionRow) actionRow.innerHTML = `
+        <a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
+        <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
+    }
+  },
+
   async _lookupOpenFoodFacts(barcode) {
     const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(barcode)}.json`;
     const res  = await fetch(url, { signal: AbortSignal.timeout(8000) });
