@@ -2561,6 +2561,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           { label: '🍷 ' + this.t('consume.openBottle'), cls: 'btn-primary', action: () => {
             this.closeModal(); this._consumeBottle(wineId);
           }},
+          { label: this.t('cellar.moveWine'), cls: 'btn-secondary', action: () => {
+            this.closeModal(); this._moveWine(wineId, cellarId, slot);
+          }},
           { label: this.t('common.edit'), cls: 'btn-secondary', action: () => {
             this.closeModal(); this.editWine(wineId);
           }},
