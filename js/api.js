@@ -375,25 +375,43 @@ If no wines can be meaningfully matched, return: []`;
    * Returns the first ~4000 chars of visible text, or empty string on failure.
    */
   async fetchPageText(url, settings) {
-    // Use allorigins.win as a lightweight CORS proxy — returns { contents: html }
-    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    // Try two CORS proxies in sequence; return the first that yields usable text
+    const _strip = html => html
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+      .slice(0, 5000);
+
+    // Proxy 1: allorigins.win — returns JSON { contents: html }
     try {
-      const res = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
-      if (!res.ok) return '';
-      const data = await res.json();
-      const html = data.contents || '';
-      // Strip tags to get readable text
-      const text = html
-        .replace(/<script[\s\S]*?<\/script>/gi, '')
-        .replace(/<style[\s\S]*?<\/style>/gi, '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s{2,}/g, ' ')
-        .trim()
-        .slice(0, 4000);
-      return text;
-    } catch {
-      return '';
-    }
+      const res = await fetch(
+        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+        { signal: AbortSignal.timeout(10000) }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const text = _strip(data.contents || '');
+        if (text.length > 80) return text;
+      }
+    } catch { /* fall through */ }
+
+    // Proxy 2: corsproxy.io — returns raw HTML directly
+    try {
+      const res = await fetch(
+        `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+        { signal: AbortSignal.timeout(10000) }
+      );
+      if (res.ok) {
+        const html = await res.text();
+        const text = _strip(html);
+        if (text.length > 80) return text;
+      }
+    } catch { /* fall through */ }
+
+    return '';
   },
 
   /**

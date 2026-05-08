@@ -2653,6 +2653,67 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     this.renderView();
   },
 
+  // ── Move wine from one cellar location to another ─────────────────────────
+  _moveWine(wineId, fromCellarId, fromSlot) {
+    const wine    = DB.getWineById(wineId);
+    const cellars = DB.getCellars();
+    if (!wine || !cellars.length) return;
+
+    const cellarOpts = cellars.map(c => {
+      const isCurrent = c.id === fromCellarId;
+      const stats = DB.getCellarStats(c);
+      const cap   = stats.capacity !== null ? stats.capacity : '∞';
+      const occ   = stats.occupied;
+      const label = isCurrent ? `${this._esc(c.name)} <small style="opacity:.5">(current)</small>` : this._esc(c.name);
+      return `<button class="btn btn-secondary" style="width:100%;margin-bottom:6px;text-align:left"
+                data-move-target="${c.id}"${isCurrent ? ' disabled style="opacity:.4;width:100%;margin-bottom:6px"' : ''}>
+                ${label} <small style="opacity:.6;margin-left:auto">${occ}/${cap}</small></button>`;
+    }).join('');
+
+    this.showModal(
+      this.t('cellar.moveTitle'),
+      `<p style="margin-bottom:12px">${this._esc(wine.name)}</p>${cellarOpts}`,
+      [{ label: this.t('common.cancel'), cls: 'btn-ghost', action: () => this.closeModal() }]
+    );
+
+    setTimeout(() => {
+      document.querySelectorAll('[data-move-target]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const toCellarId = btn.dataset.moveTarget;
+          const toCellar   = cellars.find(c => c.id === toCellarId);
+          if (!toCellar) return;
+          this.closeModal();
+
+          // ── Remove from current location ───────────────────────────────
+          if (fromSlot === '' || fromSlot == null) {
+            Sync.removeWineFromShelf(fromCellarId, wineId);
+          } else {
+            Sync.assignWineToSlot(fromCellarId, fromSlot, null);
+          }
+
+          // ── Place in new location ──────────────────────────────────────
+          if (toCellar.type === 'shelf') {
+            // Shelf: add immediately, no slot to pick
+            Sync.assignWineToSlot(toCellarId, '', wineId);
+            this.cellarDetailId = toCellarId;
+            this.renderView();
+            setTimeout(() => { this._initRackHover?.(); this._initRackZoom?.(); }, 0);
+            this.toast('📍 ' + this._esc(wine.name) + ' → ' + this._esc(toCellar.name), 'success');
+          } else {
+            // Grid / case: navigate to destination, then user taps the target slot
+            this._autoPlaceWineId    = wineId;
+            this._autoPlaceTotalQty  = 1;
+            this._autoPlaceBottleNum = 1;
+            this.cellarDetailId = toCellarId;
+            this.renderView();
+            setTimeout(() => { this._initRackHover?.(); this._initRackZoom?.(); }, 0);
+            this.toast(this.t('cellar.tapToPlace'), '');
+          }
+        });
+      });
+    }, 50);
+  },
+
   showAddCellarModal() {
     const types = ['grid', 'diamond', 'case', 'case6', 'shelf'];
     const body = `
