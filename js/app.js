@@ -4452,6 +4452,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <div class="sync-members-list">${memberRows}</div>
       ` : ''}
       <button class="btn btn-ghost btn-full" data-action="sync-leave" style="margin-top:8px;color:var(--text-lt)">${this.t('settings.syncLeave')}</button>
+      <button class="btn btn-danger btn-full" data-action="delete-account" style="margin-top:6px">🗑 ${this.t('settings.deleteAccount')}</button>
     </div>`;
   },
 
