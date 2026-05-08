@@ -597,69 +597,26 @@ const App = {
     this.startBarcodeScanner();
   },
 
-  async _onBarcodeDetected(code) {
+  async _onQRDetected(code) {
     const actionRow = document.getElementById('scan-action-row');
 
-    // ── OrigoVero / GS1 Digital Link QR code detection ───────────────────────
+    // ── OrigoVero / GS1 Digital Link ─────────────────────────────────────────
     if (code.includes('origovero.com')) {
       this._handleOrigoVeroScan(code);
       return;
     }
 
-    this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeLookingUp')}`, '');
-
-    try {
-      // ── 1. Open Food Facts lookup ─────────────────────────────────────────
-      let partial = await this._lookupOpenFoodFacts(code);
-
-      // ── 2. AI enrichment ──────────────────────────────────────────────────
-      const settings = DB.getSettings();
-      const hasKey = settings.anthropicKey || settings.openaiKey;
-
-      if (hasKey) {
-        this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeEnriching')}`, '');
-        try {
-          const enriched = await API.enrichWineData(partial, settings, this.lang);
-          if (!enriched.error) {
-            // Merge: enriched fields win except for name/producer if OFF had good values
-            partial = {
-              ...enriched,
-              name:     partial.name     || enriched.name,
-              producer: partial.producer || enriched.producer,
-              type:     partial.type     || enriched.type,
-              country:  partial.country  || enriched.country,
-            };
-          }
-        } catch (_) { /* enrichment optional — continue with OFF data */ }
-      }
-
-      // Apply estimated price mapping
-      if (partial.estimatedPrice != null && partial.price == null) {
-        partial.price = partial.estimatedPrice;
-      }
-      // Localize country
-      if (partial.country) partial.country = this._localizeCountry(partial.country);
-
-      if (!partial.name) {
-        this._setScanStatus(this.t('scan.barcodeNotFound'), 'error');
-        if (actionRow) actionRow.innerHTML = `
-          <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
-          <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
-        return;
-      }
-
-      this.scanResult = partial;
-      this._setScanStatus(this.t('scan.barcodeFound'), 'found');
-      if (actionRow) actionRow.innerHTML = `
-        <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
-        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
-
-    } catch (err) {
-      this._setScanStatus(this.t('scan.barcodeError'), 'error');
-      if (actionRow) actionRow.innerHTML = `
-        <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
-        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+    // ── Generic URL → fetch page + AI extract ────────────────────────────────
+    if (code.startsWith('http://') || code.startsWith('https://')) {
+      this._handleGenericQRUrl(code);
+      return;
     }
+
+    // ── Anything else (plain text, vCard, etc.) — not a wine QR ──────────────
+    this._setScanStatus(this.t('scan.barcodeNotFound'), 'error');
+    if (actionRow) actionRow.innerHTML = `
+      <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
+      <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
   },
 
   // ── OrigoVero / GS1 Digital Link QR handler ──────────────────────────────
