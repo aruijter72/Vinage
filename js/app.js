@@ -4158,6 +4158,42 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     requestAnimationFrame(() => el.classList.add('about-overlay-visible'));
   },
 
+  // ── First-run consent overlay (GDPR) ────────────────────────────────────
+  _showConsent() {
+    const existing = document.getElementById('consent-overlay');
+    if (existing) return;
+
+    const el = document.createElement('div');
+    el.id = 'consent-overlay';
+    el.innerHTML = `
+      <div class="consent-inner">
+        <div class="consent-logo-wrap">
+          <img src="Logo Vinage V-Bottle No Background.png" alt="Vinage" style="height:52px;width:auto;opacity:.95">
+          <img src="Logo Vinage Name No Background.png" alt="Vinage" style="height:18px;width:auto;opacity:.90;margin-top:6px">
+        </div>
+        <h2 class="consent-title">${this.t('settings.consentTitle')}</h2>
+        <p class="consent-body">${this.t('settings.consentBody')}</p>
+        <ul class="consent-list">
+          <li>${this.t('settings.consentPoint1')}</li>
+          <li>${this.t('settings.consentPoint2')}</li>
+          <li>${this.t('settings.consentPoint3')}</li>
+        </ul>
+        <p class="consent-privacy-note">${this.t('settings.consentPrivacy')}</p>
+        <button class="btn btn-primary btn-full consent-accept-btn" id="consent-accept-btn">
+          ${this.t('settings.consentAccept')}
+        </button>
+      </div>`;
+
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('consent-overlay-visible'));
+
+    document.getElementById('consent-accept-btn')?.addEventListener('click', () => {
+      localStorage.setItem('vinageConsent', '1');
+      el.classList.remove('consent-overlay-visible');
+      setTimeout(() => el.remove(), 400);
+    });
+  },
+
   // ── Privacy Policy view ───────────────────────────────────────────────────
   buildPrivacyView() {
     const nl = this.lang === 'nl';
