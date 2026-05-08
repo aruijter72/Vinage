@@ -133,6 +133,7 @@ const App = {
   },
 
   renderView() {
+    window.scrollTo(0, 0);
     const el = document.getElementById('main-content');
     switch (this.view) {
       case 'scan':
