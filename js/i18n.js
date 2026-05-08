@@ -970,6 +970,8 @@ const TRANSLATIONS = {
       notifDecant: 'Alerte minuteur de décantation', notifDecantHint: 'Notifier quand le compte à rebours se termine',
       notifTestBtn: 'Envoyer une notification test', darkMode: 'Mode sombre', darkModeHint: 'Reposant pour les yeux en basse lumière',
       origovero: 'OrigoVero DPP', origoveroKeyId: 'ID de clé', origoveroKeySecret: 'Secret de clé', origoveroBaseUrl: "URL de base de l'API",
+      legal: 'Légal', privacyLink: 'Politique de confidentialité', termsLink: "Conditions d'utilisation",
+      privacyTitle: 'Politique de confidentialité', termsTitle: "Conditions d'utilisation",
     },
     common: {
       save: 'Enregistrer', cancel: 'Annuler', delete: 'Supprimer', edit: 'Modifier', add: 'Ajouter',
@@ -1148,6 +1150,8 @@ const TRANSLATIONS = {
       notifDecant: 'Alerta de temporizador de decantación', notifDecantHint: 'Notificar cuando termina la cuenta atrás',
       notifTestBtn: 'Enviar notificación de prueba', darkMode: 'Modo oscuro', darkModeHint: 'Más suave para los ojos con poca luz',
       origovero: 'OrigoVero DPP', origoveroKeyId: 'ID de clave', origoveroKeySecret: 'Secreto de clave', origoveroBaseUrl: 'URL base de API',
+      legal: 'Legal', privacyLink: 'Política de privacidad', termsLink: 'Términos de servicio',
+      privacyTitle: 'Política de privacidad', termsTitle: 'Términos de servicio',
     },
     common: {
       save: 'Guardar', cancel: 'Cancelar', delete: 'Eliminar', edit: 'Editar', add: 'Añadir',
@@ -1326,6 +1330,8 @@ const TRANSLATIONS = {
       notifDecant: 'Dekantier-Timer-Alarm', notifDecantHint: 'Benachrichtigen, wenn der Countdown endet',
       notifTestBtn: 'Testbenachrichtigung senden', darkMode: 'Dunkelmodus', darkModeHint: 'Schonend für die Augen bei wenig Licht',
       origovero: 'OrigoVero DPP', origoveroKeyId: 'Schlüssel-ID', origoveroKeySecret: 'Schlüsselgeheimnis', origoveroBaseUrl: 'API-Basis-URL',
+      legal: 'Rechtliches', privacyLink: 'Datenschutzerklärung', termsLink: 'Nutzungsbedingungen',
+      privacyTitle: 'Datenschutzerklärung', termsTitle: 'Nutzungsbedingungen',
     },
     common: {
       save: 'Speichern', cancel: 'Abbrechen', delete: 'Löschen', edit: 'Bearbeiten', add: 'Hinzufügen',
