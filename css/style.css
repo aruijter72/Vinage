@@ -2718,6 +2718,81 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .home-pick-btn-view:active { background: var(--cream-dk); }
 
 /* ════════════════════════════════════════════════════════════════════════════
+   FIRST-RUN CONSENT OVERLAY (GDPR)
+   ════════════════════════════════════════════════════════════════════════════ */
+#consent-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(20, 6, 2, 0.97);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+#consent-overlay.consent-overlay-visible { opacity: 1; }
+.consent-inner {
+  background: var(--surface);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: calc(28px + var(--safe-top)) 20px calc(32px + env(safe-area-inset-bottom, 0px));
+  max-width: 480px;
+  width: 100%;
+  transform: translateY(40px);
+  transition: transform .35s ease;
+}
+#consent-overlay.consent-overlay-visible .consent-inner { transform: translateY(0); }
+.consent-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.consent-title {
+  font-family: var(--font);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--heading);
+  text-align: center;
+  margin: 0 0 8px;
+}
+.consent-body {
+  font-size: .88rem;
+  color: var(--text-md);
+  text-align: center;
+  margin: 0 0 16px;
+}
+.consent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.consent-list li {
+  font-size: .85rem;
+  line-height: 1.6;
+  color: var(--text);
+  padding-left: 20px;
+  position: relative;
+}
+.consent-list li::before {
+  content: '🍷';
+  position: absolute;
+  left: 0;
+  font-size: .78rem;
+}
+.consent-privacy-note {
+  font-size: .76rem;
+  color: var(--text-lt);
+  text-align: center;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+.consent-accept-btn { margin-top: 4px; }
+
+/* ════════════════════════════════════════════════════════════════════════════
    LEGAL PAGES (Privacy Policy / Terms of Service)
    ════════════════════════════════════════════════════════════════════════════ */
 .legal-page-body {
