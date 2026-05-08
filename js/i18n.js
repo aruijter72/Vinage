@@ -566,6 +566,11 @@ const TRANSLATIONS = {
       origoveroKeyId: 'Sleutel ID',
       origoveroKeySecret: 'Geheime sleutel',
       origoveroBaseUrl: 'API-basis-URL',
+      legal: 'Juridisch',
+      privacyLink: 'Privacybeleid',
+      termsLink: 'Gebruiksvoorwaarden',
+      privacyTitle: 'Privacybeleid',
+      termsTitle: 'Gebruiksvoorwaarden',
     },
     common: {
       save: 'Opslaan', cancel: 'Annuleren', delete: 'Verwijderen',
@@ -785,6 +790,8 @@ const TRANSLATIONS = {
       notifDecant: 'Avviso timer decantazione', notifDecantHint: 'Notifica quando il conto alla rovescia finisce',
       notifTestBtn: 'Invia notifica di prova', darkMode: 'Modalità scura', darkModeHint: 'Più riposante con poca luce',
       origovero: 'OrigoVero DPP', origoveroKeyId: 'ID chiave', origoveroKeySecret: 'Segreto chiave', origoveroBaseUrl: 'URL base API',
+      legal: 'Legale', privacyLink: 'Informativa sulla privacy', termsLink: 'Termini di servizio',
+      privacyTitle: 'Informativa sulla privacy', termsTitle: 'Termini di servizio',
     },
     common: {
       save: 'Salva', cancel: 'Annulla', delete: 'Elimina', edit: 'Modifica', add: 'Aggiungi',
