@@ -162,6 +162,7 @@ const App = {
       case 'cellar':
         el.innerHTML = this.cellarDetailId ? this.buildCellarDetail() : this.buildCellarList();
         if (this.cellarDetailId) setTimeout(() => { this._initRackHover(); this._initRackZoom(); }, 0);
+        else setTimeout(() => this._initCellarDrag(), 0);
         break;
       case 'collection': el.innerHTML = this.buildCollectionView(); break;
       case 'wishlist':   el.innerHTML = this.buildWishlistView(); break;
