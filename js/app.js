@@ -2735,6 +2735,52 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     }, 50);
   },
 
+  // ── Rename a cellar location ─────────────────────────────────────────────
+  _renameCellar(id) {
+    const cellar = DB.getCellars().find(c => c.id === id);
+    if (!cellar) return;
+    const inputId = 'rename-cellar-input';
+    this.showModal(
+      this.t('cellar.renameLocation'),
+      `<div class="form-group">
+        <input id="${inputId}" class="form-control" type="text"
+               value="${this._esc(cellar.name)}"
+               placeholder="${this.t('cellar.renameLocationPlaceholder')}">
+       </div>`,
+      [
+        { label: this.t('common.cancel'), cls: 'btn-ghost', action: () => this.closeModal() },
+        { label: this.t('common.save'),   cls: 'btn-primary', action: () => {
+            const inp = document.getElementById(inputId);
+            const name = (inp?.value || '').trim();
+            if (!name) return;
+            Sync.updateCellar(id, { name });
+            this.closeModal();
+            this.renderView();
+            setTimeout(() => { this._initRackHover?.(); this._initRackZoom?.(); }, 0);
+          }
+        },
+      ]
+    );
+    setTimeout(() => {
+      const inp = document.getElementById(inputId);
+      if (inp) { inp.focus(); inp.select(); }
+    }, 50);
+  },
+
+  // ── Reorder cellar locations (swap with neighbour) ────────────────────────
+  _moveCellarOrder(id, delta) {
+    const cellars = DB.getCellars();
+    const idx = cellars.findIndex(c => c.id === id);
+    if (idx < 0) return;
+    const newIdx = idx + delta;
+    if (newIdx < 0 || newIdx >= cellars.length) return;
+    // Swap
+    [cellars[idx], cellars[newIdx]] = [cellars[newIdx], cellars[idx]];
+    DB._saveCellars(cellars);
+    if (typeof Sync !== 'undefined' && Sync._pushCellars) Sync._pushCellars();
+    this.renderView();
+  },
+
   showAddCellarModal() {
     const types = ['grid', 'diamond', 'case', 'case6', 'shelf'];
     const body = `
