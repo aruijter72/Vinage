@@ -237,6 +237,11 @@ const TRANSLATIONS = {
       origoveroKeyId: 'Key ID',
       origoveroKeySecret: 'Key Secret',
       origoveroBaseUrl: 'API Base URL',
+      legal: 'Legal',
+      privacyLink: 'Privacy Policy',
+      termsLink: 'Terms of Service',
+      privacyTitle: 'Privacy Policy',
+      termsTitle: 'Terms of Service',
     },
     common: {
       save: 'Save', cancel: 'Cancel', delete: 'Delete',
