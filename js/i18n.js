@@ -708,7 +708,7 @@ const TRANSLATIONS = {
 
   // ─── ITALIAN ────────────────────────────────────────────────────────────────
   it: {
-    nav: { scan: 'Scansiona', cellar: 'Cantina', collection: 'Collezione', pairing: 'Abbinamenti', settings: 'Impostazioni', wishlist: 'Lista desideri', stats: 'Statistiche' },
+    nav: { home: 'Home', scan: 'Scansiona', cellar: 'Cantina', collection: 'Collezione', pairing: 'Abbinamenti', settings: 'Impostazioni', wishlist: 'Lista desideri', stats: 'Statistiche' },
     home: {
       tonightTitle: 'Cosa bevi stasera?',
       openBtn: 'Apri', viewWine: 'Vedi vino',
@@ -901,7 +901,7 @@ const TRANSLATIONS = {
 
   // ─── FRENCH ─────────────────────────────────────────────────────────────────
   fr: {
-    nav: { scan: 'Scanner', cellar: 'Cave', collection: 'Collection', pairing: 'Accords', settings: 'Paramètres', wishlist: 'Liste de souhaits', stats: 'Statistiques' },
+    nav: { home: 'Accueil', scan: 'Scanner', cellar: 'Cave', collection: 'Collection', pairing: 'Accords', settings: 'Paramètres', wishlist: 'Liste de souhaits', stats: 'Statistiques' },
     home: {
       tonightTitle: 'Que boire ce soir ?',
       openBtn: 'Ouvrir', viewWine: 'Voir le vin',
@@ -1095,7 +1095,7 @@ const TRANSLATIONS = {
 
   // ─── SPANISH ────────────────────────────────────────────────────────────────
   es: {
-    nav: { scan: 'Escanear', cellar: 'Bodega', collection: 'Colección', pairing: 'Maridaje', settings: 'Ajustes', wishlist: 'Lista de deseos', stats: 'Estadísticas' },
+    nav: { home: 'Inicio', scan: 'Escanear', cellar: 'Bodega', collection: 'Colección', pairing: 'Maridaje', settings: 'Ajustes', wishlist: 'Lista de deseos', stats: 'Estadísticas' },
     home: {
       tonightTitle: '¿Qué beber esta noche?',
       openBtn: 'Abrir', viewWine: 'Ver vino',
