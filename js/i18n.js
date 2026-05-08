@@ -477,6 +477,7 @@ const TRANSLATIONS = {
       moveTitle: 'Verplaatsen naar andere locatie',
       tapToPlace: 'Tik op een vak om de wijn te plaatsen',
       viewWine: 'Wijn bekijken',
+      renameLocation: 'Hernoemen', renameLocationPlaceholder: 'Locatienaam',
       deleteLocation: 'Locatie Verwijderen',
       deleteLocationConfirm: 'Locatie verwijderen? Wijnen blijven in jouw collectie.',
       types: {
@@ -776,6 +777,7 @@ const TRANSLATIONS = {
       occupied: 'occupato', empty: 'vuoto', slotEmpty: 'Slot vuoto',
       assignWine: 'Metti un vino qui', slotFreed: 'Slot liberato',
       removeWine: 'Rimuovi dallo slot', moveWine: 'Sposta in…', moveTitle: 'Sposta in altra posizione', tapToPlace: 'Tocca uno slot per posizionare il vino', viewWine: 'Vedi vino',
+      renameLocation: 'Rinomina', renameLocationPlaceholder: 'Nome posizione',
       deleteLocation: 'Elimina posizione',
       deleteLocationConfirm: 'Eliminare questa posizione? I vini rimarranno nella tua collezione.',
       types: { grid: 'Rastrelliera a griglia', diamond: 'Rastrelliera a diamante', case: 'Cassa / Scatola (12)', case6: 'Cassa / Scatola (6)', shelf: 'Scaffale libero' },
