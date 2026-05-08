@@ -1972,11 +1972,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       : `<div class="cellar-list">${cellars.map((c, i) => this._buildCellarCard(c, i, cellars.length)).join('')}</div>`;
 
     return `
-    <div>
-      <div class="home-cellars-header">
-        <span class="home-cellars-title">${this.t('home.myCellars')}</span>
-        <button class="home-manage-btn" data-action="add-cellar">${this.t('home.manageCellars')} +</button>
+    <div class="page-header">
+      <h1>${this.t('home.myCellars')}</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary btn-sm" data-action="add-cellar">${this.t('home.manageCellars')} +</button>
       </div>
+    </div>
+    <div>
       ${mapSection}
       ${cellarCards}
     </div>`;
@@ -5303,12 +5305,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
   _iconCellar() {
     return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/>
     </svg>`;
   },
   _iconCellarLg() {
     return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="56" height="56">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/>
     </svg>`;
   },
   _iconWine() {
