@@ -1068,7 +1068,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .rack-case {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px; max-width: 320px;
+  gap: 10px; max-width: 320px;
 }
 
 /* Shelf (list) */
