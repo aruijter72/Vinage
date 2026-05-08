@@ -751,27 +751,31 @@ const App = {
     const settings  = DB.getSettings();
     const hasKey    = settings.anthropicKey || settings.openaiKey;
 
-    if (!hasKey) {
-      // No AI key — just open the URL so the user can read it themselves
-      this._setScanStatus(this.t('scan.qrOpening'), '');
+    // ── Show "Open in browser" immediately — always the guaranteed path ───────
+    // Styled as primary so it's obvious before extraction even starts.
+    const _showOpenBtn = () => {
       if (actionRow) actionRow.innerHTML = `
-        <a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
+        <a class="btn btn-primary" href="${url}" target="_blank" rel="noopener"
+           style="text-align:center">${this.t('scan.qrOpening')}</a>
         <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
+    };
+
+    if (!hasKey) {
+      this._setScanStatus(this.t('scan.qrNoData'), '');
+      _showOpenBtn();
       return;
     }
 
+    // Show open button + extraction spinner simultaneously
     this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrFetching')}`, '');
+    _showOpenBtn();
 
     try {
-      // Fetch the page text via the AI proxy helper
       const pageText = await API.fetchPageText(url, settings);
 
       if (!pageText || pageText.length < 20) {
-        // Nothing useful — open in browser as fallback
         this._setScanStatus(this.t('scan.qrNoData'), 'error');
-        if (actionRow) actionRow.innerHTML = `
-          <a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
-          <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
+        // Open button already visible — nothing more to do
         return;
       }
 
@@ -781,35 +785,26 @@ const App = {
 
       if (!extracted || extracted.error || !extracted.name) {
         this._setScanStatus(this.t('scan.qrNoData'), 'error');
-        if (actionRow) actionRow.innerHTML = `
-          <a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
-          <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
-        return;
+        return; // open button still visible
       }
 
-      // Tag source URL
+      // ── Extraction succeeded — promote "Add to Collection" to primary ──────
       extracted._sourceUrl = url;
       if (extracted.country) extracted.country = this._localizeCountry(extracted.country);
 
-      // Check if result is partial (missing key fields)
       const isPartial = !extracted.vintage || !extracted.region;
       this.scanResult = extracted;
 
-      if (isPartial) {
-        this._setScanStatus(this.t('scan.qrPartial'), 'found');
-      } else {
-        this._setScanStatus(this.t('scan.barcodeFound'), 'found');
-      }
+      this._setScanStatus(isPartial ? this.t('scan.qrPartial') : this.t('scan.barcodeFound'), 'found');
 
       if (actionRow) actionRow.innerHTML = `
         <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
+        <a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
         <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
 
     } catch (err) {
       this._setScanStatus(this.t('scan.barcodeError'), 'error');
-      if (actionRow) actionRow.innerHTML = `
-        <a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
-        <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
+      // Open button already visible from initial render
     }
   },
 
