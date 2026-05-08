@@ -3055,6 +3055,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           ${isGallery ? this._iconList() : this._iconGrid()}
         </button>
         <button class="btn btn-secondary btn-sm" data-action="toggle-select-mode">${this.t('collection.selectMode')}</button>
+        <button class="btn btn-secondary btn-sm" data-nav="wishlist">${this._iconHeart()} ${this.t('nav.wishlist')}</button>
         <button class="btn btn-primary btn-sm" data-action="manual-add-wine">${this.t('collection.addWine')}</button>
       </div>
     </div>
