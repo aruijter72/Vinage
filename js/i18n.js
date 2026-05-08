@@ -1,7 +1,7 @@
 // Vinage — Translations (English, Dutch, Italian, French, Spanish, German)
 const TRANSLATIONS = {
   en: {
-    nav: { scan: 'Scan', cellar: 'Cellar', collection: 'Collection', pairing: 'Pairing', settings: 'Settings', wishlist: 'Wishlist', stats: 'Stats' },
+    nav: { home: 'Home', scan: 'Scan', cellar: 'Cellar', collection: 'Collection', pairing: 'Pairing', settings: 'Settings', wishlist: 'Wishlist', stats: 'Stats' },
     home: {
       tonightTitle: 'What to drink tonight?',
       openBtn: 'Open',
@@ -354,7 +354,7 @@ const TRANSLATIONS = {
     }
   },
   nl: {
-    nav: { scan: 'Scannen', cellar: 'Kelder', collection: 'Collectie', pairing: 'Combineren', settings: 'Instellingen', wishlist: 'Verlanglijst', stats: 'Statistieken' },
+    nav: { home: 'Home', scan: 'Scannen', cellar: 'Kelder', collection: 'Collectie', pairing: 'Combineren', settings: 'Instellingen', wishlist: 'Verlanglijst', stats: 'Statistieken' },
     home: {
       tonightTitle: 'Wat drink je vanavond?',
       openBtn: 'Open',
