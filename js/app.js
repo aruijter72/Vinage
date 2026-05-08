@@ -1949,20 +1949,21 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   // ══════════════════════════════════════════════════════════════════════════
   // HOME — Decision-first screen
   // ══════════════════════════════════════════════════════════════════════════
-  buildCellarList() {
-    const wines    = DB.getWines();
-    const cellars  = DB.getCellars();
+  buildHomeView() {
+    const wines        = DB.getWines();
     const placementMap = DB.getWinePlacementMap();
-
-    // ── Tonight's picks ──────────────────────────────────────────────────
-    const picks       = this._getTonightPicks(wines, placementMap);
-    const picksHtml   = this._buildPicksSection(picks, wines, placementMap);
-
-    // ── Stats strip ──────────────────────────────────────────────────────
-    const statsStrip  = this._buildHomeStatsStrip(wines, placementMap);
-
-    // ── Quick actions ────────────────────────────────────────────────────
+    const picks        = this._getTonightPicks(wines, placementMap);
+    const picksHtml    = this._buildPicksSection(picks, wines, placementMap);
+    const statsStrip   = this._buildHomeStatsStrip(wines, placementMap);
     const quickActions = this._buildHomeQuickActions();
+    return `
+    ${picksHtml}
+    ${statsStrip}
+    ${quickActions}`;
+  },
+
+  buildCellarList() {
+    const cellars  = DB.getCellars();
 
     // ── Cellars section ──────────────────────────────────────────────────
     const mapSection  = cellars.length > 0 ? this._buildCellarMapSection(cellars) : '';
@@ -1971,9 +1972,6 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       : `<div class="cellar-list">${cellars.map((c, i) => this._buildCellarCard(c, i, cellars.length)).join('')}</div>`;
 
     return `
-    ${picksHtml}
-    ${statsStrip}
-    ${quickActions}
     <div>
       <div class="home-cellars-header">
         <span class="home-cellars-title">${this.t('home.myCellars')}</span>
