@@ -1061,6 +1061,8 @@ const App = {
     this.editWineId = wine.id || null;
     this._formRating = wine.rating || 0;
     this._formType   = wine.type   || 'red';
+    // Remember scroll position so we can return to the same spot after saving
+    this._scrollBeforeEdit = window.scrollY;
     // Clear pending wishlist delete unless explicitly set before this call
     if (!prefill || prefill.id) this._pendingWishlistDeleteId = null;
 
@@ -1387,8 +1389,11 @@ const App = {
     this.toast(this.t('common.save') + ' ✓', 'success');
 
     const fromScan = this.view === 'scan';
-    if (this.view === 'collection') this.renderView();
-    else if (fromScan) { this.navigate('collection'); }
+    if (this.view === 'collection') {
+      const savedScroll = this._scrollBeforeEdit || 0;
+      this.renderView();
+      requestAnimationFrame(() => window.scrollTo(0, savedScroll));
+    } else if (fromScan) { this.navigate('collection'); }
 
     // After adding from scan, offer cellar placement
     if (newWine && fromScan) {
