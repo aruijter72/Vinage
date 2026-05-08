@@ -151,6 +151,8 @@ const App = {
       case 'pairing':    el.innerHTML = this.buildPairingView(); break;
       case 'stats':      el.innerHTML = this.buildStatsView(); break;
       case 'settings':   el.innerHTML = this.buildSettingsView(); break;
+      case 'privacy':    el.innerHTML = this.buildPrivacyView(); break;
+      case 'terms':      el.innerHTML = this.buildTermsView(); break;
     }
   },
 
@@ -238,6 +240,8 @@ const App = {
       case 'notif-request':       this._requestNotificationsFromSettings(); break;
       case 'notif-test':          this._sendTestNotif(); break;
       case 'show-about':          this._showAbout(); break;
+      case 'show-privacy':        this.navigate('privacy'); break;
+      case 'show-terms':          this.navigate('terms'); break;
       // PDF
       case 'export-pdf':          this.exportPdf(); break;
       // Cloud sync actions
@@ -3969,6 +3973,14 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     ${this._buildSyncSection()}
 
     ${this._buildNotifSection()}
+
+    <div class="settings-section">
+      <h2>${this.t('settings.legal')}</h2>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-ghost btn-full" data-action="show-privacy">📄 ${this.t('settings.privacyLink')}</button>
+        <button class="btn btn-ghost btn-full" data-action="show-terms">📋 ${this.t('settings.termsLink')}</button>
+      </div>
+    </div>
 
     <div class="about-info">
       <button class="btn btn-full" data-action="show-about"
