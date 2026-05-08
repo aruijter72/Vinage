@@ -2807,42 +2807,42 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const list = document.querySelector('.cellar-list');
     if (!list) return;
 
-    const getCards = () => [...list.querySelectorAll('[data-cellar-id]')];
+    // Uses a placeholder approach: the real card stays in its original DOM position
+    // (invisible) while a placeholder div moves to show the drop target.
+    // This keeps the captured handle element stationary so iOS pointer capture
+    // never breaks mid-drag.
 
     list.addEventListener('pointerdown', e => {
       const handle = e.target.closest('.cellar-drag-handle');
       if (!handle) return;
-
       e.preventDefault();
       e.stopPropagation();
 
       const card = handle.closest('[data-cellar-id]');
       if (!card) return;
 
-      // Capture the pointer on the handle so move/up always reach us,
-      // even when the finger slides outside the list / over the scroll area.
+      // Capture pointer on handle — it never moves in the DOM, so capture holds.
       handle.setPointerCapture(e.pointerId);
 
-      const rect   = card.getBoundingClientRect();
-      const startY = e.clientY;
+      const rect    = card.getBoundingClientRect();
+      const startY  = e.clientY;
       const offsetY = e.clientY - rect.top;
-      let   moved  = false;
+      let moved     = false;
 
-      // Ghost that follows the finger
+      // Placeholder: dashed outline that shows where card will land
+      const ph = document.createElement('div');
+      ph.style.cssText = `height:${rect.height}px;margin-bottom:12px;border-radius:12px;background:rgba(59,20,34,.10);border:2px dashed rgba(59,20,34,.25);box-sizing:border-box;flex-shrink:0;`;
+      card.after(ph);
+      card.style.opacity = '0';
+      card.style.pointerEvents = 'none';
+
+      // Floating ghost clone
       const ghost = card.cloneNode(true);
-      ghost.style.cssText = [
-        'position:fixed',
-        `left:${rect.left}px`,
-        `top:${rect.top}px`,
-        `width:${rect.width}px`,
-        'opacity:.88',
-        'z-index:9999',
-        'pointer-events:none',
-        'box-shadow:0 8px 28px rgba(59,20,34,.38)',
-        'border-radius:12px',
-      ].join(';');
+      ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;opacity:.90;z-index:9999;pointer-events:none;box-shadow:0 8px 28px rgba(59,20,34,.40);border-radius:12px;`;
       document.body.appendChild(ghost);
-      card.style.opacity = '.25';
+      this._cellarDragGhost = ghost;
+
+      const allCards = () => [...list.querySelectorAll('[data-cellar-id]')];
 
       const onMove = e => {
         e.preventDefault();
@@ -2851,48 +2851,51 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
         ghost.style.top = (e.clientY - offsetY) + 'px';
 
-        // Shift cards in DOM as ghost passes their midpoint
-        const others = getCards().filter(c => c !== card);
+        // Move placeholder past cards based on pointer position
+        const others = allCards().filter(c => c !== card);
         let placed = false;
         for (const other of others) {
           const r = other.getBoundingClientRect();
           if (e.clientY < r.top + r.height / 2) {
-            list.insertBefore(card, other);
+            list.insertBefore(ph, other);
             placed = true;
             break;
           }
         }
-        if (!placed) list.appendChild(card);
+        if (!placed && others.length) others[others.length - 1].after(ph);
       };
 
-      const onUp = () => {
+      const release = (commit) => {
         ghost.remove();
-        card.style.opacity = '';
+        this._cellarDragGhost = null;
         handle.removeEventListener('pointermove',   onMove);
         handle.removeEventListener('pointerup',     onUp);
         handle.removeEventListener('pointercancel', onCancel);
 
-        if (moved) {
+        if (commit && moved) {
+          ph.replaceWith(card);           // move card to drop position
+          card.style.opacity = '';
+          card.style.pointerEvents = '';
+          const ids = allCards().map(c => c.dataset.cellarId);
           this._suppressNextCellarOpen = card.dataset.cellarId;
-          this._saveCellarOrder(getCards().map(c => c.dataset.cellarId));
+          this._saveCellarOrder(ids);     // persists + re-renders
+        } else {
+          card.style.opacity = '';
+          card.style.pointerEvents = '';
+          ph.remove();
+          if (!commit) this.renderView(); // cancel: restore clean state
         }
       };
 
-      const onCancel = () => {
-        ghost.remove();
-        card.style.opacity = '';
-        handle.removeEventListener('pointermove',   onMove);
-        handle.removeEventListener('pointerup',     onUp);
-        handle.removeEventListener('pointercancel', onCancel);
-        this.renderView();
-      };
+      const onUp     = () => release(true);
+      const onCancel = () => release(false);
 
       handle.addEventListener('pointermove',   onMove,   { passive: false });
       handle.addEventListener('pointerup',     onUp);
       handle.addEventListener('pointercancel', onCancel);
     });
 
-    // Suppress card-open tap immediately after a drag
+    // Suppress card-open click immediately after a completed drag
     list.addEventListener('click', e => {
       const card = e.target.closest('[data-cellar-id]');
       if (!card) return;
