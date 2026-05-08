@@ -2792,11 +2792,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   _saveCellarOrder(ids) {
     const cellars = DB.getCellars();
     const ordered = ids.map(id => cellars.find(c => c.id === id)).filter(Boolean);
-    // Keep any not in ids (safety net)
     cellars.forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
     DB._saveCellars(ordered);
     if (typeof Sync !== 'undefined') {
-      ordered.forEach(c => Sync.updateCellar(c.id, {}));
+      // Persist explicit order index so onSnapshot restores the same order
+      ordered.forEach((c, i) => Sync.updateCellar(c.id, { order: i }));
     }
     const savedScroll = window.scrollY;
     this.renderView();
