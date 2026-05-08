@@ -242,6 +242,7 @@ const App = {
       case 'show-about':          this._showAbout(); break;
       case 'show-privacy':        this.navigate('privacy'); break;
       case 'show-terms':          this.navigate('terms'); break;
+      case 'back-to-settings':    this.navigate('settings'); break;
       // PDF
       case 'export-pdf':          this.exportPdf(); break;
       // Cloud sync actions
@@ -4150,6 +4151,134 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
     // Animate in
     requestAnimationFrame(() => el.classList.add('about-overlay-visible'));
+  },
+
+  // ── Privacy Policy view ───────────────────────────────────────────────────
+  buildPrivacyView() {
+    const nl = this.lang === 'nl';
+    return `
+    <div class="page-header">
+      <button class="back-btn" data-action="back-to-settings" style="background:none;border:none;color:var(--gold);font-size:1rem;cursor:pointer;padding:0 8px 0 0">&#8592;</button>
+      <h1>${this.t('settings.privacyTitle')}</h1>
+    </div>
+    <div class="legal-page-body">
+      ${nl ? `
+      <p class="legal-updated">Versie 1.0 — mei 2025</p>
+
+      <h2>Wie zijn wij?</h2>
+      <p>Vinage is een persoonlijke wijnkelderapp ontwikkeld door Arnold &amp; Marianne Ruijter. Vinage is niet commercieel aangeboden; dit beleid beschrijft hoe de app omgaat met jouw gegevens.</p>
+
+      <h2>Welke gegevens verwerken wij?</h2>
+      <p><strong>Wijnverzameling &amp; keldergegevens</strong> — namen, jaargangen, locaties, aantekeningen en foto's die jij invoert. Deze worden uitsluitend lokaal op jouw apparaat opgeslagen, tenzij je Cloud Delen inschakelt.</p>
+      <p><strong>Scanafbeeldingen</strong> — wanneer je een fles scant, wordt de afbeelding tijdelijk naar de AI-provider gestuurd (Anthropic Claude of OpenAI) voor herkenning. De afbeelding wordt <em>niet</em> door Vinage opgeslagen of gedeeld.</p>
+      <p><strong>Cloud Delen (optioneel)</strong> — als je inlogt via Google en een gedeelde kelder aanmaakt, worden je wijngegevens gesynchroniseerd via Firebase (Google). Jouw Google-profiel (naam en e-mailadres) wordt uitsluitend gebruikt voor authenticatie.</p>
+
+      <h2>Grondslag voor verwerking</h2>
+      <p>Verwerking is gebaseerd op <strong>uitvoering van de overeenkomst</strong> (het verlenen van de app-functionaliteit) en, voor Cloud Delen, op jouw <strong>uitdrukkelijke toestemming</strong>.</p>
+
+      <h2>Gegevens die wij <em>niet</em> verwerken</h2>
+      <p>Wij verzamelen geen locatiegegevens, advertentie-ID's, surfgedrag of betalingsinformatie. Er worden geen analytische of trackingtrackers gebruikt.</p>
+
+      <h2>AI-training opt-out</h2>
+      <p>Alle API-aanroepen naar Anthropic en OpenAI bevatten een opt-out-header die aangeeft dat jouw gegevens niet mogen worden gebruikt voor modeltraining.</p>
+
+      <h2>Opslag &amp; beveiliging</h2>
+      <p>Lokale gegevens worden opgeslagen in de browser (localStorage / IndexedDB). Gesynchroniseerde gegevens worden beveiligd door Firebase, gecertificeerd conform ISO 27001 en SOC 2. API-sleutels worden uitsluitend lokaal op jouw apparaat bewaard.</p>
+
+      <h2>Jouw rechten</h2>
+      <p>Je hebt het recht op inzage, correctie, verwijdering en overdraagbaarheid van jouw gegevens. Gebruik de knop <em>Gegevens Exporteren</em> in Instellingen voor een volledig overzicht, of <em>Alle Gegevens Wissen</em> om alles lokaal te verwijderen. Als je Cloud Delen gebruikt, kun je jouw account permanent verwijderen via Instellingen → Cloud Delen.</p>
+
+      <h2>Contact</h2>
+      <p>Vragen over dit beleid? Neem contact op via <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.</p>
+      ` : `
+      <p class="legal-updated">Version 1.0 — May 2025</p>
+
+      <h2>Who are we?</h2>
+      <p>Vinage is a personal wine cellar app developed by Arnold &amp; Marianne Ruijter. Vinage is not commercially offered; this policy describes how the app handles your data.</p>
+
+      <h2>What data do we process?</h2>
+      <p><strong>Wine collection &amp; cellar data</strong> — names, vintages, locations, notes and photos that you enter. These are stored locally on your device only, unless you enable Cloud Sharing.</p>
+      <p><strong>Scan images</strong> — when you scan a bottle, the image is temporarily sent to your chosen AI provider (Anthropic Claude or OpenAI) for identification. The image is <em>not</em> stored or shared by Vinage.</p>
+      <p><strong>Cloud Sharing (optional)</strong> — if you sign in with Google and create a shared cellar, your wine data is synced via Firebase (Google). Your Google profile (name and e-mail) is used solely for authentication.</p>
+
+      <h2>Legal basis for processing</h2>
+      <p>Processing is based on <strong>performance of the contract</strong> (providing the app functionality) and, for Cloud Sharing, on your <strong>explicit consent</strong>.</p>
+
+      <h2>Data we do <em>not</em> process</h2>
+      <p>We do not collect location data, advertising IDs, browsing behaviour or payment information. No analytics or tracking scripts are used.</p>
+
+      <h2>AI training opt-out</h2>
+      <p>All API calls to Anthropic and OpenAI include an opt-out header indicating that your data must not be used for model training.</p>
+
+      <h2>Storage &amp; security</h2>
+      <p>Local data is stored in the browser (localStorage / IndexedDB). Synced data is secured by Firebase, certified to ISO 27001 and SOC 2. API keys are stored locally on your device only.</p>
+
+      <h2>Your rights</h2>
+      <p>You have the right to access, correct, delete and port your data. Use the <em>Export Data</em> button in Settings for a complete overview, or <em>Clear All Data</em> to delete everything locally. If you use Cloud Sharing, you can permanently delete your account from Settings → Cloud Sharing.</p>
+
+      <h2>Contact</h2>
+      <p>Questions about this policy? Contact us at <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.</p>
+      `}
+    </div>`;
+  },
+
+  // ── Terms of Service view ─────────────────────────────────────────────────
+  buildTermsView() {
+    const nl = this.lang === 'nl';
+    return `
+    <div class="page-header">
+      <button class="back-btn" data-action="back-to-settings" style="background:none;border:none;color:var(--gold);font-size:1rem;cursor:pointer;padding:0 8px 0 0">&#8592;</button>
+      <h1>${this.t('settings.termsTitle')}</h1>
+    </div>
+    <div class="legal-page-body">
+      ${nl ? `
+      <p class="legal-updated">Versie 1.0 — mei 2025</p>
+
+      <h2>Gebruik van de app</h2>
+      <p>Vinage wordt aangeboden als persoonlijk hulpmiddel voor het beheer van jouw wijnverzameling. Door de app te gebruiken ga je akkoord met deze voorwaarden.</p>
+
+      <h2>Geen garantie</h2>
+      <p>De app wordt aangeboden "zoals hij is", zonder enige garantie voor juistheid, betrouwbaarheid of beschikbaarheid. Wijnidentificatie door AI kan afwijken van de werkelijkheid; verificeer altijd de fles zelf.</p>
+
+      <h2>API-sleutels</h2>
+      <p>Je bent zelf verantwoordelijk voor de beveiliging van jouw API-sleutels (Anthropic, OpenAI). Vinage slaat deze uitsluitend lokaal op. Deel jouw sleutels nooit met anderen.</p>
+
+      <h2>Intellectueel eigendom</h2>
+      <p>De naam "Vinage", het fleslogo en de app-vormgeving zijn eigendom van Arnold Ruijter. Je mag de app gebruiken voor persoonlijk, niet-commercieel gebruik.</p>
+
+      <h2>Aansprakelijkheid</h2>
+      <p>Vinage aanvaardt geen aansprakelijkheid voor schade die voortvloeit uit het gebruik van de app, onjuiste wijnidentificatie of verlies van gegevens.</p>
+
+      <h2>Wijzigingen</h2>
+      <p>Deze voorwaarden kunnen worden bijgewerkt. De datum bovenaan geeft de meest recente versie aan.</p>
+
+      <h2>Contact</h2>
+      <p>Vragen? Neem contact op via <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.</p>
+      ` : `
+      <p class="legal-updated">Version 1.0 — May 2025</p>
+
+      <h2>Use of the app</h2>
+      <p>Vinage is provided as a personal tool for managing your wine collection. By using the app you agree to these terms.</p>
+
+      <h2>No warranty</h2>
+      <p>The app is provided "as is", without any guarantee of accuracy, reliability or availability. Wine identification by AI may differ from reality; always verify the bottle yourself.</p>
+
+      <h2>API keys</h2>
+      <p>You are solely responsible for securing your own API keys (Anthropic, OpenAI). Vinage stores these locally only. Never share your keys with others.</p>
+
+      <h2>Intellectual property</h2>
+      <p>The name "Vinage", the bottle logo and the app design are the property of Arnold Ruijter. You may use the app for personal, non-commercial use.</p>
+
+      <h2>Liability</h2>
+      <p>Vinage accepts no liability for damage resulting from use of the app, incorrect wine identification or loss of data.</p>
+
+      <h2>Changes</h2>
+      <p>These terms may be updated. The date at the top indicates the most recent version.</p>
+
+      <h2>Contact</h2>
+      <p>Questions? Contact us at <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.</p>
+      `}
+    </div>`;
   },
 
   // ── Notifications Settings Section ────────────────────────────────────────
