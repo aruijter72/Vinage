@@ -121,19 +121,30 @@ const App = {
   },
 
   renderNav() {
+    // Scan sits at position 4 (centre of 7) — rendered as a raised pill button
     const items = [
-      { id: 'scan',       icon: this._iconCamera(),    label: this.t('nav.scan') },
       { id: 'cellar',     icon: this._iconCellar(),    label: this.t('nav.cellar') },
       { id: 'collection', icon: this._iconWine(),      label: this.t('nav.collection') },
       { id: 'pairing',    icon: this._iconFork(),      label: this.t('nav.pairing') },
+      { id: 'scan',       icon: this._iconCamera(),    label: this.t('nav.scan'),   center: true },
       { id: 'wishlist',   icon: this._iconHeart(),     label: this.t('nav.wishlist') },
       { id: 'stats',      icon: this._iconStats(),     label: this.t('nav.stats') },
       { id: 'settings',   icon: this._iconGear(),      label: this.t('nav.settings') },
     ];
-    document.getElementById('bottom-nav').innerHTML = items.map(item => `
-      <button class="nav-item${this.view === item.id ? ' active' : ''}" data-nav="${item.id}" aria-label="${item.label}">
-        ${item.icon}<span>${item.label}</span>
-      </button>`).join('');
+    document.getElementById('bottom-nav').innerHTML = items.map(item => {
+      const isActive = this.view === item.id;
+      if (item.center) {
+        return `
+          <button class="nav-item nav-item-scan${isActive ? ' active' : ''}" data-nav="${item.id}" aria-label="${item.label}">
+            <div class="nav-scan-pill">${item.icon}</div>
+            <span>${item.label}</span>
+          </button>`;
+      }
+      return `
+        <button class="nav-item${isActive ? ' active' : ''}" data-nav="${item.id}" aria-label="${item.label}">
+          ${item.icon}<span>${item.label}</span>
+        </button>`;
+    }).join('');
   },
 
   renderView() {
