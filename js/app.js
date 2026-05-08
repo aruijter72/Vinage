@@ -2242,6 +2242,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <button class="btn btn-icon" data-action="back-cellar" aria-label="${this.t('common.back')}">${this._iconBack()}</button>
       <h1>${this._esc(c.name)}</h1>
       <div class="header-actions">
+        <button class="btn btn-secondary btn-sm" data-action="rename-cellar" data-id="${c.id}"
+                title="${this.t('cellar.renameLocation')}">${this._iconEdit()}</button>
         <button class="btn btn-danger btn-sm" data-action="delete-cellar" data-id="${c.id}">${this._iconTrash()}</button>
       </div>
     </div>
