@@ -4469,6 +4469,39 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     Sync.leaveHousehold();
   },
 
+  async _deleteAccount() {
+    // Show confirmation modal with branded warning
+    const body = `
+      <div style="padding:4px 0 8px">
+        <p style="font-size:.9rem;line-height:1.6;color:var(--text);margin:0 0 16px">${this.t('settings.deleteAccountBody')}</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-danger btn-full" id="confirm-delete-account-btn">${this.t('settings.deleteAccountConfirm')}</button>
+          <button class="btn btn-ghost btn-full" id="cancel-delete-account-btn">${this.t('common.cancel')}</button>
+        </div>
+      </div>`;
+    this.openModal(this.t('settings.deleteAccountTitle'), body);
+
+    document.getElementById('cancel-delete-account-btn')?.addEventListener('click', () => this.closeModal());
+    document.getElementById('confirm-delete-account-btn')?.addEventListener('click', async () => {
+      this.closeModal();
+      this.toast(this.lang === 'nl' ? 'Bezig met verwijderen…' : 'Deleting account…', 'info');
+      try {
+        await Sync.deleteAccount();
+        // Clear all local data after successful Firebase deletion
+        DB.clearAll();
+        this.toast(this.t('settings.deleteAccountSuccess'), 'success');
+        // Reset app state
+        this.navigate('cellar');
+      } catch (e) {
+        if (e.message === 'requires_recent_login') {
+          this.toast(this.t('settings.deleteAccountReauth'), 'error');
+        } else {
+          this.toast(this.t('common.error'), 'error');
+        }
+      }
+    });
+  },
+
   // ══════════════════════════════════════════════════════════════════════════
   // DECANTING TIMER (Feature 7)
   // ══════════════════════════════════════════════════════════════════════════
