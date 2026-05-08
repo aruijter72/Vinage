@@ -148,6 +148,8 @@ const App = {
   },
 
   renderView() {
+    // Always clean up any stale drag ghost from a previous drag session
+    if (this._cellarDragGhost) { this._cellarDragGhost.remove(); this._cellarDragGhost = null; }
     window.scrollTo(0, 0);
     const el = document.getElementById('main-content');
     switch (this.view) {
