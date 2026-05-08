@@ -123,11 +123,11 @@ const App = {
   renderNav() {
     // Scan sits at position 4 (centre of 7) — rendered as a raised pill button
     const items = [
+      { id: 'home',       icon: this._iconHome(),      label: this.t('nav.home') },
       { id: 'cellar',     icon: this._iconCellar(),    label: this.t('nav.cellar') },
       { id: 'collection', icon: this._iconWine(),      label: this.t('nav.collection') },
-      { id: 'pairing',    icon: this._iconFork(),      label: this.t('nav.pairing') },
       { id: 'scan',       icon: this._iconCamera(),    label: this.t('nav.scan'),   center: true },
-      { id: 'wishlist',   icon: this._iconHeart(),     label: this.t('nav.wishlist') },
+      { id: 'pairing',    icon: this._iconFork(),      label: this.t('nav.pairing') },
       { id: 'stats',      icon: this._iconStats(),     label: this.t('nav.stats') },
       { id: 'settings',   icon: this._iconGear(),      label: this.t('nav.settings') },
     ];
