@@ -1356,6 +1356,10 @@ const TRANSLATIONS = {
       origovero: 'OrigoVero DPP', origoveroKeyId: 'Schlüssel-ID', origoveroKeySecret: 'Schlüsselgeheimnis', origoveroBaseUrl: 'API-Basis-URL',
       legal: 'Rechtliches', privacyLink: 'Datenschutzerklärung', termsLink: 'Nutzungsbedingungen',
       privacyTitle: 'Datenschutzerklärung', termsTitle: 'Nutzungsbedingungen',
+      deleteAccount: 'Konto löschen', deleteAccountTitle: 'Konto löschen?',
+      deleteAccountBody: 'Dein Konto wird dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.',
+      deleteAccountConfirm: 'Mein Konto löschen', deleteAccountSuccess: 'Konto gelöscht.',
+      deleteAccountReauth: 'Aus Sicherheitsgründen melde dich ab und wieder an, bevor du dein Konto löschst.',
     },
     common: {
       save: 'Speichern', cancel: 'Abbrechen', delete: 'Löschen', edit: 'Bearbeiten', add: 'Hinzufügen',
