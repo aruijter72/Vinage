@@ -247,6 +247,7 @@ const App = {
       case 'show-privacy':        this.navigate('privacy'); break;
       case 'show-terms':          this.navigate('terms'); break;
       case 'back-to-settings':    this.navigate('settings'); break;
+      case 'preview-consent':     this._showConsent(true); break;
       // PDF
       case 'export-pdf':          this.exportPdf(); break;
       // Cloud sync actions
@@ -3985,6 +3986,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <div style="display:flex;flex-direction:column;gap:10px">
         <button class="btn btn-ghost btn-full" data-action="show-privacy">📄 ${this.t('settings.privacyLink')}</button>
         <button class="btn btn-ghost btn-full" data-action="show-terms">📋 ${this.t('settings.termsLink')}</button>
+        <button class="btn btn-ghost btn-full" data-action="preview-consent" style="font-size:.82rem;color:var(--text-lt)">
+          👁 ${this.lang === 'nl' ? 'Toestemmingsscherm bekijken' : 'Preview consent screen'}
+        </button>
       </div>
     </div>
 
@@ -4159,9 +4163,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   // ── First-run consent overlay (GDPR) ────────────────────────────────────
-  _showConsent() {
+  _showConsent(force = false) {
     const existing = document.getElementById('consent-overlay');
-    if (existing) return;
+    if (existing) existing.remove();
+    if (!force && localStorage.getItem('vinageConsent')) return;
 
     const el = document.createElement('div');
     el.id = 'consent-overlay';
