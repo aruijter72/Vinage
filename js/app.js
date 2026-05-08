@@ -1572,15 +1572,30 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const key = hasVin ? 'dupBody' : 'dupBodyNoVintage';
     const body = this.t('scan.' + key, { name: this._esc(existing.name), vintage: existing.vintage || '' });
     this.showModal(this.t('scan.dupTitle'), `<p>${body}</p>`, [
-      { label: this.t('scan.dupViewExisting'), cls: 'btn-secondary', action: () => {
+      { label: this.t('scan.dupViewExisting'), cls: 'btn-ghost btn-sm', action: () => {
           this.closeModal(); this.editWine(existing.id);
         }
       },
-      { label: this.t('scan.dupAddAnyway'), cls: 'btn-primary', action: () => {
+      { label: this.t('scan.dupAddAnyway'), cls: 'btn-secondary btn-sm', action: () => {
           this.closeModal(); this.showWineForm(scan);
         }
-      }
+      },
+      { label: this.t('scan.dupAddToExisting'), cls: 'btn-primary', action: () => {
+          this.closeModal(); this._addToExistingWine(existing);
+        }
+      },
     ]);
+  },
+
+  // ── Increment quantity on an existing wine + offer cellar placement ─────────
+  _addToExistingWine(existing) {
+    const newQty = (existing.quantity || 1) + 1;
+    const patch = { quantity: newQty };
+    DB.updateWine(existing.id, patch);
+    if (typeof Sync !== 'undefined' && Sync.updateWine) Sync.updateWine(existing.id, patch);
+    this.toast(`+1 ${this._esc(existing.name)}`, 'success');
+    // Offer cellar placement for the new bottle
+    setTimeout(() => this._promptCellarPlacement(existing.id, newQty, newQty), 400);
   },
 
   // ── Post-scan cellar placement ────────────────────────────────────────────
