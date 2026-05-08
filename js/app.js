@@ -201,6 +201,9 @@ const App = {
       case 'back-cellar':         this.cellarDetailId = null; this.renderView(); break;
       case 'add-cellar':          this.showAddCellarModal(); break;
       case 'save-cellar':         this.saveCellarForm(); break;
+      case 'rename-cellar':       this._renameCellar(args.id); break;
+      case 'move-cellar-up':      this._moveCellarOrder(args.id, -1); break;
+      case 'move-cellar-down':    this._moveCellarOrder(args.id,  1); break;
       case 'delete-cellar':       this.confirmDeleteCellar(args.id); break;
       case 'click-slot':          this.handleSlotClick(args.cellarid, args.slot, args.wineid); break;
       case 'assign-wine-to-slot': this.assignWineToSlot(args.cellarid, args.slot, args.wineid); break;
@@ -1963,7 +1966,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const mapSection  = cellars.length > 0 ? this._buildCellarMapSection(cellars) : '';
     const cellarCards = cellars.length === 0
       ? `<div class="empty-state" style="padding:24px 0">${this._iconCellarLg()}<p>${this.t('cellar.noLocations')}</p></div>`
-      : `<div class="cellar-list">${cellars.map(c => this._buildCellarCard(c)).join('')}</div>`;
+      : `<div class="cellar-list">${cellars.map((c, i) => this._buildCellarCard(c, i, cellars.length)).join('')}</div>`;
 
     return `
     ${picksHtml}
