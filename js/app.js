@@ -4459,8 +4459,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     el.innerHTML = `
       <div class="consent-inner">
         <div class="consent-logo-wrap">
-          <img src="Logo Vinage V-Bottle No Background.png" alt="Vinage" style="height:52px;width:auto;opacity:.95">
-          <img src="Logo Vinage Name No Background.png" alt="Vinage" style="height:18px;width:auto;opacity:.90;margin-top:6px">
+          <div style="background:#3B1422;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;align-items:center;gap:10px">
+            <img src="Logo Vinage V-Bottle No Background.png" alt="Vinage" style="height:56px;width:auto;opacity:.94">
+            <img src="Logo Vinage Name No Background.png" alt="Vinage" style="height:20px;width:auto;opacity:.90">
+          </div>
         </div>
         <h2 class="consent-title">${this.t('settings.consentTitle')}</h2>
         <p class="consent-body">${this.t('settings.consentBody')}</p>
