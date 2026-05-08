@@ -4209,7 +4209,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     </div>
     <div class="legal-page-body">
       ${nl ? `
-      <p class="legal-updated">Versie 1.0 — mei 2025</p>
+      <p class="legal-updated">Versie 1.0 — ${new Date().toLocaleDateString('nl-NL',{month:'long',year:'numeric'})}</p>
 
       <h2>Wie zijn wij?</h2>
       <p>Vinage is een persoonlijke wijnkelderapp ontwikkeld door Arnold &amp; Marianne Ruijter. Vinage is niet commercieel aangeboden; dit beleid beschrijft hoe de app omgaat met jouw gegevens.</p>
@@ -4237,7 +4237,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <h2>Contact</h2>
       <p>Vragen over dit beleid? Neem contact op via <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.</p>
       ` : `
-      <p class="legal-updated">Version 1.0 — May 2025</p>
+      <p class="legal-updated">Version 1.0 — ${new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'})}</p>
 
       <h2>Who are we?</h2>
       <p>Vinage is a personal wine cellar app developed by Arnold &amp; Marianne Ruijter. Vinage is not commercially offered; this policy describes how the app handles your data.</p>
@@ -4278,7 +4278,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     </div>
     <div class="legal-page-body">
       ${nl ? `
-      <p class="legal-updated">Versie 1.0 — mei 2025</p>
+      <p class="legal-updated">Versie 1.0 — ${new Date().toLocaleDateString('nl-NL',{month:'long',year:'numeric'})}</p>
 
       <h2>Gebruik van de app</h2>
       <p>Vinage wordt aangeboden als persoonlijk hulpmiddel voor het beheer van jouw wijnverzameling. Door de app te gebruiken ga je akkoord met deze voorwaarden.</p>
@@ -4301,7 +4301,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <h2>Contact</h2>
       <p>Vragen? Neem contact op via <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.</p>
       ` : `
-      <p class="legal-updated">Version 1.0 — May 2025</p>
+      <p class="legal-updated">Version 1.0 — ${new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'})}</p>
 
       <h2>Use of the app</h2>
       <p>Vinage is provided as a personal tool for managing your wine collection. By using the app you agree to these terms.</p>
