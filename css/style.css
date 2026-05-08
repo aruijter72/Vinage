@@ -1722,6 +1722,22 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .btn-google:hover { background: #f8f9fa; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
 
+.btn-microsoft {
+  background: #fff;
+  color: #3c4043;
+  border: 1.5px solid #dadce0;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  transition: box-shadow var(--transition), background var(--transition);
+}
+.btn-microsoft:hover { background: #f3f3f3; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+
 /* Signed-in user row */
 .sync-user-row {
   display: flex;
