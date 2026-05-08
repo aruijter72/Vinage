@@ -251,6 +251,7 @@ const App = {
       case 'sync-create':         Sync.createHousehold(); break;
       case 'sync-join':           this._syncJoin(); break;
       case 'sync-leave':          this._syncLeave(); break;
+      case 'delete-account':      this._deleteAccount(); break;
       // Wine location — jump directly to a cellar from the detail card
       case 'goto-cellar': {
         this.closeModal();
@@ -4393,6 +4394,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
                    maxlength="6" style="text-transform:uppercase;letter-spacing:.12em">
             <button class="btn btn-secondary" data-action="sync-join">${this.t('settings.syncJoin')}</button>
           </div>
+          <button class="btn btn-danger btn-full" data-action="delete-account" style="margin-top:2px">🗑 ${this.t('settings.deleteAccount')}</button>
         </div>
       </div>`;
     }
