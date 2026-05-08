@@ -368,6 +368,85 @@ If no wines can be meaningfully matched, return: []`;
     return data.choices[0].message.content;
   },
 
+  // ── QR page fetch + AI extract ───────────────────────────────────────────
+
+  /**
+   * Fetch the text content of a URL via a CORS-friendly proxy.
+   * Returns the first ~4000 chars of visible text, or empty string on failure.
+   */
+  async fetchPageText(url, settings) {
+    // Use allorigins.win as a lightweight CORS proxy — returns { contents: html }
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    try {
+      const res = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
+      if (!res.ok) return '';
+      const data = await res.json();
+      const html = data.contents || '';
+      // Strip tags to get readable text
+      const text = html
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .trim()
+        .slice(0, 4000);
+      return text;
+    } catch {
+      return '';
+    }
+  },
+
+  /**
+   * Ask AI to extract wine fields from raw page text.
+   * Returns a partial wine object, or { error } on failure.
+   */
+  async extractWineFromQRPage(pageText, settings, lang = 'en') {
+    const langNote = lang === 'nl'
+      ? 'Write "notes" in Dutch if you include tasting notes.'
+      : 'Write "notes" in English.';
+
+    const prompt = `You are an expert sommelier reading the text from a wine's digital label page.
+Extract wine information from the following page text and return ONLY a valid JSON object.
+
+Page text:
+"""
+${pageText}
+"""
+
+Return a JSON object with any fields you can confidently identify (use null for unknown):
+{
+  "name": "wine name",
+  "producer": "producer or winery",
+  "vintage": 2021,
+  "region": "region or appellation",
+  "country": "country",
+  "type": "red|white|rosé|sparkling|dessert|fortified",
+  "grapes": ["Grape1"],
+  "alcohol": "13.5%",
+  "notes": "brief tasting note if mentioned",
+  "pairings": []
+}
+
+Rules:
+- Return ONLY the JSON object, no markdown fences, no explanation.
+- Only include fields you can confidently extract — use null for anything unclear.
+- If this page does not appear to be about a wine, return: {"error": "not_wine"}
+${langNote}`;
+
+    const provider = settings.apiProvider || 'anthropic';
+    const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
+    if (!key) throw new Error('no_api_key');
+
+    try {
+      const raw = provider === 'anthropic'
+        ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+        : await this._openaiText(prompt, key, 'gpt-4o-mini');
+      return this._parseJSON(raw);
+    } catch (e) {
+      return { error: e.message };
+    }
+  },
+
   // ── Helpers ───────────────────────────────────────────────────────────────
   _parseJSON(text) {
     // Strip markdown code fences if present
