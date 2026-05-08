@@ -28,7 +28,7 @@ const App = {
     this.lang = detectLang();
     this._applyTheme();  // apply dark/light before first render
     this.render();
-    this.navigate('cellar');
+    this.navigate('home');
     document.addEventListener('click',  e => this._delegateClick(e));
     document.addEventListener('change', e => this._delegateChange(e));
     Sync.init();
