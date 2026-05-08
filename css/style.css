@@ -702,7 +702,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   object-fit: contain;
   cursor: pointer;
   user-select: none;
-  flex-shrink: 0;
+  justify-self: start;   /* pin to left edge of its column */
   filter: drop-shadow(0 4px 12px rgba(0,0,0,.40));
   transition: transform var(--transition), filter var(--transition);
   -webkit-tap-highlight-color: transparent;
@@ -715,7 +715,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   object-fit: contain;
   pointer-events: none;
   user-select: none;
-  flex-shrink: 0;
+  justify-self: end;     /* pin to right edge of its column */
   filter: brightness(0) invert(1) opacity(.90);
 }
 
