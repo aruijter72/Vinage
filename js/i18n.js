@@ -1012,6 +1012,12 @@ const TRANSLATIONS = {
       deleteAccountBody: 'Votre compte sera supprimé définitivement. Cette action est irréversible.',
       deleteAccountConfirm: 'Supprimer mon compte', deleteAccountSuccess: 'Compte supprimé.',
       deleteAccountReauth: 'Pour votre sécurité, déconnectez-vous puis reconnectez-vous avant de supprimer votre compte.',
+      consentTitle: 'Bienvenue sur Vinage', consentBody: 'Avant de commencer, une note sur vos données :',
+      consentPoint1: 'Votre collection est enregistrée <strong>localement sur cet appareil</strong>.',
+      consentPoint2: 'Lors du scan, l\'image est envoyée à votre fournisseur IA pour identification.',
+      consentPoint3: 'Le partage cloud (optionnel) utilise Firebase. Vos données ne sont jamais vendues.',
+      consentPrivacy: 'Lisez notre politique dans Paramètres → Légal.',
+      consentAccept: 'Accepter et Commencer',
     },
     common: {
       save: 'Enregistrer', cancel: 'Annuler', delete: 'Supprimer', edit: 'Modifier', add: 'Ajouter',
