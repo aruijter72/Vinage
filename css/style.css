@@ -1006,16 +1006,17 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 /* Position label — shows below the circle */
 .slot-label {
   position: absolute;
-  bottom: -14px;
+  bottom: 5px;          /* inside the slot, not below it */
   left: 0; right: 0;
   text-align: center;
   font-size: .58rem;
   font-weight: 800;
-  color: rgba(80,50,20,.75);
+  color: rgba(255,255,255,.70);
   letter-spacing: .04em;
   white-space: nowrap;
   overflow: hidden;
   pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0,0,0,.80);
 }
 /* Position label on empty slot — centred inside the hole */
 .slot-pos {
