@@ -55,9 +55,15 @@ const Sync = {
   },
 
   // ── Auth ──────────────────────────────────────────────────────────────────
-  async signIn() {
+  async signIn(providerName = 'google') {
     if (!this._ready) return;
-    const provider = new firebase.auth.GoogleAuthProvider();
+    let provider;
+    if (providerName === 'microsoft') {
+      provider = new firebase.auth.OAuthProvider('microsoft.com');
+      provider.setCustomParameters({ prompt: 'select_account' });
+    } else {
+      provider = new firebase.auth.GoogleAuthProvider();
+    }
     try {
       await this._auth.signInWithPopup(provider);
       // onAuthStateChanged will fire and call _onSignedIn

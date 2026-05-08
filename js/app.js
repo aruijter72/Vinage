@@ -270,7 +270,7 @@ const App = {
       // PDF
       case 'export-pdf':          this.exportPdf(); break;
       // Cloud sync actions
-      case 'sync-sign-in':        Sync.signIn(); break;
+      case 'sync-sign-in':        Sync.signIn(args.provider || 'google'); break;
       case 'sync-sign-out':       Sync.signOut(); break;
       case 'sync-create':         Sync.createHousehold(); break;
       case 'sync-join':           this._syncJoin(); break;
@@ -4707,8 +4707,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <div class="settings-section">
         <h2>${this.t('settings.sync')}</h2>
         <p class="sync-info-text">${this.t('settings.syncNoHousehold')}</p>
-        <button class="btn btn-google btn-full" data-action="sync-sign-in">
+        <button class="btn btn-google btn-full" data-action="sync-sign-in" data-provider="google">
           ${this._iconGoogle()} ${this.t('settings.syncSignIn')}
+        </button>
+        <button class="btn btn-microsoft btn-full" style="margin-top:10px" data-action="sync-sign-in" data-provider="microsoft">
+          ${this._iconMicrosoft()} Sign in with Microsoft
         </button>
       </div>`;
     }
@@ -5534,6 +5537,14 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.8-5.8l-7.8-6c-2.1 1.4-4.8 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.7H2.8v6.2C6.7 42.9 14.8 48 24 48z"/>
       <path fill="#FBBC05" d="M10.8 28.8c-.5-1.4-.7-2.9-.7-4.4s.2-3 .7-4.4v-6.2H2.8C1 17.2 0 20.5 0 24s1 6.8 2.8 10.2l8-6.2-.0001.0001z"/>
       <path fill="#EA4335" d="M24 9.5c3.4 0 6.5 1.2 8.9 3.5l6.6-6.6C35.9 2.7 30.4.5 24 .5 14.8.5 6.7 5.6 2.8 13.8l8 6.2C12.7 13.6 17.9 9.5 24 9.5z"/>
+    </svg>`;
+  },
+  _iconMicrosoft() {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" width="18" height="18">
+      <rect x="1"  y="1"  width="9" height="9" fill="#F25022"/>
+      <rect x="11" y="1"  width="9" height="9" fill="#7FBA00"/>
+      <rect x="1"  y="11" width="9" height="9" fill="#00A4EF"/>
+      <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
     </svg>`;
   }
 };
