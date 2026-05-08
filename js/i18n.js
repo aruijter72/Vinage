@@ -804,6 +804,10 @@ const TRANSLATIONS = {
       origovero: 'OrigoVero DPP', origoveroKeyId: 'ID chiave', origoveroKeySecret: 'Segreto chiave', origoveroBaseUrl: 'URL base API',
       legal: 'Legale', privacyLink: 'Informativa sulla privacy', termsLink: 'Termini di servizio',
       privacyTitle: 'Informativa sulla privacy', termsTitle: 'Termini di servizio',
+      deleteAccount: 'Elimina account', deleteAccountTitle: 'Eliminare account?',
+      deleteAccountBody: 'Il tuo account verrà eliminato definitivamente. Non è possibile annullare questa operazione.',
+      deleteAccountConfirm: 'Elimina il mio account', deleteAccountSuccess: 'Account eliminato.',
+      deleteAccountReauth: 'Per sicurezza, esci e accedi di nuovo prima di eliminare il tuo account.',
     },
     common: {
       save: 'Salva', cancel: 'Annulla', delete: 'Elimina', edit: 'Modifica', add: 'Aggiungi',
@@ -984,6 +988,10 @@ const TRANSLATIONS = {
       origovero: 'OrigoVero DPP', origoveroKeyId: 'ID de clé', origoveroKeySecret: 'Secret de clé', origoveroBaseUrl: "URL de base de l'API",
       legal: 'Légal', privacyLink: 'Politique de confidentialité', termsLink: "Conditions d'utilisation",
       privacyTitle: 'Politique de confidentialité', termsTitle: "Conditions d'utilisation",
+      deleteAccount: 'Supprimer le compte', deleteAccountTitle: 'Supprimer le compte?',
+      deleteAccountBody: 'Votre compte sera supprimé définitivement. Cette action est irréversible.',
+      deleteAccountConfirm: 'Supprimer mon compte', deleteAccountSuccess: 'Compte supprimé.',
+      deleteAccountReauth: 'Pour votre sécurité, déconnectez-vous puis reconnectez-vous avant de supprimer votre compte.',
     },
     common: {
       save: 'Enregistrer', cancel: 'Annuler', delete: 'Supprimer', edit: 'Modifier', add: 'Ajouter',
@@ -1164,6 +1172,10 @@ const TRANSLATIONS = {
       origovero: 'OrigoVero DPP', origoveroKeyId: 'ID de clave', origoveroKeySecret: 'Secreto de clave', origoveroBaseUrl: 'URL base de API',
       legal: 'Legal', privacyLink: 'Política de privacidad', termsLink: 'Términos de servicio',
       privacyTitle: 'Política de privacidad', termsTitle: 'Términos de servicio',
+      deleteAccount: 'Eliminar cuenta', deleteAccountTitle: '¿Eliminar cuenta?',
+      deleteAccountBody: 'Tu cuenta se eliminará permanentemente. Esta acción no se puede deshacer.',
+      deleteAccountConfirm: 'Eliminar mi cuenta', deleteAccountSuccess: 'Cuenta eliminada.',
+      deleteAccountReauth: 'Por seguridad, cierra sesión y vuelve a iniciarla antes de eliminar tu cuenta.',
     },
     common: {
       save: 'Guardar', cancel: 'Cancelar', delete: 'Eliminar', edit: 'Editar', add: 'Añadir',
