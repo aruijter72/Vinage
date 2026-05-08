@@ -39,6 +39,10 @@ const App = {
     ImageDB.migrate();
     // After auth settles, upload any IndexedDB images that aren't yet on Firebase Storage
     setTimeout(() => this._migrateImagesToFirebase(), 5000);
+    // Show consent overlay on first launch (GDPR)
+    if (!localStorage.getItem('vinageConsent')) {
+      setTimeout(() => this._showConsent(), 400);
+    }
   },
 
   // ── Dark mode ─────────────────────────────────────────────────────────────
