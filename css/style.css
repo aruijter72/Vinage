@@ -186,6 +186,35 @@ ul { list-style: none; }
 .nav-item svg { width: 22px; height: 22px; }
 .nav-item span { font-size: .62rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
+/* ── Scan centre pill ───────────────────────────────────────────────────────── */
+.nav-item-scan {
+  position: relative;
+  margin-top: -20px;      /* lifts the pill above the nav bar */
+  flex: 1.2;              /* slightly wider tap target than siblings */
+}
+.nav-scan-pill {
+  width: 52px;
+  height: 52px;
+  background: var(--burgundy);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(59,20,34,.40);
+  transition: transform .15s, box-shadow .15s;
+  margin: 0 auto 3px;
+}
+.nav-item-scan svg { width: 26px; height: 26px; color: #fff; }
+.nav-item-scan span { color: var(--text-lt); }
+.nav-item-scan.active .nav-scan-pill {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(59,20,34,.55);
+}
+.nav-item-scan.active span { color: var(--burgundy); }
+/* keep the pill white-icon even in dark mode */
+[data-theme="dark"] .nav-scan-pill { background: var(--burgundy); }
+[data-theme="dark"] .nav-item-scan svg { color: #fff; }
+
 /* ── Page header ────────────────────────────────────────────────────────────── */
 .page-header {
   position: sticky;
