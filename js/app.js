@@ -745,20 +745,13 @@ const App = {
       const actionRow = document.getElementById('scan-action-row');
 
       if (!partial.name) {
-        const noCredentials = !settings.origoveroKeyId || !settings.origoveroKeySecret;
-        if (noCredentials) {
-          this._setScanStatus(this.t('scan.dppNoCredentials'), 'error');
-          if (actionRow) actionRow.innerHTML = `
-            <a class="btn btn-primary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
-            <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
-            <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
-        } else {
-          this._setScanStatus(`OrigoVero QR recognised (GTIN: ${ean13}), product not found.`, 'error');
-          if (actionRow) actionRow.innerHTML = `
-            <a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
-            <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
-            <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
-        }
+        // Store partial so "Add manually" opens a pre-seeded form (GTIN, sourceUrl saved)
+        this.scanResult = partial;
+        this._setScanStatus(this.t('scan.dppNoCredentials'), 'error');
+        if (actionRow) actionRow.innerHTML = `
+          <a class="btn btn-primary btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
+          <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
+          <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
         return;
       }
 
