@@ -239,6 +239,7 @@ const App = {
       case 'scan-mode-switch':    this.switchScanMode(args.mode); break;
       case 'retake-barcode':      this._restartBarcodeScanner(); break;
       case 'do-wine-search':      this._doWineSearch(); break;
+      case 'search-preview':        this._showWinePreview((this._searchResults||[])[Number(args.idx)]); break;
       case 'search-add-collection': this._searchResultToWine(Number(args.idx), false); break;
       case 'search-add-wishlist':   this._searchResultToWine(Number(args.idx), true);  break;
       // Share wine card
