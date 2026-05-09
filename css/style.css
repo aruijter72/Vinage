@@ -589,6 +589,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transition: box-shadow var(--transition);
+}
+.search-result-card:active { box-shadow: 0 4px 16px var(--shadow); opacity: .9; }
 }
 .search-result-header {
   display: flex;
