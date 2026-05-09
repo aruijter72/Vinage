@@ -734,9 +734,8 @@ const App = {
       this.scanResult = partial;
       const badge = partial._passportId ? this.t('scan.dppFound') : `${this.t('scan.barcodeFound')} · OrigoVero`;
       this._setScanStatus(badge, 'found');
-      if (actionRow) actionRow.innerHTML = `
-        <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
-        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+      if (actionRow) actionRow.innerHTML = `<button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+      setTimeout(() => this._showWinePreview(partial), 400);
 
     } catch (err) {
       this._setScanStatus(this.t('scan.barcodeError'), 'error');
@@ -800,9 +799,9 @@ const App = {
       this._setScanStatus(isPartial ? this.t('scan.qrPartial') : this.t('scan.barcodeFound'), 'found');
 
       if (actionRow) actionRow.innerHTML = `
-        <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
         <a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
         <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+      setTimeout(() => this._showWinePreview(extracted), 400);
 
     } catch (err) {
       this._setScanStatus(this.t('scan.barcodeError'), 'error');
