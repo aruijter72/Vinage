@@ -1227,9 +1227,9 @@ const TRANSLATIONS = {
       dishPlaceholder: 'ej. Salmón a la plancha, Estofado de ternera, Pasta carbonara, Tabla de quesos…',
       find: 'Encontrar vinos acordes', finding: 'Buscando el mejor maridaje…',
       fromCellar: 'De tu bodega', generalSuggestion: 'Consejo general',
-      noMatch: 'No hay vinos en tu bodega para este plato.',
+      noMatch: 'Sin maridaje en tu bodega', noMatchSub: 'Ninguno de tus vinos marida bien con este plato. Consulta las sugerencias de compra.',
       noWines: 'Añade vinos a tu colección primero.',
-      match: 'maridaje', apiKeyMissing: 'Añade una clave API en Ajustes para maridajes con IA.',
+      match: 'maridaje perfecto', acceptable: 'aceptable', apiKeyMissing: 'Añade una clave API en Ajustes para maridajes con IA.',
       rulesBased: 'Sugerencias basadas en reglas (sin clave API).',
       topPicks: 'Mejores vinos para comprar', findNear: 'Encontrar vinotecas cerca de {city}', findStores: 'Encontrar vinotecas cerca de mí'
     },
@@ -1426,9 +1426,9 @@ const TRANSLATIONS = {
       dishPlaceholder: 'z.B. Gegrillter Lachs, Rindergulasch, Pasta carbonara, Käseplatte…',
       find: 'Passende Weine finden', finding: 'Bestes Pairing suchen…',
       fromCellar: 'Aus deinem Keller', generalSuggestion: 'Allgemeiner Rat',
-      noMatch: 'Keine passenden Weine im Keller.',
+      noMatch: 'Keine Übereinstimmung im Keller', noMatchSub: 'Keiner deiner Weine passt gut zu diesem Gericht. Siehe die Kaufempfehlungen unten.',
       noWines: 'Zuerst Weine zur Sammlung hinzufügen.',
-      match: 'Treffer', apiKeyMissing: 'API-Schlüssel in Einstellungen hinzufügen für KI-Pairing.',
+      match: 'perfekte Wahl', acceptable: 'akzeptabel', apiKeyMissing: 'API-Schlüssel in Einstellungen hinzufügen für KI-Pairing.',
       rulesBased: 'Regelbasierte Vorschläge (kein API-Schlüssel gesetzt).',
       topPicks: 'Top-Empfehlungen zum Kaufen', findNear: 'Weinhandlungen in der Nähe von {city} finden', findStores: 'Weinhandlungen in meiner Nähe finden'
     },
