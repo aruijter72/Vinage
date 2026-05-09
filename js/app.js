@@ -656,6 +656,7 @@ const App = {
     const settings = DB.getSettings();
     let partial = {};
 
+    let _dppDiag = ''; // diagnostic reason shown if all lookups fail
     try {
       // ── Phase 2: OrigoVero DPP API ──────────────────────────────────────
       if (settings.origoveroKeyId && settings.origoveroKeySecret) {
@@ -666,7 +667,12 @@ const App = {
             partial = this._mapOrigoVeroProduct(product);
             if (serial) partial._serialNumber = serial;
           }
-        } catch (_) { /* fall through to OFF */ }
+        } catch (dppErr) {
+          _dppDiag = dppErr.message || 'DPP lookup failed';
+          console.warn('[Vinage] OrigoVero DPP:', _dppDiag);
+        }
+      } else {
+        _dppDiag = 'No OrigoVero API credentials configured in Settings';
       }
 
       // ── Phase 1 fallback: Open Food Facts ───────────────────────────────
@@ -724,7 +730,8 @@ const App = {
       const actionRow = document.getElementById('scan-action-row');
 
       if (!partial.name) {
-        this._setScanStatus(`OrigoVero QR recognised (GTIN: ${ean13}), product not found.`, 'error');
+        const diagMsg = _dppDiag ? ` — ${_dppDiag}` : '';
+        this._setScanStatus(`OrigoVero QR recognised (GTIN: ${ean13}), product not found${diagMsg}.`, 'error');
         if (actionRow) actionRow.innerHTML = `
           <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
           <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
