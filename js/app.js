@@ -392,7 +392,7 @@ const App = {
     return `
       <div class="search-results-title">${this.t('scan.searchResultsTitle')} (${results.length})</div>
       ${results.map((w, i) => `
-        <div class="search-result-card">
+        <div class="search-result-card" data-action="search-preview" data-idx="${i}" style="cursor:pointer">
           <div class="search-result-header">
             <div class="search-result-type-dot" style="background:${typeColor[w.type] || '#999'}"></div>
             <div class="search-result-title-block">
@@ -408,10 +408,6 @@ const App = {
             ${(w.grapes||[]).map(g => `<span class="search-result-tag">${this._esc(g)}</span>`).join('')}
           </div>
           ${w.notes ? `<div class="search-result-notes">${this._esc(w.notes)}</div>` : ''}
-          <div class="search-result-actions">
-            <button class="btn btn-primary" data-action="search-add-collection" data-idx="${i}">${this.t('scan.searchAddCollection')}</button>
-            <button class="btn btn-secondary" data-action="search-add-wishlist" data-idx="${i}">${this.t('scan.searchAddWishlist')}</button>
-          </div>
         </div>`).join('')}`;
   },
 
