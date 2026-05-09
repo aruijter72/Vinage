@@ -869,22 +869,46 @@ const App = {
     return { ts, sig };
   },
 
-  // Fetch a single product by GTIN-14 from the OrigoVero DPP API
+  // Fetch a single product from the OrigoVero DPP API.
+  // Tries GTIN-14 first, then falls back to EAN-13 (GTIN-14 minus leading zero).
+  // Returns { product, gtin, _httpStatus } or throws with a descriptive message.
   async _lookupOrigoVeroDpp(gtin14) {
     const s       = DB.getSettings();
     const baseUrl = (s.origoveroBaseUrl || 'https://dev.origovero.com').replace(/\/$/, '');
-    const path    = `/api/v1/products/${gtin14}`;
-    const { ts, sig } = await this._signOrigoVeroRequest(s.origoveroKeySecret, 'GET', path);
-    const res = await fetch(`${baseUrl}${path}`, {
-      headers: {
-        'X-API-Key-Id':    s.origoveroKeyId,
-        'X-API-Timestamp': ts,
-        'X-API-Signature': sig,
-      },
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!res.ok) return null;
-    return await res.json();
+
+    const tryFetch = async (gtin) => {
+      const path = `/api/v1/products/${gtin}`;
+      const { ts, sig } = await this._signOrigoVeroRequest(s.origoveroKeySecret, 'GET', path);
+      const res = await fetch(`${baseUrl}${path}`, {
+        headers: {
+          'X-API-Key-Id':    s.origoveroKeyId,
+          'X-API-Timestamp': ts,
+          'X-API-Signature': sig,
+        },
+        signal: AbortSignal.timeout(10000),
+      });
+      return { res, gtin };
+    };
+
+    // Try GTIN-14 first
+    let { res, gtin } = await tryFetch(gtin14);
+
+    // If 404, try EAN-13 (strip leading zero) as some products may be indexed differently
+    if (res.status === 404 && gtin14.startsWith('0')) {
+      const ean13 = gtin14.slice(1);
+      const fallback = await tryFetch(ean13);
+      if (fallback.res.ok) { res = fallback.res; gtin = fallback.gtin; }
+    }
+
+    if (res.status === 401 || res.status === 403)
+      throw new Error(`OrigoVero auth error (${res.status}) — check API Key ID and Secret in Settings`);
+    if (res.status === 404)
+      throw new Error(`Product not registered in OrigoVero (GTIN: ${gtin14})`);
+    if (!res.ok)
+      throw new Error(`OrigoVero API error ${res.status}`);
+
+    const data = await res.json();
+    return data;
   },
 
   // Infer wine type from appellation + varietal strings
