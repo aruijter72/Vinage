@@ -689,11 +689,13 @@ const App = {
           const MAX_ATTEMPTS = 20;
           const _setProgress = (pct, label) => {
             this._setScanStatus(`
-              <div style="font-size:.82rem;color:var(--text-md);margin-bottom:6px">
-                <span class="spinner"></span> ${label}
-              </div>
-              <div style="background:var(--border);border-radius:4px;height:4px;overflow:hidden;width:100%;max-width:200px;margin:0 auto">
-                <div style="background:var(--burgundy);height:4px;width:${pct}%;transition:width .4s ease;border-radius:4px"></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+                <div style="font-size:.82rem;color:var(--text-md);display:flex;align-items:center;gap:6px">
+                  <span class="spinner"></span>${label}
+                </div>
+                <div style="background:var(--border);border-radius:4px;height:4px;overflow:hidden;width:180px">
+                  <div style="background:var(--burgundy);height:4px;width:${pct}%;transition:width .4s ease;border-radius:4px"></div>
+                </div>
               </div>`, '');
           };
           for (let attempt = 1; attempt <= MAX_ATTEMPTS && !partial.name; attempt++) {
