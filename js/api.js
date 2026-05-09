@@ -61,9 +61,11 @@ If this is clearly NOT a wine bottle, return: {"error":"not_a_wine"}`;
 
   // ── Meal → wine pairing ───────────────────────────────────────────────────
   async suggestPairings(dish, wines, settings, lang, city) {
-    const listItems = wines.map((w, i) =>
-      `${i}: ${w.name}${w.vintage ? ' ' + w.vintage : ''} — ${w.type}${w.region ? ', ' + w.region : ''}${w.grapes?.length ? ' (' + w.grapes.join(', ') + ')' : ''}`
-    ).join('\n');
+    const now = new Date().getFullYear();
+    const listItems = wines.map((w, i) => {
+      const urgency = w.drinkUntil && w.drinkUntil <= now + 2 ? ' [DRINK SOON]' : '';
+      return `${i}: ${w.name}${w.vintage ? ' ' + w.vintage : ''} — ${w.type}${w.region ? ', ' + w.region : ''}${w.grapes?.length ? ' (' + w.grapes.join(', ') + ')' : ''}${urgency}`;
+    }).join('\n');
 
     const langNote = lang === 'nl'
       ? 'Respond entirely in Dutch. Keep reasons concise (1 sentence each).'
@@ -75,7 +77,7 @@ If this is clearly NOT a wine bottle, return: {"error":"not_a_wine"}`;
           : `The user is based in or near ${city}. For availability, give a brief hint on where this type of wine is typically found (supermarket, wine shop, specialist).`)
       : '';
 
-    const prompt = `You are an expert sommelier. The user is preparing: "${dish}"
+    const prompt = `You are a strict, honest sommelier. The user wants to know which wines from their cellar pair well with: "${dish}"
 
 Their cellar (index: wine):
 ${listItems}
@@ -83,10 +85,13 @@ ${listItems}
 ${langNote}
 ${locationNote}
 
-Return ONLY valid JSON — no markdown — exactly matching this structure:
+Return ONLY valid JSON — no markdown — exactly this structure:
 {
-  "matches": [
-    {"index": 0, "reason": "one sentence why this pairs well"}
+  "perfectMatches": [
+    {"index": 0, "reason": "one sentence why this is a genuinely great pairing"}
+  ],
+  "acceptableMatches": [
+    {"index": 1, "reason": "one sentence — acknowledge it's not ideal but explain why it could work"}
   ],
   "generalSuggestion": "1–2 sentences on what wine style suits this dish best",
   "externalSuggestions": [
@@ -103,10 +108,15 @@ Return ONLY valid JSON — no markdown — exactly matching this structure:
   ]
 }
 
-Rules:
-- matches: rank up to 3 wines from the cellar list above. If none match well, use an empty array.
-- externalSuggestions: exactly 3 specific real bottles the user could buy, not in their cellar. Include realistic EUR price ranges and brief availability note.
-- All text fields must be in the response language.`;
+STRICT RULES — follow these exactly:
+1. perfectMatches: wines that genuinely pair well with this dish based on classic sommelier principles. Only include a wine if you would actually recommend it. If none qualify, use [].
+2. acceptableMatches: wines that are not an ideal pairing but have some culinary logic (e.g. a bold red with salmon isn't ideal, but the tannins could cut the fat). Only include if there is a real culinary reason — not just "it's wine". If none qualify, use [].
+3. If the input is not a food or dish (e.g. "stone bricks", "car", nonsense text), return [] for both arrays and explain in generalSuggestion that this is not a food.
+4. Do NOT force matches. It is perfectly valid and honest to return empty arrays for both perfectMatches and acceptableMatches.
+5. Show at most 2 perfectMatches and 1 acceptableMatch. Fewer is better if that's the honest answer.
+6. Wines marked [DRINK SOON] should be preferred as a tiebreaker between otherwise equal matches — not as a reason to include a wine that doesn't belong.
+7. externalSuggestions: exactly 3 specific real bottles to buy. Always include these regardless of cellar matches.
+8. All text fields must be in the response language.`;
 
     const provider = settings.apiProvider || 'anthropic';
     const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
