@@ -3580,7 +3580,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   _batchSetQty() {
-    if (this.batchSelected.size === 0) { this.toast('No wines selected', 'error'); return; }
+    if (this.batchSelected.size === 0) { this.toast(this.t('collection.noSelection'), 'error'); return; }
     const qty = parseInt(prompt(this.t('collection.batchQtyPrompt'), '1'), 10);
     if (!qty || qty < 0) return;
     this.batchSelected.forEach(id => Sync.updateWine(id, { quantity: qty }));
@@ -3591,7 +3591,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   _batchAddTag() {
-    if (this.batchSelected.size === 0) { this.toast('No wines selected', 'error'); return; }
+    if (this.batchSelected.size === 0) { this.toast(this.t('collection.noSelection'), 'error'); return; }
     const tag = (prompt(this.t('collection.batchTagPrompt'), '') || '').trim();
     if (!tag) return;
     this.batchSelected.forEach(id => {
@@ -3607,7 +3607,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   _batchDelete() {
-    if (this.batchSelected.size === 0) { this.toast('No wines selected', 'error'); return; }
+    if (this.batchSelected.size === 0) { this.toast(this.t('collection.noSelection'), 'error'); return; }
     if (!confirm(`${this.t('common.delete')} ${this.batchSelected.size} wines?`)) return;
     this.batchSelected.forEach(id => Sync.deleteWine(id));
     this.batchSelected = new Set();
