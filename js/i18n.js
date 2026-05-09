@@ -772,6 +772,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Note di degustazione',
       previewFoodPairings: 'Abbinamenti',
       previewDismiss: 'Chiudi',
+      dppNoCredentials: 'QR OrigoVero trovato — apri la pagina prodotto per i dettagli, o aggiungi le credenziali API nelle Impostazioni.',
     },
     wine: {
       name: 'Nome vino', producer: 'Produttore / Cantina', vintage: 'Annata',
