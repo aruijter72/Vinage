@@ -766,6 +766,9 @@ const TRANSLATIONS = {
       searchNoResults: 'Nessun vino trovato. Prova una ricerca diversa.',
       searchResultsTitle: 'Risultati', searchAddCollection: 'Aggiungi alla collezione',
       searchAddWishlist: 'Aggiungi alla lista desideri',
+      previewWishlist: 'Lista desideri',
+      previewTastingNotes: 'Note di degustazione',
+      previewFoodPairings: 'Abbinamenti',
       previewDismiss: 'Chiudi',
     },
     wine: {
