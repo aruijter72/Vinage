@@ -1050,6 +1050,89 @@ const App = {
   // ══════════════════════════════════════════════════════════════════════════
   // WINE FORM MODAL
   // ══════════════════════════════════════════════════════════════════════════
+  // ── Wine preview card — shown after any scan/search result ──────────────
+  _showWinePreview(wine) {
+    if (!wine) return;
+
+    const typeColors = { red:'#8B1A2E', white:'#C8A84B', 'rosé':'#E87070', sparkling:'#5A9EC8', dessert:'#C8A800', fortified:'#7A4A8A' };
+    const typeColor  = typeColors[wine.type] || '#8B1A2E';
+    const typeName   = wine.type ? this.t('types.' + wine.type) : '';
+
+    const row = (label, value) => value
+      ? `<div class="wp-row"><span class="wp-label">${label}</span><span class="wp-value">${this._esc(String(value))}</span></div>`
+      : '';
+
+    // Captured label image (from camera scan)
+    const imageHtml = this.capturedImage
+      ? `<img src="data:image/jpeg;base64,${this.capturedImage}" class="wp-image" alt="${this._esc(wine.name||'')}">` : '';
+
+    const grapes = Array.isArray(wine.grapes) ? wine.grapes.join(', ') : (wine.grapes || '');
+
+    const source = wine._passportId
+      ? `<div class="wp-source-badge">🏷 OrigoVero DPP</div>`
+      : wine._sourceUrl
+      ? `<div class="wp-source-badge">🔗 ${this._esc(wine._sourceUrl.replace(/^https?:\/\//, '').split('/')[0])}</div>`
+      : '';
+
+    const descHtml = (wine._dppDescription || wine.tastingNote)
+      ? `<p class="wp-desc">${this._esc((wine._dppDescription || wine.tastingNote).slice(0, 240))}</p>` : '';
+
+    const body = `
+    <div class="wine-preview">
+      ${imageHtml}
+      <div class="wp-type-pill" style="background:${typeColor}">${typeName}</div>
+      <h2 class="wp-name">${this._esc(wine.name || '—')}</h2>
+      ${source}
+      <div class="wp-details">
+        ${row(this.t('wine.vintage'),  wine.vintage)}
+        ${row(this.t('wine.producer'), wine.producer)}
+        ${row(this.t('wine.region'),   wine.region)}
+        ${row(this.t('wine.country'),  wine.country)}
+        ${row(this.t('wine.grapes'),   grapes)}
+        ${wine.price != null ? row(this.t('wine.price'), '€' + wine.price) : ''}
+      </div>
+      ${descHtml}
+    </div>`;
+
+    this.showModal('', body, [
+      {
+        label: this.t('scan.previewDismiss'),
+        cls: 'btn-ghost',
+        action: () => this.closeModal()
+      },
+      {
+        label: '♡ ' + this.t('scan.searchAddWishlist'),
+        cls: 'btn-secondary',
+        action: () => { this._addToWishlistFromScan(wine); this.closeModal(); }
+      },
+      {
+        label: '+ ' + this.t('scan.addToCollection'),
+        cls: 'btn-primary',
+        action: () => {
+          this.closeModal();
+          const dup = this._findDuplicate(wine);
+          if (dup) this._showDuplicateWarning(dup, wine);
+          else this.showWineForm(wine);
+        }
+      },
+    ]);
+  },
+
+  _addToWishlistFromScan(wine) {
+    DB.addWishlistItem({
+      name:     wine.name     || '',
+      producer: wine.producer || '',
+      vintage:  wine.vintage  || null,
+      type:     wine.type     || 'red',
+      region:   wine.region   || '',
+      country:  wine.country  || '',
+      grapes:   Array.isArray(wine.grapes) ? wine.grapes.join(', ') : (wine.grapes || ''),
+      notes:    wine._dppDescription || wine.tastingNote || '',
+      price:    wine.price    ?? null,
+    });
+    this.toast((wine.name || 'Wine') + ' → ' + this.t('nav.wishlist'), 'success');
+  },
+
   showWineForm(prefill) {
     const wine = prefill || {};
     this.editWineId = wine.id || null;
