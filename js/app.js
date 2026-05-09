@@ -671,15 +671,17 @@ const App = {
         }
       }
 
-      // ── Phase B: Fetch the public OrigoVero product page (no credentials needed) ──
-      // Used when: no API credentials, DPP API returned nothing, or product not registered.
+      // ── Phase B: Fetch the public OrigoVero product page ───────────────────
+      // OrigoVero product pages are JavaScript SPAs — CORS proxies only get the
+      // HTML shell (no wine data). So we try, but it often returns empty content.
+      // The reliable fallback is opening the URL in the browser directly.
       if (!partial.name) {
         const hasAiKey = settings.anthropicKey || settings.openaiKey;
         if (hasAiKey) {
           try {
             this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrFetching')}`, '');
             const pageText = await API.fetchPageText(url, settings);
-            if (pageText && pageText.length > 20) {
+            if (pageText && pageText.length > 100) {
               this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrParsing')}`, '');
               const extracted = await API.extractWineFromQRPage(pageText, settings, this.lang);
               if (extracted && !extracted.error && extracted.name) {
