@@ -684,18 +684,28 @@ const App = {
       if (!partial.name) {
         const hasAiKey = settings.anthropicKey || settings.openaiKey;
         if (hasAiKey) {
-          try {
-            this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrFetching')}`, '');
-            const pageText = await API.fetchPageText(url, settings);
-            if (pageText && pageText.length > 100) {
-              this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrParsing')}`, '');
-              const extracted = await API.extractWineFromQRPage(pageText, settings, this.lang);
-              if (extracted && !extracted.error && extracted.name) {
-                partial = { ...extracted, _sourceGtin: gtin14, _sourceEan: ean13 };
-                if (serial) partial._serialNumber = serial;
+          // The CORS proxy is unreliable — retry up to 5 times with a short pause.
+          // Users were discovering they had to manually re-scan several times to get a result.
+          const MAX_ATTEMPTS = 5;
+          for (let attempt = 1; attempt <= MAX_ATTEMPTS && !partial.name; attempt++) {
+            try {
+              if (attempt === 1) {
+                this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrFetching')}`, '');
+              } else {
+                this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrFetching')} (${attempt}/${MAX_ATTEMPTS})`, '');
+                await new Promise(r => setTimeout(r, 1500 * (attempt - 1)));
               }
-            }
-          } catch (_) { /* page fetch optional */ }
+              const pageText = await API.fetchPageText(url, settings);
+              if (pageText && pageText.length > 100) {
+                this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrParsing')}`, '');
+                const extracted = await API.extractWineFromQRPage(pageText, settings, this.lang);
+                if (extracted && !extracted.error && extracted.name) {
+                  partial = { ...extracted, _sourceGtin: gtin14, _sourceEan: ean13 };
+                  if (serial) partial._serialNumber = serial;
+                }
+              }
+            } catch (_) { /* try next attempt */ }
+          }
         }
       }
 
