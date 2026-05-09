@@ -3330,9 +3330,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     }
 
     return `
-    <div class="page-header">
-      <h1>${this.t('collection.title')}</h1>
-      <div class="header-actions">
+    <div class="page-header collection-header">
+      <div class="ch-row1">
+        <h1>${this.t('collection.title')}</h1>
+        <button class="btn btn-primary btn-sm" data-action="manual-add-wine">${this.t('collection.addWine')}</button>
+      </div>
+      <div class="ch-row2">
         <select class="form-control collection-sort-select"
                 onchange="App.collectionSort=this.value;App.renderView()">
           <option value="addedAt"${this.collectionSort==='addedAt'?' selected':''}>${this.t('collection.sortAdded')}</option>
@@ -3341,7 +3344,6 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           <option value="type"${this.collectionSort==='type'?' selected':''}>${this.t('collection.sortType')}</option>
         </select>
         <button class="btn btn-secondary btn-sm" data-action="toggle-select-mode">${this.t('collection.selectMode')}</button>
-        <button class="btn btn-primary btn-sm" data-action="manual-add-wine">${this.t('collection.addWine')}</button>
       </div>
     </div>
     ${allWines.length > 0 ? this._buildCollectionStatsBar(allWines) : ''}

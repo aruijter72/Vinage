@@ -234,17 +234,23 @@ ul { list-style: none; }
 /* Wishlist cart toggle button — active state */
 .wishlist-active { color: var(--burgundy) !important; }
 
-/* Sort dropdown — shrinks on narrow screens, never overflows */
+/* ── Collection header — two-row layout ─────────────────────────────────── */
+.collection-header { flex-direction: column; gap: 6px; padding-bottom: 10px; }
+.collection-header .ch-row1 {
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+}
+.collection-header .ch-row1 h1 { width: auto; flex: 1; }
+.collection-header .ch-row2 {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+}
+
+/* Sort dropdown — stretches to fill available space in row 2 */
 .collection-sort-select {
-  padding: 7px 24px 7px 10px;
-  font-size: .82rem;
-  width: auto;
-  max-width: 130px;
+  padding: 7px 28px 7px 12px;
+  font-size: .88rem;
+  flex: 1;
   min-width: 0;
-  flex-shrink: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: none;
 }
 
 /* ── Buttons ────────────────────────────────────────────────────────────────── */
