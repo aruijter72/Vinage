@@ -970,6 +970,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Notes de dégustation',
       previewFoodPairings: 'Accords mets-vins',
       previewDismiss: 'Fermer',
+      dppNoCredentials: 'QR OrigoVero détecté — ouvrez la page produit pour les détails, ou ajoutez les identifiants API dans les Paramètres.',
     },
     wine: {
       name: 'Nom du vin', producer: 'Producteur / Domaine', vintage: 'Millésime',
@@ -1168,6 +1169,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Notas de cata',
       previewFoodPairings: 'Maridajes',
       previewDismiss: 'Cerrar',
+      dppNoCredentials: 'QR de OrigoVero encontrado — abre la página del producto para ver los detalles, o añade las credenciales API en los Ajustes.',
     },
     wine: {
       name: 'Nombre del vino', producer: 'Productor / Bodega', vintage: 'Añada',
