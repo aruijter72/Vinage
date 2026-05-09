@@ -378,7 +378,6 @@ const App = {
           <button class="btn btn-secondary btn-icon" id="rotate-btn" data-action="rotate-camera"
                   title="Rotate image" style="display:none">${this._iconRotate()}</button>
         </div>
-        <button class="btn btn-ghost btn-full" data-action="manual-add-wine" style="margin:8px 16px 0;width:calc(100% - 32px)">${this.t('scan.manualAdd')}</button>
       </div>
     </div>`;
   },
