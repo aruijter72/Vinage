@@ -432,6 +432,7 @@ const TRANSLATIONS = {
       searchResultsTitle: 'Resultaten',
       searchAddCollection: 'Aan collectie toevoegen',
       searchAddWishlist: 'Aan verlanglijst toevoegen',
+      previewDismiss: 'Sluiten',
     },
     wine: {
       name: 'Wijnnaam',
@@ -759,6 +760,7 @@ const TRANSLATIONS = {
       searchNoResults: 'Nessun vino trovato. Prova una ricerca diversa.',
       searchResultsTitle: 'Risultati', searchAddCollection: 'Aggiungi alla collezione',
       searchAddWishlist: 'Aggiungi alla lista desideri',
+      previewDismiss: 'Chiudi',
     },
     wine: {
       name: 'Nome vino', producer: 'Produttore / Cantina', vintage: 'Annata',
@@ -952,6 +954,7 @@ const TRANSLATIONS = {
       searchNoResults: 'Aucun vin trouvé. Essayez une autre recherche.',
       searchResultsTitle: 'Résultats', searchAddCollection: 'Ajouter à la collection',
       searchAddWishlist: 'Ajouter à la liste de souhaits',
+      previewDismiss: 'Fermer',
     },
     wine: {
       name: 'Nom du vin', producer: 'Producteur / Domaine', vintage: 'Millésime',
@@ -1146,6 +1149,7 @@ const TRANSLATIONS = {
       searchNoResults: 'No se encontraron vinos. Prueba otra búsqueda.',
       searchResultsTitle: 'Resultados', searchAddCollection: 'Añadir a la colección',
       searchAddWishlist: 'Añadir a la lista de deseos',
+      previewDismiss: 'Cerrar',
     },
     wine: {
       name: 'Nombre del vino', producer: 'Productor / Bodega', vintage: 'Añada',
@@ -1340,6 +1344,7 @@ const TRANSLATIONS = {
       searchNoResults: 'Keine Weine gefunden. Versuche eine andere Suche.',
       searchResultsTitle: 'Ergebnisse', searchAddCollection: 'Zur Sammlung hinzufügen',
       searchAddWishlist: 'Zur Wunschliste hinzufügen',
+      previewDismiss: 'Schließen',
     },
     wine: {
       name: 'Weinname', producer: 'Produzent / Weingut', vintage: 'Jahrgang',
