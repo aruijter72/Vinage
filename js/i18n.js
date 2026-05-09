@@ -440,6 +440,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Proefnotities',
       previewFoodPairings: 'Spijscombinaties',
       previewDismiss: 'Sluiten',
+      dppNoCredentials: 'OrigoVero QR gevonden — open de productpagina voor details, of voeg API-gegevens toe in Instellingen.',
     },
     wine: {
       name: 'Wijnnaam',
