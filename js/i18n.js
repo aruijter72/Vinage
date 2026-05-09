@@ -830,8 +830,8 @@ const TRANSLATIONS = {
       dishPlaceholder: 'es. Salmone alla griglia, Stufato di manzo, Pasta carbonara, Tagliere di formaggi…',
       find: 'Trova vini abbinati', finding: 'Trovando il miglior abbinamento…',
       fromCellar: 'Dalla tua cantina', generalSuggestion: 'Consiglio generale',
-      noMatch: 'Nessun vino abbinato nella tua cantina.', noWines: 'Aggiungi prima dei vini alla collezione.',
-      match: 'abbinamento', apiKeyMissing: 'Aggiungi una chiave API nelle Impostazioni per gli abbinamenti AI.',
+      noMatch: 'Nessun abbinamento nel tuo cantina', noMatchSub: 'Nessun vino si abbina bene a questo piatto. Vedi i suggerimenti per l\'acquisto.', noWines: 'Aggiungi prima dei vini alla collezione.',
+      match: 'ottimo abbinamento', acceptable: 'accettabile', apiKeyMissing: 'Aggiungi una chiave API nelle Impostazioni per gli abbinamenti AI.',
       rulesBased: 'Suggerimenti basati su regole (nessuna chiave API).',
       topPicks: 'I migliori da acquistare', findNear: 'Trova enoteche vicino a {city}', findStores: 'Trova enoteche vicino a me'
     },
@@ -1028,9 +1028,9 @@ const TRANSLATIONS = {
       dishPlaceholder: 'ex. Saumon grillé, Bœuf bourguignon, Pasta carbonara, Plateau de fromages…',
       find: 'Trouver des vins accordés', finding: 'Recherche du meilleur accord…',
       fromCellar: 'De votre cave', generalSuggestion: 'Conseil général',
-      noMatch: 'Aucun vin de votre cave ne correspond à ce plat.',
+      noMatch: 'Aucun accord dans votre cave', noMatchSub: 'Aucun de vos vins ne s\'accorde bien avec ce plat. Consultez les suggestions d\'achat ci-dessous.',
       noWines: "Ajoutez d'abord des vins à votre collection.",
-      match: 'accord', apiKeyMissing: 'Ajoutez une clé API dans les Paramètres pour les accords IA.',
+      match: 'excellent accord', acceptable: 'acceptable', apiKeyMissing: 'Ajoutez une clé API dans les Paramètres pour les accords IA.',
       rulesBased: 'Suggestions basées sur des règles (aucune clé API définie).',
       topPicks: 'Top vins à acheter', findNear: 'Trouver des cavistes près de {city}', findStores: 'Trouver des cavistes près de moi'
     },
