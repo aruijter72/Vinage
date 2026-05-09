@@ -1161,6 +1161,9 @@ const TRANSLATIONS = {
       searchNoResults: 'No se encontraron vinos. Prueba otra búsqueda.',
       searchResultsTitle: 'Resultados', searchAddCollection: 'Añadir a la colección',
       searchAddWishlist: 'Añadir a la lista de deseos',
+      previewWishlist: 'Lista',
+      previewTastingNotes: 'Notas de cata',
+      previewFoodPairings: 'Maridajes',
       previewDismiss: 'Cerrar',
     },
     wine: {
