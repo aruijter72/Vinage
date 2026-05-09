@@ -78,6 +78,7 @@ const TRANSLATIONS = {
       searchResultsTitle: 'Results',
       searchAddCollection: 'Add to Collection',
       searchAddWishlist: 'Add to Wishlist',
+      previewDismiss: 'Dismiss',
     },
     wine: {
       name: 'Wine Name',
