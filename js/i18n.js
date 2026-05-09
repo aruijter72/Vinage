@@ -435,6 +435,9 @@ const TRANSLATIONS = {
       searchResultsTitle: 'Resultaten',
       searchAddCollection: 'Aan collectie toevoegen',
       searchAddWishlist: 'Aan verlanglijst toevoegen',
+      previewWishlist: 'Verlanglijst',
+      previewTastingNotes: 'Proefnotities',
+      previewFoodPairings: 'Spijscombinaties',
       previewDismiss: 'Sluiten',
     },
     wine: {
