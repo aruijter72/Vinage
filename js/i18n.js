@@ -82,6 +82,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Tasting Notes',
       previewFoodPairings: 'Food Pairings',
       previewDismiss: 'Dismiss',
+      dppNoCredentials: 'OrigoVero QR found — open the product page to view details, or add API credentials in Settings.',
     },
     wine: {
       name: 'Wine Name',
