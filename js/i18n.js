@@ -440,7 +440,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Proefnotities',
       previewFoodPairings: 'Spijscombinaties',
       previewDismiss: 'Sluiten',
-      dppNoCredentials: 'OrigoVero QR gevonden — open de productpagina voor details, of voeg API-gegevens toe in Instellingen.',
+      dppNoCredentials: 'OrigoVero QR gevonden — tik op "Open pagina" om de wijndetails te bekijken.',
     },
     wine: {
       name: 'Wijnnaam',
@@ -772,7 +772,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Note di degustazione',
       previewFoodPairings: 'Abbinamenti',
       previewDismiss: 'Chiudi',
-      dppNoCredentials: 'QR OrigoVero trovato — apri la pagina prodotto per i dettagli, o aggiungi le credenziali API nelle Impostazioni.',
+      dppNoCredentials: 'QR OrigoVero trovato — tocca "Apri pagina" per vedere i dettagli del vino.',
     },
     wine: {
       name: 'Nome vino', producer: 'Produttore / Cantina', vintage: 'Annata',
@@ -970,7 +970,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Notes de dégustation',
       previewFoodPairings: 'Accords mets-vins',
       previewDismiss: 'Fermer',
-      dppNoCredentials: 'QR OrigoVero détecté — ouvrez la page produit pour les détails, ou ajoutez les identifiants API dans les Paramètres.',
+      dppNoCredentials: 'QR OrigoVero détecté — appuyez sur "Ouvrir la page" pour voir les détails du vin.',
     },
     wine: {
       name: 'Nom du vin', producer: 'Producteur / Domaine', vintage: 'Millésime',
