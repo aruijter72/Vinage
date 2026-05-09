@@ -3101,7 +3101,29 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   font-size: .82rem;
   color: var(--text-lt);
   line-height: 1.5;
-  text-align: center;
+  text-align: left;
   margin: 0;
   font-style: italic;
+}
+.wp-section-title {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--burgundy);
+  margin: 14px 0 4px;
+}
+.wp-pairings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.wp-pairing-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: .75rem;
+  padding: 3px 10px;
+  color: var(--text);
 }
