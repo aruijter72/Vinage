@@ -655,9 +655,8 @@ const App = {
     const settings = DB.getSettings();
     let partial = {};
 
-    let _dppDiag = ''; // diagnostic reason shown if all lookups fail
     try {
-      // ── Phase 2: OrigoVero DPP API ──────────────────────────────────────
+      // ── Phase A: OrigoVero DPP API (only if credentials are configured) ──
       if (settings.origoveroKeyId && settings.origoveroKeySecret) {
         try {
           this._setScanStatus(`<span class="spinner"></span>${this.t('scan.dppLookingUp')}`, '');
@@ -667,18 +666,35 @@ const App = {
             if (serial) partial._serialNumber = serial;
           }
         } catch (dppErr) {
-          _dppDiag = dppErr.message || 'DPP lookup failed';
-          console.warn('[Vinage] OrigoVero DPP:', _dppDiag);
+          console.warn('[Vinage] OrigoVero DPP API:', dppErr.message);
+          // Fall through to page-fetch below
         }
-      } else {
-        _dppDiag = 'No OrigoVero API credentials configured in Settings';
       }
 
-      // ── Phase 1 fallback: Open Food Facts ───────────────────────────────
+      // ── Phase B: Fetch the public OrigoVero product page (no credentials needed) ──
+      // Used when: no API credentials, DPP API returned nothing, or product not registered.
+      if (!partial.name) {
+        const hasAiKey = settings.anthropicKey || settings.openaiKey;
+        if (hasAiKey) {
+          try {
+            this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrFetching')}`, '');
+            const pageText = await API.fetchPageText(url, settings);
+            if (pageText && pageText.length > 20) {
+              this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrParsing')}`, '');
+              const extracted = await API.extractWineFromQRPage(pageText, settings, this.lang);
+              if (extracted && !extracted.error && extracted.name) {
+                partial = { ...extracted, _sourceGtin: gtin14, _sourceEan: ean13 };
+                if (serial) partial._serialNumber = serial;
+              }
+            }
+          } catch (_) { /* page fetch optional */ }
+        }
+      }
+
+      // ── Phase C: Open Food Facts barcode fallback ────────────────────────
       if (!partial.name) {
         try {
           const off = await this._lookupOpenFoodFacts(ean13);
-          // Merge: DPP fields win; OFF fills what DPP didn't have
           partial = { ...off, ...partial };
         } catch (_) {}
       }
@@ -688,14 +704,13 @@ const App = {
       partial._sourceEan  = ean13;
       partial._sourceUrl  = url;
 
-      // ── AI enrichment — fills producer + any remaining gaps ─────────────
+      // ── Phase D: AI enrichment — fills any remaining gaps ────────────────
       const hasAiKey = settings.anthropicKey || settings.openaiKey;
-      if (hasAiKey) {
+      if (hasAiKey && partial.name) {
         this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeEnriching')}`, '');
         try {
           const enriched = await API.enrichWineData(partial, settings, this.lang);
           if (!enriched.error) {
-            // DPP-sourced fields win; AI fills what's still missing
             partial = {
               ...enriched,
               name:       partial.name       || enriched.name,
@@ -708,7 +723,6 @@ const App = {
               drinkFrom:  partial.drinkFrom  || enriched.drinkFrom,
               drinkUntil: partial.drinkUntil || enriched.drinkUntil,
               producer:   partial.producer   || enriched.producer,
-              // Preserve all DPP metadata
               _passportId:        partial._passportId,
               _sourceGtin:        partial._sourceGtin,
               _sourceEan:         partial._sourceEan,
@@ -729,8 +743,7 @@ const App = {
       const actionRow = document.getElementById('scan-action-row');
 
       if (!partial.name) {
-        const diagMsg = _dppDiag ? ` — ${_dppDiag}` : '';
-        this._setScanStatus(`OrigoVero QR recognised (GTIN: ${ean13}), product not found${diagMsg}.`, 'error');
+        this._setScanStatus(`OrigoVero QR recognised (GTIN: ${ean13}), product not found.`, 'error');
         if (actionRow) actionRow.innerHTML = `
           <button class="btn btn-ghost btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>
           <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
