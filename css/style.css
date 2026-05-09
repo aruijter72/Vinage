@@ -1478,6 +1478,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   border-radius: 24px 24px 0 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--safe-bottom);
   transform: translateY(40px);
   transition: transform .35s cubic-bezier(.22,1,.36,1);
 }
