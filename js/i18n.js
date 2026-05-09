@@ -1169,7 +1169,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Notas de cata',
       previewFoodPairings: 'Maridajes',
       previewDismiss: 'Cerrar',
-      dppNoCredentials: 'QR de OrigoVero encontrado — abre la página del producto para ver los detalles, o añade las credenciales API en los Ajustes.',
+      dppNoCredentials: 'QR de OrigoVero encontrado — toca "Abrir página" para ver los detalles del vino.',
     },
     wine: {
       name: 'Nombre del vino', producer: 'Productor / Bodega', vintage: 'Añada',
@@ -1368,7 +1368,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Verkostungsnotizen',
       previewFoodPairings: 'Speisebegleitung',
       previewDismiss: 'Schließen',
-      dppNoCredentials: 'OrigoVero-QR erkannt — öffne die Produktseite für Details oder füge API-Zugangsdaten in den Einstellungen hinzu.',
+      dppNoCredentials: 'OrigoVero-QR erkannt — tippe auf "Seite öffnen" um die Weindetails zu sehen.',
     },
     wine: {
       name: 'Weinname', producer: 'Produzent / Weingut', vintage: 'Jahrgang',
