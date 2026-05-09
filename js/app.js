@@ -3351,11 +3351,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     ${allWines.length > 0 ? this._buildCollectionStatsBar(allWines) : ''}
     ${batchHeader}
     <div class="collection-toolbar">
-      <div class="search-input-wrap">
+      <div class="search-input-wrap${this.collectionSearch ? ' has-value' : ''}" id="coll-search-wrap">
         ${this._iconSearch()}
         <input class="search-input" id="coll-search" placeholder="${this.t('collection.search')}"
                value="${this._esc(this.collectionSearch)}"
-               oninput="App.collectionSearch=this.value;App._filterCollection()">
+               oninput="App.collectionSearch=this.value;App._filterCollection();document.getElementById('coll-search-wrap').classList.toggle('has-value',!!this.value)">
+        <button class="search-clear-btn" aria-label="Clear search"
+                onclick="App.collectionSearch='';App._filterCollection();document.getElementById('coll-search').value='';document.getElementById('coll-search-wrap').classList.remove('has-value')">✕</button>
       </div>
     </div>
     <div class="filter-strip">
