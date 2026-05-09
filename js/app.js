@@ -2309,26 +2309,30 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   _buildHomeQuickActions() {
     return `
     <div class="home-quick-actions">
-      <button class="home-quick-btn" data-nav="pairing">
-        <span class="home-quick-btn-icon">🍽️</span>
-        <span class="home-quick-btn-label">${this.t('home.pairMeal')}</span>
-      </button>
-      <button class="home-quick-btn" data-nav="scan">
-        <span class="home-quick-btn-icon">📷</span>
-        <span class="home-quick-btn-label">${this.t('home.scanBottle')}</span>
-      </button>
-      <button class="home-quick-btn" data-nav="collection">
-        <span class="home-quick-btn-icon">🗂️</span>
-        <span class="home-quick-btn-label">${this.t('nav.collection')}</span>
-      </button>
-      <button class="home-quick-btn" data-nav="wishlist">
-        <span class="home-quick-btn-icon">🤍</span>
-        <span class="home-quick-btn-label">${this.t('nav.wishlist')}</span>
-      </button>
-      <button class="home-quick-btn" data-action="manual-add-wine">
-        <span class="home-quick-btn-icon">✏️</span>
-        <span class="home-quick-btn-label">${this.t('scan.manualAdd')}</span>
-      </button>
+      <div class="home-quick-row">
+        <button class="home-quick-btn" data-nav="scan">
+          <span class="home-quick-btn-icon">📷</span>
+          <span class="home-quick-btn-label">${this.t('home.scanBottle')}</span>
+        </button>
+        <button class="home-quick-btn" data-nav="collection">
+          <span class="home-quick-btn-icon">🗂️</span>
+          <span class="home-quick-btn-label">${this.t('nav.collection')}</span>
+        </button>
+        <button class="home-quick-btn" data-nav="wishlist">
+          <span class="home-quick-btn-icon">🤍</span>
+          <span class="home-quick-btn-label">${this.t('nav.wishlist')}</span>
+        </button>
+      </div>
+      <div class="home-quick-row">
+        <button class="home-quick-btn" data-nav="pairing">
+          <span class="home-quick-btn-icon">🍽️</span>
+          <span class="home-quick-btn-label">${this.t('home.pairMeal')}</span>
+        </button>
+        <button class="home-quick-btn" data-action="manual-add-wine">
+          <span class="home-quick-btn-icon">✏️</span>
+          <span class="home-quick-btn-label">${this.t('scan.manualAdd')}</span>
+        </button>
+      </div>
     </div>`;
   },
 
