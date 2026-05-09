@@ -3914,8 +3914,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     html += `<div class="pairing-section-title">${this.t('pairing.fromCellar')}</div>`;
     if (matchedWines.length > 0) {
       html += matchedWines.map(({ wine: w, reason }) => `
-        <div class="pairing-wine-card" style="border-left-color:${this._typeColor(w.type)}">
-          <div style="flex:1">
+        <div class="pairing-wine-card" style="border-left-color:${this._typeColor(w.type)}"
+             data-action="edit-wine" data-id="${w.id}">
+          <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
               <span style="font-weight:700">${this._esc(w.name)}</span>
               ${w.vintage ? `<span style="font-size:.8rem;color:var(--text-lt)">${w.vintage}</span>` : ''}
@@ -3925,6 +3926,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             <div style="font-size:.82rem;color:var(--text-lt)">${[w.producer, this.t('types.'+w.type), w.region].filter(Boolean).join(' · ')}</div>
             ${reason ? `<div class="pairing-reason">${this._esc(reason)}</div>` : ''}
           </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+               stroke="var(--text-lt)" stroke-width="2" style="flex-shrink:0;margin-top:2px">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
         </div>`).join('');
     } else {
       html += `<div style="padding:16px 0 8px;color:var(--text-lt);font-size:.9rem">${this.t('pairing.noMatch')}</div>`;
