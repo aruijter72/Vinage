@@ -3031,3 +3031,77 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 [data-theme="dark"] .home-stat-pill.pill-ready { background: #1b3a1e; color: #81c784; border-color: #2e7d32; }
 [data-theme="dark"] .home-cellars-title { color: #F2EBE1; }
 [data-theme="dark"] .home-tonight-title { color: #F2EBE1; }
+
+/* ── Wine Preview Card (scan/search result modal) ───────────────────────── */
+.wine-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 4px;
+}
+.wp-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 4px;
+}
+.wp-type-pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.wp-name {
+  font-family: var(--font);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--burgundy);
+  text-align: center;
+  margin: 0;
+  line-height: 1.25;
+}
+.wp-source-badge {
+  font-size: .72rem;
+  color: var(--text-lt);
+  letter-spacing: .04em;
+}
+.wp-details {
+  width: 100%;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+.wp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: .875rem;
+}
+.wp-label {
+  color: var(--text-lt);
+  flex-shrink: 0;
+}
+.wp-value {
+  color: var(--text);
+  font-weight: 600;
+  text-align: right;
+}
+.wp-desc {
+  font-size: .82rem;
+  color: var(--text-lt);
+  line-height: 1.5;
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+}
