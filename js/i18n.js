@@ -1022,7 +1022,7 @@ const TRANSLATIONS = {
       readyTonightBtn: 'Voir les vins prêts', galleryToggle: 'Galerie', listToggle: 'Liste',
       selectMode: 'Sélectionner', selectDone: 'Terminé', selectedCount: '{count} sélectionné(s)',
       batchSetQty: 'Définir la quantité', batchAddTag: 'Ajouter une étiquette',
-      batchDelete: 'Supprimer la sélection', batchQtyPrompt: 'Définir la quantité pour les vins sélectionnés :',
+      batchDelete: 'Supprimer la sélection', noSelection: 'Aucun vin sélectionné', batchQtyPrompt: 'Définir la quantité pour les vins sélectionnés :',
       batchTagPrompt: "Nom de l'étiquette à ajouter aux vins sélectionnés :"
     },
     pairing: {
@@ -1221,7 +1221,7 @@ const TRANSLATIONS = {
       readyTonightBtn: 'Ver vinos listos', galleryToggle: 'Galería', listToggle: 'Lista',
       selectMode: 'Seleccionar', selectDone: 'Hecho', selectedCount: '{count} seleccionado(s)',
       batchSetQty: 'Establecer cantidad', batchAddTag: 'Añadir etiqueta',
-      batchDelete: 'Eliminar seleccionados', batchQtyPrompt: 'Establecer cantidad para los vinos seleccionados:',
+      batchDelete: 'Eliminar seleccionados', noSelection: 'Ningún vino seleccionado', batchQtyPrompt: 'Establecer cantidad para los vinos seleccionados:',
       batchTagPrompt: 'Nombre de etiqueta para añadir a los vinos seleccionados:'
     },
     pairing: {
@@ -1420,7 +1420,7 @@ const TRANSLATIONS = {
       readyTonightBtn: 'Trinkfertige Weine anzeigen', galleryToggle: 'Galerie', listToggle: 'Liste',
       selectMode: 'Auswählen', selectDone: 'Fertig', selectedCount: '{count} ausgewählt',
       batchSetQty: 'Menge festlegen', batchAddTag: 'Tag hinzufügen',
-      batchDelete: 'Auswahl löschen', batchQtyPrompt: 'Menge für ausgewählte Weine festlegen:',
+      batchDelete: 'Auswahl löschen', noSelection: 'Keine Weine ausgewählt', batchQtyPrompt: 'Menge für ausgewählte Weine festlegen:',
       batchTagPrompt: 'Tag-Name für ausgewählte Weine:'
     },
     pairing: {
