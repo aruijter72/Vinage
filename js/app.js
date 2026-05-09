@@ -2325,6 +2325,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <span class="home-quick-btn-icon">🤍</span>
         <span class="home-quick-btn-label">${this.t('nav.wishlist')}</span>
       </button>
+      <button class="home-quick-btn" data-action="manual-add-wine">
+        <span class="home-quick-btn-icon">✏️</span>
+        <span class="home-quick-btn-label">${this.t('scan.manualAdd')}</span>
+      </button>
     </div>`;
   },
 
@@ -3337,7 +3341,6 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     <div class="page-header collection-header">
       <div class="ch-row1">
         <h1>${this.t('collection.title')}</h1>
-        <button class="btn btn-primary btn-sm" data-action="manual-add-wine">${this.t('collection.addWine')}</button>
       </div>
       <div class="ch-row2">
         <select class="form-control collection-sort-select"
