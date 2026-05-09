@@ -1008,9 +1008,8 @@ const App = {
         if (result.country) result.country = this._localizeCountry(result.country);
         this.scanResult = result;
         this._setScanStatus(this.t('scan.found'), 'found');
-        actionRow.innerHTML = `
-          <button class="btn btn-primary" data-action="add-wine-from-scan">${this.t('scan.addToCollection')}</button>
-          <button class="btn btn-secondary btn-sm" data-action="retake">${this.t('scan.retake')}</button>`;
+        actionRow.innerHTML = `<button class="btn btn-secondary btn-sm" data-action="retake">${this.t('scan.retake')}</button>`;
+        setTimeout(() => this._showWinePreview(result), 400);
       }
     } catch (err) {
       this._setScanStatus(this.t('common.error') + ' ' + err.message, 'error');
@@ -1074,8 +1073,17 @@ const App = {
       ? `<div class="wp-source-badge">🔗 ${this._esc(wine._sourceUrl.replace(/^https?:\/\//, '').split('/')[0])}</div>`
       : '';
 
-    const descHtml = (wine._dppDescription || wine.tastingNote)
-      ? `<p class="wp-desc">${this._esc((wine._dppDescription || wine.tastingNote).slice(0, 240))}</p>` : '';
+    // Tasting notes — prefer DPP description, fall back to AI/manual tasting note
+    const tastingText = wine._dppDescription || wine.tastingNote || wine.notes || '';
+    const tastingHtml = tastingText
+      ? `<div class="wp-section-title">${this.t('scan.previewTastingNotes')}</div>
+         <p class="wp-desc">${this._esc(tastingText.slice(0, 320))}</p>` : '';
+
+    // Food pairings
+    const pairingList = Array.isArray(wine.pairings) ? wine.pairings : (wine.pairings ? [wine.pairings] : []);
+    const pairingHtml = pairingList.length
+      ? `<div class="wp-section-title">${this.t('scan.previewFoodPairings')}</div>
+         <div class="wp-pairings">${pairingList.map(p => `<span class="wp-pairing-chip">${this._esc(p)}</span>`).join('')}</div>` : '';
 
     const body = `
     <div class="wine-preview">
@@ -1091,7 +1099,8 @@ const App = {
         ${row(this.t('wine.grapes'),   grapes)}
         ${wine.price != null ? row(this.t('wine.price'), '€' + wine.price) : ''}
       </div>
-      ${descHtml}
+      ${tastingHtml}
+      ${pairingHtml}
     </div>`;
 
     this.showModal('', body, [
@@ -1101,7 +1110,7 @@ const App = {
         action: () => this.closeModal()
       },
       {
-        label: '♡ ' + this.t('scan.searchAddWishlist'),
+        label: '♡ ' + this.t('scan.previewWishlist'),
         cls: 'btn-secondary',
         action: () => { this._addToWishlistFromScan(wine); this.closeModal(); }
       },
