@@ -191,12 +191,9 @@ const App = {
       case 'rotate-camera':       this.rotateScan(); break;
       case 'capture':             this.captureAndAnalyze(); break;
       case 'retake':              this.retakeScan(); break;
-      case 'add-wine-from-scan': {
-        const dup = this._findDuplicate(this.scanResult);
-        if (dup) this._showDuplicateWarning(dup, this.scanResult);
-        else     this.showWineForm(this.scanResult);
+      case 'add-wine-from-scan':
+        this._showWinePreview(this.scanResult);
         break;
-      }
       case 'manual-add-wine':     this.showWineForm(null); break;
       case 'save-wine':           this.saveWineForm(); break;
       case 'regen-notes':         this._regenNotes(); break;
