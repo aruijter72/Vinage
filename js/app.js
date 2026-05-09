@@ -2149,7 +2149,6 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     <div class="page-header">
       <h1>${this.t('home.myCellars')}</h1>
       <div class="header-actions">
-        <button class="btn btn-secondary btn-sm" data-nav="wishlist">${this._iconHeart()} ${this.t('nav.wishlist')}</button>
         <button class="btn btn-primary btn-sm" data-action="add-cellar">${this.t('cellar.addLocation')}</button>
       </div>
     </div>
@@ -2321,6 +2320,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <button class="home-quick-btn" data-nav="collection">
         <span class="home-quick-btn-icon">🗂️</span>
         <span class="home-quick-btn-label">${this.t('nav.collection')}</span>
+      </button>
+      <button class="home-quick-btn" data-nav="wishlist">
+        <span class="home-quick-btn-icon">🤍</span>
+        <span class="home-quick-btn-label">${this.t('nav.wishlist')}</span>
       </button>
     </div>`;
   },
