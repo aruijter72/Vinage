@@ -178,6 +178,7 @@ const TRANSLATIONS = {
       batchSetQty: 'Set Quantity',
       batchAddTag: 'Add Tag',
       batchDelete: 'Delete Selected',
+      noSelection: 'No wines selected',
       batchQtyPrompt: 'Set quantity for selected wines:',
       batchTagPrompt: 'Tag name to add to selected wines:'
     },
@@ -537,6 +538,7 @@ const TRANSLATIONS = {
       batchSetQty: 'Aantal instellen',
       batchAddTag: 'Label toevoegen',
       batchDelete: 'Verwijder geselecteerde',
+      noSelection: 'Geen wijnen geselecteerd',
       batchQtyPrompt: 'Stel aantal in voor geselecteerde wijnen:',
       batchTagPrompt: 'Labelnaam toevoegen aan geselecteerde wijnen:'
     },
@@ -822,7 +824,7 @@ const TRANSLATIONS = {
       readyTonightBtn: 'Vedi vini pronti', galleryToggle: 'Galleria', listToggle: 'Lista',
       selectMode: 'Seleziona', selectDone: 'Fine', selectedCount: '{count} selezionato/i',
       batchSetQty: 'Imposta quantità', batchAddTag: 'Aggiungi etichetta',
-      batchDelete: 'Elimina selezionati', batchQtyPrompt: 'Imposta quantità per i vini selezionati:',
+      batchDelete: 'Elimina selezionati', noSelection: 'Nessun vino selezionato', batchQtyPrompt: 'Imposta quantità per i vini selezionati:',
       batchTagPrompt: 'Nome etichetta da aggiungere ai vini selezionati:'
     },
     pairing: {
