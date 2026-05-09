@@ -1368,6 +1368,7 @@ const TRANSLATIONS = {
       previewTastingNotes: 'Verkostungsnotizen',
       previewFoodPairings: 'Speisebegleitung',
       previewDismiss: 'Schließen',
+      dppNoCredentials: 'OrigoVero-QR erkannt — öffne die Produktseite für Details oder füge API-Zugangsdaten in den Einstellungen hinzu.',
     },
     wine: {
       name: 'Weinname', producer: 'Produzent / Weingut', vintage: 'Jahrgang',
