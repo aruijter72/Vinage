@@ -192,7 +192,13 @@ const App = {
       case 'capture':             this.captureAndAnalyze(); break;
       case 'retake':              this.retakeScan(); break;
       case 'add-wine-from-scan':
-        this._showWinePreview(this.scanResult);
+        // If scan found a name → show preview card first
+        // If scan found no name (OrigoVero QR but product unreadable) → go straight to form
+        if (this.scanResult && this.scanResult.name) {
+          this._showWinePreview(this.scanResult);
+        } else {
+          this.showWineForm(this.scanResult || null);
+        }
         break;
       case 'manual-add-wine':     this.showWineForm(null); break;
       case 'save-wine':           this.saveWineForm(); break;
