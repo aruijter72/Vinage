@@ -2952,8 +2952,13 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 /* ── Quick actions ───────────────────────────────────────────────────── */
 .home-quick-actions {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   padding: 14px 16px 6px;
+}
+.home-quick-row {
+  display: flex;
+  gap: 10px;
 }
 .home-quick-btn {
   flex: 1;
