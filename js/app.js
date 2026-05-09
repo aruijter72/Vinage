@@ -814,46 +814,56 @@ const App = {
       return;
     }
 
-    // Show open button + extraction spinner simultaneously
-    this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrFetching')}`, '');
+    // Show open button immediately — always the fallback if extraction fails
     _showOpenBtn();
 
-    try {
-      const pageText = await API.fetchPageText(url, settings);
+    const _setProgress = (pct, label) => {
+      this._setScanStatus(`
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div style="font-size:.82rem;color:var(--text-md);display:flex;align-items:center;gap:6px">
+            <span class="spinner"></span>${label}
+          </div>
+          <div style="background:var(--border);border-radius:4px;height:4px;overflow:hidden;width:180px">
+            <div style="background:var(--burgundy);height:4px;width:${pct}%;transition:width .4s ease;border-radius:4px"></div>
+          </div>
+        </div>`, '');
+    };
 
-      if (!pageText || pageText.length < 20) {
-        this._setScanStatus(this.t('scan.qrNoData'), 'error');
-        // Open button already visible — nothing more to do
-        return;
-      }
+    // Retry up to 20 times — CORS proxies are flaky and often succeed after a few attempts
+    const MAX_ATTEMPTS = 20;
+    let extracted = null;
 
-      this._setScanStatus(`<span class="spinner"></span>${this.t('scan.qrParsing')}`, '');
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS && !extracted; attempt++) {
+      try {
+        _setProgress(Math.round((attempt / MAX_ATTEMPTS) * 80), this.t('scan.qrFetching'));
+        if (attempt > 1) await new Promise(r => setTimeout(r, 1200));
 
-      const extracted = await API.extractWineFromQRPage(pageText, settings, this.lang);
-
-      if (!extracted || extracted.error || !extracted.name) {
-        this._setScanStatus(this.t('scan.qrNoData'), 'error');
-        return; // open button still visible
-      }
-
-      // ── Extraction succeeded — promote "Add to Collection" to primary ──────
-      extracted._sourceUrl = url;
-      if (extracted.country) extracted.country = this._localizeCountry(extracted.country);
-
-      const isPartial = !extracted.vintage || !extracted.region;
-      this.scanResult = extracted;
-
-      this._setScanStatus(isPartial ? this.t('scan.qrPartial') : this.t('scan.barcodeFound'), 'found');
-
-      if (actionRow) actionRow.innerHTML = `
-        <a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
-        <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
-      setTimeout(() => this._showWinePreview(extracted), 400);
-
-    } catch (err) {
-      this._setScanStatus(this.t('scan.barcodeError'), 'error');
-      // Open button already visible from initial render
+        const pageText = await API.fetchPageText(url, settings);
+        if (pageText && pageText.length > 20) {
+          _setProgress(90, this.t('scan.qrParsing'));
+          const result = await API.extractWineFromQRPage(pageText, settings, this.lang);
+          if (result && !result.error && result.name) extracted = result;
+        }
+      } catch (_) { /* try next attempt */ }
     }
+
+    if (!extracted) {
+      this._setScanStatus(this.t('scan.qrNoData'), 'error');
+      // Open button still visible from initial render
+      return;
+    }
+
+    extracted._sourceUrl = url;
+    if (extracted.country) extracted.country = this._localizeCountry(extracted.country);
+
+    const isPartial = !extracted.vintage || !extracted.region;
+    this.scanResult = extracted;
+
+    this._setScanStatus(isPartial ? this.t('scan.qrPartial') : this.t('scan.barcodeFound'), 'found');
+    if (actionRow) actionRow.innerHTML = `
+      <a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${this.t('scan.qrOpening')}</a>
+      <button class="btn btn-secondary btn-sm" data-action="retake-barcode">${this.t('scan.retake')}</button>`;
+    setTimeout(() => this._showWinePreview(extracted), 400);
   },
 
   async _lookupOpenFoodFacts(barcode) {
