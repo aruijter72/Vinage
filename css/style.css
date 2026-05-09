@@ -1321,6 +1321,20 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   padding: 2px 8px; border-radius: 50px;
   text-transform: uppercase;
 }
+.pairing-acceptable-badge {
+  background: var(--surface2); color: var(--text-md);
+  border: 1px solid var(--border);
+  font-size: .72rem; font-weight: 600;
+  padding: 2px 8px; border-radius: 50px;
+  text-transform: uppercase;
+}
+.pairing-no-match {
+  text-align: center;
+  padding: 24px 16px;
+  background: var(--cream-dk);
+  border-radius: var(--radius);
+  color: var(--text-md);
+}
 .pairing-reason { font-size: .85rem; color: var(--text-md); margin-top: 5px; line-height: 1.4; }
 
 .general-suggestion {
