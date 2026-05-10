@@ -709,10 +709,11 @@ const App = {
               _setProgress(Math.round((attempt / MAX_ATTEMPTS) * 80), this.t('scan.qrFetching'));
               if (attempt > 1) await new Promise(r => setTimeout(r, 1200));
               const pageText = await API.fetchPageText(url, settings);
-              if (pageText && pageText.length > 100) {
+              if (pageText && pageText.length > 100 && this._canUseAI()) {
                 _setProgress(90, this.t('scan.qrParsing'));
                 const extracted = await API.extractWineFromQRPage(pageText, settings, this.lang);
                 if (extracted && !extracted.error && extracted.name) {
+                  this._incrementAiCalls();
                   partial = { ...extracted, _sourceGtin: gtin14, _sourceEan: ean13 };
                   if (serial) partial._serialNumber = serial;
                 }
