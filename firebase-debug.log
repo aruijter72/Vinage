@@ -79,3 +79,4 @@ Detected existing codebase(s): default
 [info] 
 Overwriting codebase default...
 
+[info] i  Skipping write of functions/package.json 
