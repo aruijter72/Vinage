@@ -4440,9 +4440,41 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   buildSettingsView() {
     const s = DB.getSettings();
     const provider = s.apiProvider || 'anthropic';
+    DB.resetAiMonthlyCounterIfNeeded();
+
+    // Plan badge
+    const plan        = this._getPlan();
+    const isUnlimited = plan.bottleLimit === null;
+    const bottleCount = this._totalBottleCount();
+    const aiUsed      = s.aiCallsMonth || 0;
+    const bottleText  = isUnlimited
+      ? this.t('plan.bottlesUnlimited')
+      : this.t('plan.bottlesUsed', { used: bottleCount, limit: plan.bottleLimit });
+    const aiText      = plan.aiLimit === null
+      ? this.t('plan.aiUnlimited')
+      : this.t('plan.aiUsed', { used: aiUsed, limit: plan.aiLimit });
+    const planName    = this.t('plan.' + plan.id + 'Name');
+    const isMaxPlan   = plan.id === 'verzamelaar' || plan.id === 'jaarlijks';
 
     return `
     <div class="page-header"><h1>${this.t('settings.title')}</h1></div>
+
+    <div class="settings-section settings-plan-card">
+      <div class="settings-plan-header">
+        <div>
+          <div class="settings-plan-label">${this.t('plan.sectionTitle')}</div>
+          <div class="settings-plan-name">${planName}</div>
+        </div>
+        ${isMaxPlan
+          ? `<div class="settings-plan-badge">${this.t('plan.currentPlan')}</div>`
+          : `<button class="btn btn-primary btn-sm" data-action="show-upgrade">${this.t('plan.upgradeBtn')}</button>`
+        }
+      </div>
+      <div class="settings-plan-usage">
+        <span>🍾 ${bottleText}</span>
+        <span>✦ ${aiText}</span>
+      </div>
+    </div>
 
     <div class="settings-section">
       <h2>${this.t('settings.language')}</h2>
