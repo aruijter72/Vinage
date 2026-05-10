@@ -1505,6 +1505,7 @@ const App = {
       pairings: parseList('wf-pairings'),
       tags:     parseList('wf-tags'),
       notes:      parse('wf-notes'),
+      memo:       parse('wf-memo'),
       price:      parseNum('wf-price'),
       rating:     this._formRating,
       drinkFrom:  parseNum('wf-drink-from')  ? parseInt(parse('wf-drink-from'),  10) : null,
