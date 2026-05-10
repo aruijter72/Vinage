@@ -1759,6 +1759,7 @@ const App = {
     if (!settings.anthropicKey && !settings.openaiKey) {
       this.toast(this.t('scan.apiKeyMissing'), 'error'); return;
     }
+    if (!this._canUseAI()) { this._showAiLimitPaywall(); return; }
     const btn = document.getElementById('regen-notes-btn');
     if (btn) { btn.disabled = true; btn.textContent = '…'; }
 
