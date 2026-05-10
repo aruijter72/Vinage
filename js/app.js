@@ -1318,6 +1318,12 @@ const App = {
         </div>
         <textarea id="wf-notes" class="form-control">${this._esc(wine.notes||'')}</textarea>
       </div>
+      <div class="form-group">
+        <label>${this.t('wine.memo')}</label>
+        <textarea id="wf-memo" class="form-control" rows="2"
+                  placeholder="${this.t('wine.memoPlaceholder')}"
+                  style="resize:none">${this._esc(wine.memo||'')}</textarea>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="form-group">
           <label>${this.t('wine.price')}</label>
