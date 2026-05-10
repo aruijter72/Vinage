@@ -738,11 +738,12 @@ const App = {
 
       // ── Phase D: AI enrichment — fills any remaining gaps ────────────────
       const hasAiKey = settings.anthropicKey || settings.openaiKey;
-      if (hasAiKey && partial.name) {
+      if (hasAiKey && partial.name && this._canUseAI()) {
         this._setScanStatus(`<span class="spinner"></span>${this.t('scan.barcodeEnriching')}`, '');
         try {
           const enriched = await API.enrichWineData(partial, settings, this.lang);
           if (!enriched.error) {
+            this._incrementAiCalls();
             partial = {
               ...enriched,
               name:       partial.name       || enriched.name,
