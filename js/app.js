@@ -434,9 +434,12 @@ const App = {
       if (resultsEl) resultsEl.innerHTML = `<div class="search-status">${this.t('scan.apiKeyMissing')}</div>`;
       return;
     }
+    // Plan: AI call limit
+    if (!this._canUseAI()) { this._showAiLimitPaywall(); return; }
 
     try {
       const results = await API.searchWines(query, settings, this.lang);
+      this._incrementAiCalls();
       this._searchResults = results;
       if (resultsEl) resultsEl.innerHTML = this._renderSearchResults();
     } catch (e) {
