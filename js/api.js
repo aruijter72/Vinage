@@ -222,19 +222,18 @@ If no wines can be meaningfully matched, return: []`;
 
     const provider = settings.apiProvider || 'anthropic';
     const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
-    if (!key) throw new Error('no_api_key');
-
     try {
-      const raw = provider === 'anthropic'
-        ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
-        : await this._openaiText(prompt, key, 'gpt-4o-mini');
+      const raw = key
+        ? (provider === 'anthropic'
+            ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+            : await this._openaiText(prompt, key, 'gpt-4o-mini'))
+        : await this._proxyText(prompt, 'claude-haiku-4-5-20251001');
       // Parse array response
       const clean = raw.replace(/```json?\s*/gi, '').replace(/```/g, '').trim();
       const match = clean.match(/\[[\s\S]*\]/);
       if (!match) return [];
       return JSON.parse(match[0]);
     } catch (e) {
-      if (e.message === 'no_api_key') throw e;
       throw new Error('api_error: ' + e.message);
     }
   },
@@ -479,12 +478,13 @@ ${langNote}`;
 
     const provider = settings.apiProvider || 'anthropic';
     const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
-    if (!key) throw new Error('no_api_key');
 
     try {
-      const raw = provider === 'anthropic'
-        ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
-        : await this._openaiText(prompt, key, 'gpt-4o-mini');
+      const raw = key
+        ? (provider === 'anthropic'
+            ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+            : await this._openaiText(prompt, key, 'gpt-4o-mini'))
+        : await this._proxyText(prompt, 'claude-haiku-4-5-20251001');
       return this._parseJSON(raw);
     } catch (e) {
       return { error: e.message };
