@@ -20,8 +20,27 @@ const DB = {
   _set(key, val) { localStorage.setItem(key, JSON.stringify(val)); },
 
   // ── Settings ─────────────────────────────────────────────────────────────
-  getSettings() { return this._get(this.KEYS.settings) || {}; },
+  getSettings() {
+    const s = this._get(this.KEYS.settings) || {};
+    // Subscription defaults
+    if (!s.plan) s.plan = 'free';
+    if (s.aiCalls          === undefined) s.aiCalls          = 0;
+    if (s.aiCallsMonth     === undefined) s.aiCallsMonth      = 0;
+    if (!s.aiCallsResetMonth) s.aiCallsResetMonth = new Date().toISOString().slice(0, 7);
+    return s;
+  },
   saveSettings(s) { this._set(this.KEYS.settings, s); },
+
+  // Reset monthly AI counter when a new month has started
+  resetAiMonthlyCounterIfNeeded() {
+    const s = this._get(this.KEYS.settings) || {};
+    const currentMonth = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
+    if (s.aiCallsResetMonth !== currentMonth) {
+      s.aiCallsMonth = 0;
+      s.aiCallsResetMonth = currentMonth;
+      this._set(this.KEYS.settings, s);
+    }
+  },
 
   // ── Wines ─────────────────────────────────────────────────────────────────
   getWines() { return this._get(this.KEYS.wines) || []; },
