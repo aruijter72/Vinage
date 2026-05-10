@@ -1,3 +1,12 @@
+// ── Subscription plan definitions ────────────────────────────────────────────
+const PLANS = {
+  free:        { id: 'free',        bottleLimit: 25,  aiLimit: 10,  price: 0 },
+  liefhebber:  { id: 'liefhebber',  bottleLimit: 250, aiLimit: 75,  price: 2.99 },
+  verzamelaar: { id: 'verzamelaar', bottleLimit: null, aiLimit: null, price: 4.99 },
+};
+// Jaarlijks = Verzamelaar tier, annual billing
+PLANS.jaarlijks = { ...PLANS.verzamelaar, id: 'jaarlijks', price: 47.99 };
+
 // Vinage — Data Layer (localStorage)
 const DB = {
   KEYS: { wines: 'vinage_wines', cellars: 'vinage_cellars', settings: 'vinage_settings', wishlist: 'vinage_wishlist', consumption: 'vinage_consumption' },
