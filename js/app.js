@@ -1784,9 +1784,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     try {
       const provider = settings.apiProvider || 'anthropic';
       const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
-      const note = provider === 'anthropic'
-        ? await API._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
-        : await API._openaiText(prompt, key, 'gpt-4o-mini');
+      const note = key
+        ? (provider === 'anthropic'
+            ? await API._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+            : await API._openaiText(prompt, key, 'gpt-4o-mini'))
+        : await API._proxyText(prompt, 'claude-haiku-4-5-20251001');
       this._incrementAiCalls();
       const ta = document.getElementById('wf-notes');
       if (ta) ta.value = note.trim();
