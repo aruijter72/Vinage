@@ -3992,10 +3992,14 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       } catch { city = null; }
     }
 
+    // Plan: AI call limit (rule-based pairing is always allowed)
+    if (hasKey && !this._canUseAI()) { this._showAiLimitPaywall(); return; }
+
     let result;
     try {
       if (hasKey) {
         result = await API.suggestPairings(dish, wines, settings, this.lang, city);
+        this._incrementAiCalls();
       } else {
         result = API.ruleBasedPairing(dish, wines);
       }
