@@ -1536,6 +1536,12 @@ const App = {
     const name = document.getElementById('wf-name')?.value.trim();
     if (!name) { this.toast(this.t('wine.name') + ' is required', 'error'); return; }
 
+    // Plan: bottle limit check — only for new wines (editing is always allowed)
+    if (!this.editWineId && !this._canAddWine()) {
+      this._showBottleLimitPaywall();
+      return;
+    }
+
     const parse = id => document.getElementById(id)?.value.trim() || '';
     const parseNum = id => { const v = document.getElementById(id)?.value; return v ? parseFloat(v) : null; };
     const parseList = id => parse(id).split(',').map(s => s.trim()).filter(Boolean);
