@@ -429,8 +429,9 @@ const App = {
     const resultsEl = document.getElementById('search-results');
     if (resultsEl) resultsEl.innerHTML = `<div class="search-status">${this.t('scan.searching')}</div>`;
 
-    const settings = DB.getSettings();
-    if (!settings.anthropicKey && !settings.openaiKey) {
+    const settings  = DB.getSettings();
+    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
       if (resultsEl) resultsEl.innerHTML = `<div class="search-status">${this.t('scan.apiKeyMissing')}</div>`;
       return;
     }
