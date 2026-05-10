@@ -4577,7 +4577,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-openai-key">show</span>
           </div>
           <div class="key-hint">${this.t('settings.keyHint')}</div>
-      </div>
+        `;
+      })()}
     </div>
 
     <div class="settings-section">
