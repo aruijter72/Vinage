@@ -1601,6 +1601,17 @@ const TRANSLATIONS = {
       healthOldest: 'Älteste Flasche', healthTopValue: 'Höchster Wert',
       healthAvgVintage: 'Durchschnittsjahrgang', healthNoVintage: '—', healthScore: 'Gesundheitspunkte',
       healthScoreGood: 'Hervorragend', healthScoreOk: 'Aufmerksamkeit nötig', healthScorePoor: 'Jetzt handeln',
+    },
+    plan: {
+      sectionTitle: 'Abonnement', currentLabel: 'Dein Plan', choosePlan: 'Wähle deinen Plan',
+      bottlesUsed: '{used} von {limit} Flaschen', bottlesUnlimited: 'Unbegrenzte Flaschen',
+      aiUsed: '{used} von {limit} KI-Aufrufen diesen Monat', aiUnlimited: 'Unbegrenzte KI',
+      upgradeBtn: 'Upgraden', manageBtn: 'Verwalten',
+      freeName: 'Kostenlos', liefhebberName: 'Liefhebber', verzamelaarName: 'Verzamelaar', jaarlijksName: 'Verzamelaar Jährlich',
+      perMonth: '/Monat', perYear: '/Jahr', recommended: 'Am beliebtesten', twoMonthsFree: '2 Monate gratis',
+      currentPlan: 'Aktueller Plan', choosePlanBtn: 'Loslegen',
+      limitBottleMsg: 'Sie haben das Flaschenlimit von {limit} für den {plan}-Plan erreicht. Upgraden Sie, um mehr Weine hinzuzufügen.',
+      limitAiMsg: 'Sie haben alle {limit} KI-Aufrufe dieses Monats für den {plan}-Plan verwendet. Upgraden Sie für mehr.',
     }
   }
 };
