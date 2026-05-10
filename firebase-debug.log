@@ -73,3 +73,6 @@ Before we get started, keep in mind:
 [debug] [2026-05-10T23:08:00.782Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/vinage-85fd8/services/runtimeconfig.googleapis.com [omitted]
 [debug] [2026-05-10T23:08:01.494Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/vinage-85fd8/services/cloudfunctions.googleapis.com:enable 200
 [debug] [2026-05-10T23:08:01.494Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/vinage-85fd8/services/cloudfunctions.googleapis.com:enable [omitted]
+[info] 
+Detected existing codebase(s): default
+
