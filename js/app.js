@@ -4897,6 +4897,87 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     </div>`;
   },
 
+  // ── Upgrade / Paywall screen ──────────────────────────────────────────────
+  buildUpgradeView() {
+    const s       = this._getPlan();
+    const settings = DB.getSettings();
+    DB.resetAiMonthlyCounterIfNeeded();
+    const bottleCount = this._totalBottleCount();
+    const aiUsed      = settings.aiCallsMonth || 0;
+
+    const _planCard = (planId, price, priceLabel, badge, featureLines, stripeKey) => {
+      const plan       = PLANS[planId];
+      const isCurrent  = planId === settings.plan;
+      const isUnlimited = plan.bottleLimit === null;
+      const bottles    = isUnlimited ? this.t('plan.bottlesUnlimited') : this.t('plan.bottlesUsed', { used: bottleCount, limit: plan.bottleLimit });
+      const ai         = plan.aiLimit === null ? this.t('plan.aiUnlimited') : this.t('plan.aiUsed', { used: aiUsed, limit: plan.aiLimit });
+      const stripeUrl  = STRIPE_LINKS[stripeKey] || '#';
+
+      let badgeHtml = '';
+      if (badge === 'recommended') badgeHtml = `<span class="upgrade-badge upgrade-badge--popular">${this.t('plan.recommended')}</span>`;
+      if (badge === 'annual')      badgeHtml = `<span class="upgrade-badge upgrade-badge--annual">${this.t('plan.twoMonthsFree')}</span>`;
+
+      const ctaHtml = isCurrent
+        ? `<div class="upgrade-current-label">${this.t('plan.currentPlan')}</div>`
+        : planId === 'free'
+          ? `<div class="upgrade-current-label">${this.t('plan.currentPlan')}</div>`
+          : `<a class="btn btn-primary btn-full upgrade-cta" href="${stripeUrl}" target="_blank" rel="noopener">${this.t('plan.upgradeBtn')}</a>`;
+
+      return `
+      <div class="upgrade-plan-card${isCurrent ? ' upgrade-plan-card--current' : ''}">
+        ${badgeHtml}
+        <div class="upgrade-plan-name">${this.t('plan.' + planId + 'Name')}</div>
+        <div class="upgrade-plan-price">${price > 0 ? '€' + price.toFixed(2).replace('.', ',') : ''}<span class="upgrade-plan-period">${priceLabel}</span></div>
+        <ul class="upgrade-feature-list">
+          <li>🍾 ${isUnlimited ? this.t('plan.bottlesUnlimited') : plan.bottleLimit + (this.lang === 'nl' ? ' flessen' : ' bottles')}</li>
+          <li>✦ ${plan.aiLimit === null ? this.t('plan.aiUnlimited') : plan.aiLimit + (this.lang === 'nl' ? ' AI-oproepen/mnd' : ' AI calls/mo')}</li>
+          ${featureLines.map(f => `<li>${f}</li>`).join('')}
+        </ul>
+        ${ctaHtml}
+      </div>`;
+    };
+
+    const feat = {
+      cellar:  this.lang === 'nl' ? '🗄️ Kelderbeheer' : '🗄️ Cellar management',
+      pairing: this.lang === 'nl' ? '🍽️ Spijsadvies' : '🍽️ Food pairing',
+      stats:   this.lang === 'nl' ? '📊 Statistieken' : '📊 Stats & insights',
+      cloud:   this.lang === 'nl' ? '☁️ Cloud sync (optioneel)' : '☁️ Cloud sync (optional)',
+      support: this.lang === 'nl' ? '⭐ Prioriteit support' : '⭐ Priority support',
+      value:   this.lang === 'nl' ? '💰 Beste prijs-kwaliteit' : '💰 Best value',
+    };
+
+    return `
+    <div class="page-header">
+      <button class="back-btn" data-action="back-from-upgrade"
+              style="background:none;border:none;color:var(--gold);font-size:1rem;cursor:pointer;padding:0 8px 0 0">&#8592;</button>
+      <h1>${this.t('plan.choosePlan')}</h1>
+    </div>
+
+    <div class="upgrade-screen">
+      <p class="upgrade-intro">${this.lang === 'nl'
+        ? 'Kies het abonnement dat past bij jouw collectie.'
+        : 'Choose the plan that fits your collection.'}</p>
+
+      <div class="upgrade-plans">
+        ${_planCard('free',        0,      this.lang === 'nl' ? 'Gratis' : 'Free',  null,
+          [feat.cellar, feat.pairing], null)}
+
+        ${_planCard('liefhebber',  2.99,   this.t('plan.perMonth'), null,
+          [feat.cellar, feat.pairing, feat.stats, feat.cloud], 'liefhebber')}
+
+        ${_planCard('verzamelaar', 4.99,   this.t('plan.perMonth'), 'recommended',
+          [feat.cellar, feat.pairing, feat.stats, feat.cloud, feat.support], 'verzamelaar')}
+
+        ${_planCard('jaarlijks',   47.99,  this.t('plan.perYear'),  'annual',
+          [feat.cellar, feat.pairing, feat.stats, feat.cloud, feat.support, feat.value], 'jaarlijks')}
+      </div>
+
+      <p class="upgrade-footnote">${this.lang === 'nl'
+        ? 'Betalen via Stripe. Jouw plan wordt na betaling handmatig geactiveerd — neem contact op via <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.'
+        : 'Payment via Stripe. Your plan is activated manually after payment — contact <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.'}</p>
+    </div>`;
+  },
+
   // ── Notifications Settings Section ────────────────────────────────────────
   _buildNotifSection() {
     if (!('Notification' in window)) return '';
