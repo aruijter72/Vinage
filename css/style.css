@@ -3169,3 +3169,151 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   padding: 3px 10px;
   color: var(--text);
 }
+
+/* ── Upgrade / Paywall Screen ──────────────────────────────────────────────── */
+.upgrade-screen {
+  padding: 0 16px 120px;
+}
+.upgrade-intro {
+  font-size: .9rem;
+  color: var(--text-md);
+  text-align: center;
+  margin: 0 0 18px;
+}
+.upgrade-plans {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.upgrade-plan-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px 14px;
+  position: relative;
+}
+.upgrade-plan-card--current {
+  border-color: var(--burgundy);
+  background: color-mix(in srgb, var(--burgundy) 6%, var(--surface));
+}
+.upgrade-badge {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  padding: 3px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.upgrade-badge--popular {
+  background: var(--burgundy);
+  color: #fff;
+}
+.upgrade-badge--annual {
+  background: var(--gold);
+  color: #3B1422;
+}
+.upgrade-plan-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.upgrade-plan-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--burgundy);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.upgrade-plan-period {
+  font-size: .8rem;
+  font-weight: 400;
+  color: var(--text-md);
+  margin-left: 2px;
+}
+.upgrade-feature-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.upgrade-feature-list li {
+  font-size: .84rem;
+  color: var(--text-md);
+}
+.upgrade-cta {
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+}
+.upgrade-current-label {
+  text-align: center;
+  font-size: .8rem;
+  color: var(--text-lt);
+  padding: 8px 0 2px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.upgrade-footnote {
+  font-size: .76rem;
+  color: var(--text-lt);
+  text-align: center;
+  margin: 20px 0 0;
+  line-height: 1.5;
+}
+
+/* ── Settings plan card ────────────────────────────────────────────────────── */
+.settings-plan-card {
+  background: color-mix(in srgb, var(--burgundy) 8%, var(--surface));
+  border: 1.5px solid color-mix(in srgb, var(--burgundy) 30%, var(--border));
+}
+.settings-plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.settings-plan-label {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-lt);
+}
+.settings-plan-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 2px;
+}
+.settings-plan-badge {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.settings-plan-usage {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.settings-plan-usage span {
+  font-size: .82rem;
+  color: var(--text-md);
+}
