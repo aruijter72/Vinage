@@ -1179,6 +1179,17 @@ const TRANSLATIONS = {
       healthOldest: 'Bouteille la plus ancienne', healthTopValue: 'Valeur maximale',
       healthAvgVintage: 'Millésime moyen', healthNoVintage: '—', healthScore: 'Score de santé',
       healthScoreGood: 'Excellent état', healthScoreOk: 'Nécessite attention', healthScorePoor: 'Agissez maintenant',
+    },
+    plan: {
+      sectionTitle: 'Abonnement', currentLabel: 'Votre plan', choosePlan: 'Choisissez votre plan',
+      bottlesUsed: '{used} sur {limit} bouteilles', bottlesUnlimited: 'Bouteilles illimitées',
+      aiUsed: '{used} sur {limit} appels IA ce mois', aiUnlimited: 'IA illimitée',
+      upgradeBtn: 'Améliorer', manageBtn: 'Gérer',
+      freeName: 'Gratuit', liefhebberName: 'Liefhebber', verzamelaarName: 'Verzamelaar', jaarlijksName: 'Verzamelaar Annuel',
+      perMonth: '/mois', perYear: '/an', recommended: 'Le plus populaire', twoMonthsFree: '2 mois gratuits',
+      currentPlan: 'Plan actuel', choosePlanBtn: 'Commencer',
+      limitBottleMsg: "Vous avez atteint la limite de {limit} bouteilles pour le plan {plan}. Améliorez pour ajouter plus de vins.",
+      limitAiMsg: "Vous avez utilisé tous vos {limit} appels IA ce mois pour le plan {plan}. Améliorez pour en avoir plus.",
     }
   },
 
@@ -1379,6 +1390,17 @@ const TRANSLATIONS = {
       healthOldest: 'Botella más antigua', healthTopValue: 'Valor máximo',
       healthAvgVintage: 'Añada media', healthNoVintage: '—', healthScore: 'Puntuación de salud',
       healthScoreGood: 'En perfecto estado', healthScoreOk: 'Necesita atención', healthScorePoor: 'Actúa ahora',
+    },
+    plan: {
+      sectionTitle: 'Suscripción', currentLabel: 'Tu plan', choosePlan: 'Elige tu plan',
+      bottlesUsed: '{used} de {limit} botellas', bottlesUnlimited: 'Botellas ilimitadas',
+      aiUsed: '{used} de {limit} llamadas IA este mes', aiUnlimited: 'IA ilimitada',
+      upgradeBtn: 'Actualizar', manageBtn: 'Gestionar',
+      freeName: 'Gratis', liefhebberName: 'Liefhebber', verzamelaarName: 'Verzamelaar', jaarlijksName: 'Verzamelaar Anual',
+      perMonth: '/mes', perYear: '/año', recommended: 'Más popular', twoMonthsFree: '2 meses gratis',
+      currentPlan: 'Plan actual', choosePlanBtn: 'Comenzar',
+      limitBottleMsg: 'Has alcanzado el límite de {limit} botellas para el plan {plan}. Actualiza para añadir más vinos.',
+      limitAiMsg: 'Has usado todas las {limit} llamadas IA de este mes en el plan {plan}. Actualiza para obtener más.',
     }
   },
 
