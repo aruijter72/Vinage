@@ -4607,10 +4607,42 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
               style="gap:8px;margin-top:8px;color:var(--gold);font-weight:600;border:1px solid var(--cream-dk);">
         📖 ${this.lang==='nl'?'Hulp &amp; Functies':'Help &amp; Features'}
       </button>
-      <div style="font-size:.78rem;color:var(--text-lt);margin-top:10px;text-align:center;letter-spacing:.04em">
+      <div style="font-size:.78rem;color:var(--text-lt);margin-top:10px;text-align:center;letter-spacing:.04em"
+           onclick="App._betaTapCount=(App._betaTapCount||0)+1;if(App._betaTapCount>=5){App._betaTapCount=0;document.getElementById('beta-code-row').style.display='flex';}">
         ${this.t('settings.version')} · ${this.lang === 'nl' ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINE. YOUR COLLECTION.'}
       </div>
+      <div id="beta-code-row" style="display:none;margin-top:12px;gap:8px;align-items:center">
+        <input id="beta-code-input" class="form-control" type="text"
+               placeholder="${this.lang === 'nl' ? 'Toegangscode…' : 'Access code…'}"
+               style="flex:1;font-size:.88rem;letter-spacing:.08em;text-transform:uppercase"
+               oninput="this.value=this.value.toUpperCase()">
+        <button class="btn btn-primary btn-sm" onclick="App._redeemBetaCode()">OK</button>
+      </div>
     </div>`;
+  },
+
+  // ── Beta access code ──────────────────────────────────────────────────────
+  // Tap the version text 5 times to reveal the code input.
+  // Change BETA_CODES to revoke or rotate access codes.
+  _betaTapCount: 0,
+  _redeemBetaCode() {
+    const BETA_CODES = {
+      'VINAGE-BETA':       'verzamelaar',  // full access for testers
+      'VINAGE-LIEFHEBBER': 'liefhebber',  // liefhebber plan
+    };
+    const input = document.getElementById('beta-code-input');
+    const code  = (input?.value || '').trim().toUpperCase();
+    const plan  = BETA_CODES[code];
+    if (!plan) {
+      this.toast(this.lang === 'nl' ? 'Ongeldige code.' : 'Invalid code.', 'error');
+      return;
+    }
+    const s = DB.getSettings();
+    s.plan = plan;
+    DB.saveSettings(s);
+    document.getElementById('beta-code-row').style.display = 'none';
+    this.renderView(); // refresh settings to show new plan
+    this.toast(this.lang === 'nl' ? `Plan ingesteld: ${plan} ✓` : `Plan set: ${plan} ✓`, 'success');
   },
 
   saveSettings() {
