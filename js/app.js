@@ -847,10 +847,13 @@ const App = {
         if (attempt > 1) await new Promise(r => setTimeout(r, 1200));
 
         const pageText = await API.fetchPageText(url, settings);
-        if (pageText && pageText.length > 20) {
+        if (pageText && pageText.length > 20 && this._canUseAI()) {
           _setProgress(90, this.t('scan.qrParsing'));
           const result = await API.extractWineFromQRPage(pageText, settings, this.lang);
-          if (result && !result.error && result.name) extracted = result;
+          if (result && !result.error && result.name) {
+            this._incrementAiCalls();
+            extracted = result;
+          }
         }
       } catch (_) { /* try next attempt */ }
     }
