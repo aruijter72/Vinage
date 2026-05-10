@@ -1757,8 +1757,9 @@ const App = {
 
   // ── Regenerate tasting notes via AI ─────────────────────────────────────
   async _regenNotes() {
-    const settings = DB.getSettings();
-    if (!settings.anthropicKey && !settings.openaiKey) {
+    const settings   = DB.getSettings();
+    const isSignedIn  = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
       this.toast(this.t('scan.apiKeyMissing'), 'error'); return;
     }
     if (!this._canUseAI()) { this._showAiLimitPaywall(); return; }
