@@ -95,6 +95,8 @@ const TRANSLATIONS = {
       rating: 'My Rating',
       notes: 'Tasting Notes',
       regenNotes: 'Generate',
+      memo: 'Personal Note',
+      memoPlaceholder: 'e.g. Gift from John, bought at the winery, found at auction…',
       price: 'Price (€)',
       quantity: 'Bottles in stock',
       pairings: 'Food Pairings',
