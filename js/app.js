@@ -271,6 +271,8 @@ const App = {
       case 'show-privacy':        this.navigate('privacy'); break;
       case 'show-terms':          this.navigate('terms'); break;
       case 'back-to-settings':    this.navigate('settings'); break;
+      case 'show-upgrade':        this.navigate('upgrade'); break;
+      case 'back-from-upgrade':   history.length > 1 ? history.back() : this.navigate('settings'); break;
       case 'preview-consent':     this._showConsent(true); break;
       // PDF
       case 'export-pdf':          this.exportPdf(); break;
