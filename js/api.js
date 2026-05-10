@@ -120,15 +120,15 @@ STRICT RULES — follow these exactly:
 
     const provider = settings.apiProvider || 'anthropic';
     const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
-    if (!key) throw new Error('no_api_key');
 
     try {
-      const raw = provider === 'anthropic'
-        ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
-        : await this._openaiText(prompt, key, 'gpt-4o-mini');
+      const raw = key
+        ? (provider === 'anthropic'
+            ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+            : await this._openaiText(prompt, key, 'gpt-4o-mini'))
+        : await this._proxyText(prompt, 'claude-haiku-4-5-20251001');
       return this._parseJSON(raw);
     } catch (e) {
-      if (e.message === 'no_api_key') throw e;
       throw new Error('api_error: ' + e.message);
     }
   },
@@ -172,15 +172,15 @@ If you cannot identify this wine at all, return: {"error":"unknown_wine"}`;
 
     const provider = settings.apiProvider || 'anthropic';
     const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
-    if (!key) throw new Error('no_api_key');
 
     try {
-      const raw = provider === 'anthropic'
-        ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
-        : await this._openaiText(prompt, key, 'gpt-4o-mini');
+      const raw = key
+        ? (provider === 'anthropic'
+            ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+            : await this._openaiText(prompt, key, 'gpt-4o-mini'))
+        : await this._proxyText(prompt, 'claude-haiku-4-5-20251001');
       return this._parseJSON(raw);
     } catch (e) {
-      if (e.message === 'no_api_key') throw e;
       throw new Error('api_error: ' + e.message);
     }
   },
