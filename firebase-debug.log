@@ -82,3 +82,6 @@ Overwriting codebase default...
 [info] i  Skipping write of functions/package.json 
 [info] i  Skipping write of functions/index.js 
 [info] ✔  Wrote functions/.gitignore 
+[info] 
+=== Agent Skills Setup
+[info] If you are using an AI coding agent, Firebase Agent Skills make it an expert at Firebase.
