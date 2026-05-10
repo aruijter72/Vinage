@@ -3317,3 +3317,15 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   font-size: .82rem;
   color: var(--text-md);
 }
+
+/* ── Settings — AI proxy notice (signed-in users) ──────────────────────────── */
+.settings-ai-proxy-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: color-mix(in srgb, var(--gold) 10%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--gold) 35%, var(--border));
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  color: var(--text);
+}
