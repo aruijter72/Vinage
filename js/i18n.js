@@ -968,6 +968,17 @@ const TRANSLATIONS = {
       healthOldest: 'Bottiglia più vecchia', healthTopValue: 'Valore massimo',
       healthAvgVintage: 'Annata media', healthNoVintage: '—', healthScore: 'Punteggio salute',
       healthScoreGood: 'Ottimo stato', healthScoreOk: 'Necessita attenzione', healthScorePoor: 'Agisci ora',
+    },
+    plan: {
+      sectionTitle: 'Abbonamento', currentLabel: 'Il tuo piano', choosePlan: 'Scegli il tuo piano',
+      bottlesUsed: '{used} di {limit} bottiglie', bottlesUnlimited: 'Bottiglie illimitate',
+      aiUsed: '{used} di {limit} chiamate AI questo mese', aiUnlimited: 'AI illimitata',
+      upgradeBtn: 'Migliora', manageBtn: 'Gestisci',
+      freeName: 'Gratuito', liefhebberName: 'Liefhebber', verzamelaarName: 'Verzamelaar', jaarlijksName: 'Verzamelaar Annuale',
+      perMonth: '/mese', perYear: '/anno', recommended: 'Più popolare', twoMonthsFree: '2 mesi gratis',
+      currentPlan: 'Piano attuale', choosePlanBtn: 'Inizia',
+      limitBottleMsg: "Hai raggiunto il limite di {limit} bottiglie per il piano {plan}. Fai l'upgrade per aggiungere altri vini.",
+      limitAiMsg: "Hai usato tutte le {limit} chiamate AI di questo mese per il piano {plan}. Fai l'upgrade per averne di più.",
     }
   },
 
