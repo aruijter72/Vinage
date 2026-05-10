@@ -4511,31 +4511,72 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
     <div class="settings-section">
       <h2>${this.t('settings.ai')}</h2>
-      <div class="settings-row">
-        <label>${this.t('settings.apiProvider')}</label>
-        <div class="provider-toggle">
-          <button class="provider-btn${provider==='anthropic'?' active':''}" data-action="toggle-provider" data-provider="anthropic">Claude</button>
-          <button class="provider-btn${provider==='openai'?' active':''}" data-action="toggle-provider" data-provider="openai">OpenAI</button>
+      ${(() => {
+        const signedIn = typeof firebase !== 'undefined' && !!firebase.auth().currentUser;
+        if (signedIn) {
+          return `
+          <div class="settings-ai-proxy-notice">
+            <span style="font-size:1.1rem">✦</span>
+            <div>
+              <div style="font-weight:600;font-size:.88rem">${this.lang==='nl' ? 'AI werkt automatisch' : 'AI works automatically'}</div>
+              <div style="font-size:.78rem;color:var(--text-lt);margin-top:2px">${this.lang==='nl'
+                ? 'Je bent ingelogd — alle AI-functies zijn inbegrepen bij jouw abonnement.'
+                : 'You are signed in — all AI features are included with your subscription.'}</div>
+            </div>
+          </div>
+          <details style="margin-top:10px">
+            <summary style="font-size:.78rem;color:var(--text-lt);cursor:pointer;list-style:none;padding:4px 0">
+              ${this.lang==='nl' ? '▸ Eigen API-sleutel gebruiken (optioneel)' : '▸ Use your own API key (optional)'}
+            </summary>
+            <div style="margin-top:10px">
+              <div class="form-group">
+                <label>${this.t('settings.anthropicKey')}</label>
+                <div class="key-input-wrap">
+                  <input id="s-anthropic-key" class="form-control" type="password"
+                         placeholder="${this.t('settings.keyPlaceholder')}"
+                         value="${this._esc(s.anthropicKey||'')}">
+                  <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-anthropic-key">show</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>${this.t('settings.openaiKey')}</label>
+                <div class="key-input-wrap">
+                  <input id="s-openai-key" class="form-control" type="password"
+                         placeholder="${this.t('settings.keyPlaceholder')}"
+                         value="${this._esc(s.openaiKey||'')}">
+                  <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-openai-key">show</span>
+                </div>
+                <div class="key-hint">${this.t('settings.keyHint')}</div>
+              </div>
+            </div>
+          </details>`;
+        }
+        return `
+        <div class="settings-row">
+          <label>${this.t('settings.apiProvider')}</label>
+          <div class="provider-toggle">
+            <button class="provider-btn${provider==='anthropic'?' active':''}" data-action="toggle-provider" data-provider="anthropic">Claude</button>
+            <button class="provider-btn${provider==='openai'?' active':''}" data-action="toggle-provider" data-provider="openai">OpenAI</button>
+          </div>
         </div>
-      </div>
-      <div class="form-group" style="margin-top:12px">
-        <label>${this.t('settings.anthropicKey')}</label>
-        <div class="key-input-wrap">
-          <input id="s-anthropic-key" class="form-control" type="password"
-                 placeholder="${this.t('settings.keyPlaceholder')}"
-                 value="${this._esc(s.anthropicKey||'')}">
-          <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-anthropic-key">show</span>
+        <div class="form-group" style="margin-top:12px">
+          <label>${this.t('settings.anthropicKey')}</label>
+          <div class="key-input-wrap">
+            <input id="s-anthropic-key" class="form-control" type="password"
+                   placeholder="${this.t('settings.keyPlaceholder')}"
+                   value="${this._esc(s.anthropicKey||'')}">
+            <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-anthropic-key">show</span>
+          </div>
         </div>
-      </div>
-      <div class="form-group">
-        <label>${this.t('settings.openaiKey')}</label>
-        <div class="key-input-wrap">
-          <input id="s-openai-key" class="form-control" type="password"
-                 placeholder="${this.t('settings.keyPlaceholder')}"
-                 value="${this._esc(s.openaiKey||'')}">
-          <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-openai-key">show</span>
-        </div>
-        <div class="key-hint">${this.t('settings.keyHint')}</div>
+        <div class="form-group">
+          <label>${this.t('settings.openaiKey')}</label>
+          <div class="key-input-wrap">
+            <input id="s-openai-key" class="form-control" type="password"
+                   placeholder="${this.t('settings.keyPlaceholder')}"
+                   value="${this._esc(s.openaiKey||'')}">
+            <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-openai-key">show</span>
+          </div>
+          <div class="key-hint">${this.t('settings.keyHint')}</div>
       </div>
     </div>
 
