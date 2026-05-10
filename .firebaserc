@@ -1,6 +1,7 @@
 {
   "projects": {
-    "staging": "vinage-85fd8"
+    "staging": "vinage-85fd8",
+    "default": "vinage-85fd8"
   },
   "targets": {},
   "etags": {}
