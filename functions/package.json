@@ -1,7 +1,7 @@
 {
   "name": "vinage-functions",
   "description": "Firebase Cloud Functions for Vinage AI proxy",
-  "engines": { "node": "20" },
+  "engines": { "node": "22" },
   "main": "index.js",
   "scripts": {
     "serve": "firebase emulators:start --only functions",
