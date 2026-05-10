@@ -458,6 +458,8 @@ const TRANSLATIONS = {
       rating: 'Mijn Beoordeling',
       notes: 'Proefnotities',
       regenNotes: 'Genereer',
+      memo: 'Persoonlijke notitie',
+      memoPlaceholder: 'bijv. Cadeau van Jan, gekocht op de wijnboerderij, gevonden op veiling…',
       price: 'Prijs (€)',
       quantity: 'Flessen op voorraad',
       pairings: 'Spijscombinaties',
