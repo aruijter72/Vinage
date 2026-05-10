@@ -1075,9 +1075,10 @@ const App = {
     // Full-res capture — used for AI analysis only, never stored
     this.capturedImage = canvas.toDataURL('image/jpeg', .85).split(',')[1];
 
-    const settings = DB.getSettings();
-    const hasKey = (settings.anthropicKey || settings.openaiKey);
-    if (!hasKey) {
+    const settings  = DB.getSettings();
+    const hasKey    = !!(settings.anthropicKey || settings.openaiKey);
+    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    if (!hasKey && !isSignedIn) {
       this._setScanStatus(this.t('scan.apiKeyMissing'), 'error');
       actionRow.innerHTML += ` <button class="btn btn-primary btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
       return;
