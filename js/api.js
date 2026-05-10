@@ -46,15 +46,15 @@ If this is clearly NOT a wine bottle, return: {"error":"not_a_wine"}`;
 
     const provider = settings.apiProvider || 'anthropic';
     const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
-    if (!key) throw new Error('no_api_key');
 
     try {
-      const raw = provider === 'anthropic'
-        ? await this._claudeVision(base64jpeg, prompt, key)
-        : await this._openaiVision(base64jpeg, prompt, key);
+      const raw = key
+        ? (provider === 'anthropic'
+            ? await this._claudeVision(base64jpeg, prompt, key)
+            : await this._openaiVision(base64jpeg, prompt, key))
+        : await this._proxyVision(base64jpeg, prompt); // signed-in: use server key
       return this._parseJSON(raw);
     } catch (e) {
-      if (e.message === 'no_api_key') throw e;
       throw new Error('api_error: ' + e.message);
     }
   },
