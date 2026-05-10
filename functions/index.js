@@ -3,11 +3,11 @@
 // The Anthropic API key never leaves the server.
 //
 // Deployment:
-//   firebase functions:secrets:set ANTHROPIC_KEY
-//   firebase deploy --only functions
+//   1. Create functions/.env with: ANTHROPIC_KEY=sk-ant-api03-...
+//   2. firebase deploy --only functions
 //
 // Environment:
-//   ANTHROPIC_KEY — set via: firebase functions:secrets:set ANTHROPIC_KEY
+//   ANTHROPIC_KEY — stored in functions/.env (loaded automatically by Firebase)
 
 'use strict';
 
@@ -24,10 +24,9 @@ const MONTHLY_HARD_CAP = 500; // calls per user per calendar month
 // ── Main proxy callable ───────────────────────────────────────────────────────
 exports.aiProxy = onCall(
   {
-    secrets:    ['ANTHROPIC_KEY'],
-    cors:       true,
+    cors:           true,
     timeoutSeconds: 60,
-    memory:     '256MiB',
+    memory:         '256MiB',
   },
   async (request) => {
 
