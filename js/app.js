@@ -3970,9 +3970,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     if (!resultsEl) return;
     resultsEl.innerHTML = `<div class="scan-status"><span class="spinner"></span>${this.t('pairing.finding')}</div>`;
 
-    const wines = DB.getWines();
-    const settings = DB.getSettings();
-    const hasKey = settings.anthropicKey || settings.openaiKey;
+    const wines      = DB.getWines();
+    const settings   = DB.getSettings();
+    const isSignedIn  = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    const hasKey     = !!(settings.anthropicKey || settings.openaiKey || isSignedIn);
 
     // Try to get user's city for local store guidance (best-effort, non-blocking)
     let city = null;
