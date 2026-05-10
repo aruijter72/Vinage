@@ -173,6 +173,7 @@ const App = {
       case 'settings':   el.innerHTML = this.buildSettingsView(); break;
       case 'privacy':    el.innerHTML = this.buildPrivacyView(); break;
       case 'terms':      el.innerHTML = this.buildTermsView(); break;
+      case 'upgrade':    el.innerHTML = this.buildUpgradeView(); break;
     }
   },
 
