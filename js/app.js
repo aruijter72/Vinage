@@ -1484,6 +1484,54 @@ const App = {
     }
   },
 
+  // ── Subscription plan helpers ─────────────────────────────────────────────
+  _getPlan() {
+    const s = DB.getSettings();
+    return PLANS[s.plan] || PLANS.free;
+  },
+
+  // Total bottles across all wines (sum of quantity fields)
+  _totalBottleCount() {
+    return DB.getWines().reduce((sum, w) => sum + (w.quantity || 1), 0);
+  },
+
+  _canAddWine() {
+    const plan = this._getPlan();
+    if (plan.bottleLimit === null) return true; // unlimited
+    return this._totalBottleCount() < plan.bottleLimit;
+  },
+
+  _canUseAI() {
+    DB.resetAiMonthlyCounterIfNeeded();
+    const plan = this._getPlan();
+    if (plan.aiLimit === null) return true; // unlimited
+    const s = DB.getSettings();
+    return (s.aiCallsMonth || 0) < plan.aiLimit;
+  },
+
+  _incrementAiCalls() {
+    DB.resetAiMonthlyCounterIfNeeded();
+    const s = DB.getSettings();
+    s.aiCalls      = (s.aiCalls      || 0) + 1;
+    s.aiCallsMonth = (s.aiCallsMonth || 0) + 1;
+    DB.saveSettings(s);
+  },
+
+  // Show upgrade screen with a limit-reached message toast
+  _showBottleLimitPaywall() {
+    const plan = this._getPlan();
+    const planName = this.t(`plan.${plan.id}Name`) || plan.id;
+    this.toast(this.t('plan.limitBottleMsg', { limit: plan.bottleLimit, plan: planName }), 'error');
+    setTimeout(() => this.navigate('upgrade'), 600);
+  },
+
+  _showAiLimitPaywall() {
+    const plan = this._getPlan();
+    const planName = this.t(`plan.${plan.id}Name`) || plan.id;
+    this.toast(this.t('plan.limitAiMsg', { limit: plan.aiLimit, plan: planName }), 'error');
+    setTimeout(() => this.navigate('upgrade'), 600);
+  },
+
   saveWineForm() {
     const name = document.getElementById('wf-name')?.value.trim();
     if (!name) { this.toast(this.t('wine.name') + ' is required', 'error'); return; }
