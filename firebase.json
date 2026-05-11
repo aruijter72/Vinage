@@ -23,6 +23,7 @@
       "firestore.rules",
       "autopush.sh",
       ".git",
+      ".git/**",
       ".gitignore",
       "*.md",
       "node_modules",
