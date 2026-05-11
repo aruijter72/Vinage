@@ -26,7 +26,11 @@
       ".gitignore",
       "*.md",
       "node_modules",
-      "functions"
+      "node_modules/**",
+      "functions",
+      "functions/**",
+      "**/.env",
+      "**/.DS_Store"
     ]
   }
 }
