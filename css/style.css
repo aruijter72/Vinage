@@ -1778,6 +1778,54 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 }
 .btn-microsoft:hover { background: #f3f3f3; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
 
+/* Sign-in buttons spacing */
+.btn-google.btn-full,
+.btn-microsoft.btn-full { margin-bottom: 10px; }
+
+/* "or" divider between social buttons and email form */
+.signin-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 14px;
+  color: var(--text-lt);
+  font-size: .8rem;
+}
+.signin-divider::before,
+.signin-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Email link form */
+.email-signin-form {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.email-signin-form .form-input {
+  flex: 1;
+  min-width: 0;
+}
+.email-signin-form .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Confirmation state after email link is sent */
+.email-signin-sent {
+  background: var(--surface-alt, rgba(163,131,91,.08));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+}
+.email-signin-sent-icon { font-size: 2rem; margin-bottom: 6px; }
+.email-signin-sent strong { display: block; margin-bottom: 6px; }
+.email-signin-sent p { font-size: .85rem; color: var(--text-lt); margin: 0 0 12px; }
+
 /* Signed-in user row */
 .sync-user-row {
   display: flex;
