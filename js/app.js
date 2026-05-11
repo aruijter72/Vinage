@@ -278,6 +278,8 @@ const App = {
       case 'export-pdf':          this.exportPdf(); break;
       // Cloud sync actions
       case 'sync-sign-in':        Sync.signIn(args.provider || 'google'); break;
+      case 'sync-email-send':     this._sendEmailLink(); break;
+      case 'sync-email-reset':    this._emailLinkSentTo = ''; this.renderView(); break;
       case 'sync-sign-out':       Sync.signOut(); break;
       case 'sync-create':         Sync.createHousehold(); break;
       case 'sync-join':           this._syncJoin(); break;
@@ -5173,6 +5175,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     }
 
     if (status.mode === 'signed-out') {
+      const emailSentTo = this._emailLinkSentTo || '';
       return `
       <div class="settings-section">
         <h2>${this.t('settings.sync')}</h2>
@@ -5180,6 +5183,25 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <button class="btn btn-google btn-full" data-action="sync-sign-in" data-provider="google">
           ${this._iconGoogle()} ${this.t('settings.syncSignIn')}
         </button>
+        <button class="btn btn-microsoft btn-full" data-action="sync-sign-in" data-provider="microsoft">
+          ${this._iconMicrosoft()} ${this.t('settings.syncSignInMicrosoft')}
+        </button>
+        <div class="signin-divider"><span>${this.t('settings.syncOr')}</span></div>
+        ${emailSentTo ? `
+          <div class="email-signin-sent">
+            <div class="email-signin-sent-icon">✉️</div>
+            <strong>${this.t('settings.syncEmailSent')}</strong>
+            <p>${this.t('settings.syncEmailSentHint').replace('{email}', this._esc(emailSentTo))}</p>
+            <button class="btn btn-ghost btn-sm" data-action="sync-email-reset">${this.t('settings.syncEmailPlaceholder')}</button>
+          </div>
+        ` : `
+          <div class="email-signin-form">
+            <input type="email" id="emailSignInInput" class="form-input"
+              placeholder="${this.t('settings.syncEmailPlaceholder')}"
+              autocomplete="email" inputmode="email">
+            <button class="btn btn-primary" data-action="sync-email-send">${this.t('settings.syncEmailSend')}</button>
+          </div>
+        `}
       </div>`;
     }
 
