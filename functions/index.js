@@ -25,6 +25,7 @@ const MONTHLY_HARD_CAP = 500; // calls per user per calendar month
 exports.aiProxy = onCall(
   {
     cors:           true,
+    invoker:        'public',   // Allow Firebase SDK to call; auth checked inside
     timeoutSeconds: 60,
     memory:         '256MiB',
   },
