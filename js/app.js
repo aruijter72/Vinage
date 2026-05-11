@@ -5191,9 +5191,6 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <button class="btn btn-google btn-full" data-action="sync-sign-in" data-provider="google">
           ${this._iconGoogle()} ${this.t('settings.syncSignIn')}
         </button>
-        <button class="btn btn-microsoft btn-full" data-action="sync-sign-in" data-provider="microsoft">
-          ${this._iconMicrosoft()} ${this.t('settings.syncSignInMicrosoft')}
-        </button>
         <div class="signin-divider"><span>${this.t('settings.syncOr')}</span></div>
         ${emailSentTo ? `
           <div class="email-signin-sent">
