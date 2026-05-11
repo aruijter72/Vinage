@@ -1078,7 +1078,7 @@ const App = {
 
     const settings  = DB.getSettings();
     const hasKey    = !!(settings.anthropicKey || settings.openaiKey);
-    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    const isSignedIn = !!(typeof Sync !== 'undefined' && Sync.user);
     if (!hasKey && !isSignedIn) {
       this._setScanStatus(this.t('scan.apiKeyMissing'), 'error');
       actionRow.innerHTML += ` <button class="btn btn-primary btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
