@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vinage — Jouw digitale wijnkelder</title>
+  <meta name="description" content="Scan wijnflessen, beheer je kelder en krijg AI-advies bij elk glas. Gratis te proberen.">
+  <link rel="icon" href="icons/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & base ──────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --burgundy: #3B1422;
+      --burgundy-mid: #5C2135;
+      --gold: #A3835B;
+      --gold-lt: #C9A97A;
+      --cream: #F5EFE6;
+      --cream-dk: #EDE4D7;
+      --text: #2A1810;
+      --text-lt: #7A6355;
+      --white: #FFFFFF;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 8px 40px rgba(59,20,34,.13);
+      --shadow-sm: 0 2px 12px rgba(59,20,34,.08);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, .brand { font-family: 'Fraunces', Georgia, serif; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── Nav ───────────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px;
+      background: rgba(59,20,34,.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo img { height: 28px; width: auto; }
+    .nav-logo span { font-family: 'Fraunces', serif; color: var(--cream); font-size: 1.25rem; font-weight: 300; letter-spacing: .04em; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .lang-toggle-nav {
+      display: flex; border: 1px solid rgba(163,131,91,.4); border-radius: 20px; overflow: hidden;
+    }
+    .lang-toggle-nav button {
+      background: none; border: none; color: rgba(255,255,255,.55);
+      font-size: .75rem; font-weight: 600; letter-spacing: .06em;
+      padding: 5px 12px; cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: color .2s, background .2s;
+    }
+    .lang-toggle-nav button.active { background: var(--gold); color: var(--white); }
+    .nav-cta {
+      background: var(--gold); color: var(--white);
+      padding: 9px 20px; border-radius: 24px;
+      font-size: .82rem; font-weight: 600;
+      transition: background .2s, transform .15s;
+      white-space: nowrap;
+    }
+    .nav-cta:hover { background: var(--gold-lt); transform: translateY(-1px); }
+
+    /* ── Hero ──────────────────────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(160deg, var(--burgundy) 0%, #6B2340 55%, #3B1422 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 120px 24px 80px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 70% 40%, rgba(163,131,91,.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-size: .72rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gold-lt); margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 7vw, 5rem); font-weight: 300;
+      color: var(--white); line-height: 1.08; margin-bottom: 24px;
+      max-width: 720px;
+    }
+    .hero h1 em { font-style: normal; color: var(--gold-lt); }
+    .hero-sub {
+      font-size: clamp(.95rem, 2.5vw, 1.15rem);
+      color: rgba(255,255,255,.72); max-width: 500px; margin: 0 auto 40px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 64px; }
+    .btn-hero-primary {
+      background: var(--gold); color: var(--white);
+      padding: 15px 32px; border-radius: 32px;
+      font-size: .95rem; font-weight: 600;
+      box-shadow: 0 4px 24px rgba(163,131,91,.4);
+      transition: transform .15s, box-shadow .15s;
+      border: none; cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(163,131,91,.5); }
+    .btn-hero-ghost {
+      background: transparent; color: rgba(255,255,255,.8);
+      padding: 15px 28px; border-radius: 32px;
+      border: 1.5px solid rgba(255,255,255,.25);
+      font-size: .95rem; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-hero-ghost:hover { border-color: var(--gold-lt); color: var(--gold-lt); }
+
+    /* Phone mockups */
+    .hero-phones {
+      display: flex; gap: 20px; align-items: flex-end; justify-content: center;
+      flex-wrap: wrap;
+    }
+    .phone-wrap {
+      position: relative;
+      filter: drop-shadow(0 24px 48px rgba(0,0,0,.45));
+      transition: transform .3s ease;
+    }
+    .phone-wrap:hover { transform: translateY(-6px); }
+    .phone-wrap.secondary { transform: scale(.88) translateY(24px); opacity: .85; }
+    .phone-wrap.secondary:hover { transform: scale(.88) translateY(18px); opacity: 1; }
+
+    .phone-svg { width: 200px; }
+    @media (max-width: 600px) { .phone-svg { width: 150px; } .phone-wrap.secondary { display: none; } }
+
+    /* ── Section shared ────────────────────────────────────────────────────── */
+    section { padding: 96px 24px; }
+    .section-inner { max-width: 1080px; margin: 0 auto; }
+    .section-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 300;
+      color: var(--burgundy); line-height: 1.15; margin-bottom: 16px;
+    }
+    .section-sub { font-size: 1rem; color: var(--text-lt); max-width: 520px; }
+
+    /* ── Features ──────────────────────────────────────────────────────────── */
+    .features { background: var(--white); }
+    .features-header { text-align: center; margin-bottom: 60px; }
+    .features-header .section-sub { margin: 0 auto; }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--cream); border-radius: var(--radius);
+      padding: 32px 28px;
+      border: 1px solid var(--cream-dk);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-sm); }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--burgundy), var(--burgundy-mid));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 20px;
+    }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; color: var(--burgundy); }
+    .feature-card p { font-size: .875rem; color: var(--text-lt); line-height: 1.6; }
+
+    /* ── How it works ──────────────────────────────────────────────────────── */
+    .how { background: var(--cream); }
+    .how-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
+    @media (max-width: 768px) { .how-inner { grid-template-columns: 1fr; gap: 40px; } }
+    .steps { display: flex; flex-direction: column; gap: 32px; }
+    .step { display: flex; gap: 20px; }
+    .step-num {
+      flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+      background: var(--burgundy); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600;
+    }
+    .step-body h3 { font-size: 1rem; font-weight: 600; color: var(--burgundy); margin-bottom: 4px; }
+    .step-body p { font-size: .875rem; color: var(--text-lt); }
+    .how-visual {
+      display: flex; justify-content: center;
+    }
+
+    /* ── Pricing ───────────────────────────────────────────────────────────── */
+    .pricing { background: var(--burgundy); }
+    .pricing .section-title { color: var(--white); }
+    .pricing .section-label { color: var(--gold-lt); }
+    .pricing .section-sub { color: rgba(255,255,255,.65); }
+    .pricing-header { text-align: center; margin-bottom: 52px; }
+    .pricing-header .section-sub { margin: 0 auto; }
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px; max-width: 900px; margin: 0 auto;
+    }
+    .price-card {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius); padding: 32px 24px;
+      transition: transform .2s, background .2s;
+      position: relative;
+    }
+    .price-card:hover { transform: translateY(-4px); background: rgba(255,255,255,.1); }
+    .price-card.popular {
+      background: var(--gold); border-color: var(--gold);
+    }
+    .price-card.popular:hover { background: var(--gold-lt); border-color: var(--gold-lt); }
+    .popular-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--white); color: var(--burgundy);
+      font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 20px; white-space: nowrap;
+    }
+    .price-name {
+      font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 400;
+      color: var(--white); margin-bottom: 6px;
+    }
+    .price-amount {
+      font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 300;
+      color: var(--white); line-height: 1; margin: 14px 0 4px;
+    }
+    .price-amount span { font-size: 1rem; font-weight: 400; opacity: .75; }
+    .price-desc { font-size: .78rem; color: rgba(255,255,255,.65); margin-bottom: 24px; min-height: 36px; }
+    .price-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+    .price-features li { font-size: .82rem; color: rgba(255,255,255,.85); display: flex; gap: 8px; align-items: flex-start; }
+    .price-features li::before { content: '✓'; color: var(--gold-lt); font-weight: 700; flex-shrink: 0; }
+    .price-card.popular .price-features li::before { color: rgba(255,255,255,.9); }
+    .price-cta {
+      display: block; text-align: center; padding: 12px;
+      border-radius: 24px; font-size: .85rem; font-weight: 600;
+      border: 1.5px solid rgba(255,255,255,.3); color: var(--white);
+      transition: background .2s, border-color .2s;
+    }
+    .price-cta:hover { background: rgba(255,255,255,.15); border-color: rgba(255,255,255,.5); }
+    .price-card.popular .price-cta { background: var(--white); color: var(--burgundy); border-color: var(--white); }
+    .price-card.popular .price-cta:hover { background: var(--cream); }
+    .pricing-note { text-align: center; margin-top: 32px; font-size: .78rem; color: rgba(255,255,255,.45); }
+
+    /* ── Trust bar ─────────────────────────────────────────────────────────── */
+    .trust {
+      background: var(--white); padding: 48px 24px;
+      border-top: 1px solid var(--cream-dk);
+    }
+    .trust-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 40px;
+    }
+    .trust-item { text-align: center; }
+    .trust-num {
+      font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 300;
+      color: var(--burgundy);
+    }
+    .trust-label { font-size: .78rem; color: var(--text-lt); margin-top: 2px; }
+
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    footer {
+      background: var(--burgundy);
+      padding: 48px 24px 32px;
+      text-align: center;
+    }
+    .footer-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .footer-logo img { height: 24px; }
+    .footer-logo span { font-family: 'Fraunces', serif; color: var(--cream); font-size: 1.1rem; font-weight: 300; }
+    .footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+    .footer-links a { font-size: .8rem; color: rgba(255,255,255,.5); transition: color .2s; }
+    .footer-links a:hover { color: var(--gold-lt); }
+    .footer-copy { font-size: .72rem; color: rgba(255,255,255,.3); }
+
+    /* ── Utility ───────────────────────────────────────────────────────────── */
+    [data-lang] { display: none; }
+    [data-lang].active { display: block; }
+    [data-lang-inline] { display: none; }
+    [data-lang-inline].active { display: inline; }
+    .text-center { text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ─────────────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    <img src="Logo Vinage V-Bottle No Background.png" alt="Vinage logo" onerror="this.style.display='none'">
+    <img src="Logo Vinage Name No Background.png" alt="Vinage" onerror="this.style.display='none'">
+  </div>
+  <div class="nav-right">
+    <div class="lang-toggle-nav">
+      <button onclick="setLang('nl')" id="btn-nl" class="active">NL</button>
+      <button onclick="setLang('en')" id="btn-en">EN</button>
+    </div>
+    <a href="/" class="nav-cta" id="nav-cta-text">Probeer gratis</a>
+  </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <p class="hero-eyebrow" id="hero-eyebrow">Jouw persoonlijke sommelier</p>
+  <h1 id="hero-title">Jouw digitale<br><em>wijnkelder.</em></h1>
+  <p class="hero-sub" id="hero-sub">Scan een fles, sla hem op in je kelder en krijg AI-advies bij elk glas. Altijd bij de hand, op elk apparaat.</p>
+  <div class="hero-actions">
+    <a href="/" class="btn-hero-primary" id="hero-cta-primary">Gratis beginnen</a>
+    <a href="#features" class="btn-hero-ghost" id="hero-cta-secondary">Bekijk features</a>
+  </div>
+
+  <!-- Phone mockups -->
+  <div class="hero-phones">
+    <!-- Primary phone: Home screen -->
+    <div class="phone-wrap">
+      <svg class="phone-svg" viewBox="0 0 200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shell -->
+        <rect x="4" y="4" width="192" height="392" rx="28" fill="#1a0a10"/>
+        <rect x="8" y="8" width="184" height="384" rx="24" fill="#F5EFE6"/>
+        <!-- Status bar -->
+        <rect x="8" y="8" width="184" height="28" rx="24" fill="#3B1422"/>
+        <circle cx="100" cy="20" r="4" fill="#2a0f1a"/>
+        <!-- App header -->
+        <rect x="8" y="36" width="184" height="60" fill="#3B1422"/>
+        <text x="24" y="58" font-family="Georgia,serif" font-size="11" fill="#F5EFE6" font-weight="300">Goedenmiddag, Arnold</text>
+        <text x="24" y="74" font-family="Georgia,serif" font-size="16" fill="#C9A97A" font-weight="300">Wat wil je vanavond?</text>
+        <!-- Action cards -->
+        <rect x="16" y="108" width="80" height="76" rx="12" fill="#fff" stroke="#EDE4D7" stroke-width="1"/>
+        <text x="56" y="140" font-size="18" text-anchor="middle">🍷</text>
+        <text x="56" y="158" font-family="sans-serif" font-size="8" fill="#3B1422" font-weight="600" text-anchor="middle">Bij het eten</text>
+        <text x="56" y="170" font-family="sans-serif" font-size="7" fill="#7A6355" text-anchor="middle">Spijsadvies</text>
+        <rect x="104" y="108" width="80" height="76" rx="12" fill="#fff" stroke="#EDE4D7" stroke-width="1"/>
+        <text x="144" y="140" font-size="18" text-anchor="middle">📷</text>
+        <text x="144" y="158" font-family="sans-serif" font-size="8" fill="#3B1422" font-weight="600" text-anchor="middle">Fles scannen</text>
+        <text x="144" y="170" font-family="sans-serif" font-size="7" fill="#7A6355" text-anchor="middle">AI-herkenning</text>
+        <!-- Wine list preview -->
+        <rect x="16" y="196" width="168" height="12" rx="4" fill="#3B1422"/>
+        <text x="24" y="206" font-family="sans-serif" font-size="7" fill="#F5EFE6" font-weight="600">RECENT TOEGEVOEGD</text>
+        <rect x="16" y="216" width="168" height="48" rx="10" fill="#fff" stroke="#EDE4D7" stroke-width="1"/>
+        <rect x="28" y="224" width="28" height="32" rx="6" fill="#EDE4D7"/>
+        <text x="42" y="244" font-size="14" text-anchor="middle">🍾</text>
+        <text x="68" y="234" font-family="sans-serif" font-size="8" fill="#3B1422" font-weight="600">Château Margaux</text>
+        <text x="68" y="245" font-family="sans-serif" font-size="7" fill="#7A6355">2018 · Bordeaux · ★★★★★</text>
+        <text x="68" y="256" font-family="sans-serif" font-size="7" fill="#A3835B">Rack B · Vak 3</text>
+        <!-- Nav bar -->
+        <rect x="8" y="352" width="184" height="40" rx="0" fill="#3B1422"/>
+        <rect x="8" y="388" width="184" height="4" rx="0" fill="#1a0a10"/>
+        <text x="40" y="376" font-size="12" text-anchor="middle">🏠</text>
+        <text x="80" y="376" font-size="12" text-anchor="middle">🗄️</text>
+        <text x="120" y="376" font-size="12" text-anchor="middle">📷</text>
+        <text x="160" y="376" font-size="12" text-anchor="middle">⚙️</text>
+        <circle cx="120" cy="348" r="16" fill="#A3835B"/>
+        <text x="120" y="353" font-size="14" text-anchor="middle">📷</text>
+      </svg>
+    </div>
+
+    <!-- Secondary phone: Scan result -->
+    <div class="phone-wrap secondary">
+      <svg class="phone-svg" viewBox="0 0 200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="192" height="392" rx="28" fill="#1a0a10"/>
+        <rect x="8" y="8" width="184" height="384" rx="24" fill="#F5EFE6"/>
+        <rect x="8" y="8" width="184" height="28" rx="24" fill="#3B1422"/>
+        <circle cx="100" cy="20" r="4" fill="#2a0f1a"/>
+        <!-- Scan viewfinder -->
+        <rect x="8" y="36" width="184" height="150" fill="#1a0810"/>
+        <rect x="44" y="60" width="112" height="110" rx="4" fill="none" stroke="#A3835B" stroke-width="2"/>
+        <rect x="44" y="60" width="20" height="3" fill="#A3835B"/>
+        <rect x="44" y="60" width="3" height="20" fill="#A3835B"/>
+        <rect x="136" y="60" width="20" height="3" fill="#A3835B"/>
+        <rect x="153" y="60" width="3" height="20" fill="#A3835B"/>
+        <rect x="44" y="167" width="20" height="3" fill="#A3835B"/>
+        <rect x="44" y="150" width="3" height="20" fill="#A3835B"/>
+        <rect x="136" y="167" width="20" height="3" fill="#A3835B"/>
+        <rect x="153" y="150" width="3" height="20" fill="#A3835B"/>
+        <text x="100" y="124" font-size="28" text-anchor="middle">🍷</text>
+        <text x="100" y="145" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,.6)" text-anchor="middle">Wijn herkend ✓</text>
+        <!-- Result card -->
+        <rect x="16" y="196" width="168" height="120" rx="12" fill="#fff" stroke="#EDE4D7" stroke-width="1"/>
+        <text x="100" y="218" font-family="Georgia,serif" font-size="10" fill="#3B1422" font-weight="400" text-anchor="middle">Sassicaia Bolgheri</text>
+        <text x="100" y="232" font-family="sans-serif" font-size="8" fill="#7A6355" text-anchor="middle">2019 · Toscana, Italië</text>
+        <line x1="28" y1="240" x2="172" y2="240" stroke="#EDE4D7" stroke-width="1"/>
+        <text x="28" y="256" font-family="sans-serif" font-size="7" fill="#7A6355">Druif</text>
+        <text x="172" y="256" font-family="sans-serif" font-size="7" fill="#3B1422" text-anchor="end">Cabernet Sauvignon</text>
+        <text x="28" y="270" font-family="sans-serif" font-size="7" fill="#7A6355">Serveer op</text>
+        <text x="172" y="270" font-family="sans-serif" font-size="7" fill="#3B1422" text-anchor="end">17–19 °C</text>
+        <text x="28" y="284" font-family="sans-serif" font-size="7" fill="#7A6355">Drinkbaar t/m</text>
+        <text x="172" y="284" font-family="sans-serif" font-size="7" fill="#3B1422" text-anchor="end">2034</text>
+        <rect x="28" y="296" width="152" height="10" rx="5" fill="#A3835B"/>
+        <text x="104" y="305" font-family="sans-serif" font-size="6" fill="#fff" font-weight="600" text-anchor="middle">Opslaan in kelder</text>
+        <!-- Nav bar -->
+        <rect x="8" y="352" width="184" height="40" rx="0" fill="#3B1422"/>
+        <rect x="8" y="388" width="184" height="4" rx="0" fill="#1a0a10"/>
+        <text x="40" y="376" font-size="12" text-anchor="middle">🏠</text>
+        <text x="80" y="376" font-size="12" text-anchor="middle">🗄️</text>
+        <text x="120" y="376" font-size="12" text-anchor="middle">📷</text>
+        <text x="160" y="376" font-size="12" text-anchor="middle">⚙️</text>
+        <circle cx="120" cy="348" r="16" fill="#A3835B"/>
+        <text x="120" y="353" font-size="14" text-anchor="middle">📷</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ─────────────────────────────────────────────────────────────── -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="features-header">
+      <p class="section-label" id="feat-label">Alles in één app</p>
+      <h2 class="section-title" id="feat-title">Meer dan een lijst met flessen.</h2>
+      <p class="section-sub" id="feat-sub">Vinage combineert slimme AI-functies met een mooie, overzichtelijke kelder. Voor de casual wijnliefhebber én de serieuze verzamelaar.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📷</div>
+        <h3 id="f1-title">Labelherkenning met AI</h3>
+        <p id="f1-body">Scan het etiket en Vinage vult alles automatisch in: wijnnaam, regio, druif, serveertemperatuur en drinkadvies.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗄️</div>
+        <h3 id="f2-title">Slimme kelderbeheer</h3>
+        <p id="f2-body">Wijs flessen toe aan rekken en vakken, filter op type of regio en zie altijd precies wat je in huis hebt.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🍽️</div>
+        <h3 id="f3-title">Spijsadvies op maat</h3>
+        <p id="f3-body">Vertel wat je vanavond eet en Vinage kiest de beste fles uit jouw eigen kelder.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">☁️</div>
+        <h3 id="f4-title">Deel je kelder</h3>
+        <p id="f4-body">Nodig je partner of huisgenoot uit. Jullie kelder is altijd up-to-date, op elk apparaat.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 id="f5-title">Inzicht & statistieken</h3>
+        <p id="f5-body">Hoeveel heb je uitgegeven? Welke regio's domineren je kelder? Vinage maakt het inzichtelijk.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌍</div>
+        <h3 id="f6-title">OrigoVero DPP-data</h3>
+        <p id="f6-body">Via de OrigoVero Digital Product Passport koppeling krijg je uitgebreide, officiële productdata rechtstreeks in de app.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ──────────────────────────────────────────────────────────── -->
+<section class="how" id="how">
+  <div class="section-inner">
+    <div class="how-inner">
+      <div>
+        <p class="section-label" id="how-label">Zo werkt het</p>
+        <h2 class="section-title" id="how-title">In drie stappen klaar.</h2>
+        <div class="steps" style="margin-top:36px">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3 id="step1-title">Scan de fles</h3>
+              <p id="step1-body">Richt je camera op het etiket of de barcode. De AI herkent de wijn en vult alle gegevens automatisch in — geen typen nodig.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3 id="step2-title">Bewaar in je kelder</h3>
+              <p id="step2-body">Wijs de fles toe aan een rek en vak. Voeg proefnotities, sterren en drinkadvies toe wanneer je wilt.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3 id="step3-title">Geniet met advies</h3>
+              <p id="step3-body">Vraag welke wijn past bij je diner. Krijg een melding als een fles op z'n best is. Deel de kelder met je huishouden.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Visual: Collection mockup -->
+      <div class="how-visual">
+        <svg width="220" height="380" viewBox="0 0 220 380" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 16px 40px rgba(59,20,34,.2))">
+          <rect x="4" y="4" width="212" height="372" rx="28" fill="#1a0a10"/>
+          <rect x="8" y="8" width="204" height="364" rx="24" fill="#F5EFE6"/>
+          <rect x="8" y="8" width="204" height="28" rx="24" fill="#3B1422"/>
+          <circle cx="110" cy="22" r="4" fill="#2a0f1a"/>
+          <!-- Page title -->
+          <text x="24" y="58" font-family="Georgia,serif" font-size="18" fill="#3B1422" font-weight="300">Collectie</text>
+          <text x="24" y="74" font-family="sans-serif" font-size="9" fill="#7A6355">14 flessen · 3 kelders</text>
+          <!-- Wine items -->
+          <rect x="16" y="86" width="188" height="52" rx="10" fill="#fff" stroke="#EDE4D7" stroke-width="1"/>
+          <rect x="26" y="96" width="32" height="32" rx="6" fill="#EDE4D7"/>
+          <text x="42" y="118" font-size="16" text-anchor="middle">🍷</text>
+          <text x="70" y="106" font-family="sans-serif" font-size="9" fill="#3B1422" font-weight="600">Château Pétrus</text>
+          <text x="70" y="118" font-family="sans-serif" font-size="8" fill="#7A6355">2015 · Pomerol</text>
+          <text x="70" y="130" font-family="sans-serif" font-size="8" fill="#A3835B">★★★★★</text>
+          <text x="188" y="116" font-family="sans-serif" font-size="8" fill="#7A6355" text-anchor="end">€340</text>
+
+          <rect x="16" y="146" width="188" height="52" rx="10" fill="#fff" stroke="#EDE4D7" stroke-width="1"/>
+          <rect x="26" y="156" width="32" height="32" rx="6" fill="#EDE4D7"/>
+          <text x="42" y="178" font-size="16" text-anchor="middle">🍾</text>
+          <text x="70" y="166" font-family="sans-serif" font-size="9" fill="#3B1422" font-weight="600">Sassicaia Bolgheri</text>
+          <text x="70" y="178" font-family="sans-serif" font-size="8" fill="#7A6355">2019 · Toscana</text>
+          <text x="70" y="190" font-family="sans-serif" font-size="8" fill="#A3835B">★★★★☆</text>
+          <text x="188" y="176" font-family="sans-serif" font-size="8" fill="#7A6355" text-anchor="end">€89</text>
+
+          <rect x="16" y="206" width="188" height="52" rx="10" fill="#fff" stroke="#EDE4D7" stroke-width="1"/>
+          <rect x="26" y="216" width="32" height="32" rx="6" fill="#EDE4D7"/>
+          <text x="42" y="238" font-size="16" text-anchor="middle">🥂</text>
+          <text x="70" y="226" font-family="sans-serif" font-size="9" fill="#3B1422" font-weight="600">Dom Pérignon</text>
+          <text x="70" y="238" font-family="sans-serif" font-size="8" fill="#7A6355">2013 · Champagne</text>
+          <text x="70" y="250" font-family="sans-serif" font-size="8" fill="#A3835B">★★★★★</text>
+          <text x="188" y="236" font-family="sans-serif" font-size="8" fill="#7A6355" text-anchor="end">€195</text>
+
+          <rect x="16" y="266" width="188" height="52" rx="10" fill="#fff" stroke="#EDE4D7" stroke-width="1"/>
+          <rect x="26" y="276" width="32" height="32" rx="6" fill="#EDE4D7"/>
+          <text x="42" y="298" font-size="16" text-anchor="middle">🍷</text>
+          <text x="70" y="286" font-family="sans-serif" font-size="9" fill="#3B1422" font-weight="600">Barolo Riserva</text>
+          <text x="70" y="298" font-family="sans-serif" font-size="8" fill="#7A6355">2017 · Piemonte</text>
+          <text x="70" y="310" font-family="sans-serif" font-size="8" fill="#A3835B">★★★★☆</text>
+          <text x="188" y="296" font-family="sans-serif" font-size="8" fill="#7A6355" text-anchor="end">€62</text>
+
+          <!-- Nav bar -->
+          <rect x="8" y="336" width="204" height="36" rx="0" fill="#3B1422"/>
+          <rect x="8" y="364" width="204" height="8" rx="0" fill="#1a0a10"/>
+          <text x="46" y="358" font-size="12" text-anchor="middle">🏠</text>
+          <text x="90" y="358" font-size="12" text-anchor="middle">🗄️</text>
+          <text x="134" y="358" font-size="12" text-anchor="middle">📷</text>
+          <text x="178" y="358" font-size="12" text-anchor="middle">⚙️</text>
+          <circle cx="110" cy="330" r="18" fill="#A3835B"/>
+          <text x="110" y="336" font-size="15" text-anchor="middle">📷</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Trust bar ─────────────────────────────────────────────────────────────── -->
+<section class="trust">
+  <div class="trust-inner">
+    <div class="trust-item">
+      <div class="trust-num">6</div>
+      <div class="trust-label" id="trust-1">talen ondersteund</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">∞</div>
+      <div class="trust-label" id="trust-2">flessen op Verzamelaar</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">AI</div>
+      <div class="trust-label" id="trust-3">labelherkenning & advies</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">PWA</div>
+      <div class="trust-label" id="trust-4">werkt op elk apparaat</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ───────────────────────────────────────────────────────────────── -->
+<section class="pricing" id="pricing">
+  <div class="section-inner">
+    <div class="pricing-header">
+      <p class="section-label" id="price-label">Abonnementen</p>
+      <h2 class="section-title" id="price-title">Begin gratis. Groei mee.</h2>
+      <p class="section-sub" id="price-sub">Geen creditcard nodig om te starten. Upgrade wanneer je collectie groeit.</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="price-card">
+        <div class="price-name" id="plan-free-name">Gratis</div>
+        <div class="price-amount">€0<span id="plan-free-period">/altijd</span></div>
+        <div class="price-desc" id="plan-free-desc">Kennismaken met Vinage — helemaal gratis.</div>
+        <ul class="price-features">
+          <li id="pf1">Tot 25 flessen</li>
+          <li id="pf2">10 AI-scans per maand</li>
+          <li id="pf3">Kelderbeheer</li>
+          <li id="pf4">Spijsadvies</li>
+        </ul>
+        <a href="/" class="price-cta" id="plan-free-cta">Gratis starten</a>
+      </div>
+      <!-- Liefhebber -->
+      <div class="price-card">
+        <div class="price-name" id="plan-l-name">Liefhebber</div>
+        <div class="price-amount">€2,99<span id="plan-l-period">/mnd</span></div>
+        <div class="price-desc" id="plan-l-desc">Voor de enthousiaste wijnliefhebber met een groeiende collectie.</div>
+        <ul class="price-features">
+          <li id="pl1">Tot 250 flessen</li>
+          <li id="pl2">75 AI-scans per maand</li>
+          <li id="pl3">Statistieken & inzichten</li>
+          <li id="pl4">Cloud sync</li>
+        </ul>
+        <a href="/" class="price-cta" id="plan-l-cta">Probeer nu</a>
+      </div>
+      <!-- Verzamelaar -->
+      <div class="price-card popular">
+        <div class="popular-badge" id="popular-badge">Meest gekozen</div>
+        <div class="price-name" id="plan-v-name">Verzamelaar</div>
+        <div class="price-amount">€4,99<span id="plan-v-period">/mnd</span></div>
+        <div class="price-desc" id="plan-v-desc">Onbeperkt voor de serieuze verzamelaar.</div>
+        <ul class="price-features">
+          <li id="pv1">Onbeperkt flessen</li>
+          <li id="pv2">Onbeperkte AI-scans</li>
+          <li id="pv3">Statistieken & inzichten</li>
+          <li id="pv4">Cloud sync & gedeelde kelder</li>
+          <li id="pv5">Prioriteit support</li>
+        </ul>
+        <a href="/" class="price-cta" id="plan-v-cta">Aan de slag</a>
+      </div>
+      <!-- Jaarlijks -->
+      <div class="price-card">
+        <div class="price-name" id="plan-j-name">Jaarlijks</div>
+        <div class="price-amount">€47,99<span id="plan-j-period">/jaar</span></div>
+        <div class="price-desc" id="plan-j-desc">Verzamelaar, 2 maanden gratis — de beste prijs-kwaliteit.</div>
+        <ul class="price-features">
+          <li id="pj1">Alles van Verzamelaar</li>
+          <li id="pj2">2 maanden gratis</li>
+          <li id="pj3">Beste prijs-kwaliteit</li>
+        </ul>
+        <a href="/" class="price-cta" id="plan-j-cta">Jaarlijks kiezen</a>
+      </div>
+    </div>
+    <p class="pricing-note" id="pricing-note">Betaling via Stripe · Plan automatisch actief na betaling · Op elk moment opzegbaar</p>
+  </div>
+</section>
+
+<!-- ── Footer ────────────────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-logo">
+    <img src="Logo Vinage V-Bottle No Background.png" alt="" onerror="this.style.display='none'">
+    <span>Vinage</span>
+  </div>
+  <div class="footer-links">
+    <a href="/privacy" id="footer-privacy">Privacybeleid</a>
+    <a href="/terms" id="footer-terms">Gebruiksvoorwaarden</a>
+    <a href="mailto:arnold.ruijter@outlook.com" id="footer-contact">Contact</a>
+    <a href="/" id="footer-app">Open de app</a>
+  </div>
+  <p class="footer-copy" id="footer-copy">© 2025 Vinage · Gemaakt met ♥ voor wijnliefhebbers</p>
+</footer>
+
+<script>
+  /* ── Bilingual content ────────────────────────────────────────────────── */
+  const T = {
+    nl: {
+      'nav-cta-text':       'Probeer gratis',
+      'hero-eyebrow':       'Jouw persoonlijke sommelier',
+      'hero-title':         'Jouw digitale<br><em>wijnkelder.</em>',
+      'hero-sub':           'Scan een fles, sla hem op in je kelder en krijg AI-advies bij elk glas. Altijd bij de hand, op elk apparaat.',
+      'hero-cta-primary':   'Gratis beginnen',
+      'hero-cta-secondary': 'Bekijk features',
+      'feat-label':         'Alles in één app',
+      'feat-title':         'Meer dan een lijst met flessen.',
+      'feat-sub':           'Vinage combineert slimme AI-functies met een mooie, overzichtelijke kelder. Voor de casual wijnliefhebber én de serieuze verzamelaar.',
+      'f1-title': 'Labelherkenning met AI',
+      'f1-body':  'Scan het etiket en Vinage vult alles automatisch in: wijnnaam, regio, druif, serveertemperatuur en drinkadvies.',
+      'f2-title': 'Slim kelderbeheer',
+      'f2-body':  'Wijs flessen toe aan rekken en vakken, filter op type of regio en zie altijd precies wat je in huis hebt.',
+      'f3-title': 'Spijsadvies op maat',
+      'f3-body':  'Vertel wat je vanavond eet en Vinage kiest de beste fles uit jouw eigen kelder.',
+      'f4-title': 'Deel je kelder',
+      'f4-body':  'Nodig je partner of huisgenoot uit. Jullie kelder is altijd up-to-date, op elk apparaat.',
+      'f5-title': 'Inzicht & statistieken',
+      'f5-body':  'Hoeveel heb je uitgegeven? Welke regio\'s domineren je kelder? Vinage maakt het inzichtelijk.',
+      'f6-title': 'OrigoVero DPP-data',
+      'f6-body':  'Via de OrigoVero Digital Product Passport koppeling krijg je uitgebreide, officiële productdata rechtstreeks in de app.',
+      'how-label':    'Zo werkt het',
+      'how-title':    'In drie stappen klaar.',
+      'step1-title':  'Scan de fles',
+      'step1-body':   'Richt je camera op het etiket of de barcode. De AI herkent de wijn en vult alle gegevens automatisch in — geen typen nodig.',
+      'step2-title':  'Bewaar in je kelder',
+      'step2-body':   'Wijs de fles toe aan een rek en vak. Voeg proefnotities, sterren en drinkadvies toe wanneer je wilt.',
+      'step3-title':  'Geniet met advies',
+      'step3-body':   'Vraag welke wijn past bij je diner. Krijg een melding als een fles op z\'n best is. Deel de kelder met je huishouden.',
+      'trust-1': 'talen ondersteund',
+      'trust-2': 'flessen op Verzamelaar',
+      'trust-3': 'labelherkenning & advies',
+      'trust-4': 'werkt op elk apparaat',
+      'price-label':  'Abonnementen',
+      'price-title':  'Begin gratis. Groei mee.',
+      'price-sub':    'Geen creditcard nodig om te starten. Upgrade wanneer je collectie groeit.',
+      'popular-badge': 'Meest gekozen',
+      'plan-free-name': 'Gratis', 'plan-free-period': '/altijd', 'plan-free-desc': 'Kennismaken met Vinage — helemaal gratis.', 'plan-free-cta': 'Gratis starten',
+      'plan-l-name': 'Liefhebber', 'plan-l-period': '/mnd', 'plan-l-desc': 'Voor de enthousiaste wijnliefhebber met een groeiende collectie.', 'plan-l-cta': 'Probeer nu',
+      'plan-v-name': 'Verzamelaar', 'plan-v-period': '/mnd', 'plan-v-desc': 'Onbeperkt voor de serieuze verzamelaar.', 'plan-v-cta': 'Aan de slag',
+      'plan-j-name': 'Jaarlijks', 'plan-j-period': '/jaar', 'plan-j-desc': 'Verzamelaar, 2 maanden gratis — de beste prijs-kwaliteit.', 'plan-j-cta': 'Jaarlijks kiezen',
+      'pf1':'Tot 25 flessen','pf2':'10 AI-scans per maand','pf3':'Kelderbeheer','pf4':'Spijsadvies',
+      'pl1':'Tot 250 flessen','pl2':'75 AI-scans per maand','pl3':'Statistieken & inzichten','pl4':'Cloud sync',
+      'pv1':'Onbeperkt flessen','pv2':'Onbeperkte AI-scans','pv3':'Statistieken & inzichten','pv4':'Cloud sync & gedeelde kelder','pv5':'Prioriteit support',
+      'pj1':'Alles van Verzamelaar','pj2':'2 maanden gratis','pj3':'Beste prijs-kwaliteit',
+      'pricing-note': 'Betaling via Stripe · Plan automatisch actief na betaling · Op elk moment opzegbaar',
+      'footer-privacy':'Privacybeleid','footer-terms':'Gebruiksvoorwaarden','footer-contact':'Contact','footer-app':'Open de app',
+      'footer-copy': '© 2025 Vinage · Gemaakt met ♥ voor wijnliefhebbers',
+    },
+    en: {
+      'nav-cta-text':       'Try for free',
+      'hero-eyebrow':       'Your personal sommelier',
+      'hero-title':         'Your digital<br><em>wine cellar.</em>',
+      'hero-sub':           'Scan a bottle, store it in your cellar, and get AI advice with every glass. Always at hand, on any device.',
+      'hero-cta-primary':   'Start for free',
+      'hero-cta-secondary': 'See features',
+      'feat-label':         'Everything in one app',
+      'feat-title':         'More than a list of bottles.',
+      'feat-sub':           'Vinage combines smart AI features with a beautiful, clear cellar. For the casual wine lover and the serious collector alike.',
+      'f1-title': 'AI Label Recognition',
+      'f1-body':  'Scan the label and Vinage fills everything in automatically: wine name, region, grape, serving temperature and drinking advice.',
+      'f2-title': 'Smart Cellar Management',
+      'f2-body':  'Assign bottles to racks and slots, filter by type or region and always know exactly what you have at home.',
+      'f3-title': 'Personalised Food Pairing',
+      'f3-body':  'Tell Vinage what you\'re having for dinner and it picks the best bottle from your own cellar.',
+      'f4-title': 'Share Your Cellar',
+      'f4-body':  'Invite your partner or housemate. Your shared cellar stays up to date on every device.',
+      'f5-title': 'Insights & Statistics',
+      'f5-body':  'How much have you spent? Which regions dominate your cellar? Vinage makes it clear.',
+      'f6-title': 'OrigoVero DPP Data',
+      'f6-body':  'Through the OrigoVero Digital Product Passport integration you get comprehensive official product data directly in the app.',
+      'how-label':    'How it works',
+      'how-title':    'Ready in three steps.',
+      'step1-title':  'Scan the bottle',
+      'step1-body':   'Point your camera at the label or barcode. AI recognises the wine and fills in all the details automatically — no typing needed.',
+      'step2-title':  'Store in your cellar',
+      'step2-body':   'Assign the bottle to a rack and slot. Add tasting notes, star ratings and drink-by advice whenever you like.',
+      'step3-title':  'Enjoy with advice',
+      'step3-body':   'Ask which wine pairs with tonight\'s dinner. Get a notification when a bottle is at its peak. Share the cellar with your household.',
+      'trust-1': 'languages supported',
+      'trust-2': 'bottles on Collector plan',
+      'trust-3': 'AI label recognition & advice',
+      'trust-4': 'works on any device',
+      'price-label':  'Plans',
+      'price-title':  'Start free. Grow with it.',
+      'price-sub':    'No credit card needed to get started. Upgrade when your collection grows.',
+      'popular-badge': 'Most popular',
+      'plan-free-name': 'Free', 'plan-free-period': '/forever', 'plan-free-desc': 'Get to know Vinage — completely free.', 'plan-free-cta': 'Start free',
+      'plan-l-name': 'Enthusiast', 'plan-l-period': '/mo', 'plan-l-desc': 'For the enthusiastic wine lover with a growing collection.', 'plan-l-cta': 'Try now',
+      'plan-v-name': 'Collector', 'plan-v-period': '/mo', 'plan-v-desc': 'Unlimited, for the serious collector.', 'plan-v-cta': 'Get started',
+      'plan-j-name': 'Annual', 'plan-j-period': '/year', 'plan-j-desc': 'Collector plan, 2 months free — the best value.', 'plan-j-cta': 'Choose annual',
+      'pf1':'Up to 25 bottles','pf2':'10 AI scans per month','pf3':'Cellar management','pf4':'Food pairing',
+      'pl1':'Up to 250 bottles','pl2':'75 AI scans per month','pl3':'Stats & insights','pl4':'Cloud sync',
+      'pv1':'Unlimited bottles','pv2':'Unlimited AI scans','pv3':'Stats & insights','pv4':'Cloud sync & shared cellar','pv5':'Priority support',
+      'pj1':'Everything in Collector','pj2':'2 months free','pj3':'Best value',
+      'pricing-note': 'Payment via Stripe · Plan activated automatically after payment · Cancel any time',
+      'footer-privacy':'Privacy Policy','footer-terms':'Terms of Service','footer-contact':'Contact','footer-app':'Open the app',
+      'footer-copy': '© 2025 Vinage · Made with ♥ for wine lovers',
+    }
+  };
+
+  let currentLang = 'nl';
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    const dict = T[lang];
+    for (const [id, val] of Object.entries(dict)) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = val;
+    }
+  }
+
+  // Init
+  setLang('nl');
+</script>
+</body>
+</html>
