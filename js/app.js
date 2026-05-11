@@ -273,6 +273,7 @@ const App = {
       case 'back-to-settings':    this.navigate('settings'); break;
       case 'show-upgrade':        this.navigate('upgrade'); break;
       case 'back-from-upgrade':   history.length > 1 ? history.back() : this.navigate('settings'); break;
+      case 'reset-plan':          Sync.resetPlan(); break;
       case 'preview-consent':     this._showConsent(true); break;
       // PDF
       case 'export-pdf':          this.exportPdf(); break;
@@ -5090,9 +5091,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           [feat.cellar, feat.pairing, feat.stats, feat.cloud, feat.support, feat.value], 'jaarlijks')}
       </div>
 
-      <p class="upgrade-footnote">${this.lang === 'nl'
-        ? 'Betalen via Stripe. Jouw plan wordt na betaling handmatig geactiveerd — neem contact op via <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.'
-        : 'Payment via Stripe. Your plan is activated manually after payment — contact <a href="mailto:arnold.ruijter@outlook.com" style="color:var(--gold)">arnold.ruijter@outlook.com</a>.'}</p>
+      <p class="upgrade-footnote">${this.t('plan.autoActivated')}</p>
+
+      ${settings.plan !== 'free' ? `
+      <button class="btn-reset-plan" data-action="reset-plan">
+        ${this.t('plan.resetPlan')}
+      </button>` : ''}
     </div>`;
   },
 
