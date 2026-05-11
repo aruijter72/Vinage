@@ -1205,7 +1205,7 @@ const TRANSLATIONS = {
       upgradeBtn: 'Améliorer', manageBtn: 'Gérer',
       freeName: 'Gratuit', liefhebberName: 'Liefhebber', verzamelaarName: 'Verzamelaar', jaarlijksName: 'Verzamelaar Annuel',
       perMonth: '/mois', perYear: '/an', recommended: 'Le plus populaire', twoMonthsFree: '2 mois gratuits',
-      currentPlan: 'Plan actuel', choosePlanBtn: 'Commencer',
+      currentPlan: 'Plan actuel', choosePlanBtn: 'Commencer', autoActivated: 'Paiement via Stripe. Votre abonnement est activé automatiquement quelques secondes après le paiement.', resetPlan: 'Remettre à Gratuit (test)',
       limitBottleMsg: "Vous avez atteint la limite de {limit} bouteilles pour le plan {plan}. Améliorez pour ajouter plus de vins.",
       limitAiMsg: "Vous avez utilisé tous vos {limit} appels IA ce mois pour le plan {plan}. Améliorez pour en avoir plus.",
     }
@@ -1416,7 +1416,7 @@ const TRANSLATIONS = {
       upgradeBtn: 'Actualizar', manageBtn: 'Gestionar',
       freeName: 'Gratis', liefhebberName: 'Liefhebber', verzamelaarName: 'Verzamelaar', jaarlijksName: 'Verzamelaar Anual',
       perMonth: '/mes', perYear: '/año', recommended: 'Más popular', twoMonthsFree: '2 meses gratis',
-      currentPlan: 'Plan actual', choosePlanBtn: 'Comenzar',
+      currentPlan: 'Plan actual', choosePlanBtn: 'Comenzar', autoActivated: 'Pago a través de Stripe. Tu plan se activa automáticamente segundos después del pago.', resetPlan: 'Restablecer a Gratuito (prueba)',
       limitBottleMsg: 'Has alcanzado el límite de {limit} botellas para el plan {plan}. Actualiza para añadir más vinos.',
       limitAiMsg: 'Has usado todas las {limit} llamadas IA de este mes en el plan {plan}. Actualiza para obtener más.',
     }
@@ -1627,7 +1627,7 @@ const TRANSLATIONS = {
       upgradeBtn: 'Upgraden', manageBtn: 'Verwalten',
       freeName: 'Kostenlos', liefhebberName: 'Liefhebber', verzamelaarName: 'Verzamelaar', jaarlijksName: 'Verzamelaar Jährlich',
       perMonth: '/Monat', perYear: '/Jahr', recommended: 'Am beliebtesten', twoMonthsFree: '2 Monate gratis',
-      currentPlan: 'Aktueller Plan', choosePlanBtn: 'Loslegen',
+      currentPlan: 'Aktueller Plan', choosePlanBtn: 'Loslegen', autoActivated: 'Zahlung via Stripe. Dein Plan wird automatisch aktiviert — innerhalb weniger Sekunden nach der Zahlung.', resetPlan: 'Auf Kostenlos zurücksetzen (Test)',
       limitBottleMsg: 'Sie haben das Flaschenlimit von {limit} für den {plan}-Plan erreicht. Upgraden Sie, um mehr Weine hinzuzufügen.',
       limitAiMsg: 'Sie haben alle {limit} KI-Aufrufe dieses Monats für den {plan}-Plan verwendet. Upgraden Sie für mehr.',
     }
