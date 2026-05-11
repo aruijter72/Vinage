@@ -4590,27 +4590,14 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
     <div class="settings-section">
       <h2>${this.t('settings.origovero')}</h2>
-      <div class="form-group">
-        <label>${this.t('settings.origoveroKeyId')}</label>
-        <input id="s-origovero-key-id" class="form-control" type="text"
-               placeholder="361688abe94c32401c8d645e61e4f657"
-               value="${this._esc(s.origoveroKeyId||'')}">
-      </div>
-      <div class="form-group">
-        <label>${this.t('settings.origoveroKeySecret')}</label>
-        <div class="key-input-wrap">
-          <input id="s-origovero-key-secret" class="form-control" type="password"
-                 placeholder="…"
-                 value="${this._esc(s.origoveroKeySecret||'')}">
-          <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-origovero-key-secret">show</span>
+      <div class="origo-status">
+        <span class="origo-status-dot">✓</span>
+        <div>
+          <div class="origo-status-title">${this.lang === 'nl' ? 'Actief' : 'Active'}</div>
+          <div class="origo-status-sub">${this.lang === 'nl'
+            ? 'Uitgebreide wijndata via OrigoVero Digital Product Passport'
+            : 'Extended wine data via OrigoVero Digital Product Passport'}</div>
         </div>
-      </div>
-      <div class="form-group">
-        <label>${this.t('settings.origoveroBaseUrl')}</label>
-        <input id="s-origovero-base-url" class="form-control" type="text"
-               placeholder="https://dev.origovero.com"
-               value="${this._esc(s.origoveroBaseUrl||'')}">
-        <div class="key-hint">${this.t('settings.keyHint')}</div>
       </div>
     </div>
 
