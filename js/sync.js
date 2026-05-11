@@ -126,9 +126,18 @@ const Sync = {
       { name: user.displayName, email: user.email, lastSeen: Date.now() },
       { merge: true }
     );
-    // Check if already in a household
+    // Check if already in a household + read plan
     const userDoc = await this._db.doc(`users/${user.uid}`).get();
     const data = userDoc.data() || {};
+
+    // Apply plan from Firestore if present (Stripe webhook writes this)
+    if (data.plan) {
+      this._applyPlanLocally(data.plan);
+    }
+
+    // Start live listener on user doc — picks up plan changes in real time
+    this._startUserDocListener(user.uid);
+
     if (data.householdId) {
       this.householdId = data.householdId;
       await this._loadHousehold();
@@ -143,6 +152,52 @@ const Sync = {
       if (App.view === 'collection' || App.view === 'cellar') App.renderView();
     }
     this._updateSyncUI();
+  },
+
+  // ── Plan helpers ─────────────────────────────────────────────────────────
+  // Apply a plan string to localStorage (does not write to Firestore)
+  _applyPlanLocally(planId) {
+    const validPlans = ['free', 'liefhebber', 'verzamelaar', 'jaarlijks'];
+    if (!validPlans.includes(planId)) return;
+    const s = DB.getSettings();
+    if (s.plan === planId) return; // no change
+    s.plan = planId;
+    DB.saveSettings(s);
+    console.log('[Sync] Plan applied locally:', planId);
+    if (App.view === 'settings' || App.view === 'upgrade') App.renderView();
+  },
+
+  // Write plan to both localStorage and Firestore
+  async setPlan(planId) {
+    this._applyPlanLocally(planId);
+    if (!this._ready || !this.user) return;
+    try {
+      await this._db.doc(`users/${this.user.uid}`).set(
+        { plan: planId, planActivated: Date.now() },
+        { merge: true }
+      );
+    } catch (e) {
+      console.warn('[Sync] setPlan Firestore write failed:', e);
+    }
+  },
+
+  // Reset plan to free (for testing)
+  async resetPlan() {
+    await this.setPlan('free');
+    App.toast(App.lang === 'nl' ? 'Plan gereset naar Gratis' : 'Plan reset to Free', 'success');
+    App.renderView();
+  },
+
+  // Live listener on users/{uid} — picks up plan changes immediately when
+  // the Stripe webhook writes to Firestore (no app reload needed)
+  _startUserDocListener(uid) {
+    const unsub = this._db.doc(`users/${uid}`)
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const d = snap.data();
+        if (d.plan) this._applyPlanLocally(d.plan);
+      }, () => {});
+    this._unsubs.push(unsub);
   },
 
   async _loadHousehold() {
