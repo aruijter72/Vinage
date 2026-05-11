@@ -4483,6 +4483,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <span>🍾 ${bottleText}</span>
         <span>✦ ${aiText}</span>
       </div>
+      ${plan.id !== 'free' ? `
+      <button class="btn-reset-plan" data-action="reset-plan" style="margin-top:10px">
+        ${this.t('plan.resetPlan')}
+      </button>` : ''}
     </div>
 
     <div class="settings-section">
