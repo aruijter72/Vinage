@@ -49,6 +49,9 @@ const Sync = {
           this._updateSyncUI();
         }
       });
+
+      // Complete email link sign-in if URL contains a Firebase link
+      this.handleEmailLinkSignIn();
     } catch (e) {
       console.warn('Vinage: Firebase init failed', e);
     }
