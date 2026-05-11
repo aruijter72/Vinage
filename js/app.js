@@ -4512,7 +4512,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     <div class="settings-section">
       <h2>${this.t('settings.ai')}</h2>
       ${(() => {
-        const signedIn = typeof firebase !== 'undefined' && !!firebase.auth().currentUser;
+        const signedIn = typeof Sync !== 'undefined' && !!Sync.user;
         if (signedIn) {
           return `
           <div class="settings-ai-proxy-notice">
