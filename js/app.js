@@ -6020,6 +6020,25 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
     </svg>`;
   },
+  // ── Email link sign-in ────────────────────────────────────────────────────
+  _emailLinkSentTo: '',
+
+  async _sendEmailLink() {
+    const input = document.getElementById('emailSignInInput');
+    const email = input?.value?.trim();
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      this.toast(this.t('settings.syncEmailError'), 'error');
+      return;
+    }
+    try {
+      await Sync.sendEmailLink(email);
+      this._emailLinkSentTo = email;
+      this.renderView();
+    } catch (e) {
+      this.toast('Error: ' + (e.message || e), 'error');
+    }
+  },
+
   _iconGoogle() {
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="18" height="18">
       <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2v6h7.8c4.5-4.2 7.1-10.3 7.1-17.2z"/>
