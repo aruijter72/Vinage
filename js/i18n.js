@@ -1544,7 +1544,7 @@ const TRANSLATIONS = {
       importData: 'Daten importieren', clearData: 'Alle Daten löschen',
       clearConfirm: 'Alle Weine und Kellerdaten werden dauerhaft gelöscht. Bist du sicher?',
       about: 'Über Vinage', version: 'Version 1.0', madeWith: 'Eine Weinkeller-App für Menschen 🍷',
-      sync: 'Cloud-Teilen', syncSignIn: 'Mit Google anmelden', syncSignOut: 'Abmelden',
+      sync: 'Cloud-Teilen', syncSignIn: 'Mit Google anmelden', syncSignInMicrosoft: 'Mit Microsoft anmelden', syncOr: 'oder', syncEmailPlaceholder: 'deine@email.com', syncEmailSend: 'Link senden', syncEmailSent: 'Prüfe deinen Posteingang!', syncEmailSentHint: 'Wir haben einen Anmeldelink an {email} gesendet. Klicke darauf, um dich anzumelden — kein Passwort nötig.', syncEmailError: 'Ungültige E-Mail-Adresse.', syncSignOut: 'Abmelden',
       syncSignedInAs: 'Angemeldet als', syncCreateHousehold: 'Gemeinsamen Keller erstellen',
       syncJoinHousehold: 'Mit Code beitreten', syncJoinPlaceholder: 'z.B. XK4R2M',
       syncJoin: 'Beitreten', syncLeave: 'Gemeinsamen Keller verlassen',
