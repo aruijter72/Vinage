@@ -39,22 +39,32 @@ exports.aiProxy = onCall(
     const data = request.data || {};
     const { prompt, model, base64image } = data;
 
+    console.log(`[aiProxy] uid=${uid} model=${model} hasImage=${!!base64image} promptLen=${prompt?.length}`);
+
     if (!prompt) {
       throw new HttpsError('invalid-argument', 'prompt is required.');
     }
 
-    // 2. Server-side monthly abuse cap (independent of client plan logic)
-    const month    = new Date().toISOString().slice(0, 7);          // 'YYYY-MM'
-    const monthKey = 'calls_' + month.replace('-', '_');
-    const usageRef = admin.firestore().doc(`aiUsage/${uid}`);
-    const usageDoc = await usageRef.get();
-    const count    = usageDoc.exists ? (usageDoc.data()[monthKey] || 0) : 0;
-
-    if (count >= MONTHLY_HARD_CAP) {
-      throw new HttpsError(
-        'resource-exhausted',
-        `Monthly hard cap of ${MONTHLY_HARD_CAP} AI calls reached.`
-      );
+    // 2. Server-side monthly abuse cap — non-fatal if Firestore fails
+    let count = 0;
+    let usageRef = null;
+    let monthKey = null;
+    try {
+      const month = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
+      monthKey    = 'calls_' + month.replace('-', '_');
+      usageRef    = admin.firestore().doc(`aiUsage/${uid}`);
+      const usageDoc = await usageRef.get();
+      count = usageDoc.exists ? (usageDoc.data()[monthKey] || 0) : 0;
+      console.log(`[aiProxy] usage count=${count}`);
+      if (count >= MONTHLY_HARD_CAP) {
+        throw new HttpsError(
+          'resource-exhausted',
+          `Monthly hard cap of ${MONTHLY_HARD_CAP} AI calls reached.`
+        );
+      }
+    } catch (e) {
+      if (e instanceof HttpsError) throw e; // re-throw quota errors
+      console.warn('[aiProxy] Firestore usage check failed (non-fatal):', e.message);
     }
 
     // 3. Build the Anthropic request payload
@@ -74,37 +84,53 @@ exports.aiProxy = onCall(
 
     // 4. Call Anthropic
     const apiKey = process.env.ANTHROPIC_KEY;
+    console.log(`[aiProxy] apiKey present=${!!apiKey} model=${chosenModel}`);
     if (!apiKey) {
       throw new HttpsError('internal', 'AI service not configured. Contact support.');
     }
 
-    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type':      'application/json',
-        'x-api-key':         apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model:      chosenModel,
-        max_tokens: 1024,
-        messages:   [{ role: 'user', content: messageContent }],
-      }),
-    });
-
-    const anthropicData = await anthropicRes.json();
-
-    if (!anthropicRes.ok) {
-      throw new HttpsError(
-        'internal',
-        anthropicData.error?.message || `Anthropic error ${anthropicRes.status}`
-      );
+    let anthropicRes;
+    try {
+      anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':      'application/json',
+          'x-api-key':         apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model:      chosenModel,
+          max_tokens: 1024,
+          messages:   [{ role: 'user', content: messageContent }],
+        }),
+      });
+    } catch (fetchErr) {
+      console.error('[aiProxy] fetch to Anthropic failed:', fetchErr.message);
+      throw new HttpsError('internal', 'Failed to reach AI service: ' + fetchErr.message);
     }
 
-    // 5. Increment usage counter (fire-and-forget — don't block the response)
-    usageRef.set({ [monthKey]: count + 1, uid }, { merge: true }).catch(() => {});
+    const anthropicData = await anthropicRes.json();
+    console.log(`[aiProxy] Anthropic status=${anthropicRes.status}`);
+
+    if (!anthropicRes.ok) {
+      const msg = anthropicData.error?.message || `Anthropic error ${anthropicRes.status}`;
+      console.error('[aiProxy] Anthropic error:', msg);
+      throw new HttpsError('internal', msg);
+    }
+
+    // 5. Increment usage counter (fire-and-forget)
+    if (usageRef && monthKey) {
+      usageRef.set({ [monthKey]: count + 1, uid }, { merge: true }).catch(() => {});
+    }
 
     // 6. Return result
-    return { text: anthropicData.content[0].text };
+    const text = anthropicData.content?.[0]?.text;
+    if (!text) {
+      console.error('[aiProxy] Unexpected Anthropic response shape:', JSON.stringify(anthropicData).slice(0, 200));
+      throw new HttpsError('internal', 'Unexpected response from AI service.');
+    }
+
+    console.log(`[aiProxy] success, responseLen=${text.length}`);
+    return { text };
   }
 );
