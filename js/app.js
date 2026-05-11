@@ -1758,7 +1758,7 @@ const App = {
   // ── Regenerate tasting notes via AI ─────────────────────────────────────
   async _regenNotes() {
     const settings   = DB.getSettings();
-    const isSignedIn  = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    const isSignedIn  = !!(typeof Sync !== 'undefined' && Sync.user);
     if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
       this.toast(this.t('scan.apiKeyMissing'), 'error'); return;
     }
@@ -3972,7 +3972,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
     const wines      = DB.getWines();
     const settings   = DB.getSettings();
-    const isSignedIn  = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    const isSignedIn  = !!(typeof Sync !== 'undefined' && Sync.user);
     const hasKey     = !!(settings.anthropicKey || settings.openaiKey || isSignedIn);
 
     // Try to get user's city for local store guidance (best-effort, non-blocking)
