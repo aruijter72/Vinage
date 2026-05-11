@@ -5025,7 +5025,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       const isUnlimited = plan.bottleLimit === null;
       const bottles    = isUnlimited ? this.t('plan.bottlesUnlimited') : this.t('plan.bottlesUsed', { used: bottleCount, limit: plan.bottleLimit });
       const ai         = plan.aiLimit === null ? this.t('plan.aiUnlimited') : this.t('plan.aiUsed', { used: aiUsed, limit: plan.aiLimit });
-      const stripeUrl  = STRIPE_LINKS[stripeKey] || '#';
+      const baseStripeUrl = STRIPE_LINKS[stripeKey] || '#';
+      const uid        = firebase.auth && firebase.auth().currentUser ? firebase.auth().currentUser.uid : null;
+      const stripeUrl  = (baseStripeUrl !== '#' && uid)
+        ? baseStripeUrl + '?client_reference_id=' + uid
+        : baseStripeUrl;
 
       let badgeHtml = '';
       if (badge === 'recommended') badgeHtml = `<span class="upgrade-badge upgrade-badge--popular">${this.t('plan.recommended')}</span>`;
