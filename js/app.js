@@ -1078,7 +1078,7 @@ const App = {
 
     const settings  = DB.getSettings();
     const hasKey    = !!(settings.anthropicKey || settings.openaiKey);
-    const isSignedIn = !!(typeof Sync !== 'undefined' && Sync.user);
+    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
     if (!hasKey && !isSignedIn) {
       this._setScanStatus(this.t('scan.apiKeyMissing'), 'error');
       actionRow.innerHTML += ` <button class="btn btn-primary btn-sm" data-action="add-wine-from-scan">${this.t('scan.manualAdd')}</button>`;
@@ -1758,7 +1758,7 @@ const App = {
   // ── Regenerate tasting notes via AI ─────────────────────────────────────
   async _regenNotes() {
     const settings   = DB.getSettings();
-    const isSignedIn  = !!(typeof Sync !== 'undefined' && Sync.user);
+    const isSignedIn  = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
     if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
       this.toast(this.t('scan.apiKeyMissing'), 'error'); return;
     }
@@ -3972,7 +3972,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
     const wines      = DB.getWines();
     const settings   = DB.getSettings();
-    const isSignedIn  = !!(typeof Sync !== 'undefined' && Sync.user);
+    const isSignedIn  = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
     const hasKey     = !!(settings.anthropicKey || settings.openaiKey || isSignedIn);
 
     // Try to get user's city for local store guidance (best-effort, non-blocking)
@@ -4512,7 +4512,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     <div class="settings-section">
       <h2>${this.t('settings.ai')}</h2>
       ${(() => {
-        const signedIn = typeof Sync !== 'undefined' && !!Sync.user;
+        const signedIn = typeof firebase !== 'undefined' && !!firebase.auth().currentUser;
         if (signedIn) {
           return `
           <div class="settings-ai-proxy-notice">
