@@ -74,6 +74,41 @@ const Sync = {
     }
   },
 
+  // ── Email link (magic link / passwordless) ────────────────────────────────
+  async sendEmailLink(email) {
+    if (!this._ready) return;
+    const actionCodeSettings = {
+      url:             window.location.origin + '/',
+      handleCodeInApp: true,
+    };
+    await this._auth.sendSignInLinkToEmail(email, actionCodeSettings);
+    localStorage.setItem('vinageEmailForSignIn', email);
+  },
+
+  // Called on app init — completes sign-in when user opens the email link
+  async handleEmailLinkSignIn() {
+    if (!this._ready) return;
+    if (!this._auth.isSignInWithEmailLink(window.location.href)) return;
+    let email = localStorage.getItem('vinageEmailForSignIn');
+    if (!email) {
+      // Link opened on a different device — ask for email
+      const lang = (DB.getSettings().language || navigator.language || 'en').slice(0, 2);
+      email = window.prompt(
+        lang === 'nl' ? 'Vul je e-mailadres in om in te loggen:' : 'Enter your email address to sign in:'
+      );
+      if (!email) return;
+    }
+    try {
+      await this._auth.signInWithEmailLink(email, window.location.href);
+      localStorage.removeItem('vinageEmailForSignIn');
+      // Clean the oobCode from the URL so it can't be re-used
+      window.history.replaceState({}, document.title, '/');
+    } catch (e) {
+      console.warn('Vinage: email link sign-in failed', e);
+      App.toast('Sign-in failed: ' + (e.message || e), 'error');
+    }
+  },
+
   async signOut() {
     if (!this._ready) return;
     this._stopSync();
