@@ -295,14 +295,14 @@ If no wines can be meaningfully matched, return: []`;
   // Called automatically when the user has no personal API key but is signed in.
   // The Anthropic key lives server-side — it is never exposed to the client.
   async _proxyText(prompt, model = 'claude-haiku-4-5-20251001') {
-    const fn = firebase.functions().httpsCallable('aiProxy');
+    const fn = firebase.app().functions('europe-west1').httpsCallable('aiProxy');
     const result = await fn({ prompt, model });
     return result.data.text;
   },
 
   async _proxyVision(base64jpeg, prompt) {
     // Use the 360px medium image if available — saves bandwidth, still readable
-    const fn = firebase.functions().httpsCallable('aiProxy');
+    const fn = firebase.app().functions('europe-west1').httpsCallable('aiProxy');
     const result = await fn({ prompt, base64image: base64jpeg, model: 'claude-opus-4-6' });
     return result.data.text;
   },
