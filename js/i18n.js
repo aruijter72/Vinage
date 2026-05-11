@@ -391,6 +391,8 @@ const TRANSLATIONS = {
       choosePlanBtn: 'Get started',
       limitBottleMsg: "You've reached the {limit}-bottle limit for the {plan} plan. Upgrade to add more wines.",
       limitAiMsg: "You've used all {limit} AI calls this month on the {plan} plan. Upgrade for more.",
+      autoActivated: 'Payment via Stripe. Your plan is activated automatically within seconds after payment.',
+      resetPlan: 'Reset to Free (testing)',
     }
   },
   nl: {
