@@ -785,6 +785,8 @@ const TRANSLATIONS = {
       choosePlanBtn: 'Aan de slag',
       limitBottleMsg: 'Je hebt de limiet van {limit} flessen bereikt voor het {plan}-abonnement. Upgrade om meer wijnen toe te voegen.',
       limitAiMsg: 'Je hebt alle {limit} AI-oproepen voor deze maand gebruikt op het {plan}-abonnement. Upgrade voor meer.',
+      autoActivated: 'Betalen via Stripe. Jouw abonnement wordt automatisch geactiveerd, binnen enkele seconden na betaling.',
+      resetPlan: 'Reset naar Gratis (testen)',
     }
   },
 
@@ -992,7 +994,7 @@ const TRANSLATIONS = {
       upgradeBtn: 'Migliora', manageBtn: 'Gestisci',
       freeName: 'Gratuito', liefhebberName: 'Liefhebber', verzamelaarName: 'Verzamelaar', jaarlijksName: 'Verzamelaar Annuale',
       perMonth: '/mese', perYear: '/anno', recommended: 'Più popolare', twoMonthsFree: '2 mesi gratis',
-      currentPlan: 'Piano attuale', choosePlanBtn: 'Inizia',
+      currentPlan: 'Piano attuale', choosePlanBtn: 'Inizia', autoActivated: 'Pagamento tramite Stripe. Il tuo piano viene attivato automaticamente entro pochi secondi dal pagamento.', resetPlan: 'Reimposta a Gratuito (test)',
       limitBottleMsg: "Hai raggiunto il limite di {limit} bottiglie per il piano {plan}. Fai l'upgrade per aggiungere altri vini.",
       limitAiMsg: "Hai usato tutte le {limit} chiamate AI di questo mese per il piano {plan}. Fai l'upgrade per averne di più.",
     }
