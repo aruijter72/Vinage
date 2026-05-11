@@ -4685,9 +4685,6 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const s = DB.getSettings();
     s.anthropicKey       = document.getElementById('s-anthropic-key')?.value.trim()        || '';
     s.openaiKey          = document.getElementById('s-openai-key')?.value.trim()           || '';
-    s.origoveroKeyId     = document.getElementById('s-origovero-key-id')?.value.trim()     || '';
-    s.origoveroKeySecret = document.getElementById('s-origovero-key-secret')?.value.trim() || '';
-    s.origoveroBaseUrl   = document.getElementById('s-origovero-base-url')?.value.trim()   || '';
     s.lang        = this.lang;
     s.apiProvider = s.apiProvider || 'anthropic';
     DB.saveSettings(s);
