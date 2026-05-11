@@ -230,7 +230,7 @@ const TRANSLATIONS = {
       syncEmailPlaceholder: 'your@email.com',
       syncEmailSend: 'Send link',
       syncEmailSent: 'Check your inbox!',
-      syncEmailSentHint: 'We sent a sign-in link to {email}. Click it to sign in — no password needed.',
+      syncEmailSentHint: 'We sent a sign-in link to {email}. Click it to sign in — no password needed. Don\'t see it? Check your spam, junk, or quarantine folder.',
       syncEmailError: 'Invalid email address.',
       syncSignOut: 'Sign out',
       syncSignedInAs: 'Signed in as',
