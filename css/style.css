@@ -3340,6 +3340,38 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   background: color-mix(in srgb, var(--burgundy) 8%, var(--surface));
   border: 1.5px solid color-mix(in srgb, var(--burgundy) 30%, var(--border));
 }
+
+/* ── OrigoVero status indicator ────────────────────────────────────────────── */
+.origo-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.origo-status-dot {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--gold) 15%, var(--surface));
+  border: 1.5px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-size: .9rem;
+  font-weight: 700;
+}
+.origo-status-title {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--gold);
+}
+.origo-status-sub {
+  font-size: .76rem;
+  color: var(--text-lt);
+  margin-top: 2px;
+  line-height: 1.4;
+}
 .settings-plan-header {
   display: flex;
   align-items: center;
