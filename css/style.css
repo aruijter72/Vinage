@@ -3319,6 +3319,22 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   line-height: 1.5;
 }
 
+.btn-reset-plan {
+  display: block;
+  margin: 12px auto 0;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-lt);
+  font-size: .72rem;
+  font-family: inherit;
+  padding: 5px 14px;
+  cursor: pointer;
+  opacity: .65;
+  letter-spacing: .03em;
+}
+.btn-reset-plan:hover { opacity: 1; color: var(--gold); border-color: var(--gold); }
+
 /* ── Settings plan card ────────────────────────────────────────────────────── */
 .settings-plan-card {
   background: color-mix(in srgb, var(--burgundy) 8%, var(--surface));
