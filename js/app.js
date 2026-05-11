@@ -430,7 +430,7 @@ const App = {
     if (resultsEl) resultsEl.innerHTML = `<div class="search-status">${this.t('scan.searching')}</div>`;
 
     const settings  = DB.getSettings();
-    const isSignedIn = !!(typeof Sync !== 'undefined' && Sync.user);
+    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
     if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
       if (resultsEl) resultsEl.innerHTML = `<div class="search-status">${this.t('scan.apiKeyMissing')}</div>`;
       return;
