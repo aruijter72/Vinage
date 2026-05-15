@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vinage — Toegangscodes Beheren</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #FAF6F0;
+    color: #1a0a0e;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #3B1421;
+    color: #FAF6F0;
+    padding: 32px 40px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .header-logo {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,.12);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .header h1 { font-size: 1.4rem; font-weight: 700; }
+  .header p  { font-size: .85rem; opacity: .7; margin-top: 2px; }
+
+  /* ── Main layout ── */
+  .container { max-width: 820px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* ── Section cards ── */
+  .section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .section-header {
+    background: #5C2896;
+    color: white;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: .95rem;
+    letter-spacing: .02em;
+  }
+  .section-header.red    { background: #c0392b; }
+  .section-header.green  { background: #1e7e34; }
+  .section-header.orange { background: #b7610a; }
+  .section-header.blue   { background: #1a5f9e; }
+  .section-body { padding: 24px 22px; }
+
+  /* ── Steps ── */
+  .steps { display: flex; flex-direction: column; gap: 20px; }
+  .step  { display: flex; gap: 16px; align-items: flex-start; }
+  .step-num {
+    width: 30px; height: 30px; flex-shrink: 0;
+    background: #5C2896; color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .85rem;
+  }
+  .step-num.red    { background: #c0392b; }
+  .step-num.green  { background: #1e7e34; }
+  .step-num.orange { background: #b7610a; }
+  .step-num.blue   { background: #1a5f9e; }
+  .step-content h3 { font-size: .92rem; font-weight: 700; margin-bottom: 4px; }
+  .step-content p  { font-size: .87rem; color: #555; }
+
+  /* ── Console mockup ── */
+  .console-mock {
+    background: #1e1e2e;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 14px 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,.2);
+  }
+  .console-bar {
+    background: #2d2d3f;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .console-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .console-dot.r { background: #ff5f57; }
+  .console-dot.y { background: #ffbd2e; }
+  .console-dot.g { background: #28c840; }
+  .console-title {
+    flex: 1; text-align: center;
+    font-size: .75rem; color: #888;
+    font-family: monospace;
+  }
+  .console-body { padding: 16px 18px; }
+
+  /* ── Firestore field rows ── */
+  .field-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: .87rem;
+  }
+  .field-row:last-child { border-bottom: none; }
+  .field-name  { width: 140px; flex-shrink: 0; font-family: monospace; font-weight: 600; color: #3B1421; }
+  .field-type  { width: 70px; flex-shrink: 0; color: #888; font-style: italic; font-size: .8rem; }
+  .field-value { flex: 1; font-family: monospace; color: #1a5f9e; }
+  .field-note  { font-size: .78rem; color: #888; margin-top: 2px; display: block; font-family: sans-serif; }
+
+  /* ── Collection path ── */
+  .path-bar {
+    background: #f5f0ff;
+    border: 1px solid #d5b8ff;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: monospace;
+    font-size: .88rem;
+    color: #5C2896;
+    margin: 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .path-arrow { color: #aaa; font-size: .8rem; }
+
+  /* ── Tip box ── */
+  .tip {
+    background: #fff8e1;
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: .85rem;
+    color: #7c4a00;
+  }
+  .tip strong { display: block; margin-bottom: 3px; }
+
+  .danger-box {
+    background: #fff0f0;
+    border-left: 4px solid #c0392b;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: .85rem;
+    color: #7c0000;
+  }
+
+  /* ── Firebase UI mockup ── */
+  .firebase-mock {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 14px 0;
+  }
+  .fb-nav {
+    background: #1a73e8;
+    color: white;
+    padding: 10px 16px;
+    font-size: .82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fb-breadcrumb {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 8px 16px;
+    font-size: .8rem;
+    color: #5f6368;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .fb-breadcrumb span { color: #1a73e8; cursor: pointer; }
+  .fb-breadcrumb span:last-child { color: #202124; cursor: default; }
+  .fb-content { padding: 16px; }
+  .fb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: .83rem;
+    cursor: pointer;
+  }
+  .fb-row:hover { background: #f0f0f0; }
+  .fb-row.selected { background: #e8f0fe; }
+  .fb-row-icon { color: #fbbc04; font-size: .9rem; }
+  .fb-row-name { font-family: monospace; font-weight: 600; }
+  .fb-row-val  { color: #999; font-size: .78rem; }
+  .fb-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* ── UID box ── */
+  .uid-box {
+    background: #f1f8ff;
+    border: 1px solid #bde0ff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: .85rem;
+    margin: 12px 0;
+  }
+  .uid-value {
+    font-family: monospace;
+    background: #e8f0fe;
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: #1a5f9e;
+    display: inline-block;
+    margin-top: 4px;
+    font-size: .82rem;
+  }
+
+  /* ── Summary table ── */
+  table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+  th {
+    background: #3B1421;
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td { padding: 9px 14px; border-bottom: 1px solid #f0ebe8; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #faf6f0; }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 600;
+  }
+  .tag.green  { background: #d4edda; color: #1e7e34; }
+  .tag.red    { background: #fde0e0; color: #c0392b; }
+  .tag.orange { background: #fff3cd; color: #b7610a; }
+
+  code {
+    background: #f4f0ff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: monospace;
+    font-size: .88em;
+    color: #5C2896;
+  }
+
+  hr { border: none; border-top: 1px solid #e8e0d8; margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">🍷</div>
+  <div>
+    <h1>Vinage — Toegangscodes Beheren</h1>
+    <p>Stap-voor-stap handleiding voor het aanmaken, intrekken en beheren van beta-toegang</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ══ OVERZICHT ══ -->
+  <div class="section">
+    <div class="section-header blue">📋 Hoe werkt het systeem?</div>
+    <div class="section-body">
+      <p style="margin-bottom:14px">Codes worden opgeslagen in Firestore. Jij beheert ze vanuit de <strong>Firebase Console</strong> — de app leest ze bij elke invoer live op. Dat betekent:</p>
+      <table>
+        <tr><th>Actie</th><th>Wat je doet</th><th>Effect</th></tr>
+        <tr>
+          <td>Nieuwe tester geven</td>
+          <td>Stuur de codecode (bijv. <code>VINAGE-BETA-NAAM</code>)</td>
+          <td><span class="tag green">Direct actief</span></td>
+        </tr>
+        <tr>
+          <td>Iemand blokkeren</td>
+          <td>UID toevoegen aan <code>revokedUsers</code></td>
+          <td><span class="tag red">Meteen geblokkeerd</span></td>
+        </tr>
+        <tr>
+          <td>Hele code uitschakelen</td>
+          <td><code>active</code> → <code>false</code></td>
+          <td><span class="tag orange">Niemand kan meer in</span></td>
+        </tr>
+        <tr>
+          <td>Plan terugzetten</td>
+          <td><code>users/{uid}</code> → <code>plan: "free"</code></td>
+          <td><span class="tag red">Direct downgrade</span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ STAP 1: NIEUWE CODE AANMAKEN ══ -->
+  <div class="section">
+    <div class="section-header green">➕ Een nieuwe toegangscode aanmaken</div>
+    <div class="section-body">
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-num green">1</div>
+          <div class="step-content">
+            <h3>Ga naar de Firebase Console</h3>
+            <p>Open <strong>console.firebase.google.com</strong> → selecteer project <strong>vinage-85fd8</strong> → klik op <strong>Firestore Database</strong> in het linkermenu.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num green">2</div>
+          <div class="step-content">
+            <h3>Maak de collectie <code>betaCodes</code> aan (eerste keer)</h3>
+            <p>Klik op <strong>+ Collectie aanmaken</strong> en typ als naam: <code>betaCodes</code></p>
+            <div class="tip"><strong>💡 Let op</strong> De collectie bestaat al als je eerder een code hebt aangemaakt. Sla deze stap dan over.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num green">3</div>
+          <div class="step-content">
+            <h3>Maak een nieuw document aan</h3>
+            <p>Klik op <strong>+ Document toevoegen</strong>. Gebruik als <strong>Document-ID</strong> de toegangscode zelf — dit is ook wat de tester intypt in de app:</p>
+            <div class="path-bar">
+              <span>betaCodes</span>
+              <span class="path-arrow">›</span>
+              <span style="color:#1e7e34;font-weight:700">VINAGE-BETA-NAAM</span>
+            </div>
+            <p style="margin-bottom:12px">Gebruik per persoon een unieke code zodat je ze apart kunt intrekken, bijv. <code>VINAGE-BETA-PETRA</code>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num green">4</div>
+          <div class="step-content">
+            <h3>Voeg de volgende velden toe</h3>
+            <div class="firebase-mock">
+              <div class="fb-nav">🔥 Firestore — betaCodes / VINAGE-BETA-NAAM</div>
+              <div class="fb-content">
+                <div class="field-row">
+                  <span class="field-name">active</span>
+                  <span class="field-type">boolean</span>
+                  <span class="field-value">true</span>
+                </div>
+                <div class="field-row">
+                  <span class="field-name">plan</span>
+                  <span class="field-type">string</span>
+                  <span class="field-value">"verzamelaar"</span>
+                  <span class="field-note">Of "liefhebber" voor beperktere toegang</span>
+                </div>
+                <div class="field-row">
+                  <span class="field-name">revokedUsers</span>
+                  <span class="field-type">array</span>
+                  <span class="field-value">[ ] <span style="color:#aaa">(leeg laten)</span></span>
+                </div>
+                <div class="field-row">
+                  <span class="field-name">label</span>
+                  <span class="field-type">string</span>
+                  <span class="field-value">"Petra - testaccount"</span>
+                  <span class="field-note">Ter herinnering voor jezelf, de app gebruikt dit niet</span>
+                </div>
+              </div>
+            </div>
+            <p>Klik op <strong>Opslaan</strong>. De code is meteen actief.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num green">5</div>
+          <div class="step-content">
+            <h3>Stuur de code naar je tester</h3>
+            <p>De tester opent Vinage → <strong>Instellingen → Over &amp; juridisch</strong> → tikt <strong>5× op de versietekst</strong> onderaan → voert de code in → tikt <strong>OK</strong>.</p>
+            <div class="tip">
+              <strong>💡 Vereiste: ingelogd zijn</strong>
+              De tester moet ingelogd zijn in de app voordat ze een code kunnen invoeren. De code wordt anders niet geaccepteerd.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ IEMAND INTREKKEN ══ -->
+  <div class="section">
+    <div class="section-header red">🚫 Toegang intrekken voor één persoon</div>
+    <div class="section-body">
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-num red">1</div>
+          <div class="step-content">
+            <h3>Zoek de UID van de gebruiker</h3>
+            <p>Ga in Firebase Console naar <strong>Authentication → Users</strong>. Zoek de persoon op e-mailadres. De UID staat in de kolom <strong>User UID</strong>:</p>
+            <div class="firebase-mock">
+              <div class="fb-nav">🔐 Authentication — Users</div>
+              <div class="fb-content">
+                <div class="fb-row selected">
+                  <span class="fb-row-icon">👤</span>
+                  <span class="fb-row-name">petra@email.nl</span>
+                  <span class="fb-row-val">UID: <strong style="color:#1a5f9e;font-family:monospace">xK9mPqR2nTw...</strong></span>
+                </div>
+              </div>
+            </div>
+            <div class="uid-box">
+              Kopieer de volledige UID — je hebt hem zo meteen nodig.
+              <br><span class="uid-value">xK9mPqR2nTwVy8ZjLcFhA4bGe3sD7iNu</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num red">2</div>
+          <div class="step-content">
+            <h3>Voeg de UID toe aan <code>revokedUsers</code></h3>
+            <p>Ga naar <strong>Firestore → betaCodes → {de code die ze hebben}</strong> → klik op het potloodpictogram naast <code>revokedUsers</code> → voeg de UID toe als nieuw array-item:</p>
+            <div class="firebase-mock">
+              <div class="fb-nav">🔥 Firestore — betaCodes / VINAGE-BETA-PETRA</div>
+              <div class="fb-content">
+                <div class="field-row">
+                  <span class="field-name">active</span>
+                  <span class="field-type">boolean</span>
+                  <span class="field-value">true</span>
+                </div>
+                <div class="field-row">
+                  <span class="field-name">revokedUsers</span>
+                  <span class="field-type">array</span>
+                  <span class="field-value">
+                    <span style="color:#c0392b">[ "xK9mPqR2nTwVy8ZjLcFhA4bGe3sD7iNu" ]</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p>Sla op. De gebruiker kan de code niet meer opnieuw invoeren.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num red">3</div>
+          <div class="step-content">
+            <h3>Zet hun plan terug naar gratis</h3>
+            <p>Ga naar <strong>Firestore → users → {hun UID}</strong> → wijzig het veld <code>plan</code> naar <code>"free"</code>:</p>
+            <div class="firebase-mock">
+              <div class="fb-nav">🔥 Firestore — users / xK9mPqR2nTw...</div>
+              <div class="fb-content">
+                <div class="field-row">
+                  <span class="field-name">plan</span>
+                  <span class="field-type">string</span>
+                  <span class="field-value" style="color:#c0392b">"free"</span>
+                  <span class="field-note">Was: "verzamelaar"</span>
+                </div>
+                <div class="field-row">
+                  <span class="field-name">email</span>
+                  <span class="field-type">string</span>
+                  <span class="field-value">"petra@email.nl"</span>
+                </div>
+              </div>
+            </div>
+            <p>De app pikt dit <strong>direct</strong> op — de volgende keer dat de app opent, zit de gebruiker op het gratis plan. Geen actie vereist van de gebruiker.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HELE CODE UITSCHAKELEN ══ -->
+  <div class="section">
+    <div class="section-header orange">⚡ Een code volledig uitschakelen</div>
+    <div class="section-body">
+      <p style="margin-bottom:16px">Gebruik dit als een code gelekt is, of als je alle testers van een specifieke code wilt stoppen in één keer.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num orange">1</div>
+          <div class="step-content">
+            <h3>Ga naar het code-document in Firestore</h3>
+            <p>Firestore → <code>betaCodes</code> → klik op de code.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num orange">2</div>
+          <div class="step-content">
+            <h3>Zet <code>active</code> op <code>false</code></h3>
+            <div class="firebase-mock">
+              <div class="fb-nav">🔥 Firestore — betaCodes / VINAGE-BETA-NAAM</div>
+              <div class="fb-content">
+                <div class="field-row">
+                  <span class="field-name">active</span>
+                  <span class="field-type">boolean</span>
+                  <span class="field-value" style="color:#c0392b">false</span>
+                </div>
+              </div>
+            </div>
+            <p>Niemand kan de code meer gebruiken — ook bestaande gebruikers die hem al hadden kunnen hem niet opnieuw invoeren. Vergeet niet ook hun <code>plan</code> terug te zetten als dat nodig is (zie stap hierboven).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SNEL OVERZICHT ══ -->
+  <div class="section">
+    <div class="section-header blue">⚡ Snelreferentie — wat moet ik doen?</div>
+    <div class="section-body">
+      <table>
+        <tr><th>Situatie</th><th>Actie</th><th>Waar</th></tr>
+        <tr>
+          <td>Nieuwe tester toevoegen</td>
+          <td>Nieuw document in <code>betaCodes</code>, stuur code</td>
+          <td>Firestore → betaCodes</td>
+        </tr>
+        <tr>
+          <td>Eén persoon blokkeren</td>
+          <td>UID in <code>revokedUsers</code> + <code>plan → "free"</code></td>
+          <td>Firestore → betaCodes + users</td>
+        </tr>
+        <tr>
+          <td>Alle gebruikers van één code stoppen</td>
+          <td><code>active → false</code></td>
+          <td>Firestore → betaCodes</td>
+        </tr>
+        <tr>
+          <td>Iemand tijdelijk downgraden</td>
+          <td><code>plan → "liefhebber"</code> of <code>"free"</code></td>
+          <td>Firestore → users → {uid}</td>
+        </tr>
+        <tr>
+          <td>UID van een gebruiker opzoeken</td>
+          <td>Authentication → Users → zoek op e-mail</td>
+          <td>Firebase → Authentication</td>
+        </tr>
+        <tr>
+          <td>Welke code heeft iemand gebruikt?</td>
+          <td>Veld <code>betaCode</code> in het user-document</td>
+          <td>Firestore → users → {uid}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <p style="text-align:center;font-size:.78rem;color:#aaa;margin-top:16px">
+    Vinage · intern werkdocument · gegenereerd mei 2026
+  </p>
+
+</div>
+</body>
+</html>
