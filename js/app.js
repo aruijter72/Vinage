@@ -5363,8 +5363,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <span class="install-nudge-icon">📲</span>
         <span class="install-nudge-text">
           ${nl
-            ? 'Installeer Vinage: tik op <span class="install-nudge-share">⬆</span> en kies <strong>Zet op beginscherm</strong>.'
-            : 'Install Vinage: tap <span class="install-nudge-share">⬆</span> then <strong>Add to Home Screen</strong>.'}
+            ? 'Installeer Vinage: tik op <span class="install-nudge-share"><svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline;vertical-align:middle"><line x1="7" y1="0.75" x2="7" y2="9.5" stroke="white" stroke-width="1.6" stroke-linecap="round"/><polyline points="3.5,4.25 7,0.75 10.5,4.25" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 7H1.5V14.5H12.5V7H10.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span> en kies <strong>Zet op beginscherm</strong>.'
+            : 'Install Vinage: tap <span class="install-nudge-share"><svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline;vertical-align:middle"><line x1="7" y1="0.75" x2="7" y2="9.5" stroke="white" stroke-width="1.6" stroke-linecap="round"/><polyline points="3.5,4.25 7,0.75 10.5,4.25" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 7H1.5V14.5H12.5V7H10.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span> then <strong>Add to Home Screen</strong>.'}
         </span>
         <button class="sync-nudge-close" id="install-nudge-close" aria-label="Dismiss">✕</button>`;
     } else {
