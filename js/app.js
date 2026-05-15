@@ -94,7 +94,7 @@ const App = {
     DB.saveSettings(s);
     this._applyTheme();
     // Re-render settings so the toggle reflects the new state
-    if (this.view === 'settings') this.renderView();
+    if (this.view === 'settings' || this.view === 'settings-preferences') this.renderView();
   },
 
   _showSplash() {
