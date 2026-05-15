@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vinage — Over ons</title>
+  <meta name="description" content="Het verhaal achter Vinage — een wijnapp gebouwd met passie voor wijn en technologie.">
+  <link rel="icon" href="/icons/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/website/site.css">
+  <style>
+    .about-hero {
+      background: linear-gradient(155deg, var(--burgundy) 0%, #6B2340 60%, var(--burgundy-mid) 100%);
+      padding: 100px 24px 72px; text-align: center;
+    }
+    .about-hero h1 { font-size: clamp(2rem,5vw,3.5rem); font-weight:300; color:var(--cream); margin-bottom:16px; }
+    .about-hero p  { font-size:1.1rem; color:rgba(245,239,230,.75); max-width:520px; margin:0 auto; line-height:1.7; }
+
+    /* Story */
+    .story-section { background: var(--bg); }
+    .story-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 64px; align-items: center; margin-top: 48px;
+    }
+    .story-text p { font-size:.97rem; color:var(--text-lt); line-height:1.8; margin-bottom:18px; }
+    .story-text p:last-child { margin-bottom:0; }
+    .story-visual {
+      background: linear-gradient(135deg, var(--burgundy), var(--burgundy-mid));
+      border-radius: var(--radius); padding: 48px;
+      text-align: center;
+    }
+    .story-visual .big-emoji { font-size: 5rem; margin-bottom: 16px; }
+    .story-visual p { color: rgba(245,239,230,.8); font-size:.9rem; line-height:1.7; font-style:italic; }
+    .story-visual cite { display:block; margin-top:12px; color:var(--gold-lt); font-size:.82rem; font-style:normal; }
+
+    /* Values */
+    .values-section { background: var(--surface-2); }
+    [data-theme="dark"] .values-section { background: var(--surface); }
+    .values-grid { display: grid; grid-template-columns: repeat(3,1fr); gap:20px; margin-top:48px; }
+    .value-card { padding:32px 28px; }
+    .value-icon  { font-size:2rem; margin-bottom:14px; }
+    .value-title { font-size:1.05rem; font-weight:600; margin-bottom:10px; }
+    .value-desc  { font-size:.88rem; color:var(--text-lt); line-height:1.65; }
+
+    /* Maker */
+    .maker-section { background: var(--bg); }
+    .maker-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px;
+      display: grid; grid-template-columns: auto 1fr;
+      gap: 40px; align-items: start;
+      max-width: 780px; margin: 48px auto 0;
+    }
+    .maker-avatar {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--burgundy), var(--burgundy-mid));
+      border: 3px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; flex-shrink: 0;
+    }
+    .maker-name  { font-family:'Fraunces',serif; font-size:1.4rem; font-weight:400; margin-bottom:4px; }
+    .maker-role  { font-size:.82rem; color:var(--gold); font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:16px; }
+    .maker-bio p { font-size:.9rem; color:var(--text-lt); line-height:1.75; margin-bottom:12px; }
+
+    /* Tech */
+    .tech-section { background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-mid) 100%); }
+    .tech-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-top:48px; }
+    .tech-item {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(163,131,91,.25);
+      border-radius:var(--radius-sm);
+      padding:24px 20px; text-align:center;
+    }
+    .tech-logo { font-size:2rem; margin-bottom:10px; }
+    .tech-name  { font-size:.85rem; font-weight:700; color:var(--cream); margin-bottom:4px; }
+    .tech-role  { font-size:.75rem; color:rgba(245,239,230,.55); }
+
+    /* CTA */
+    .cta-section { background:var(--bg); text-align:center; }
+
+    @media(max-width:900px){
+      .story-grid  { grid-template-columns:1fr; gap:36px; }
+      .values-grid { grid-template-columns:1fr 1fr; }
+      .tech-grid   { grid-template-columns:repeat(2,1fr); }
+      .maker-card  { grid-template-columns:1fr; text-align:center; }
+      .maker-avatar{ margin:0 auto; }
+    }
+    @media(max-width:560px){
+      .values-grid { grid-template-columns:1fr; }
+      .tech-grid   { grid-template-columns:repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body class="page-body">
+
+<!-- Nav -->
+<nav class="site-nav">
+  <a href="/" class="nav-logo"><div class="logo-mark">🍷</div><span>Vinage</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#features" id="nav-features">Functies</a></li>
+    <li><a href="/pricing" id="nav-pricing">Abonnementen</a></li>
+    <li><a href="/about"   id="nav-about" class="active">Over ons</a></li>
+    <li><a href="/blog"    id="nav-blog">Blog</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-pills">
+      <button class="lang-pill active" data-lang="nl" onclick="setLang('nl')">NL</button>
+      <button class="lang-pill" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-pill" data-lang="de" onclick="setLang('de')">DE</button>
+      <button class="lang-pill" data-lang="fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-pill" data-lang="es" onclick="setLang('es')">ES</button>
+      <button class="lang-pill" data-lang="it" onclick="setLang('it')">IT</button>
+    </div>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    <a href="/app" class="nav-app-btn">Open app</a>
+  </div>
+  <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#features" id="mob-features">Functies</a>
+  <a href="/pricing" id="mob-pricing">Abonnementen</a>
+  <a href="/about"   id="mob-about">Over ons</a>
+  <a href="/blog"    id="mob-blog">Blog</a>
+  <a href="/app" class="nav-app-btn">Open app</a>
+  <div class="mobile-lang-row">
+    <button class="active" data-lang="nl" onclick="setLang('nl')">NL</button>
+    <button data-lang="en" onclick="setLang('en')">EN</button>
+    <button data-lang="de" onclick="setLang('de')">DE</button>
+    <button data-lang="fr" onclick="setLang('fr')">FR</button>
+    <button data-lang="es" onclick="setLang('es')">ES</button>
+    <button data-lang="it" onclick="setLang('it')">IT</button>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="about-hero">
+  <p class="section-label" id="ah-label">Over ons</p>
+  <h1 id="ah-title">Gebouwd door een wijnliefhebber,<br>voor wijnliefhebbers</h1>
+  <p id="ah-sub">Vinage ontstond uit één simpele frustratie: een mooie wijnkelder, maar geen idee wat er precies in stond.</p>
+</section>
+
+<!-- Story -->
+<section class="story-section">
+  <div class="section-inner">
+    <div class="story-grid">
+      <div class="story-text">
+        <p class="section-label" id="story-label">Het verhaal</p>
+        <h2 class="section-title" id="story-title">Hoe Vinage ontstond</h2>
+        <div id="story-body">
+          <p>Het begon met een volle wijnkelder en een leeg geheugen. Welke flessen waren er ook alweer? Welke wijn paste bij het etentje van vanavond? Welke fles moest nog een jaar of vijf liggen?</p>
+          <p>Bestaande apps waren òf te complex, òf te simpel, òf gewoon niet mooi. Dus besloot ik het zelf te bouwen. Vinage — vernoemd naar het Franse <em>vinage</em>, het toevoegen van alcohol aan wijn om hem te bewaren.</p>
+          <p>Vandaag is Vinage een volwaardige digitale wijnkelder: AI-scannen, kelderbeheer, spijsadvies en statistieken. Beschikbaar in 6 talen, op elk apparaat, als PWA die ook offline werkt.</p>
+        </div>
+      </div>
+      <div class="story-visual">
+        <div class="big-emoji">🍷</div>
+        <p id="story-quote">"Een mooie wijnkelder verdient een even mooie app om hem bij te houden."</p>
+        <cite id="story-cite">— Arnold Ruijter, maker van Vinage</cite>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Values -->
+<section class="values-section">
+  <div class="section-inner">
+    <p class="section-label" id="val-label">Onze waarden</p>
+    <h2 class="section-title section-center" id="val-title">Waar Vinage voor staat</h2>
+    <div class="values-grid">
+      <div class="card value-card">
+        <div class="value-icon">🔒</div>
+        <div class="value-title" id="v1-title">Privacy eerst</div>
+        <div class="value-desc"  id="v1-desc">Jouw wijndata is van jou. Vinage gebruikt je gegevens nooit voor advertenties of AI-training zonder jouw toestemming.</div>
+      </div>
+      <div class="card value-card">
+        <div class="value-icon">🌍</div>
+        <div class="value-title" id="v2-title">Toegankelijk voor iedereen</div>
+        <div class="value-desc"  id="v2-desc">6 talen, gratis te beginnen, werkt op elk apparaat. Wijn is voor iedereen — Vinage ook.</div>
+      </div>
+      <div class="card value-card">
+        <div class="value-icon">✨</div>
+        <div class="value-title" id="v3-title">Eenvoud boven alles</div>
+        <div class="value-desc"  id="v3-desc">Wijn is al complex genoeg. Vinage moet zo intuïtief zijn dat je er gewoon plezier van hebt.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Maker -->
+<section class="maker-section">
+  <div class="section-inner section-center">
+    <p class="section-label" id="maker-label">De maker</p>
+    <h2 class="section-title" id="maker-title">Wie maakt Vinage?</h2>
+    <div class="maker-card">
+      <div class="maker-avatar">👨‍💻</div>
+      <div class="maker-bio">
+        <div class="maker-name">Arnold Ruijter</div>
+        <div class="maker-role" id="maker-role">Oprichter & Developer</div>
+        <p id="maker-bio1">Ik ben Arnold — ondernemer, technoloog en wijnliefhebber uit Nederland. Overdag werk ik aan digitale producten en platformen. In mijn vrije tijd bouw ik tools die ik zelf mis.</p>
+        <p id="maker-bio2">Vinage is dat project: een app die ik elke dag zelf gebruik, en die ik steeds beter probeer te maken. Feedback is altijd welkom.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tech -->
+<section class="tech-section">
+  <div class="section-inner section-center">
+    <p class="section-label" style="color:var(--gold-lt)" id="tech-label">Technologie</p>
+    <h2 class="section-title" style="color:var(--cream)" id="tech-title">Gebouwd met de beste tools</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <div class="tech-logo">🤖</div>
+        <div class="tech-name">Claude AI</div>
+        <div class="tech-role" id="tech1-role">Etiketherkenning & advies</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo">🔥</div>
+        <div class="tech-name">Firebase</div>
+        <div class="tech-role" id="tech2-role">Auth, database & hosting</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo">💳</div>
+        <div class="tech-name">Stripe</div>
+        <div class="tech-role" id="tech3-role">Betalingen & abonnementen</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo">📱</div>
+        <div class="tech-name">PWA</div>
+        <div class="tech-role" id="tech4-role">Offline-first, elk apparaat</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-inner section-center">
+    <h2 class="section-title" id="cta-title">Klaar om je kelder te beheren?</h2>
+    <p class="section-sub" id="cta-sub">Gratis starten, geen creditcard nodig.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:32px">
+      <a href="/app" class="btn-primary" id="cta-btn1">Open Vinage →</a>
+      <a href="/pricing" class="btn-outline" id="cta-btn2">Bekijk abonnementen</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Vinage</div>
+      <div class="footer-tagline" id="footer-tagline">Jouw digitale wijnkelder</div>
+    </div>
+    <div class="footer-links">
+      <a href="/app" id="footer-app">Open app</a>
+      <a href="/">Home</a>
+      <a href="/pricing" id="nav-pricing-f">Abonnementen</a>
+      <a href="/blog"    id="nav-blog-f">Blog</a>
+      <a href="/privacy.html" id="footer-privacy">Privacybeleid</a>
+      <a href="/terms.html"   id="footer-terms">Gebruiksvoorwaarden</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span id="footer-copy">© 2025 Vinage. Alle rechten voorbehouden.</span>
+    <span>Made with 🍷 in the Netherlands</span>
+  </div>
+</footer>
+
+<script src="/website/site.js"></script>
+<script>
+const PAGE_T = {
+  nl:{
+    'ah-label':'Over ons','ah-title':'Gebouwd door een wijnliefhebber, voor wijnliefhebbers','ah-sub':'Vinage ontstond uit één simpele frustratie: een mooie wijnkelder, maar geen idee wat er precies in stond.',
+    'story-label':'Het verhaal','story-title':'Hoe Vinage ontstond',
+    'story-quote':'"Een mooie wijnkelder verdient een even mooie app om hem bij te houden."','story-cite':'— Arnold Ruijter, maker van Vinage',
+    'val-label':'Onze waarden','val-title':'Waar Vinage voor staat',
+    'v1-title':'Privacy eerst','v1-desc':'Jouw wijndata is van jou. Vinage gebruikt je gegevens nooit voor advertenties of AI-training zonder jouw toestemming.',
+    'v2-title':'Toegankelijk voor iedereen','v2-desc':'6 talen, gratis te beginnen, werkt op elk apparaat. Wijn is voor iedereen — Vinage ook.',
+    'v3-title':'Eenvoud boven alles','v3-desc':'Wijn is al complex genoeg. Vinage moet zo intuïtief zijn dat je er gewoon plezier van hebt.',
+    'maker-label':'De maker','maker-title':'Wie maakt Vinage?','maker-role':'Oprichter & Developer',
+    'maker-bio1':'Ik ben Arnold — ondernemer, technoloog en wijnliefhebber uit Nederland. Overdag werk ik aan digitale producten en platformen. In mijn vrije tijd bouw ik tools die ik zelf mis.',
+    'maker-bio2':'Vinage is dat project: een app die ik elke dag zelf gebruik, en die ik steeds beter probeer te maken. Feedback is altijd welkom.',
+    'tech-label':'Technologie','tech-title':'Gebouwd met de beste tools',
+    'tech1-role':'Etiketherkenning & advies','tech2-role':'Auth, database & hosting','tech3-role':'Betalingen & abonnementen','tech4-role':'Offline-first, elk apparaat',
+    'cta-title':'Klaar om je kelder te beheren?','cta-sub':'Gratis starten, geen creditcard nodig.','cta-btn1':'Open Vinage →','cta-btn2':'Bekijk abonnementen',
+  },
+  en:{
+    'ah-label':'About','ah-title':'Built by a wine lover, for wine lovers','ah-sub':'Vinage was born out of one simple frustration: a beautiful wine cellar, but no idea what was actually in it.',
+    'story-label':'The story','story-title':'How Vinage came to be',
+    'story-quote':'"A beautiful wine cellar deserves an equally beautiful app to manage it."','story-cite':'— Arnold Ruijter, creator of Vinage',
+    'val-label':'Our values','val-title':'What Vinage stands for',
+    'v1-title':'Privacy first','v1-desc':'Your wine data is yours. Vinage never uses your data for advertising or AI training without your consent.',
+    'v2-title':'Accessible to everyone','v2-desc':'6 languages, free to start, works on any device. Wine is for everyone — so is Vinage.',
+    'v3-title':'Simplicity above all','v3-desc':'Wine is complex enough. Vinage should be so intuitive that it\'s simply a pleasure to use.',
+    'maker-label':'The maker','maker-title':'Who makes Vinage?','maker-role':'Founder & Developer',
+    'maker-bio1':'I\'m Arnold — entrepreneur, technologist and wine lover from the Netherlands. By day I work on digital products and platforms. In my spare time I build the tools I\'m missing.',
+    'maker-bio2':'Vinage is that project: an app I use every day myself, and that I\'m always trying to make better. Feedback is always welcome.',
+    'tech-label':'Technology','tech-title':'Built with the best tools',
+    'tech1-role':'Label recognition & advice','tech2-role':'Auth, database & hosting','tech3-role':'Payments & subscriptions','tech4-role':'Offline-first, any device',
+    'cta-title':'Ready to manage your cellar?','cta-sub':'Start free, no credit card required.','cta-btn1':'Open Vinage →','cta-btn2':'View pricing',
+  },
+  de:{
+    'ah-label':'Über uns','ah-title':'Gebaut von einem Weinliebhaber, für Weinliebhaber','ah-sub':'Vinage entstand aus einer einfachen Frustration: ein schöner Weinkeller, aber keine Ahnung, was darin steht.',
+    'story-label':'Die Geschichte','story-title':'Wie Vinage entstanden ist',
+    'story-quote':'"Ein schöner Weinkeller verdient eine ebenso schöne App, um ihn zu verwalten."','story-cite':'— Arnold Ruijter, Gründer von Vinage',
+    'val-label':'Unsere Werte','val-title':'Wofür Vinage steht',
+    'v1-title':'Datenschutz zuerst','v1-desc':'Ihre Weindaten gehören Ihnen. Vinage verwendet Ihre Daten niemals für Werbung oder KI-Training ohne Ihre Zustimmung.',
+    'v2-title':'Für alle zugänglich','v2-desc':'6 Sprachen, kostenlos starten, funktioniert auf jedem Gerät. Wein ist für alle — Vinage auch.',
+    'v3-title':'Einfachheit über alles','v3-desc':'Wein ist schon komplex genug. Vinage sollte so intuitiv sein, dass es einfach Spaß macht.',
+    'maker-label':'Der Gründer','maker-title':'Wer macht Vinage?','maker-role':'Gründer & Entwickler',
+    'maker-bio1':'Ich bin Arnold — Unternehmer, Technologe und Weinliebhaber aus den Niederlanden. Tagsüber arbeite ich an digitalen Produkten. In meiner Freizeit baue ich die Tools, die mir fehlen.',
+    'maker-bio2':'Vinage ist dieses Projekt: eine App, die ich jeden Tag selbst benutze und die ich ständig verbessere. Feedback ist immer willkommen.',
+    'tech-label':'Technologie','tech-title':'Mit den besten Tools gebaut',
+    'tech1-role':'Etikettenerkennung & Beratung','tech2-role':'Auth, Datenbank & Hosting','tech3-role':'Zahlungen & Abonnements','tech4-role':'Offline-first, jedes Gerät',
+    'cta-title':'Bereit, Ihren Keller zu verwalten?','cta-sub':'Kostenlos starten, keine Kreditkarte erforderlich.','cta-btn1':'Vinage öffnen →','cta-btn2':'Preise ansehen',
+  },
+  fr:{
+    'ah-label':'À propos','ah-title':'Créé par un amateur de vin, pour les amateurs de vin','ah-sub':'Vinage est né d\'une frustration simple : une belle cave à vin, mais aucune idée de ce qu\'elle contenait.',
+    'story-label':'L\'histoire','story-title':'Comment Vinage est né',
+    'story-quote':'"Une belle cave mérite une application tout aussi belle pour la gérer."','story-cite':'— Arnold Ruijter, créateur de Vinage',
+    'val-label':'Nos valeurs','val-title':'Ce que représente Vinage',
+    'v1-title':'La vie privée d\'abord','v1-desc':'Vos données de vin vous appartiennent. Vinage n\'utilise jamais vos données pour la publicité ou l\'entraînement IA sans votre consentement.',
+    'v2-title':'Accessible à tous','v2-desc':'6 langues, gratuit pour commencer, fonctionne sur tous les appareils. Le vin est pour tout le monde — Vinage aussi.',
+    'v3-title':'La simplicité avant tout','v3-desc':'Le vin est déjà assez complexe. Vinage doit être si intuitif que c\'est simplement un plaisir à utiliser.',
+    'maker-label':'Le créateur','maker-title':'Qui fait Vinage ?','maker-role':'Fondateur & Développeur',
+    'maker-bio1':'Je suis Arnold — entrepreneur, technologue et amateur de vin des Pays-Bas. Dans la journée, je travaille sur des produits numériques. Dans mon temps libre, je construis les outils qui me manquent.',
+    'maker-bio2':'Vinage est ce projet : une application que j\'utilise moi-même chaque jour et que j\'essaie constamment d\'améliorer. Les retours sont toujours les bienvenus.',
+    'tech-label':'Technologie','tech-title':'Construit avec les meilleurs outils',
+    'tech1-role':'Reconnaissance d\'étiquettes & conseils','tech2-role':'Auth, base de données & hébergement','tech3-role':'Paiements & abonnements','tech4-role':'Offline-first, tous les appareils',
+    'cta-title':'Prêt à gérer votre cave ?','cta-sub':'Commencer gratuitement, sans carte de crédit.','cta-btn1':'Ouvrir Vinage →','cta-btn2':'Voir les tarifs',
+  },
+  es:{
+    'ah-label':'Nosotros','ah-title':'Creado por un amante del vino, para amantes del vino','ah-sub':'Vinage nació de una frustración simple: una hermosa bodega, pero sin idea de lo que había en ella.',
+    'story-label':'La historia','story-title':'Cómo nació Vinage',
+    'story-quote':'"Una hermosa bodega merece una aplicación igualmente hermosa para gestionarla."','story-cite':'— Arnold Ruijter, creador de Vinage',
+    'val-label':'Nuestros valores','val-title':'Lo que representa Vinage',
+    'v1-title':'Privacidad primero','v1-desc':'Tus datos de vino son tuyos. Vinage nunca usa tus datos para publicidad o entrenamiento de IA sin tu consentimiento.',
+    'v2-title':'Accesible para todos','v2-desc':'6 idiomas, gratis para empezar, funciona en cualquier dispositivo. El vino es para todos — Vinage también.',
+    'v3-title':'Simplicidad ante todo','v3-desc':'El vino ya es suficientemente complejo. Vinage debe ser tan intuitivo que sea simplemente un placer de usar.',
+    'maker-label':'El creador','maker-title':'¿Quién hace Vinage?','maker-role':'Fundador & Desarrollador',
+    'maker-bio1':'Soy Arnold — emprendedor, tecnólogo y amante del vino de los Países Bajos. De día trabajo en productos digitales. En mi tiempo libre construyo las herramientas que me faltan.',
+    'maker-bio2':'Vinage es ese proyecto: una app que uso yo mismo cada día y que intento mejorar constantemente. Los comentarios siempre son bienvenidos.',
+    'tech-label':'Tecnología','tech-title':'Construido con las mejores herramientas',
+    'tech1-role':'Reconocimiento de etiquetas y consejos','tech2-role':'Auth, base de datos y hosting','tech3-role':'Pagos y suscripciones','tech4-role':'Offline-first, cualquier dispositivo',
+    'cta-title':'¿Listo para gestionar tu bodega?','cta-sub':'Empieza gratis, sin tarjeta de crédito.','cta-btn1':'Abrir Vinage →','cta-btn2':'Ver precios',
+  },
+  it:{
+    'ah-label':'Chi siamo','ah-title':'Creato da un appassionato di vino, per gli appassionati di vino','ah-sub':'Vinage è nato da una semplice frustrazione: una bella cantina, ma nessuna idea di cosa ci fosse dentro.',
+    'story-label':'La storia','story-title':'Come è nato Vinage',
+    'story-quote':'"Una bella cantina merita un\'app altrettanto bella per gestirla."','story-cite':'— Arnold Ruijter, creatore di Vinage',
+    'val-label':'I nostri valori','val-title':'Cosa rappresenta Vinage',
+    'v1-title':'Privacy prima di tutto','v1-desc':'I tuoi dati sul vino sono tuoi. Vinage non usa mai i tuoi dati per pubblicità o addestramento IA senza il tuo consenso.',
+    'v2-title':'Accessibile a tutti','v2-desc':'6 lingue, gratuito per iniziare, funziona su qualsiasi dispositivo. Il vino è per tutti — Vinage anche.',
+    'v3-title':'Semplicità sopra tutto','v3-desc':'Il vino è già abbastanza complesso. Vinage deve essere così intuitivo da essere semplicemente un piacere da usare.',
+    'maker-label':'Il creatore','maker-title':'Chi fa Vinage?','maker-role':'Fondatore & Sviluppatore',
+    'maker-bio1':'Sono Arnold — imprenditore, tecnologo e appassionato di vino dei Paesi Bassi. Di giorno lavoro su prodotti digitali. Nel tempo libero creo gli strumenti che mi mancano.',
+    'maker-bio2':'Vinage è quel progetto: un\'app che uso io stesso ogni giorno e che cerco sempre di migliorare. I feedback sono sempre benvenuti.',
+    'tech-label':'Tecnologia','tech-title':'Costruito con i migliori strumenti',
+    'tech1-role':'Riconoscimento etichette e consigli','tech2-role':'Auth, database e hosting','tech3-role':'Pagamenti e abbonamenti','tech4-role':'Offline-first, qualsiasi dispositivo',
+    'cta-title':'Pronto a gestire la tua cantina?','cta-sub':'Inizia gratis, senza carta di credito.','cta-btn1':'Apri Vinage →','cta-btn2':'Vedi i prezzi',
+  },
+};
+function applyPageLang(lang) {
+  const data = PAGE_T[lang] || PAGE_T.nl;
+  Object.entries(data).forEach(([id, text]) => { const el=document.getElementById(id); if(el) el.textContent=text; });
+  document.querySelectorAll('.mobile-lang-row button').forEach(btn => { btn.classList.toggle('active', btn.dataset.lang===lang); });
+}
+</script>
+</body>
+</html>

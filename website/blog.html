@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vinage — Blog</title>
+  <meta name="description" content="Updates, releasenotes en verhalen vanuit Vinage.">
+  <link rel="icon" href="/icons/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/website/site.css">
+  <style>
+    .blog-hero {
+      background: linear-gradient(155deg, var(--burgundy) 0%, #6B2340 60%, var(--burgundy-mid) 100%);
+      padding: 100px 24px 72px; text-align: center;
+    }
+    .blog-hero h1 { font-size: clamp(2rem,5vw,3.5rem); font-weight:300; color:var(--cream); margin-bottom:16px; }
+    .blog-hero p  { font-size:1.05rem; color:rgba(245,239,230,.75); max-width:480px; margin:0 auto; }
+
+    /* Posts grid */
+    .blog-section { background: var(--bg); }
+    .posts-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 24px; margin-top: 48px;
+    }
+    .post-card {
+      background: var(--surface); border:1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      display: flex; flex-direction: column;
+    }
+    .post-card:hover { transform:translateY(-4px); box-shadow:var(--shadow); border-color:var(--gold); }
+    .post-card.featured { grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; }
+    .post-thumb {
+      aspect-ratio: 16/9; background: linear-gradient(135deg, var(--burgundy), var(--burgundy-mid));
+      display: flex; align-items: center; justify-content: center; font-size: 3rem;
+      flex-shrink: 0;
+    }
+    .post-card.featured .post-thumb { aspect-ratio: auto; min-height: 280px; font-size: 5rem; }
+    .post-body { padding: 24px 24px 28px; flex:1; display:flex; flex-direction:column; }
+    .post-meta { display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    .post-tag {
+      background: rgba(163,131,91,.15); border: 1px solid rgba(163,131,91,.25);
+      color: var(--gold); font-size: .65rem; font-weight: 800;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 10px;
+    }
+    .post-date { font-size: .75rem; color: var(--text-lt); }
+    .post-title {
+      font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 400;
+      line-height: 1.3; margin-bottom: 10px; color: var(--text);
+    }
+    .post-card.featured .post-title { font-size: 1.8rem; }
+    .post-excerpt { font-size: .85rem; color: var(--text-lt); line-height: 1.7; flex:1; }
+    .post-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--gold); font-size: .82rem; font-weight: 600;
+      margin-top: 18px; transition: gap .2s;
+    }
+    .post-link:hover { gap: 10px; }
+
+    /* Newsletter */
+    .newsletter-section { background: var(--surface-2); }
+    [data-theme="dark"] .newsletter-section { background: var(--surface); }
+    .newsletter-box {
+      max-width: 560px; margin: 48px auto 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 40px;
+      text-align: center;
+    }
+    .newsletter-box h3 { font-size:1.3rem; margin-bottom:10px; }
+    .newsletter-box p  { font-size:.88rem; color:var(--text-lt); margin-bottom:24px; }
+    .newsletter-form { display:flex; gap:8px; }
+    .newsletter-form input {
+      flex:1; padding:12px 16px; border:1.5px solid var(--border);
+      border-radius:24px; background:var(--bg); color:var(--text);
+      font-size:.88rem; font-family:'Inter',sans-serif;
+      transition: border-color .2s;
+    }
+    .newsletter-form input:focus { outline:none; border-color:var(--gold); }
+    .newsletter-form button {
+      background:var(--gold); color:white; border:none;
+      padding:12px 20px; border-radius:24px;
+      font-size:.85rem; font-weight:700; cursor:pointer;
+      font-family:'Inter',sans-serif; white-space:nowrap;
+      transition: background .2s;
+    }
+    .newsletter-form button:hover { background:var(--gold-lt); }
+    .newsletter-note { font-size:.72rem; color:var(--text-lt); margin-top:12px; }
+
+    @media(max-width:900px){
+      .posts-grid { grid-template-columns:1fr 1fr; }
+      .post-card.featured { grid-column:span 2; grid-template-columns:1fr; }
+      .post-card.featured .post-thumb { min-height:200px; }
+    }
+    @media(max-width:560px){
+      .posts-grid { grid-template-columns:1fr; }
+      .post-card.featured { grid-column:span 1; }
+      .newsletter-form { flex-direction:column; }
+    }
+  </style>
+</head>
+<body class="page-body">
+
+<!-- Nav -->
+<nav class="site-nav">
+  <a href="/" class="nav-logo"><div class="logo-mark">🍷</div><span>Vinage</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#features" id="nav-features">Functies</a></li>
+    <li><a href="/pricing" id="nav-pricing">Abonnementen</a></li>
+    <li><a href="/about"   id="nav-about">Over ons</a></li>
+    <li><a href="/blog"    id="nav-blog" class="active">Blog</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-pills">
+      <button class="lang-pill active" data-lang="nl" onclick="setLang('nl')">NL</button>
+      <button class="lang-pill" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-pill" data-lang="de" onclick="setLang('de')">DE</button>
+      <button class="lang-pill" data-lang="fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-pill" data-lang="es" onclick="setLang('es')">ES</button>
+      <button class="lang-pill" data-lang="it" onclick="setLang('it')">IT</button>
+    </div>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    <a href="/app" class="nav-app-btn">Open app</a>
+  </div>
+  <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#features" id="mob-features">Functies</a>
+  <a href="/pricing" id="mob-pricing">Abonnementen</a>
+  <a href="/about"   id="mob-about">Over ons</a>
+  <a href="/blog"    id="mob-blog">Blog</a>
+  <a href="/app" class="nav-app-btn">Open app</a>
+  <div class="mobile-lang-row">
+    <button class="active" data-lang="nl" onclick="setLang('nl')">NL</button>
+    <button data-lang="en" onclick="setLang('en')">EN</button>
+    <button data-lang="de" onclick="setLang('de')">DE</button>
+    <button data-lang="fr" onclick="setLang('fr')">FR</button>
+    <button data-lang="es" onclick="setLang('es')">ES</button>
+    <button data-lang="it" onclick="setLang('it')">IT</button>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="blog-hero">
+  <p class="section-label" id="bh-label">Blog</p>
+  <h1 id="bh-title">Updates & verhalen</h1>
+  <p id="bh-sub">Nieuws, releasenotes en gedachten vanuit het Vinage-team.</p>
+</section>
+
+<!-- Posts -->
+<section class="blog-section">
+  <div class="section-inner">
+
+    <div class="posts-grid">
+
+      <!-- Featured post -->
+      <article class="post-card featured">
+        <div class="post-thumb">🍷</div>
+        <div class="post-body">
+          <div class="post-meta">
+            <span class="post-tag" id="tag-launch">Lancering</span>
+            <span class="post-date">Mei 2025</span>
+          </div>
+          <h2 class="post-title" id="post1-title">Vinage is live — het verhaal achter de app</h2>
+          <p class="post-excerpt" id="post1-excerpt">Na maanden van bouwen, testen en verbeteren is Vinage officieel beschikbaar. In dit eerste blog vertel ik waarom ik Vinage heb gebouwd, welke keuzes ik maakte en wat er nog aankomt.</p>
+          <p class="post-excerpt" id="post1-body" style="margin-top:12px">Het begon met een volle kelder en een lege geheugen. Ik wilde mijn wijncollectie beter begrijpen: welke flessen had ik, wat waren ze waard, wanneer moesten ze gedronken worden? Bestaande apps waren te complex of te simpel. Dus bouwde ik Vinage.<br><br>AI-etiketherkenning, een mooie kelderlayout, spijsadvies op maat en statistieken die je collectie écht laten leven. Beschikbaar als PWA — geen installatie via de App Store, gewoon openen via de browser en toevoegen aan je startscherm.</p>
+          <a href="#" class="post-link" id="post1-link">Lees meer →</a>
+        </div>
+      </article>
+
+      <!-- Post 2 -->
+      <article class="post-card">
+        <div class="post-thumb" style="font-size:2.5rem">🤖</div>
+        <div class="post-body">
+          <div class="post-meta">
+            <span class="post-tag" id="tag-ai">AI</span>
+            <span class="post-date">Mei 2025</span>
+          </div>
+          <h2 class="post-title" id="post2-title">Hoe de AI-etiketscanner werkt</h2>
+          <p class="post-excerpt" id="post2-excerpt">Claude van Anthropic herkent wijnlabels in seconden. Zo werkt het onder de motorkap — en waarom de beveiliging van je data daarbij centraal staat.</p>
+          <a href="#" class="post-link" id="post2-link">Lees meer →</a>
+        </div>
+      </article>
+
+      <!-- Post 3 -->
+      <article class="post-card">
+        <div class="post-thumb" style="font-size:2.5rem">🗄️</div>
+        <div class="post-body">
+          <div class="post-meta">
+            <span class="post-tag" id="tag-guide">Gids</span>
+            <span class="post-date">Mei 2025</span>
+          </div>
+          <h2 class="post-title" id="post3-title">Je digitale kelder inrichten: tips voor beginners</h2>
+          <p class="post-excerpt" id="post3-excerpt">Van grid-kelder tot diamantopstelling: welke keldervorm past bij jou? En hoe voeg je snel een grote bestaande collectie toe?</p>
+          <a href="#" class="post-link" id="post3-link">Lees meer →</a>
+        </div>
+      </article>
+
+      <!-- Post 4 — Coming soon -->
+      <article class="post-card" style="opacity:.6;pointer-events:none">
+        <div class="post-thumb" style="font-size:2.5rem">📊</div>
+        <div class="post-body">
+          <div class="post-meta">
+            <span class="post-tag" style="background:rgba(163,131,91,.08)">Binnenkort</span>
+            <span class="post-date">Juni 2025</span>
+          </div>
+          <h2 class="post-title" id="post4-title">Statistieken: wat zeggen de cijfers over je drinkgedrag?</h2>
+          <p class="post-excerpt" id="post4-excerpt">Hoeveel geef je per jaar uit aan wijn? Welke regio's domineren je kelder? De stats-pagina laat het zien.</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter-section">
+  <div class="section-inner section-center">
+    <p class="section-label" id="nl-label">Nieuwsbrief</p>
+    <h2 class="section-title" id="nl-title">Op de hoogte blijven?</h2>
+    <div class="newsletter-box">
+      <h3 id="nl-box-title">Nieuwe posts in je inbox</h3>
+      <p id="nl-box-sub">Geen spam. Alleen nieuws over Vinage en wijn — maximaal één keer per maand.</p>
+      <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+        <input type="email" id="nl-email" placeholder="jouw@email.nl" required>
+        <button type="submit" id="nl-btn">Aanmelden</button>
+      </form>
+      <p class="newsletter-note" id="nl-note">Je kunt je altijd afmelden. Privacy policy van toepassing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Vinage</div>
+      <div class="footer-tagline" id="footer-tagline">Jouw digitale wijnkelder</div>
+    </div>
+    <div class="footer-links">
+      <a href="/app" id="footer-app">Open app</a>
+      <a href="/">Home</a>
+      <a href="/pricing" id="nav-pricing-f">Abonnementen</a>
+      <a href="/about"   id="nav-about-f">Over ons</a>
+      <a href="/privacy.html" id="footer-privacy">Privacybeleid</a>
+      <a href="/terms.html"   id="footer-terms">Gebruiksvoorwaarden</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span id="footer-copy">© 2025 Vinage. Alle rechten voorbehouden.</span>
+    <span>Made with 🍷 in the Netherlands</span>
+  </div>
+</footer>
+
+<script src="/website/site.js"></script>
+<script>
+function handleNewsletter(e) {
+  e.preventDefault();
+  const email = document.getElementById('nl-email').value;
+  const btn = document.getElementById('nl-btn');
+  btn.textContent = '✓';
+  btn.style.background = '#5C9E6B';
+  document.getElementById('nl-email').value = '';
+  setTimeout(() => { btn.textContent = document.getElementById('nl-btn').dataset.original || 'Aanmelden'; btn.style.background = ''; }, 3000);
+}
+
+const PAGE_T = {
+  nl:{
+    'bh-label':'Blog','bh-title':'Updates & verhalen','bh-sub':'Nieuws, releasenotes en gedachten vanuit het Vinage-team.',
+    'tag-launch':'Lancering','tag-ai':'AI','tag-guide':'Gids',
+    'post1-title':'Vinage is live — het verhaal achter de app',
+    'post1-excerpt':'Na maanden van bouwen, testen en verbeteren is Vinage officieel beschikbaar. In dit eerste blog vertel ik waarom ik Vinage heb gebouwd, welke keuzes ik maakte en wat er nog aankomt.',
+    'post1-link':'Lees meer →',
+    'post2-title':'Hoe de AI-etiketscanner werkt','post2-excerpt':'Claude van Anthropic herkent wijnlabels in seconden. Zo werkt het onder de motorkap.','post2-link':'Lees meer →',
+    'post3-title':'Je digitale kelder inrichten: tips voor beginners','post3-excerpt':'Van grid-kelder tot diamantopstelling: welke keldervorm past bij jou?','post3-link':'Lees meer →',
+    'post4-title':'Statistieken: wat zeggen de cijfers over je drinkgedrag?','post4-excerpt':'Hoeveel geef je per jaar uit aan wijn? De stats-pagina laat het zien.',
+    'nl-label':'Nieuwsbrief','nl-title':'Op de hoogte blijven?',
+    'nl-box-title':'Nieuwe posts in je inbox','nl-box-sub':'Geen spam. Alleen nieuws over Vinage en wijn — maximaal één keer per maand.',
+    'nl-btn':'Aanmelden','nl-note':'Je kunt je altijd afmelden. Privacy policy van toepassing.',
+    'nl-email-ph':'jouw@email.nl',
+  },
+  en:{
+    'bh-label':'Blog','bh-title':'Updates & stories','bh-sub':'News, release notes and thoughts from the Vinage team.',
+    'tag-launch':'Launch','tag-ai':'AI','tag-guide':'Guide',
+    'post1-title':'Vinage is live — the story behind the app',
+    'post1-excerpt':'After months of building, testing and refining, Vinage is officially available. In this first blog post I share why I built Vinage, the choices I made, and what\'s coming next.',
+    'post1-link':'Read more →',
+    'post2-title':'How the AI label scanner works','post2-excerpt':'Claude by Anthropic recognises wine labels in seconds. Here\'s how it works under the hood.','post2-link':'Read more →',
+    'post3-title':'Setting up your digital cellar: tips for beginners','post3-excerpt':'From grid cellar to diamond layout: which cellar type suits you best?','post3-link':'Read more →',
+    'post4-title':'Stats: what do the numbers say about your drinking habits?','post4-excerpt':'How much do you spend on wine per year? The stats page makes it visible.',
+    'nl-label':'Newsletter','nl-title':'Stay up to date?',
+    'nl-box-title':'New posts in your inbox','nl-box-sub':'No spam. Only news about Vinage and wine — at most once a month.',
+    'nl-btn':'Subscribe','nl-note':'You can unsubscribe at any time. Privacy policy applies.',
+    'nl-email-ph':'your@email.com',
+  },
+  de:{
+    'bh-label':'Blog','bh-title':'Updates & Geschichten','bh-sub':'Neuigkeiten, Release-Notes und Gedanken vom Vinage-Team.',
+    'tag-launch':'Launch','tag-ai':'KI','tag-guide':'Leitfaden',
+    'post1-title':'Vinage ist live — die Geschichte hinter der App',
+    'post1-excerpt':'Nach Monaten des Bauens, Testens und Verfeinerns ist Vinage offiziell verfügbar.',
+    'post1-link':'Mehr lesen →',
+    'post2-title':'Wie der KI-Etikettenscanner funktioniert','post2-excerpt':'Claude von Anthropic erkennt Weinetikett in Sekunden. So funktioniert es unter der Haube.','post2-link':'Mehr lesen →',
+    'post3-title':'Ihren digitalen Keller einrichten: Tipps für Anfänger','post3-excerpt':'Von der Gitterkeller- bis zur Rautenkonfiguration: Welcher Kellertyp passt zu Ihnen?','post3-link':'Mehr lesen →',
+    'post4-title':'Statistiken: Was sagen die Zahlen über Ihre Trinkgewohnheiten?','post4-excerpt':'Wie viel geben Sie pro Jahr für Wein aus? Die Statistikseite macht es sichtbar.',
+    'nl-label':'Newsletter','nl-title':'Auf dem Laufenden bleiben?',
+    'nl-box-title':'Neue Beiträge in Ihrem Posteingang','nl-box-sub':'Kein Spam. Nur Nachrichten über Vinage und Wein — höchstens einmal pro Monat.',
+    'nl-btn':'Anmelden','nl-note':'Sie können sich jederzeit abmelden.',
+    'nl-email-ph':'ihre@email.de',
+  },
+  fr:{
+    'bh-label':'Blog','bh-title':'Mises à jour & histoires','bh-sub':'Actualités, notes de version et réflexions de l\'équipe Vinage.',
+    'tag-launch':'Lancement','tag-ai':'IA','tag-guide':'Guide',
+    'post1-title':'Vinage est en ligne — l\'histoire derrière l\'app',
+    'post1-excerpt':'Après des mois de construction, de tests et de perfectionnement, Vinage est officiellement disponible.',
+    'post1-link':'Lire la suite →',
+    'post2-title':'Comment fonctionne le scanner IA d\'étiquettes','post2-excerpt':'Claude d\'Anthropic reconnaît les étiquettes de vin en quelques secondes.','post2-link':'Lire la suite →',
+    'post3-title':'Configurer votre cave numérique : conseils pour débutants','post3-excerpt':'De la cave en grille à la disposition en losange : quel type vous convient ?','post3-link':'Lire la suite →',
+    'post4-title':'Statistiques : que disent les chiffres sur vos habitudes de consommation ?','post4-excerpt':'Combien dépensez-vous par an en vin ? La page de statistiques le révèle.',
+    'nl-label':'Newsletter','nl-title':'Rester informé ?',
+    'nl-box-title':'Nouveaux articles dans votre boîte mail','nl-box-sub':'Pas de spam. Uniquement des nouvelles sur Vinage et le vin — au maximum une fois par mois.',
+    'nl-btn':'S\'inscrire','nl-note':'Vous pouvez vous désabonner à tout moment.',
+    'nl-email-ph':'votre@email.fr',
+  },
+  es:{
+    'bh-label':'Blog','bh-title':'Actualizaciones & historias','bh-sub':'Noticias, notas de versión y pensamientos del equipo Vinage.',
+    'tag-launch':'Lanzamiento','tag-ai':'IA','tag-guide':'Guía',
+    'post1-title':'Vinage está en vivo — la historia detrás de la app',
+    'post1-excerpt':'Después de meses de construcción, pruebas y refinamiento, Vinage está oficialmente disponible.',
+    'post1-link':'Leer más →',
+    'post2-title':'Cómo funciona el escáner IA de etiquetas','post2-excerpt':'Claude de Anthropic reconoce etiquetas de vino en segundos.','post2-link':'Leer más →',
+    'post3-title':'Configurar tu bodega digital: consejos para principiantes','post3-excerpt':'Desde bodega de cuadrícula hasta disposición de diamante: ¿qué tipo te conviene?','post3-link':'Leer más →',
+    'post4-title':'Estadísticas: ¿qué dicen los números sobre tus hábitos de consumo?','post4-excerpt':'¿Cuánto gastas en vino al año? La página de estadísticas lo muestra.',
+    'nl-label':'Boletín','nl-title':'¿Mantenerse informado?',
+    'nl-box-title':'Nuevas publicaciones en tu bandeja de entrada','nl-box-sub':'Sin spam. Solo noticias sobre Vinage y vino — como máximo una vez al mes.',
+    'nl-btn':'Suscribirse','nl-note':'Puedes darte de baja en cualquier momento.',
+    'nl-email-ph':'tu@email.es',
+  },
+  it:{
+    'bh-label':'Blog','bh-title':'Aggiornamenti & storie','bh-sub':'Notizie, note di rilascio e riflessioni dal team Vinage.',
+    'tag-launch':'Lancio','tag-ai':'IA','tag-guide':'Guida',
+    'post1-title':'Vinage è live — la storia dietro l\'app',
+    'post1-excerpt':'Dopo mesi di costruzione, test e perfezionamento, Vinage è ufficialmente disponibile.',
+    'post1-link':'Leggi di più →',
+    'post2-title':'Come funziona lo scanner IA di etichette','post2-excerpt':'Claude di Anthropic riconosce le etichette del vino in secondi.','post2-link':'Leggi di più →',
+    'post3-title':'Configurare la tua cantina digitale: consigli per principianti','post3-excerpt':'Dalla cantina a griglia alla disposizione a rombo: quale tipo fa per te?','post3-link':'Leggi di più →',
+    'post4-title':'Statistiche: cosa dicono i numeri sulle tue abitudini di consumo?','post4-excerpt':'Quanto spendi all\'anno per il vino? La pagina delle statistiche lo mostra.',
+    'nl-label':'Newsletter','nl-title':'Restare aggiornato?',
+    'nl-box-title':'Nuovi articoli nella tua casella di posta','nl-box-sub':'Niente spam. Solo notizie su Vinage e il vino — al massimo una volta al mese.',
+    'nl-btn':'Iscriviti','nl-note':'Puoi annullare l\'iscrizione in qualsiasi momento.',
+    'nl-email-ph':'tua@email.it',
+  },
+};
+function applyPageLang(lang) {
+  const data = PAGE_T[lang] || PAGE_T.nl;
+  Object.entries(data).forEach(([id, text]) => {
+    if (id.endsWith('-ph')) {
+      const inp = document.getElementById(id.replace('-ph',''));
+      if (inp) inp.placeholder = text;
+      return;
+    }
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  });
+  document.querySelectorAll('.mobile-lang-row button').forEach(btn => { btn.classList.toggle('active', btn.dataset.lang===lang); });
+}
+</script>
+</body>
+</html>

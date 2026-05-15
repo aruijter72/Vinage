@@ -32,6 +32,18 @@
       "functions/**",
       "**/.env",
       "**/.DS_Store"
+    ],
+    "rewrites": [
+      { "source": "/app",                   "destination": "/app.html" },
+      { "source": "/app/**",                "destination": "/app.html" },
+      { "source": "/pricing",               "destination": "/website/pricing.html" },
+      { "source": "/about",                 "destination": "/website/about.html" },
+      { "source": "/blog",                  "destination": "/website/blog.html" },
+      { "source": "/privacy",               "destination": "/website/privacy.html" },
+      { "source": "/privacy.html",          "destination": "/website/privacy.html" },
+      { "source": "/gebruiksvoorwaarden",   "destination": "/website/terms.html" },
+      { "source": "/terms",                 "destination": "/website/terms.html" },
+      { "source": "/terms.html",            "destination": "/website/terms.html" }
     ]
   }
 }

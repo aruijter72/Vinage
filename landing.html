@@ -199,12 +199,18 @@
     .pricing-header { text-align: center; margin-bottom: 52px; }
     .pricing-header .section-sub { margin: 0 auto; }
     .pricing-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 20px; max-width: 900px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px; max-width: 1100px; margin: 0 auto;
+    }
+    @media (max-width: 900px) {
+      .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .pricing-grid { grid-template-columns: 1fr; }
     }
     .price-card {
       background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
-      border-radius: var(--radius); padding: 32px 24px;
+      border-radius: var(--radius); padding: 28px 20px;
       transition: transform .2s, background .2s;
       position: relative;
     }
@@ -423,7 +429,7 @@
       <div class="feature-card">
         <div class="feature-icon">🍽️</div>
         <h3 id="f3-title">Spijsadvies op maat</h3>
-        <p id="f3-body">Vertel wat je vanavond eet en Vinage kiest de beste fles uit jouw eigen kelder.</p>
+        <p id="f3-body">Vertel wat je vanavond eet en Vinage kiest de beste fles uit jouw eigen kelder, in de markt, en ook waarom, met behulp van AI.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">☁️</div>
@@ -655,7 +661,7 @@
       'f2-title': 'Slim kelderbeheer',
       'f2-body':  'Wijs flessen toe aan rekken en vakken, filter op type of regio en zie altijd precies wat je in huis hebt.',
       'f3-title': 'Spijsadvies op maat',
-      'f3-body':  'Vertel wat je vanavond eet en Vinage kiest de beste fles uit jouw eigen kelder.',
+      'f3-body':  'Vertel wat je vanavond eet. Vinage kiest de beste fles uit jouw eigen kelder en legt uit waarom - AI gestuurd.',
       'f4-title': 'Deel je kelder',
       'f4-body':  'Nodig je partner of huisgenoot uit. Jullie kelder is altijd up-to-date, op elk apparaat.',
       'f5-title': 'Inzicht & statistieken',
@@ -705,7 +711,7 @@
       'f2-title': 'Smart Cellar Management',
       'f2-body':  'Assign bottles to racks and slots, filter by type or region and always know exactly what you have at home.',
       'f3-title': 'Personalised Food Pairing',
-      'f3-body':  'Tell Vinage what you\'re having for dinner and it picks the best bottle from your own cellar.',
+      'f3-body':  'Tell Vinage what you\'re having for dinner. Vinage picks the best bottle from your own cellar and explains why - AI guided.',
       'f4-title': 'Share Your Cellar',
       'f4-body':  'Invite your partner or housemate. Your shared cellar stays up to date on every device.',
       'f5-title': 'Insights & Statistics',

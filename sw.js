@@ -1,17 +1,18 @@
 // Vinage Service Worker — network-first, cache as offline fallback
 // SW_VERSION is stamped automatically by autopush.sh on every deploy.
-const SW_VERSION = 'v1778521121';
+const SW_VERSION = 'v1778837514';
 const CACHE = `vinage-${SW_VERSION}`;
 
 // Files to pre-cache on install (app shell)
 const SHELL = [
-  '/',
-  '/index.html',
+  '/app',
+  '/app.html',
   '/css/style.css',
   '/js/i18n.js',
   '/js/db.js',
   '/js/api.js',
   '/js/sync.js',
+  '/js/importers.js',
   '/js/app.js',
   '/manifest.json',
   '/icons/icon-192.png',
@@ -24,8 +25,16 @@ self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(c => c.addAll(SHELL))
   );
-  // Activate immediately — don't wait for old tabs to close
+  // skipWaiting is also triggered via message from the app (see below),
+  // but call it here too for fresh installs (no existing SW in control).
   self.skipWaiting();
+});
+
+// ── Message: app explicitly triggers skipWaiting ──────────────────────────────
+// Reliable iOS path: app detects a waiting SW, posts SKIP_WAITING, which forces
+// the new SW to activate immediately — no tab close or manual restart needed.
+self.addEventListener('message', e => {
+  if (e.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 // ── Activate: delete every cache except the current one ──────────────────────
@@ -53,6 +62,11 @@ self.addEventListener('fetch', e => {
     url.hostname.includes('gstatic.com') ||
     url.hostname.includes('firebasestorage.app')
   ) return;
+
+  // Let Firebase Auth redirect handler bypass the SW — critical for
+  // signInWithRedirect to work. Firebase uses /__/auth/ on the same origin
+  // to store the OAuth token; SW interception breaks getRedirectResult().
+  if (url.pathname.startsWith('/__/')) return;
 
   e.respondWith(
     fetch(e.request)

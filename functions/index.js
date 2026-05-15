@@ -145,21 +145,45 @@ exports.aiProxy = onCall(
 );
 
 // ── Stripe Webhook ─────────────────────────────────────────────────────────
-// Receives events from Stripe and activates the user's subscription plan.
+// Handles plan activation, cancellation and failed payments.
 //
 // Setup (one-time, after deploying):
 //   1. Go to https://dashboard.stripe.com/webhooks
 //   2. Add endpoint: https://europe-west1-vinage-85fd8.cloudfunctions.net/stripeWebhook
-//   3. Select event: checkout.session.completed
+//   3. Select events:
+//        • checkout.session.completed
+//        • customer.subscription.deleted
+//        • invoice.payment_failed
 //   4. Copy the signing secret → paste as STRIPE_WEBHOOK_SECRET in functions/.env
 //   5. Re-deploy: firebase deploy --only functions
 //
+
+// Helper: find Firebase UID by Stripe customer ID
+async function _uidByCustomer(customerId) {
+  const snap = await admin.firestore()
+    .collection('users')
+    .where('stripeCustomerId', '==', customerId)
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  return snap.docs[0].id; // document ID = Firebase UID
+}
+
+// Helper: set plan for a user in Firestore
+async function _setPlan(uid, planId, extra = {}) {
+  await admin.firestore().doc(`users/${uid}`).set(
+    { plan: planId, ...extra },
+    { merge: true }
+  );
+  console.log(`[stripeWebhook] Plan "${planId}" set for uid=${uid}`);
+}
+
 exports.stripeWebhook = onRequest(
   {
-    cors:           false,  // Stripe posts directly — no CORS needed
+    cors:           false,
     timeoutSeconds: 30,
     memory:         '256MiB',
-    invoker:        'public', // Stripe must reach this endpoint without auth
+    invoker:        'public',
   },
   async (req, res) => {
     const stripeSecret  = process.env.STRIPE_SECRET;
@@ -174,9 +198,9 @@ exports.stripeWebhook = onRequest(
     }
 
     // Verify signature — protects against spoofed requests
-    const Stripe    = require('stripe');
-    const stripe    = Stripe(stripeSecret);
-    const sig       = req.headers['stripe-signature'];
+    const Stripe = require('stripe');
+    const stripe = Stripe(stripeSecret);
+    const sig    = req.headers['stripe-signature'];
     let event;
     try {
       event = stripe.webhooks.constructEvent(req.rawBody, sig, webhookSecret);
@@ -188,56 +212,135 @@ exports.stripeWebhook = onRequest(
 
     console.log(`[stripeWebhook] event=${event.type}`);
 
-    // We only care about successful checkouts
-    if (event.type !== 'checkout.session.completed') {
-      res.status(200).send('Ignored');
-      return;
+    // ── 1. Checkout completed → activate plan ─────────────────────────────
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const uid     = session.client_reference_id;
+
+      if (!uid) {
+        console.warn('[stripeWebhook] No client_reference_id — payment not linked to user');
+        res.status(200).send('No UID'); return;
+      }
+
+      // Map price ID to plan name
+      let planId = null;
+      try {
+        const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 1 });
+        const priceId   = lineItems.data[0]?.price?.id;
+        planId = PRICE_TO_PLAN()[priceId] || null;
+        console.log(`[stripeWebhook] priceId=${priceId} → plan=${planId}`);
+      } catch (e) {
+        console.error('[stripeWebhook] Failed to fetch line items:', e.message);
+      }
+
+      if (!planId) {
+        console.warn('[stripeWebhook] Could not map price to plan — check STRIPE_PRICE_* in .env');
+        res.status(200).send('Plan not mapped'); return;
+      }
+
+      try {
+        await _setPlan(uid, planId, {
+          planActivated:    Date.now(),
+          stripeSession:    session.id,
+          stripeCustomerId: session.customer || null, // store for later lookups
+        });
+      } catch (e) {
+        console.error('[stripeWebhook] Firestore write failed:', e.message);
+        res.status(500).send('Firestore write failed'); return;
+      }
+
+      res.status(200).send('OK'); return;
     }
 
-    const session = event.data.object;
-    const uid     = session.client_reference_id;
+    // ── 2. Subscription cancelled → downgrade to free ─────────────────────
+    // Fires when a user cancels or when Stripe gives up after failed retries.
+    if (event.type === 'customer.subscription.deleted') {
+      const customerId = event.data.object.customer;
+      const uid        = await _uidByCustomer(customerId);
 
-    if (!uid) {
-      console.warn('[stripeWebhook] No client_reference_id in session — payment not linked to user');
-      res.status(200).send('No UID');
-      return;
+      if (!uid) {
+        console.warn(`[stripeWebhook] No user found for customerId=${customerId}`);
+        res.status(200).send('User not found'); return;
+      }
+
+      try {
+        await _setPlan(uid, 'free', { planCancelledAt: Date.now() });
+      } catch (e) {
+        console.error('[stripeWebhook] Firestore downgrade failed:', e.message);
+        res.status(500).send('Firestore write failed'); return;
+      }
+
+      res.status(200).send('OK'); return;
     }
 
-    // Determine plan from the price ID on the line item
-    // For Payment Links we read the first line item's price ID
-    let planId = null;
+    // ── 3. Payment failed → log only, do NOT downgrade ───────────────────
+    // Stripe retries failed payments automatically (smart retries over several
+    // days). Downgrading immediately would be unfair to users with a temporary
+    // card issue. We wait for customer.subscription.deleted instead, which only
+    // fires after Stripe has exhausted all retry attempts.
+    if (event.type === 'invoice.payment_failed') {
+      const invoice    = event.data.object;
+      const customerId = invoice.customer;
+      console.log(`[stripeWebhook] Payment failed for customer=${customerId}, attempt=${invoice.attempt_count} — Stripe will retry automatically`);
+      res.status(200).send('Noted'); return;
+    }
+
+    // All other events — ignore
+    res.status(200).send('Ignored');
+  }
+);
+
+// ── Stripe Customer Portal ─────────────────────────────────────────────────
+// Creates a Billing Portal session so users can manage, cancel or re-activate
+// their subscription without contacting support.
+//
+// Setup (one-time):
+//   1. Enable the Customer Portal in Stripe Dashboard → Billing → Customer portal
+//   2. Configure allowed actions: cancel, update payment method, view invoices
+//   3. No extra .env keys needed — uses existing STRIPE_SECRET
+//
+exports.createPortalSession = onCall(
+  {
+    cors:           true,
+    invoker:        'public',
+    timeoutSeconds: 30,
+    memory:         '256MiB',
+  },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Sign in to manage your subscription.');
+    }
+
+    const stripeSecret = process.env.STRIPE_SECRET;
+    if (!stripeSecret || stripeSecret.startsWith('sk_test_REPLACE')) {
+      throw new HttpsError('internal', 'Stripe not configured.');
+    }
+
+    const uid = request.auth.uid;
+
+    // Look up Stripe customer ID stored during checkout
+    const userDoc = await admin.firestore().doc(`users/${uid}`).get();
+    const customerId = userDoc.exists ? userDoc.data()?.stripeCustomerId : null;
+
+    if (!customerId) {
+      throw new HttpsError('not-found', 'No subscription found for this account.');
+    }
+
+    const Stripe = require('stripe');
+    const stripe = Stripe(stripeSecret);
+
+    const returnUrl = (request.data && request.data.returnUrl) || 'https://vinage.app/app';
+
     try {
-      const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 1 });
-      const priceId   = lineItems.data[0]?.price?.id;
-      planId = PRICE_TO_PLAN()[priceId] || null;
-      console.log(`[stripeWebhook] priceId=${priceId} → plan=${planId}`);
-    } catch (e) {
-      console.error('[stripeWebhook] Failed to fetch line items:', e.message);
+      const session = await stripe.billingPortal.sessions.create({
+        customer:   customerId,
+        return_url: returnUrl,
+      });
+      console.log(`[createPortalSession] uid=${uid} customer=${customerId}`);
+      return { url: session.url };
+    } catch (err) {
+      console.error('[createPortalSession] Stripe error:', err.message);
+      throw new HttpsError('internal', 'Could not open subscription portal: ' + err.message);
     }
-
-    if (!planId) {
-      console.warn('[stripeWebhook] Could not map price to a plan — check STRIPE_PRICE_* in .env');
-      res.status(200).send('Plan not mapped');
-      return;
-    }
-
-    // Write plan to Firestore — the app picks it up via its live listener
-    try {
-      await admin.firestore().doc(`users/${uid}`).set(
-        {
-          plan:          planId,
-          planActivated: Date.now(),
-          stripeSession: session.id,
-        },
-        { merge: true }
-      );
-      console.log(`[stripeWebhook] Plan "${planId}" activated for uid=${uid}`);
-    } catch (e) {
-      console.error('[stripeWebhook] Firestore write failed:', e.message);
-      res.status(500).send('Firestore write failed');
-      return;
-    }
-
-    res.status(200).send('OK');
   }
 );

@@ -244,13 +244,12 @@ ul { list-style: none; }
   display: flex; align-items: center; gap: 8px; width: 100%;
 }
 
-/* Sort dropdown — stretches to fill available space in row 2 */
+/* Sort dropdown — compact, fixed width next to search bar */
 .collection-sort-select {
   padding: 7px 28px 7px 12px;
-  font-size: .88rem;
-  flex: 1;
-  min-width: 0;
-  max-width: none;
+  font-size: .84rem;
+  flex-shrink: 0;
+  width: 140px;
 }
 
 /* ── Buttons ────────────────────────────────────────────────────────────────── */
@@ -405,8 +404,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   animation: toast-in .2s ease, toast-out .3s ease 2.5s forwards;
   text-align: center;
 }
-.toast.success { background: #2D6A4F; }
-.toast.error   { background: #B30000; }
+.toast.success  { background: #2D6A4F; }
+.toast.error    { background: #B30000; }
+.toast.warning  { background: #8A5C00; }
 @keyframes toast-in  { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:none; } }
 @keyframes toast-out { from { opacity:1; } to { opacity:0; } }
 
@@ -1152,17 +1152,68 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   opacity: 1; pointer-events: auto;
 }
 
-.filter-strip {
-  display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px;
-  scrollbar-width: none; border-bottom: 1px solid var(--cream-dk);
+/* ── Filter button + panel ───────────────────────────────────────────────── */
+.filter-btn-wrap {
+  padding: 8px 16px 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.filter-strip::-webkit-scrollbar { display: none; }
+.filter-toggle-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 50px;
+  border: 1.5px solid var(--cream-dk);
+  background: var(--white); color: var(--text);
+  font-size: .85rem; font-weight: 500; cursor: pointer;
+  transition: all var(--transition);
+}
+.filter-toggle-btn.has-filters {
+  background: var(--burgundy); color: var(--white); border-color: var(--burgundy);
+}
+.filter-btn-badge {
+  background: var(--white); color: var(--burgundy);
+  border-radius: 50px; font-size: .72rem; font-weight: 700;
+  padding: 1px 6px; min-width: 18px; text-align: center;
+}
+.filter-toggle-btn:not(.has-filters) .filter-btn-badge { display: none; }
+
+.filter-panel {
+  background: var(--white);
+  border-bottom: 1px solid var(--cream-dk);
+  padding: 12px 16px 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.filter-panel-section { display: flex; flex-direction: column; gap: 8px; }
+.filter-panel-label {
+  font-size: .74rem; font-weight: 600; color: var(--text-lt);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.filter-panel-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-panel-select { font-size: .88rem; padding: 7px 10px; }
+.filter-reset-btn {
+  background: none; border: 1.5px solid var(--cream-dk);
+  color: var(--text-lt); border-radius: 50px; padding: 6px 14px;
+  font-size: .82rem; cursor: pointer; align-self: flex-start;
+  transition: all var(--transition);
+}
+.filter-reset-btn:hover { border-color: var(--burgundy); color: var(--burgundy); }
+
 .filter-chip {
   padding: 5px 14px; border-radius: 50px; border: 1.5px solid var(--cream-dk);
   font-size: .82rem; font-weight: 500; white-space: nowrap; cursor: pointer;
   background: var(--white); transition: all var(--transition);
+  display: inline-flex; align-items: center; gap: 5px;
 }
 .filter-chip.active { background: var(--burgundy); color: var(--white); border-color: var(--burgundy); }
+.chip-count {
+  font-size: .74rem; font-weight: 700;
+  background: var(--cream-dk); color: var(--text-md);
+  border-radius: 50px; padding: 1px 6px; min-width: 18px; text-align: center;
+  transition: background var(--transition), color var(--transition);
+}
+.filter-chip.active .chip-count {
+  background: rgba(255,255,255,.25); color: var(--white);
+}
 
 .wine-grid { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
 .wine-card {
@@ -1192,51 +1243,52 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 
 /* ── Collection stats bar ───────────────────────────────────────────────────── */
 .collection-stats-bar {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 14px 16px;
   background: linear-gradient(135deg, var(--burgundy-dk) 0%, var(--burgundy) 100%);
   color: var(--white);
+  padding: 10px 16px 12px;
 }
-.stat-pill {
-  text-align: center;
-  flex-shrink: 0;
-}
-.stat-number {
-  font-size: 1.6rem;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -.02em;
-}
-.stat-label {
-  font-size: .68rem;
-  font-weight: 500;
-  opacity: .7;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-top: 2px;
-}
-.stat-divider {
-  width: 1px;
-  height: 36px;
-  background: rgba(255,255,255,.2);
-  margin: 0 16px;
-  flex-shrink: 0;
-}
-.stats-type-row {
+.stats-type-pills {
   display: flex;
-  gap: 10px;
   flex-wrap: wrap;
+  gap: 6px 20px;
+  align-items: center;
+}
+.stats-type-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stats-type-pill-name {
+  font-size: .78rem;
+  font-weight: 500;
+  opacity: .75;
+}
+.stats-type-pill-count {
+  font-size: .88rem;
+  font-weight: 700;
+  opacity: .95;
+}
+
+/* legacy stat-pill/label/divider kept for Stats view */
+.stat-pill { text-align: center; flex-shrink: 0; }
+.stat-number { font-size: 1.6rem; font-weight: 800; line-height: 1; letter-spacing: -.02em; }
+.stat-label { font-size: .68rem; font-weight: 500; opacity: .7; text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+.stat-divider { width: 1px; height: 36px; background: rgba(255,255,255,.2); margin: 0 16px; flex-shrink: 0; }
+
+/* Collectie stats-bar: type dots in 2-column grid */
+.collection-stats-bar .stats-type-row {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: 4px 14px;
   align-items: center;
 }
 .stats-type-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: .82rem;
+  gap: 5px;
+  font-size: .84rem;
   font-weight: 600;
-  opacity: .88;
+  opacity: .9;
 }
 .stats-type-dot {
   width: 9px;
@@ -1245,20 +1297,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   flex-shrink: 0;
 }
 
-/* ── Drink-window alerts ────────────────────────────────────────────────────── */
-.drink-alert {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  font-size: .84rem;
-  font-weight: 600;
-}
-.drink-alert-ready { background: #EDFAF0; color: #1A6B3C; border-bottom: 1px solid #C0EDD0; }
-.drink-alert-past  { background: #FFF5E0; color: #8B5000; border-bottom: 1px solid #F0D890; }
-.drink-alert-active.drink-alert-ready { background: #C0EDD0; font-weight: 700; }
-.drink-alert-active.drink-alert-past  { background: #F0D890; font-weight: 700; }
-.drink-alert-arrow { margin-left: auto; font-size: .8rem; opacity: .6; }
+/* .drink-alert-* removed — alerts now live inside .collection-stats-bar as .cbar-alert */
 
 /* ── Drink-window badges on wine cards ──────────────────────────────────────── */
 .drink-badge {
@@ -1367,6 +1406,57 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   letter-spacing: .02em;
 }
 .pairing-find-store-btn:active { opacity: .85; }
+
+/* Importer partner block */
+.pairing-importer-block {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.pairing-importer-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  color: var(--white);
+  font-size: .8rem; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.pairing-importer-header a {
+  color: rgba(255,255,255,.75);
+  font-size: .72rem; font-weight: 500;
+  text-decoration: none; margin-left: auto;
+  text-transform: none; letter-spacing: 0;
+}
+.pairing-importer-header a:hover { color: var(--white); }
+.pairing-importer-wine {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 13px 14px; background: var(--white);
+  border-top: 1px solid var(--cream-dk);
+}
+.pairing-importer-wine:first-of-type { border-top: none; }
+.pairing-importer-wine-info { flex: 1; min-width: 0; }
+.pairing-importer-wine-name {
+  font-weight: 700; font-size: .95rem; margin-bottom: 3px;
+}
+.pairing-importer-wine-meta {
+  font-size: .8rem; color: var(--text-lt); margin-bottom: 5px;
+}
+.pairing-importer-wine-footer {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.pairing-importer-badge {
+  display: inline-block;
+  font-size: .72rem; font-weight: 700;
+  padding: 2px 9px; border-radius: 50px;
+  color: var(--white);
+}
+.pairing-importer-price {
+  font-size: .8rem; color: var(--text-lt);
+}
+.pairing-importer-link {
+  margin-left: auto; font-size: .8rem; font-weight: 600;
+  color: var(--burgundy); text-decoration: none; white-space: nowrap;
+}
+.pairing-importer-link:hover { text-decoration: underline; }
 
 /* ════════════════════════════════════════════════════════════════════════════
    SETTINGS VIEW
@@ -2943,6 +3033,159 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .consent-accept-btn { margin-top: 4px; }
 
 /* ════════════════════════════════════════════════════════════════════════════
+   ONBOARDING WALKTHROUGH
+   Full-screen overlay shown on first launch, before the consent screen.
+   Hard-coded brand colours — never affected by dark mode.
+   ════════════════════════════════════════════════════════════════════════════ */
+#onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 8900;                  /* just below consent (9000) */
+  background: #3B1422;            /* deep wine — brand dark */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+#onboarding-overlay.onboarding-visible { opacity: 1; }
+
+.onboarding-top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px 0;
+  max-width: 480px;
+  width: 100%;
+}
+
+/* Logo area at top */
+.onboarding-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  opacity: .85;
+}
+
+.onboarding-card {
+  background: #F2EBE1;            /* brand cream */
+  border-radius: 22px 22px 0 0;
+  padding: 32px 24px calc(36px + env(safe-area-inset-bottom, 0px));
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(50px);
+  transition: transform .4s ease;
+}
+#onboarding-overlay.onboarding-visible .onboarding-card { transform: translateY(0); }
+
+/* Illustration area — big emoji icon */
+.onboarding-icon {
+  font-size: 3.4rem;
+  line-height: 1;
+  margin-bottom: 18px;
+}
+
+.onboarding-title {
+  font-family: var(--font);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #3B1422;
+  text-align: center;
+  margin: 0 0 10px;
+  line-height: 1.25;
+}
+
+.onboarding-sub {
+  font-size: .9rem;
+  color: #5C3244;
+  text-align: center;
+  margin: 0 0 24px;
+  line-height: 1.65;
+  max-width: 340px;
+}
+
+/* Dot indicators */
+.onboarding-dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.onboarding-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #D4B8C0;
+  transition: background .25s ease, transform .25s ease;
+}
+.onboarding-dot.active {
+  background: #3B1422;
+  transform: scale(1.3);
+}
+
+/* Buttons */
+.onboarding-next-btn {
+  background: #3B1422;
+  color: #F2EBE1;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 10px;
+  transition: background .2s ease;
+}
+.onboarding-next-btn:active { background: #5C3244; }
+.onboarding-skip-btn {
+  background: transparent;
+  border: none;
+  color: #8A6A5A;
+  font-size: .82rem;
+  cursor: pointer;
+  padding: 6px;
+  text-align: center;
+  width: 100%;
+}
+
+/* ── Sync nudge banner ──────────────────────────────────────────────────── */
+#sync-nudge {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--burgundy-dk) 0%, var(--burgundy) 100%);
+  color: var(--white);
+  padding: 11px 14px;
+  font-size: .82rem;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity .35s ease, transform .35s ease;
+}
+#sync-nudge.sync-nudge-visible { opacity: 1; transform: translateY(0); }
+.sync-nudge-icon { font-size: 1rem; flex-shrink: 0; }
+.sync-nudge-text { flex: 1; line-height: 1.4; opacity: .9; }
+.sync-nudge-btn {
+  background: rgba(255,255,255,.18); border: none; color: var(--white);
+  border-radius: 16px; padding: 5px 13px;
+  font-size: .78rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  font-family: var(--font-body);
+  transition: background .15s;
+}
+.sync-nudge-btn:hover { background: rgba(255,255,255,.28); }
+.sync-nudge-close {
+  background: none; border: none; color: rgba(255,255,255,.55);
+  font-size: .9rem; cursor: pointer; padding: 2px 4px; flex-shrink: 0;
+  line-height: 1;
+}
+.sync-nudge-close:hover { color: var(--white); }
+
+/* ════════════════════════════════════════════════════════════════════════════
    LEGAL PAGES (Privacy Policy / Terms of Service)
    ════════════════════════════════════════════════════════════════════════════ */
 .legal-page-body {
@@ -3319,9 +3562,14 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   line-height: 1.5;
 }
 
+.settings-plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
 .btn-reset-plan {
-  display: block;
-  margin: 12px auto 0;
   background: none;
   border: 1px dashed var(--border);
   border-radius: var(--radius-sm);
@@ -3424,4 +3672,37 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   border-radius: var(--radius);
   padding: 12px 14px;
   color: var(--text);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   PWA INSTALL NUDGE
+   ════════════════════════════════════════════════════════════════════════════ */
+#install-nudge {
+  position: fixed;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 14px);
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--burgundy-dk) 0%, var(--burgundy) 100%);
+  color: var(--white);
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: .82rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  z-index: 900;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .35s ease, transform .35s ease;
+}
+#install-nudge.install-nudge-visible { opacity: 1; transform: translateY(0); }
+.install-nudge-icon { font-size: 1.1rem; flex-shrink: 0; }
+.install-nudge-text { flex: 1; line-height: 1.45; opacity: .92; }
+.install-nudge-share {
+  display: inline-block;
+  font-weight: 700;
+  background: rgba(255,255,255,.22);
+  border-radius: 4px;
+  padding: 0 5px;
 }

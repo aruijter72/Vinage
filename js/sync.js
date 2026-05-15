@@ -52,6 +52,21 @@ const Sync = {
 
       // Complete email link sign-in if URL contains a Firebase link
       this.handleEmailLinkSignIn();
+
+      // Complete redirect sign-in if returning from Google/Microsoft OAuth.
+      // This handles browsers/tabs where the old signInWithRedirect code ran.
+      this._auth.getRedirectResult().then(result => {
+        if (result?.user) {
+          const lang = (DB.getSettings().language || navigator.language || 'en').slice(0, 2);
+          App.toast(lang === 'nl' ? '✓ Ingelogd als ' + result.user.email : '✓ Signed in as ' + result.user.email, 'success');
+        }
+      }).catch(e => {
+        if (e.code && e.code !== 'auth/no-auth-event') {
+          console.warn('Vinage: redirect sign-in failed', e.code, e.message);
+          const detail = (e.code ? '[' + e.code + '] ' : '') + (e.message || e);
+          App.toast('Sign-in failed: ' + detail, 'error');
+        }
+      });
     } catch (e) {
       console.warn('Vinage: Firebase init failed', e);
     }
@@ -68,8 +83,11 @@ const Sync = {
       provider = new firebase.auth.GoogleAuthProvider();
     }
     try {
-      await this._auth.signInWithPopup(provider);
-      // onAuthStateChanged will fire and call _onSignedIn
+      const result = await this._auth.signInWithPopup(provider);
+      if (result?.user) {
+        const lang = (DB.getSettings().language || navigator.language || 'en').slice(0, 2);
+        App.toast(lang === 'nl' ? '✓ Ingelogd als ' + result.user.email : '✓ Signed in as ' + result.user.email, 'success');
+      }
     } catch (e) {
       console.warn('Vinage: sign-in failed', e);
       const detail = (e.code ? '[' + e.code + '] ' : '') + (e.message || e);
@@ -81,7 +99,7 @@ const Sync = {
   async sendEmailLink(email) {
     if (!this._ready) return;
     const actionCodeSettings = {
-      url:             window.location.origin + '/',
+      url:             window.location.origin + '/app',
       handleCodeInApp: true,
     };
     await this._auth.sendSignInLinkToEmail(email, actionCodeSettings);
@@ -105,7 +123,7 @@ const Sync = {
       await this._auth.signInWithEmailLink(email, window.location.href);
       localStorage.removeItem('vinageEmailForSignIn');
       // Clean the oobCode from the URL so it can't be re-used
-      window.history.replaceState({}, document.title, '/');
+      window.history.replaceState({}, document.title, '/app');
     } catch (e) {
       console.warn('Vinage: email link sign-in failed', e);
       App.toast('Sign-in failed: ' + (e.message || e), 'error');
@@ -150,6 +168,9 @@ const Sync = {
       }
       this._startSync();
       if (App.view === 'collection' || App.view === 'cellar') App.renderView();
+      // Migrate any IndexedDB images that haven't been uploaded to Firebase Storage yet.
+      // Run after householdId is set — the 5s timeout in init() often fires too early.
+      setTimeout(() => App._migrateImagesToFirebase(), 2000);
     }
     this._updateSyncUI();
   },

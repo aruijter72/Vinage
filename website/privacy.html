@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vinage — Privacybeleid</title>
+  <meta name="description" content="Lees hoe Vinage omgaat met jouw persoonlijke gegevens en wijndata.">
+  <link rel="icon" href="/icons/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/website/site.css">
+  <style>
+    .legal-hero {
+      background: linear-gradient(155deg, var(--burgundy) 0%, #6B2340 60%, var(--burgundy-mid) 100%);
+      padding: 100px 24px 56px; text-align: center;
+    }
+    .legal-hero .label {
+      font-size: .8rem; font-weight: 600; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--gold-lt); margin-bottom: 14px;
+    }
+    .legal-hero h1 {
+      font-size: clamp(1.8rem,4vw,3rem); font-weight: 300;
+      color: var(--cream); margin-bottom: 12px;
+    }
+    .legal-hero .updated {
+      font-size: .85rem; color: rgba(245,239,230,.55);
+    }
+
+    .legal-body {
+      max-width: 780px; margin: 0 auto; padding: 56px 24px 80px;
+    }
+    .legal-section { margin-bottom: 48px; }
+    .legal-section h2 {
+      font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600;
+      color: var(--burgundy); margin-bottom: 14px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    [data-theme="dark"] .legal-section h2 { color: var(--gold-lt); }
+    .legal-section p {
+      font-size: .94rem; color: var(--text-lt); line-height: 1.8;
+      margin-bottom: 12px;
+    }
+    .legal-section p:last-child { margin-bottom: 0; }
+    .legal-section ul {
+      margin: 10px 0 12px 20px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .legal-section ul li {
+      font-size: .94rem; color: var(--text-lt); line-height: 1.7;
+    }
+    .legal-section strong { color: var(--text); font-weight: 600; }
+    [data-theme="dark"] .legal-section strong { color: var(--cream); }
+
+    .legal-contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 24px 28px;
+      margin-top: 16px;
+    }
+    .legal-contact-card p { margin: 0; }
+
+    .lang-notice {
+      background: var(--surface-2);
+      border-left: 3px solid var(--gold);
+      padding: 12px 18px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-bottom: 40px;
+    }
+    .lang-notice p { font-size: .85rem; color: var(--text-lt); margin: 0; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="/" class="nav-logo"><div class="logo-mark">🍷</div><span>Vinage</span></a>
+  <ul class="nav-links">
+    <li><a href="/#features" id="nav-features">Functies</a></li>
+    <li><a href="/pricing"   id="nav-pricing">Abonnementen</a></li>
+    <li><a href="/about"     id="nav-about">Over ons</a></li>
+    <li><a href="/blog"      id="nav-blog">Blog</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-pills">
+      <button class="lang-pill active" data-lang="nl" onclick="setLang('nl')">NL</button>
+      <button class="lang-pill" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-pill" data-lang="de" onclick="setLang('de')">DE</button>
+      <button class="lang-pill" data-lang="fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-pill" data-lang="es" onclick="setLang('es')">ES</button>
+      <button class="lang-pill" data-lang="it" onclick="setLang('it')">IT</button>
+    </div>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    <a href="/app" class="nav-app-btn">Open app</a>
+  </div>
+  <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="/#features" id="mob-features">Functies</a>
+  <a href="/pricing"   id="mob-pricing">Abonnementen</a>
+  <a href="/about"     id="mob-about">Over ons</a>
+  <a href="/blog"      id="mob-blog">Blog</a>
+  <a href="/app" class="nav-app-btn">Open app</a>
+  <div class="mobile-lang-row">
+    <button class="active" data-lang="nl" onclick="setLang('nl')">NL</button>
+    <button data-lang="en" onclick="setLang('en')">EN</button>
+    <button data-lang="de" onclick="setLang('de')">DE</button>
+    <button data-lang="fr" onclick="setLang('fr')">FR</button>
+    <button data-lang="es" onclick="setLang('es')">ES</button>
+    <button data-lang="it" onclick="setLang('it')">IT</button>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="legal-hero">
+  <div class="label" id="p-label">Juridisch</div>
+  <h1 id="p-title">Privacybeleid</h1>
+  <p class="updated" id="p-updated">Laatst bijgewerkt: mei 2025</p>
+</section>
+
+<!-- Body -->
+<main class="legal-body">
+
+  <div class="lang-notice">
+    <p id="p-lang-notice">De Nederlandse versie is de bindende versie van dit beleid. De vertalingen zijn uitsluitend ter informatie.</p>
+  </div>
+
+  <!-- 1. Wie is verantwoordelijk -->
+  <div class="legal-section">
+    <h2 id="p-s1-title">1. Verwerkingsverantwoordelijke</h2>
+    <p id="p-s1-body">Vinage is een product van Arnold Ruijter IT (KVK 99478781), gevestigd in Nederland. Arnold Ruijter IT is verwerkingsverantwoordelijke voor de persoonsgegevens zoals beschreven in dit privacybeleid. Voor vragen kun je contact opnemen via het onderstaande e-mailadres.</p>
+    <div class="legal-contact-card">
+      <p><strong>Arnold Ruijter IT</strong><br>KVK-nummer: 99478781<br>Nederland<br>📧 <a href="mailto:arnold.ruijter@outlook.com">arnold.ruijter@outlook.com</a></p>
+    </div>
+  </div>
+
+  <!-- 2. Welke gegevens -->
+  <div class="legal-section">
+    <h2 id="p-s2-title">2. Welke gegevens verwerken wij?</h2>
+    <p id="p-s2-intro">Vinage verwerkt uitsluitend de gegevens die noodzakelijk zijn om de app te laten functioneren. We verzamelen de volgende categorieën:</p>
+    <ul id="p-s2-list">
+      <li><strong>Accountgegevens:</strong> e-mailadres (via Firebase Authentication).</li>
+      <li><strong>Wijndata:</strong> namen, typen, jaargangen, hoeveelheden, aantekeningen, foto's en andere informatie die je zelf invoert over wijnen in jouw collectie.</li>
+      <li><strong>Kelderindeling:</strong> plaatsingsgegevens van wijnen in jouw digitale kelder.</li>
+      <li><strong>Abonnementsgegevens:</strong> plan (gratis / betaald), via Stripe verwerkte betalingen. Vinage slaat geen betaalkaartgegevens op.</li>
+      <li><strong>Technische gegevens:</strong> anonieme gebruiksstatistieken (app-versie, taalinstelling) via Firebase. Geen advertentie-tracking.</li>
+    </ul>
+  </div>
+
+  <!-- 3. Doel -->
+  <div class="legal-section">
+    <h2 id="p-s3-title">3. Waarvoor gebruiken wij jouw gegevens?</h2>
+    <ul id="p-s3-list">
+      <li>Het aanmaken en beheren van jouw account.</li>
+      <li>Het opslaan en synchroniseren van jouw wijnverzameling op al jouw apparaten.</li>
+      <li>Het verwerken van abonnementsbetalingen.</li>
+      <li>Het bieden van AI-gedreven wijnadvies (enkel als je dit functie gebruikt; jouw data wordt niet gebruikt voor het trainen van AI-modellen).</li>
+      <li>Het versturen van drinkwaarschuwingen en herinneringen (enkel als je dit inschakelt).</li>
+      <li>Het verbeteren van de app op basis van anonieme gebruikspatronen.</li>
+    </ul>
+    <p id="p-s3-grondslag">De juridische grondslag voor verwerking is uitvoering van de overeenkomst (het gebruik van de app) en, waar van toepassing, jouw toestemming.</p>
+  </div>
+
+  <!-- 4. Derden -->
+  <div class="legal-section">
+    <h2 id="p-s4-title">4. Derde partijen</h2>
+    <p id="p-s4-intro">Vinage maakt gebruik van de volgende vertrouwde dienstverleners. Jouw gegevens worden nooit verkocht aan derden of gebruikt voor advertentiedoeleinden.</p>
+    <ul id="p-s4-list">
+      <li><strong>Google Firebase</strong> (Firebase Authentication, Firestore, Storage, Hosting) — voor authenticatie, gegevensopslag en hosting. Opslag in de Europese Unie of de VS. <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Privacy-informatie Google</a>.</li>
+      <li><strong>Stripe</strong> — voor de verwerking van betalingen voor betaalde abonnementen. Vinage heeft geen toegang tot jouw volledige betaalgegevens. <a href="https://stripe.com/nl/privacy" target="_blank" rel="noopener">Privacybeleid Stripe</a>.</li>
+      <li><strong>Anthropic (Claude AI)</strong> — voor AI-gedreven wijnadvies en etiketherkenning. Verzoeken worden via een beveiligde proxy gestuurd. Jouw wijndata wordt niet gebruikt voor modeltraining. <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Privacybeleid Anthropic</a>.</li>
+    </ul>
+  </div>
+
+  <!-- 5. Bewaartermijn -->
+  <div class="legal-section">
+    <h2 id="p-s5-title">5. Bewaartermijn</h2>
+    <p id="p-s5-body">Jouw gegevens worden bewaard zolang je een actief account hebt bij Vinage. Als je jouw account verwijdert via Instellingen → Account verwijderen, worden al jouw persoonsgegevens en wijndata permanent gewist uit onze systemen. Financiële gegevens (transactielog) worden bewaard zolang wettelijk vereist (doorgaans 7 jaar).</p>
+  </div>
+
+  <!-- 6. Jouw rechten -->
+  <div class="legal-section">
+    <h2 id="p-s6-title">6. Jouw rechten (AVG)</h2>
+    <p id="p-s6-intro">Op grond van de Algemene Verordening Gegevensbescherming (AVG) heb je de volgende rechten:</p>
+    <ul id="p-s6-list">
+      <li><strong>Recht op inzage:</strong> je kunt opvragen welke gegevens wij van jou verwerken.</li>
+      <li><strong>Recht op rectificatie:</strong> onjuiste gegevens kun je corrigeren.</li>
+      <li><strong>Recht op verwijdering:</strong> je kunt je account en al jouw data verwijderen via de app (Instellingen → Account verwijderen).</li>
+      <li><strong>Recht op dataportabiliteit:</strong> je kunt jouw wijndata exporteren als JSON of CSV vanuit de app (Instellingen → Gegevens exporteren).</li>
+      <li><strong>Recht om bezwaar te maken:</strong> je kunt bezwaar maken tegen bepaalde verwerkingen door contact op te nemen via <a href="mailto:arnold.ruijter@outlook.com">arnold.ruijter@outlook.com</a>.</li>
+    </ul>
+    <p id="p-s6-klacht">Je hebt ook het recht een klacht in te dienen bij de Autoriteit Persoonsgegevens (<a href="https://autoriteitpersoonsgegevens.nl" target="_blank" rel="noopener">autoriteitpersoonsgegevens.nl</a>).</p>
+  </div>
+
+  <!-- 7. Cookies -->
+  <div class="legal-section">
+    <h2 id="p-s7-title">7. Cookies en lokale opslag</h2>
+    <p id="p-s7-body">Vinage maakt geen gebruik van advertentiecookies of tracking-cookies van derden. De app maakt uitsluitend gebruik van <em>localStorage</em> en <em>sessionStorage</em> van de browser voor het opslaan van jouw taalinstelling, themavoorkeur en sessie-informatie. Firebase kan technische cookies plaatsen die noodzakelijk zijn voor authenticatie.</p>
+  </div>
+
+  <!-- 8. Beveiliging -->
+  <div class="legal-section">
+    <h2 id="p-s8-title">8. Beveiliging</h2>
+    <p id="p-s8-body">Vinage neemt passende technische en organisatorische maatregelen om jouw gegevens te beschermen. Alle communicatie verloopt via HTTPS. Gegevens worden versleuteld opgeslagen in Firebase. Toegang tot jouw account is beveiligd via e-mailverificatie. Ondanks deze maatregelen is geen enkele beveiligingsmaatregel 100% waterdicht.</p>
+  </div>
+
+  <!-- 9. Wijzigingen -->
+  <div class="legal-section">
+    <h2 id="p-s9-title">9. Wijzigingen in dit beleid</h2>
+    <p id="p-s9-body">Dit privacybeleid kan van tijd tot tijd worden bijgewerkt. Bij wezenlijke wijzigingen ontvang je een melding via de app of per e-mail. De datum bovenaan dit document geeft de meest recente versie aan. Voortgezet gebruik van de app na een wijziging geldt als aanvaarding van het bijgewerkte beleid.</p>
+  </div>
+
+  <!-- 10. Contact -->
+  <div class="legal-section">
+    <h2 id="p-s10-title">10. Contact</h2>
+    <p id="p-s10-body">Voor vragen, verzoeken of klachten met betrekking tot dit privacybeleid kun je contact opnemen via:</p>
+    <div class="legal-contact-card">
+      <p>📧 <a href="mailto:arnold.ruijter@outlook.com">arnold.ruijter@outlook.com</a><br>
+      Reactietijd: doorgaans binnen 5 werkdagen.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Vinage</div>
+      <div class="footer-tagline" id="footer-tagline">Jouw digitale wijnkelder</div>
+    </div>
+    <div class="footer-links">
+      <a href="/app"               id="footer-app">Open app</a>
+      <a href="/"                               >Home</a>
+      <a href="/pricing"           id="nav-pricing-f">Abonnementen</a>
+      <a href="/blog"              id="nav-blog-f">Blog</a>
+      <a href="/privacy"           id="footer-privacy" class="active">Privacybeleid</a>
+      <a href="/gebruiksvoorwaarden" id="footer-terms">Gebruiksvoorwaarden</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span id="footer-copy">© 2025 Vinage. Alle rechten voorbehouden.</span>
+    <span>Made with 🍷 in the Netherlands</span>
+  </div>
+</footer>
+
+<script src="/website/site.js"></script>
+<script>
+const PAGE_T = {
+  nl: {
+    'p-label':'Juridisch','p-title':'Privacybeleid','p-updated':'Laatst bijgewerkt: mei 2025',
+    'p-lang-notice':'De Nederlandse versie is de bindende versie van dit beleid. De vertalingen zijn uitsluitend ter informatie.',
+    'p-s1-title':'1. Verwerkingsverantwoordelijke',
+    'p-s1-body':'Vinage is een product van Arnold Ruijter IT (KVK 99478781), gevestigd in Nederland. Voor vragen kun je contact opnemen via het onderstaande e-mailadres.',
+    'p-s2-title':'2. Welke gegevens verwerken wij?',
+    'p-s2-intro':'Vinage verwerkt uitsluitend de gegevens die noodzakelijk zijn om de app te laten functioneren.',
+    'p-s3-title':'3. Waarvoor gebruiken wij jouw gegevens?',
+    'p-s3-grondslag':'De juridische grondslag voor verwerking is uitvoering van de overeenkomst en, waar van toepassing, jouw toestemming.',
+    'p-s4-title':'4. Derde partijen',
+    'p-s4-intro':'Vinage maakt gebruik van de volgende vertrouwde dienstverleners. Jouw gegevens worden nooit verkocht aan derden.',
+    'p-s5-title':'5. Bewaartermijn',
+    'p-s5-body':'Jouw gegevens worden bewaard zolang je een actief account hebt. Bij accountverwijdering worden alle persoonsgegevens en wijndata permanent gewist. Financiële gegevens worden bewaard zolang wettelijk vereist.',
+    'p-s6-title':'6. Jouw rechten (AVG)',
+    'p-s6-intro':'Op grond van de Algemene Verordening Gegevensbescherming heb je de volgende rechten:',
+    'p-s6-klacht':'Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.',
+    'p-s7-title':'7. Cookies en lokale opslag',
+    'p-s7-body':'Vinage maakt geen gebruik van advertentiecookies. De app gebruikt uitsluitend localStorage/sessionStorage voor taal- en thema-instellingen.',
+    'p-s8-title':'8. Beveiliging',
+    'p-s8-body':'Alle communicatie verloopt via HTTPS. Gegevens worden versleuteld opgeslagen in Firebase. Toegang is beveiligd via e-mailverificatie.',
+    'p-s9-title':'9. Wijzigingen in dit beleid',
+    'p-s9-body':'Dit beleid kan worden bijgewerkt. Bij wezenlijke wijzigingen ontvang je een melding via de app of per e-mail.',
+    'p-s10-title':'10. Contact',
+    'p-s10-body':'Voor vragen over dit privacybeleid kun je contact opnemen via:',
+  },
+  en: {
+    'p-label':'Legal','p-title':'Privacy Policy','p-updated':'Last updated: May 2025',
+    'p-lang-notice':'The Dutch version is the binding version of this policy. Translations are provided for informational purposes only.',
+    'p-s1-title':'1. Data Controller',
+    'p-s1-body':'Vinage is a product of Arnold Ruijter IT (Chamber of Commerce no. 99478781), based in the Netherlands. For any questions, please contact us at the email address below.',
+    'p-s2-title':'2. What data do we process?',
+    'p-s2-intro':'Vinage only processes data necessary for the app to function. We collect the following categories:',
+    'p-s3-title':'3. Why do we use your data?',
+    'p-s3-grondslag':'The legal basis for processing is the performance of the contract (use of the app) and, where applicable, your consent.',
+    'p-s4-title':'4. Third Parties',
+    'p-s4-intro':'Vinage uses the following trusted service providers. Your data is never sold to third parties or used for advertising.',
+    'p-s5-title':'5. Retention Period',
+    'p-s5-body':'Your data is retained for as long as you have an active Vinage account. When you delete your account, all personal data and wine data is permanently deleted. Financial records are kept for as long as legally required.',
+    'p-s6-title':'6. Your Rights (GDPR)',
+    'p-s6-intro':'Under the General Data Protection Regulation (GDPR) you have the following rights:',
+    'p-s6-klacht':'You also have the right to lodge a complaint with your national data protection authority.',
+    'p-s7-title':'7. Cookies and Local Storage',
+    'p-s7-body':'Vinage does not use advertising or third-party tracking cookies. The app only uses localStorage/sessionStorage to store your language preference, theme setting, and session data.',
+    'p-s8-title':'8. Security',
+    'p-s8-body':'All communication uses HTTPS. Data is encrypted at rest in Firebase. Account access is secured via email verification.',
+    'p-s9-title':'9. Changes to This Policy',
+    'p-s9-body':'This privacy policy may be updated from time to time. For material changes you will be notified through the app or by email.',
+    'p-s10-title':'10. Contact',
+    'p-s10-body':'For questions about this privacy policy, please contact us at:',
+  },
+  de: {
+    'p-label':'Rechtliches','p-title':'Datenschutzerklärung','p-updated':'Zuletzt aktualisiert: Mai 2025',
+    'p-lang-notice':'Die niederländische Version ist die verbindliche Version dieser Richtlinie. Übersetzungen dienen nur zur Information.',
+    'p-s1-title':'1. Verantwortlicher',
+    'p-s1-body':'Vinage ist ein Produkt von Arnold Ruijter IT (Handelskammer-Nr. 99478781) mit Sitz in den Niederlanden. Bei Fragen wenden Sie sich bitte an die unten angegebene E-Mail-Adresse.',
+    'p-s2-title':'2. Welche Daten verarbeiten wir?',
+    'p-s2-intro':'Vinage verarbeitet ausschließlich die für den Betrieb der App erforderlichen Daten.',
+    'p-s3-title':'3. Wofür verwenden wir Ihre Daten?',
+    'p-s3-grondslag':'Die Rechtsgrundlage für die Verarbeitung ist die Vertragserfüllung und, soweit zutreffend, Ihre Einwilligung.',
+    'p-s4-title':'4. Drittanbieter',
+    'p-s4-intro':'Vinage nutzt folgende vertrauenswürdige Dienstleister. Ihre Daten werden niemals an Dritte verkauft.',
+    'p-s5-title':'5. Speicherdauer',
+    'p-s5-body':'Ihre Daten werden gespeichert, solange Sie ein aktives Konto haben. Bei Kontolöschung werden alle Daten dauerhaft gelöscht.',
+    'p-s6-title':'6. Ihre Rechte (DSGVO)',
+    'p-s6-intro':'Gemäß der Datenschutz-Grundverordnung haben Sie folgende Rechte:',
+    'p-s6-klacht':'Sie haben auch das Recht, eine Beschwerde bei der zuständigen Datenschutzbehörde einzureichen.',
+    'p-s7-title':'7. Cookies und lokaler Speicher',
+    'p-s7-body':'Vinage verwendet keine Werbe- oder Tracking-Cookies. Die App nutzt ausschließlich localStorage/sessionStorage für Sprach- und Thema-Einstellungen.',
+    'p-s8-title':'8. Sicherheit',
+    'p-s8-body':'Die gesamte Kommunikation erfolgt über HTTPS. Daten werden verschlüsselt in Firebase gespeichert.',
+    'p-s9-title':'9. Änderungen dieser Richtlinie',
+    'p-s9-body':'Diese Datenschutzerklärung kann aktualisiert werden. Bei wesentlichen Änderungen werden Sie über die App oder per E-Mail benachrichtigt.',
+    'p-s10-title':'10. Kontakt',
+    'p-s10-body':'Für Fragen zu dieser Datenschutzerklärung wenden Sie sich bitte an:',
+  },
+  fr: {
+    'p-label':'Mentions légales','p-title':'Politique de confidentialité','p-updated':'Dernière mise à jour : mai 2025',
+    'p-lang-notice':'La version néerlandaise est la version contraignante de cette politique. Les traductions sont fournies à titre informatif uniquement.',
+    'p-s1-title':'1. Responsable du traitement','p-s1-body':'Vinage est un produit d\'Arnold Ruijter IT (n° KvK 99478781), basé aux Pays-Bas.',
+    'p-s2-title':'2. Quelles données traitons-nous ?','p-s2-intro':'Vinage ne traite que les données nécessaires au fonctionnement de l\'application.',
+    'p-s3-title':'3. Pourquoi utilisons-nous vos données ?','p-s3-grondslag':'La base légale du traitement est l\'exécution du contrat et, le cas échéant, votre consentement.',
+    'p-s4-title':'4. Tiers','p-s4-intro':'Vinage utilise les prestataires de confiance suivants. Vos données ne sont jamais vendues à des tiers.',
+    'p-s5-title':'5. Durée de conservation','p-s5-body':'Vos données sont conservées tant que vous avez un compte actif. En cas de suppression du compte, toutes les données sont définitivement effacées.',
+    'p-s6-title':'6. Vos droits (RGPD)','p-s6-intro':'En vertu du RGPD, vous disposez des droits suivants :','p-s6-klacht':'Vous avez également le droit de déposer une plainte auprès de la CNIL ou de l\'autorité de protection des données compétente.',
+    'p-s7-title':'7. Cookies et stockage local','p-s7-body':'Vinage n\'utilise pas de cookies publicitaires. L\'application utilise uniquement localStorage/sessionStorage pour les préférences de langue et de thème.',
+    'p-s8-title':'8. Sécurité','p-s8-body':'Toutes les communications utilisent HTTPS. Les données sont stockées de manière chiffrée dans Firebase.',
+    'p-s9-title':'9. Modifications de cette politique','p-s9-body':'Cette politique peut être mise à jour. Pour les changements importants, vous serez informé via l\'application ou par e-mail.',
+    'p-s10-title':'10. Contact','p-s10-body':'Pour toute question relative à cette politique de confidentialité, veuillez nous contacter à :',
+  },
+  es: {
+    'p-label':'Legal','p-title':'Política de privacidad','p-updated':'Última actualización: mayo 2025',
+    'p-lang-notice':'La versión neerlandesa es la versión vinculante de esta política. Las traducciones se proporcionan solo a efectos informativos.',
+    'p-s1-title':'1. Responsable del tratamiento','p-s1-body':'Vinage es un producto de Arnold Ruijter IT (n.º KvK 99478781), con sede en los Países Bajos.',
+    'p-s2-title':'2. ¿Qué datos procesamos?','p-s2-intro':'Vinage solo procesa los datos necesarios para el funcionamiento de la aplicación.',
+    'p-s3-title':'3. ¿Para qué usamos sus datos?','p-s3-grondslag':'La base legal del tratamiento es la ejecución del contrato y, donde sea aplicable, su consentimiento.',
+    'p-s4-title':'4. Terceros','p-s4-intro':'Vinage utiliza los siguientes proveedores de confianza. Sus datos nunca se venden a terceros.',
+    'p-s5-title':'5. Período de retención','p-s5-body':'Sus datos se conservan mientras tenga una cuenta activa. Al eliminar la cuenta, todos los datos se borran permanentemente.',
+    'p-s6-title':'6. Sus derechos (RGPD)','p-s6-intro':'Bajo el RGPD, tiene los siguientes derechos:','p-s6-klacht':'También tiene derecho a presentar una reclamación ante la autoridad de protección de datos competente.',
+    'p-s7-title':'7. Cookies y almacenamiento local','p-s7-body':'Vinage no utiliza cookies publicitarias. La app solo usa localStorage/sessionStorage para preferencias de idioma y tema.',
+    'p-s8-title':'8. Seguridad','p-s8-body':'Todas las comunicaciones usan HTTPS. Los datos se almacenan cifrados en Firebase.',
+    'p-s9-title':'9. Cambios en esta política','p-s9-body':'Esta política puede actualizarse. Para cambios importantes, se le notificará a través de la app o por correo electrónico.',
+    'p-s10-title':'10. Contacto','p-s10-body':'Para preguntas sobre esta política de privacidad, contáctenos en:',
+  },
+  it: {
+    'p-label':'Legale','p-title':'Informativa sulla privacy','p-updated':'Ultimo aggiornamento: maggio 2025',
+    'p-lang-notice':'La versione olandese è la versione vincolante di questa politica. Le traduzioni sono fornite solo a scopo informativo.',
+    'p-s1-title':'1. Titolare del trattamento','p-s1-body':'Vinage è un prodotto di Arnold Ruijter IT (n. KvK 99478781), con sede nei Paesi Bassi.',
+    'p-s2-title':'2. Quali dati trattiamo?','p-s2-intro':'Vinage tratta solo i dati necessari per il funzionamento dell\'app.',
+    'p-s3-title':'3. Perché usiamo i tuoi dati?','p-s3-grondslag':'La base giuridica del trattamento è l\'esecuzione del contratto e, ove applicabile, il tuo consenso.',
+    'p-s4-title':'4. Terze parti','p-s4-intro':'Vinage si avvale dei seguenti fornitori di fiducia. I tuoi dati non vengono mai venduti a terzi.',
+    'p-s5-title':'5. Periodo di conservazione','p-s5-body':'I tuoi dati vengono conservati finché hai un account attivo. Eliminando l\'account, tutti i dati vengono cancellati definitivamente.',
+    'p-s6-title':'6. I tuoi diritti (GDPR)','p-s6-intro':'Ai sensi del GDPR, hai i seguenti diritti:','p-s6-klacht':'Hai anche il diritto di presentare un reclamo all\'autorità di protezione dei dati competente.',
+    'p-s7-title':'7. Cookie e archiviazione locale','p-s7-body':'Vinage non utilizza cookie pubblicitari. L\'app utilizza solo localStorage/sessionStorage per le preferenze di lingua e tema.',
+    'p-s8-title':'8. Sicurezza','p-s8-body':'Tutte le comunicazioni utilizzano HTTPS. I dati sono archiviati in modo cifrato in Firebase.',
+    'p-s9-title':'9. Modifiche a questa politica','p-s9-body':'Questa politica può essere aggiornata. Per modifiche sostanziali, sarai informato tramite l\'app o per e-mail.',
+    'p-s10-title':'10. Contatto','p-s10-body':'Per domande su questa informativa sulla privacy, contattaci a:',
+  },
+};
+function applyPageLang(lang) {
+  const data = PAGE_T[lang] || PAGE_T.nl;
+  Object.entries(data).forEach(([id, text]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  });
+  document.querySelectorAll('.mobile-lang-row button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+}
+</script>
+</body>
+</html>

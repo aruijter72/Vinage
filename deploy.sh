@@ -7,9 +7,9 @@
 
 cd "$(dirname "$0")"
 
-# ── 1. Bump ?v= timestamp in index.html + SW_VERSION in sw.js ────────────────
+# ── 1. Bump ?v= timestamp in app.html + SW_VERSION in sw.js ─────────────────
 TS=$(date +%s)
-sed -i '' "s|\.css?v=[^\"']*|.css?v=${TS}|g; s|\.js?v=[^\"']*|.js?v=${TS}|g" index.html
+sed -i '' "s|\.css?v=[^\"']*|.css?v=${TS}|g; s|\.js?v=[^\"']*|.js?v=${TS}|g" app.html
 sed -i '' "s|const SW_VERSION = '[^']*'|const SW_VERSION = 'v${TS}'|" sw.js
 echo "✓ Cache versie bijgewerkt → ${TS}"
 

@@ -14,6 +14,9 @@ const App = {
   cellarDetailId: null,
   collectionSort: 'addedAt',
   collectionFilters: new Set(), // empty = show all; multi-select
+  collectionFilterRegion: '',   // '' = all regions
+  collectionFilterCountry: '',  // '' = all countries
+  collectionFilterPanelOpen: false,
   collectionSearch: '',
   collectionView: 'list',    // 'list' | 'gallery'
   batchSelectMode: false,
@@ -22,6 +25,7 @@ const App = {
   _scanRotation: 0,          // 0 | 90 | 180 | 270
   _rackZoom: 1.0,            // current rack zoom level (0.35 – 3.0)
   _decantTimer: null,        // { wineId, wineName, endTime, timerId }
+  _deferredInstallPrompt: null, // Android/Chrome BeforeInstallPromptEvent
 
   // ── Bootstrap ────────────────────────────────────────────────────────────
   init() {
@@ -39,9 +43,42 @@ const App = {
     ImageDB.migrate();
     // After auth settles, upload any IndexedDB images that aren't yet on Firebase Storage
     setTimeout(() => this._migrateImagesToFirebase(), 5000);
-    // Show consent overlay on first launch (GDPR)
-    if (!localStorage.getItem('vinageConsent')) {
+    // Show toast when app was silently reloaded due to a SW update
+    if (sessionStorage.getItem('swUpdated')) {
+      sessionStorage.removeItem('swUpdated');
+      setTimeout(() => this.toast('✓ ' + (this.lang === 'nl' ? 'Vinage bijgewerkt' : 'Vinage updated'), 'success'), 600);
+    }
+
+    // First-run flow: onboarding → consent (both only shown once)
+    const hasOnboarding = localStorage.getItem('vinageOnboarding');
+    const hasConsent    = localStorage.getItem('vinageConsent');
+    if (!hasOnboarding) {
+      // Brand new user — show onboarding first, then consent on completion
+      setTimeout(() => this._showOnboarding(() => {
+        if (!localStorage.getItem('vinageConsent')) this._showConsent();
+      }), 400);
+    } else if (!hasConsent) {
+      // Seen onboarding but not yet accepted consent (edge case)
       setTimeout(() => this._showConsent(), 400);
+    } else {
+      // Returning user — show sync nudge if not yet dismissed and not signed in
+      setTimeout(() => this._showSyncNudge(), 1200);
+    }
+
+    // PWA install prompt — capture Android/Chrome deferred event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this._deferredInstallPrompt = e;
+      // Show nudge only for returning users (onboarding already done)
+      if (localStorage.getItem('vinageOnboarding')) {
+        setTimeout(() => this._showInstallPrompt(), 3500);
+      }
+    });
+    // iOS: show nudge for returning users after a short delay
+    const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isIos && !isStandalone && localStorage.getItem('vinageOnboarding')) {
+      setTimeout(() => this._showInstallPrompt(), 3500);
     }
   },
 
@@ -148,6 +185,13 @@ const App = {
   },
 
   renderView() {
+    // Remove sync nudge as soon as the user signs in
+    try {
+      if (typeof firebase !== 'undefined' && firebase.apps?.length && firebase.auth().currentUser) {
+        const nudge = document.getElementById('sync-nudge');
+        if (nudge) { nudge.classList.remove('sync-nudge-visible'); setTimeout(() => nudge.remove(), 350); }
+      }
+    } catch (_) {}
     // Always clean up any stale drag ghost from a previous drag session
     if (this._cellarDragGhost) { this._cellarDragGhost.remove(); this._cellarDragGhost = null; }
     window.scrollTo(0, 0);
@@ -205,6 +249,7 @@ const App = {
       case 'save-wine':           this.saveWineForm(); break;
       case 'regen-notes':         this._regenNotes(); break;
       case 'edit-wine':           this.editWine(args.id); break;
+      case 'replace-photo':       this._replacePhoto(args.id); break;
       case 'delete-wine':         this.confirmDeleteWine(args.id); break;
       case 'open-cellar':         this.openCellarDetail(args.id); break;
       case 'back-cellar':         this.cellarDetailId = null; this.renderView(); break;
@@ -272,8 +317,9 @@ const App = {
       case 'show-terms':          this.navigate('terms'); break;
       case 'back-to-settings':    this.navigate('settings'); break;
       case 'show-upgrade':        this.navigate('upgrade'); break;
-      case 'back-from-upgrade':   history.length > 1 ? history.back() : this.navigate('settings'); break;
+      case 'back-from-upgrade':   this.navigate('settings'); break;
       case 'reset-plan':          Sync.resetPlan(); break;
+      case 'manage-subscription': this._openSubscriptionPortal(); break;
       case 'preview-consent':     this._showConsent(true); break;
       // PDF
       case 'export-pdf':          this.exportPdf(); break;
@@ -1266,8 +1312,25 @@ const App = {
       ? `<img class="wine-form-image wine-form-image--thumb" id="wf-preview-img" src="${thumbB64}" alt="label">`
       : '';
 
+    const wineId = this.editWineId;
+    const replacePhotoBtn = wineId
+      ? `<button type="button" data-action="replace-photo" data-id="${wineId}"
+           style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--cream-dk);border:1px solid var(--border);border-radius:20px;color:var(--text-md);font-size:.78rem;cursor:pointer;white-space:nowrap;flex-shrink:0;margin-top:4px">
+           📷 ${this.lang === 'nl' ? 'Foto vervangen' : 'Replace photo'}
+         </button>`
+      : '';
+
+    const imageSection = imageHtml
+      ? `<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px">
+           ${imageHtml}
+           ${replacePhotoBtn}
+         </div>`
+      : replacePhotoBtn
+        ? `<div style="margin-bottom:16px">${replacePhotoBtn}</div>`
+        : '';
+
     const body = `
-      ${imageHtml}
+      ${imageSection}
       <div class="form-group">
         <label>${this.t('wine.name')} *</label>
         <input id="wf-name" class="form-control" value="${this._esc(wine.name||'')}" placeholder="e.g. Château Margaux">
@@ -1290,6 +1353,26 @@ const App = {
             <button type="button" class="qty-btn" onclick="const i=document.getElementById('wf-qty');i.value=Math.max(0,(parseInt(i.value)||0)-1)">−</button>
             <input id="wf-qty" class="form-control qty-input" type="number" min="0" value="${wine.quantity != null ? wine.quantity : 1}">
             <button type="button" class="qty-btn" onclick="const i=document.getElementById('wf-qty');i.value=(parseInt(i.value)||0)+1">+</button>
+          </div>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:6px;flex-wrap:wrap">
+          <input type="checkbox" id="wf-watch-stock"
+            style="width:18px;height:18px;accent-color:#7A2535;cursor:pointer;flex-shrink:0"
+            ${wine.watchStock ? 'checked' : ''}
+            onchange="document.getElementById('wf-watch-stock-stepper').style.opacity=this.checked?'1':'0.35';document.getElementById('wf-watch-stock-qty').disabled=!this.checked">
+          <label for="wf-watch-stock" style="margin:0;font-size:.88rem;color:var(--text-md);cursor:pointer;white-space:nowrap">
+            ${this.t('wine.watchStock')}
+          </label>
+          <div class="qty-stepper" id="wf-watch-stock-stepper"
+               style="opacity:${wine.watchStock ? '1' : '0.35'}">
+            <button type="button" class="qty-btn"
+              onclick="const i=document.getElementById('wf-watch-stock-qty');i.value=Math.max(1,(parseInt(i.value)||1)-1)">−</button>
+            <input id="wf-watch-stock-qty" class="form-control qty-input" type="number" min="1"
+              value="${wine.watchStockAt || 1}"
+              style="width:52px"
+              ${wine.watchStock ? '' : 'disabled'}>
+            <button type="button" class="qty-btn"
+              onclick="const i=document.getElementById('wf-watch-stock-qty');i.value=(parseInt(i.value)||1)+1">+</button>
           </div>
         </div>
       </div>
@@ -1530,6 +1613,42 @@ const App = {
     DB.saveSettings(s);
   },
 
+  // Open Stripe Customer Portal (manage / cancel / reactivate subscription)
+  async _openSubscriptionPortal() {
+    const nl = this.lang === 'nl';
+    // Must be signed in — portal requires a Stripe customer ID
+    try {
+      if (typeof firebase === 'undefined' || !firebase.apps?.length || !firebase.auth().currentUser) {
+        this.toast(nl ? 'Log in om je abonnement te beheren.' : 'Sign in to manage your subscription.', 'error');
+        return;
+      }
+    } catch (_) {
+      this.toast(nl ? 'Log in om je abonnement te beheren.' : 'Sign in to manage your subscription.', 'error');
+      return;
+    }
+
+    const btn = document.querySelector('[data-action="manage-subscription"]');
+    if (btn) { btn.disabled = true; btn.textContent = nl ? 'Laden…' : 'Loading…'; }
+
+    try {
+      const fn = firebase.app().functions('europe-west1').httpsCallable('createPortalSession');
+      const result = await fn({ returnUrl: 'https://vinage.app/app' });
+      if (result.data?.url) {
+        window.open(result.data.url, '_blank', 'noopener');
+      } else {
+        throw new Error('No portal URL returned');
+      }
+    } catch (err) {
+      console.error('[portal]', err);
+      this.toast(
+        nl ? 'Kon portaal niet openen. Probeer het opnieuw.' : 'Could not open portal. Please try again.',
+        'error'
+      );
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = `⚙️ ${this.t('plan.manageBtn')}`; }
+    }
+  },
+
   // Show upgrade screen with a limit-reached message toast
   _showBottleLimitPaywall() {
     const plan = this._getPlan();
@@ -1580,6 +1699,8 @@ const App = {
       rating:     this._formRating,
       drinkFrom:  parseNum('wf-drink-from')  ? parseInt(parse('wf-drink-from'),  10) : null,
       drinkUntil: parseNum('wf-drink-until') ? parseInt(parse('wf-drink-until'), 10) : null,
+      watchStock:    document.getElementById('wf-watch-stock')?.checked || false,
+      watchStockAt:  Math.max(1, parseInt(document.getElementById('wf-watch-stock-qty')?.value || '1', 10)),
     };
 
     // Carry DPP metadata from scan result (new wines only)
@@ -2090,6 +2211,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       Sync.updateWine(wine.id, { quantity: newQty });
       this.renderView();
       this.toast(this.t('consume.toasted'), 'success');
+      // Low-stock warning: fire exactly when qty crosses the user-set threshold
+      const threshold = wine.watchStockAt || 1;
+      if (wine.watchStock && newQty === threshold) {
+        setTimeout(() => this.toast(
+          this.t('consume.lowStockWarning', { name: this._esc(wine.name), count: newQty }), 'warning'
+        ), 1800);
+      }
       showTasting(wine);
     }
   },
@@ -3287,62 +3415,22 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   _buildCollectionStatsBar(allWines) {
-    const wineCount   = allWines.length;
-    const bottleCount = allWines.reduce((s, w) => s + (w.quantity || 1), 0);
-
-    // Type breakdown — only show types that appear
+    // Bottle count per type, sorted descending
     const typeCounts = {};
     allWines.forEach(w => { typeCounts[w.type] = (typeCounts[w.type] || 0) + (w.quantity || 1); });
     const typeItems = Object.entries(typeCounts)
       .sort((a,b) => b[1]-a[1])
       .map(([tp, cnt]) => `
-        <div class="stats-type-item">
+        <div class="stats-type-pill">
           <span class="stats-type-dot" style="background:${this._typeColor(tp)}"></span>
-          <span>${cnt}</span>
+          <span class="stats-type-pill-name">${this.t('types.' + tp)}</span>
+          <span class="stats-type-pill-count">${cnt}</span>
         </div>`).join('');
-
-    // Cellar value — sum(price × quantity) for wines with a price
-    const winesWithPrice = allWines.filter(w => w.price != null && w.price > 0);
-    const cellarValue = winesWithPrice.reduce((s, w) => s + (w.price * (w.quantity || 1)), 0);
-    const cellarValuePill = winesWithPrice.length > 0 ? `
-      <div class="stat-divider"></div>
-      <div class="stat-pill">
-        <div class="stat-number" style="font-size:1.1rem">€${cellarValue.toLocaleString('nl-NL', {minimumFractionDigits:0,maximumFractionDigits:0})}</div>
-        <div class="stat-label">${this.t('collection.cellarValue')}</div>
-      </div>` : '';
-
-    // Drink window alerts — clickable to set filter
-    const ready = allWines.filter(w => this._drinkStatus(w) === 'ready');
-    const past  = allWines.filter(w => this._drinkStatus(w) === 'past');
-    const readyActive = this.collectionFilters.has('drink-now');
-    const pastActive  = this.collectionFilters.has('drink-past');
-    const alerts = [
-      ready.length ? `<div class="drink-alert drink-alert-ready${readyActive?' drink-alert-active':''}"
-        onclick="App._setExclusiveFilter('drink-now')" style="cursor:pointer">
-        🍷 ${this.t('collection.drinkDueAlert', {count: ready.length})}
-        <span class="drink-alert-arrow">${readyActive?'✕':'→'}</span></div>` : '',
-      past.length  ? `<div class="drink-alert drink-alert-past${pastActive?' drink-alert-active':''}"
-        onclick="App._setExclusiveFilter('drink-past')" style="cursor:pointer">
-        ⚠️ ${this.t('collection.drinkPastAlert', {count: past.length})}
-        <span class="drink-alert-arrow">${pastActive?'✕':'→'}</span></div>` : ''
-    ].join('');
 
     return `
     <div class="collection-stats-bar">
-      <div class="stat-pill">
-        <div class="stat-number">${wineCount}</div>
-        <div class="stat-label">${this.lang === 'nl' ? 'wijnen' : 'wines'}</div>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-pill">
-        <div class="stat-number">${bottleCount}</div>
-        <div class="stat-label">${this.lang === 'nl' ? 'flessen' : 'bottles'}</div>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stats-type-row">${typeItems}</div>
-      ${cellarValuePill}
-    </div>
-    ${alerts}`;
+      <div class="stats-type-pills">${typeItems}</div>
+    </div>`;
   },
 
   _buildReadyTonightBanner(allWines) {
@@ -3390,15 +3478,37 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       return b.addedAt - a.addedAt;
     });
 
-    const filters = [
-      { id: 'all',        label: this.t('collection.filterAll') },
-      { id: 'red',        label: this.t('types.red') },
-      { id: 'white',      label: this.t('types.white') },
-      { id: 'rosé',       label: this.t('types.rosé') },
-      { id: 'sparkling',  label: this.t('types.sparkling') },
+    // Unique regions + countries for dropdowns (non-empty, sorted)
+    const allRegions   = [...new Set(allWines.map(w => w.region).filter(Boolean))].sort();
+    const allCountries = [...new Set(allWines.map(w => w.country).filter(Boolean))].sort();
+
+    // Wine-level counts for filter chips
+    const typeWineCounts = {};
+    allWines.forEach(w => { typeWineCounts[w.type] = (typeWineCounts[w.type] || 0) + 1; });
+    const tagWineCounts = {};
+    allWines.forEach(w => (w.tags||[]).forEach(t => { tagWineCounts[t] = (tagWineCounts[t]||0) + 1; }));
+    const filterCounts = {
+      type:   typeWineCounts,
+      status: {
+        'in-cellar':  allWines.filter(w =>  placementMap[w.id]).length,
+        'drink-now':  allWines.filter(w => this._drinkStatus(w) === 'ready').length,
+        'drink-past': allWines.filter(w => this._drinkStatus(w) === 'past').length,
+      },
+      tags: tagWineCounts,
+    };
+
+    const typeFilters = [
+      { id: 'red',       label: this.t('types.red') },
+      { id: 'white',     label: this.t('types.white') },
+      { id: 'rosé',      label: this.t('types.rosé') },
+      { id: 'sparkling', label: this.t('types.sparkling') },
+      { id: 'dessert',   label: this.t('types.dessert') },
+      { id: 'fortified', label: this.t('types.fortified') },
+    ];
+    const statusFilters = [
       { id: 'in-cellar',  label: this.t('collection.inCellar') },
       { id: 'drink-now',  label: '🍷 ' + this.t('collection.drinkDue') },
-      ...allTags.map(tag => ({ id: tag, label: '#' + tag })),
+      { id: 'drink-past', label: '⚠️ ' + this.t('collection.drinkPast') },
     ];
 
     // Batch select mode header
@@ -3428,21 +3538,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <div class="ch-row1">
         <h1>${this.t('collection.title')}</h1>
       </div>
-      <div class="ch-row2">
-        <select class="form-control collection-sort-select"
-                onchange="App.collectionSort=this.value;App.renderView()">
-          <option value="addedAt"${this.collectionSort==='addedAt'?' selected':''}>${this.t('collection.sortAdded')}</option>
-          <option value="name"${this.collectionSort==='name'?' selected':''}>${this.t('collection.sortName')}</option>
-          <option value="vintage"${this.collectionSort==='vintage'?' selected':''}>${this.t('collection.sortVintage')}</option>
-          <option value="type"${this.collectionSort==='type'?' selected':''}>${this.t('collection.sortType')}</option>
-        </select>
-        <button class="btn btn-secondary btn-sm" data-action="toggle-select-mode">${this.t('collection.selectMode')}</button>
-      </div>
     </div>
     ${allWines.length > 0 ? this._buildCollectionStatsBar(allWines) : ''}
     ${batchHeader}
     <div class="collection-toolbar">
-      <div class="search-input-wrap${this.collectionSearch ? ' has-value' : ''}" id="coll-search-wrap">
+      <div class="search-input-wrap${this.collectionSearch ? ' has-value' : ''}" id="coll-search-wrap" style="flex:1">
         ${this._iconSearch()}
         <input class="search-input" id="coll-search" placeholder="${this.t('collection.search')}"
                value="${this._esc(this.collectionSearch)}"
@@ -3450,18 +3550,105 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <button class="search-clear-btn" aria-label="Clear search"
                 onclick="App.collectionSearch='';App._filterCollection();document.getElementById('coll-search').value='';document.getElementById('coll-search-wrap').classList.remove('has-value')">✕</button>
       </div>
+      <select class="form-control collection-sort-select"
+              style="width:140px;flex-shrink:0"
+              onchange="App.collectionSort=this.value;App.renderView()">
+        <option value="addedAt"${this.collectionSort==='addedAt'?' selected':''}>${this.t('collection.sortAdded')}</option>
+        <option value="name"${this.collectionSort==='name'?' selected':''}>${this.t('collection.sortName')}</option>
+        <option value="vintage"${this.collectionSort==='vintage'?' selected':''}>${this.t('collection.sortVintage')}</option>
+        <option value="type"${this.collectionSort==='type'?' selected':''}>${this.t('collection.sortType')}</option>
+      </select>
     </div>
-    <div class="filter-strip">
-      <button class="filter-chip${this.collectionFilters.size===0?' active':''}"
-              onclick="App.collectionFilters=new Set();App.renderView()">${this.t('collection.filterAll')}</button>
-      ${filters.slice(1).map(f => `
-        <button class="filter-chip${this.collectionFilters.has(f.id)?' active':''}"
-                data-filter-id="${f.id}"
-                onclick="App._toggleFilter('${f.id}')">${f.label}</button>`).join('')}
-    </div>
+    ${this._buildFilterButton(typeFilters, statusFilters, allTags, allRegions, allCountries, filterCounts)}
     <div class="${isGallery ? '' : 'wine-grid'}" id="collection-wine-grid">
       ${wineContent}
     </div>`;
+  },
+
+  // ── Filter panel ──────────────────────────────────────────────────────────
+  _buildFilterButton(typeFilters, statusFilters, allTags, allRegions, allCountries, counts = {}) {
+    const totalActive = this.collectionFilters.size
+      + (this.collectionFilterRegion ? 1 : 0)
+      + (this.collectionFilterCountry ? 1 : 0);
+    const badge = totalActive > 0
+      ? `<span class="filter-btn-badge">${totalActive}</span>` : '';
+
+    // Helper: append count badge to chip label
+    const chipLabel = (label, n) => n > 0 ? `${label} <span class="chip-count">${n}</span>` : label;
+
+    const panelHtml = !this.collectionFilterPanelOpen ? '' : `
+    <div class="filter-panel" id="filter-panel">
+      <div class="filter-panel-section">
+        <div class="filter-panel-label">${this.t('collection.filterType')}</div>
+        <div class="filter-panel-chips">
+          ${typeFilters.map(f => `
+            <button class="filter-chip${this.collectionFilters.has(f.id)?' active':''}"
+                    data-filter-id="${f.id}"
+                    onclick="App._toggleFilter('${f.id}')">${chipLabel(f.label, counts.type?.[f.id] ?? 0)}</button>`).join('')}
+        </div>
+      </div>
+      <div class="filter-panel-section">
+        <div class="filter-panel-label">${this.t('collection.filterStatus')}</div>
+        <div class="filter-panel-chips">
+          ${statusFilters.map(f => `
+            <button class="filter-chip${this.collectionFilters.has(f.id)?' active':''}"
+                    data-filter-id="${f.id}"
+                    onclick="App._toggleFilter('${f.id}')">${chipLabel(f.label, counts.status?.[f.id] ?? 0)}</button>`).join('')}
+        </div>
+      </div>
+      ${allTags.length ? `
+      <div class="filter-panel-section">
+        <div class="filter-panel-label">${this.t('collection.filterTags')}</div>
+        <div class="filter-panel-chips">
+          ${allTags.map(tag => `
+            <button class="filter-chip${this.collectionFilters.has(tag)?' active':''}"
+                    data-filter-id="${tag}"
+                    onclick="App._toggleFilter('${tag}')">${chipLabel('#'+this._esc(tag), counts.tags?.[tag] ?? 0)}</button>`).join('')}
+        </div>
+      </div>` : ''}
+      ${allRegions.length > 1 ? `
+      <div class="filter-panel-section">
+        <div class="filter-panel-label">${this.t('collection.filterRegion')}</div>
+        <select class="form-control filter-panel-select"
+                onchange="App.collectionFilterRegion=this.value;App.renderView()">
+          <option value="">${this.t('collection.filterAllRegions')}</option>
+          ${allRegions.map(r => `<option value="${this._esc(r)}"${this.collectionFilterRegion===r?' selected':''}>${this._esc(r)}</option>`).join('')}
+        </select>
+      </div>` : ''}
+      ${allCountries.length > 1 ? `
+      <div class="filter-panel-section">
+        <div class="filter-panel-label">${this.t('collection.filterCountry')}</div>
+        <select class="form-control filter-panel-select"
+                onchange="App.collectionFilterCountry=this.value;App.renderView()">
+          <option value="">${this.t('collection.filterAllCountries')}</option>
+          ${allCountries.map(c => `<option value="${this._esc(c)}"${this.collectionFilterCountry===c?' selected':''}>${this._esc(c)}</option>`).join('')}
+        </select>
+      </div>` : ''}
+      ${totalActive > 0 ? `
+      <button class="filter-reset-btn"
+              onclick="App.collectionFilters=new Set();App.collectionFilterRegion='';App.collectionFilterCountry='';App.renderView()">
+        ✕ ${this.t('collection.filterReset')}
+      </button>` : ''}
+    </div>`;
+
+    const selectSvg = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 7l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+    return `
+    <div class="filter-btn-wrap">
+      <button class="filter-toggle-btn${totalActive>0?' has-filters':''}"
+              onclick="App._toggleFilterPanel()">
+        ⚙ ${this.t('collection.filters')}${badge}
+      </button>
+      <button class="filter-toggle-btn" data-action="toggle-select-mode" style="margin-left:8px">
+        ${selectSvg} ${this.t('collection.selectMode')}
+      </button>
+    </div>
+    ${panelHtml}`;
+  },
+
+  _toggleFilterPanel() {
+    this.collectionFilterPanelOpen = !this.collectionFilterPanelOpen;
+    this.renderView();
   },
 
   // Sets one filter exclusively (toggling it off if already active), clearing all others.
@@ -3481,23 +3668,17 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     } else {
       this.collectionFilters.add(id);
     }
-    // Update chip active states without full re-render
-    document.querySelectorAll('.filter-chip').forEach(btn => {
-      const fid = btn.dataset.filterId;
-      if (!fid) {
-        // "All" button — active only when nothing selected
-        btn.classList.toggle('active', this.collectionFilters.size === 0);
-      } else {
-        btn.classList.toggle('active', this.collectionFilters.has(fid));
-      }
-    });
-    this._filterCollection();
+    // Full re-render so badge count and reset button update correctly
+    this.renderView();
   },
 
   // Apply active multi-filters to a wine list.
   // Types are OR'd with each other; status filters (in-cellar, drink-now) AND with types.
   _applyCollectionFilters(wines, placementMap) {
     const fs = this.collectionFilters;
+    // Region + country filters
+    if (this.collectionFilterRegion)  wines = wines.filter(w => w.region  === this.collectionFilterRegion);
+    if (this.collectionFilterCountry) wines = wines.filter(w => w.country === this.collectionFilterCountry);
     if (fs.size === 0) return wines;
 
     const TYPE_FILTERS   = new Set(['red','white','rosé','sparkling','dessert','fortified']);
@@ -3624,6 +3805,84 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     </div>`;
   },
 
+  // ── Replace / add photo for an existing wine ─────────────────────────────
+  _replacePhoto(wineId) {
+    // Use a hidden file input — opens camera on mobile, file picker on desktop
+    let inp = document.getElementById('_replace-photo-input');
+    if (!inp) {
+      inp = document.createElement('input');
+      inp.type    = 'file';
+      inp.accept  = 'image/*';
+      inp.capture = 'environment'; // rear camera on mobile
+      inp.id      = '_replace-photo-input';
+      inp.style.display = 'none';
+      document.body.appendChild(inp);
+    }
+    inp.value = ''; // reset so same file can be re-picked
+    inp.onchange = async () => {
+      const file = inp.files[0];
+      if (!file) return;
+      this.toast(this.lang === 'nl' ? 'Foto opslaan…' : 'Saving photo…', 'info');
+      try {
+        const medium    = await this._resizeImage(file, 360);
+        const thumbnail = await this._resizeImage(file, 80, 120);
+        // Save to IndexedDB
+        ImageDB.save(wineId, medium);
+        // Update thumbnail in wine data
+        Sync.updateWine(wineId, { thumbnail });
+        // Upload medium to Firebase Storage immediately
+        if (Sync._ready && Sync.householdId) {
+          await Sync._uploadImage(wineId, medium);
+        }
+        // Refresh the image in the open card if visible
+        const el = document.getElementById(`wine-card-img-${wineId}`);
+        if (el) {
+          el.src = 'data:image/jpeg;base64,' + medium;
+          el.style.cssText = 'width:100%;max-height:60vh;object-fit:contain;border-radius:10px;margin-bottom:14px;display:block;background:#111;';
+        }
+        this.toast(this.lang === 'nl' ? '✓ Foto opgeslagen' : '✓ Photo saved', 'success');
+      } catch (e) {
+        this.toast('Foto opslaan mislukt: ' + e.message, 'error');
+      }
+    };
+    inp.click();
+  },
+
+  // Resize an image File to maxWidth (and optional maxHeight) returning base64 JPEG
+  _resizeImage(file, maxWidth, maxHeight = null) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let w = img.naturalWidth, h = img.naturalHeight;
+        if (maxHeight) {
+          // Crop/fit to exact dimensions (thumbnail)
+          const scale = Math.max(maxWidth / w, maxHeight / h);
+          w = Math.round(w * scale); h = Math.round(h * scale);
+        } else {
+          // Scale to maxWidth, preserve aspect ratio
+          if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+        }
+        const c = document.createElement('canvas');
+        c.width = maxHeight ? maxWidth : w;
+        c.height = maxHeight || h;
+        const ctx = c.getContext('2d');
+        if (maxHeight) {
+          // Center-crop
+          const sx = (w - maxWidth) / 2 / (w / img.naturalWidth);
+          const sy = (h - maxHeight) / 2 / (h / img.naturalHeight);
+          ctx.drawImage(img, sx, sy, img.naturalWidth - 2*sx, img.naturalHeight - 2*sy, 0, 0, maxWidth, maxHeight);
+        } else {
+          ctx.drawImage(img, 0, 0, w, h);
+        }
+        resolve(c.toDataURL('image/jpeg', 0.82).replace(/^data:image\/jpeg;base64,/, ''));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  },
+
   _buildWineGalleryCard(w) {
     const thumbSrc = w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}`
                    : w.imageUrl  ? w.imageUrl
@@ -3708,24 +3967,52 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   _buildWineCardInner(w) {
-    // Start with thumbnail (instant); upgrade to full image from IndexedDB after render
-    const thumbSrc = w.thumbnail ? `data:image/jpeg;base64,${w.thumbnail}`
-                   : w.imageUrl  ? w.imageUrl
-                   : null;
-    const imgId  = `wine-card-img-${w.id}`;
+    const imgId     = `wine-card-img-${w.id}`;
     const thumbStyle = 'max-width:120px;max-height:160px;height:auto;object-fit:contain;border-radius:10px;margin:0 auto 14px;display:block;';
     const fullStyle  = 'width:100%;max-height:60vh;object-fit:contain;border-radius:10px;margin-bottom:14px;display:block;background:#111;';
-    // Async upgrade: once IndexedDB resolves, swap to full image
+
+    // Priority: imageUrl (Firebase Storage, full res) > IndexedDB medium > thumbnail b64
+    // If imageUrl is available, show full-size immediately — no upgrade needed.
+    // If only thumbnail, start small and upgrade from IndexedDB or imageUrl async.
+    let initSrc, initStyle;
+    if (w.imageUrl) {
+      initSrc   = w.imageUrl;
+      initStyle = fullStyle;
+    } else if (w.thumbnail) {
+      initSrc   = `data:image/jpeg;base64,${w.thumbnail}`;
+      initStyle = thumbStyle;
+    } else {
+      initSrc   = null;
+      initStyle = thumbStyle;
+    }
+
+    // Async upgrade from IndexedDB (local medium — overrides imageUrl if present)
     ImageDB.get(w.id).then(img => {
       const el = document.getElementById(imgId);
       if (!el || !img) return;
-      el.src   = 'data:image/jpeg;base64,' + img;
+      el.src          = 'data:image/jpeg;base64,' + img;
       el.style.cssText = fullStyle;
     });
+
     const isRed = w.type === 'red';
+    const replaceBtn = `<button data-action="replace-photo" data-id="${w.id}"
+      style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--cream-dk);border:1px solid var(--border);border-radius:20px;color:var(--text-md);font-size:.78rem;cursor:pointer;white-space:nowrap;flex-shrink:0">
+      📷 ${this.lang === 'nl' ? 'Foto vervangen' : 'Replace photo'}
+    </button>`;
     return `
     <div style="text-align:left">
-      ${thumbSrc ? `<img id="${imgId}" src="${thumbSrc}" alt="${this._esc(w.name)}" style="${thumbStyle}">` : ''}
+      ${initSrc
+        ? `<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px">
+             <img id="${imgId}" src="${initSrc}" alt="${this._esc(w.name)}" style="${initStyle.replace('margin-bottom:14px;','').replace('width:100%;','max-width:160px;')}">
+             <div style="padding-top:4px">${replaceBtn}</div>
+           </div>`
+        : `<div style="margin-bottom:14px">
+             <button data-action="replace-photo" data-id="${w.id}"
+               style="display:block;width:100%;padding:14px;background:var(--cream-dk);border:2px dashed var(--border);border-radius:10px;color:var(--text-lt);font-size:.9rem;cursor:pointer;text-align:center">
+               📷 ${this.lang === 'nl' ? 'Foto toevoegen' : 'Add photo'}
+             </button>
+           </div>`
+      }
       <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">${this._esc(w.name)}</div>
       ${w.producer ? `<div style="color:var(--text-md);margin-bottom:8px">${this._esc(w.producer)}</div>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
@@ -4001,28 +4288,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       } catch { city = null; }
     }
 
-    // Plan: AI call limit (rule-based pairing is always allowed)
-    if (hasKey && !this._canUseAI()) { this._showAiLimitPaywall(); return; }
-
-    let result;
-    try {
-      if (hasKey) {
-        result = await API.suggestPairings(dish, wines, settings, this.lang, city);
-        this._incrementAiCalls();
-      } else {
-        result = API.ruleBasedPairing(dish, wines);
-      }
-    } catch (err) {
-      resultsEl.innerHTML = `<div class="scan-status error">${this.t('common.error')} ${err.message}</div>`;
-      return;
-    }
-
-    const { perfectMatches, acceptableMatches, matches, generalSuggestion, externalSuggestions, rulesBased } = result;
-
-    // Support both old (matches) and new (perfectMatches/acceptableMatches) response shapes
-    const perfect    = (perfectMatches  || matches || []).map(m => ({ wine: wines[m.index], reason: m.reason, tier: 'perfect'    })).filter(x => x.wine);
-    const acceptable = (acceptableMatches || [])          .map(m => ({ wine: wines[m.index], reason: m.reason, tier: 'acceptable' })).filter(x => x.wine);
-
+    // ── Helpers ───────────────────────────────────────────────────────────────
     const _wineCard = ({ wine: w, reason, tier }) => `
       <div class="pairing-wine-card" style="border-left-color:${this._typeColor(w.type)}"
            data-action="edit-wine" data-id="${w.id}">
@@ -4043,6 +4309,67 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
         </svg>
       </div>`;
+
+    // ── Section 3: Partner importer suggestions (no AI needed — always shown) ─
+    // Build this first so it renders even if AI is unavailable or limit reached.
+    const importerHtml = this._buildImporterSuggestions(dish);
+
+    // ── Plan: AI call limit — rule-based + importer suggestions still work ───
+    if (hasKey && !this._canUseAI()) {
+      // Show rule-based cellar matches + importer block, then prompt upgrade for AI
+      const fallback = API.ruleBasedPairing(dish, wines);
+      const fp = (fallback.perfectMatches || fallback.matches || []).map(m => ({ wine: wines[m.index], reason: m.reason, tier: 'perfect' })).filter(x => x.wine);
+      const fa = (fallback.acceptableMatches || []).map(m => ({ wine: wines[m.index], reason: m.reason, tier: 'acceptable' })).filter(x => x.wine);
+
+      let html = `<div style="font-size:.8rem;color:var(--text-lt);margin-bottom:8px">${this.t('pairing.rulesBased')}</div>`;
+      if (fp.length === 0 && fa.length === 0) {
+        html += `<div class="pairing-no-match"><div style="font-size:1.4rem;margin-bottom:6px">🍷</div>
+          <div style="font-weight:600;margin-bottom:4px">${this.t('pairing.noMatch')}</div>
+          <div style="font-size:.85rem;color:var(--text-lt)">${this.t('pairing.noMatchSub')}</div></div>`;
+      } else {
+        html += `<div class="pairing-section-title">${this.t('pairing.fromCellar')}</div>`;
+        html += fp.map(_wineCard).join('');
+        html += fa.map(_wineCard).join('');
+      }
+      // Soft upgrade nudge — not a hard paywall
+      html += `<div class="general-suggestion" style="cursor:pointer" onclick="App.navigate('upgrade')">
+        <strong>${this.lang === 'nl' ? '🤖 AI-suggesties' : '🤖 AI suggestions'}</strong>
+        ${this.lang === 'nl'
+          ? 'Upgrade voor slimmere wijnadvies, externe aanbevelingen en locatie-tips.'
+          : 'Upgrade for smarter wine advice, external recommendations and location tips.'}
+      </div>`;
+      if (importerHtml) {
+        html += `<div class="pairing-section-title" style="margin-top:20px">${this.lang === 'nl' ? 'Van onze partners' : 'From our partners'}</div>`;
+        html += importerHtml;
+      }
+      resultsEl.innerHTML = html;
+      return;
+    }
+
+    let result;
+    try {
+      if (hasKey) {
+        result = await API.suggestPairings(dish, wines, settings, this.lang, city);
+        this._incrementAiCalls();
+      } else {
+        result = API.ruleBasedPairing(dish, wines);
+      }
+    } catch (err) {
+      // Show error + importer suggestions (they don't need AI)
+      let html = `<div class="scan-status error">${this.t('common.error')} ${err.message}</div>`;
+      if (importerHtml) {
+        html += `<div class="pairing-section-title" style="margin-top:20px">${this.lang === 'nl' ? 'Van onze partners' : 'From our partners'}</div>`;
+        html += importerHtml;
+      }
+      resultsEl.innerHTML = html;
+      return;
+    }
+
+    const { perfectMatches, acceptableMatches, matches, generalSuggestion, externalSuggestions, rulesBased } = result;
+
+    // Support both old (matches) and new (perfectMatches/acceptableMatches) response shapes
+    const perfect    = (perfectMatches  || matches || []).map(m => ({ wine: wines[m.index], reason: m.reason, tier: 'perfect'    })).filter(x => x.wine);
+    const acceptable = (acceptableMatches || [])          .map(m => ({ wine: wines[m.index], reason: m.reason, tier: 'acceptable' })).filter(x => x.wine);
 
     let html = '';
     if (rulesBased) {
@@ -4069,7 +4396,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       </div>`;
     }
 
-    // ── Section 2: External suggestions ─────────────────────────────────────
+    // ── Section 2: Partner importer suggestions ─────────────────────────────
+    if (importerHtml) {
+      html += `<div class="pairing-section-title" style="margin-top:20px">${this.lang === 'nl' ? 'Van onze partners' : 'From our partners'}</div>`;
+      html += importerHtml;
+    }
+
+    // ── Section 3: External AI suggestions ──────────────────────────────────
     if (externalSuggestions?.length > 0) {
       const mapsCity = encodeURIComponent((city ? city + ' ' : '') + (this.lang === 'nl' ? 'wijnwinkel' : 'wine shop'));
       html += `<div class="pairing-section-title" style="margin-top:20px">${this.t('pairing.topPicks')}</div>`;
@@ -4095,6 +4428,68 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     }
 
     resultsEl.innerHTML = html;
+  },
+
+  // ── Match dish text against partner importer wine catalogues ─────────────
+  // Returns HTML string (possibly empty) for all active importers with matches.
+  _buildImporterSuggestions(dish) {
+    if (typeof IMPORTERS === 'undefined' || !Array.isArray(IMPORTERS)) return '';
+
+    const dishLower = dish.toLowerCase();
+    // Tokenise dish into words (3+ chars) for keyword matching
+    const dishTokens = dishLower.split(/[\s,;.]+/).filter(w => w.length >= 3);
+
+    let html = '';
+
+    for (const importer of IMPORTERS) {
+      if (!importer.active) continue;
+
+      // Score each wine by keyword overlap between dish text and wine.pairings
+      const scored = importer.wines.map(wine => {
+        let score = 0;
+        for (const kw of (wine.pairings || [])) {
+          // Direct substring match in full dish string
+          if (dishLower.includes(kw)) { score += 2; continue; }
+          // Partial token match
+          for (const token of dishTokens) {
+            if (kw.includes(token) || token.includes(kw)) { score += 1; break; }
+          }
+        }
+        return { wine, score };
+      }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+
+      // Show top 2 matches per importer at most
+      const top = scored.slice(0, 2);
+      if (top.length === 0) continue;
+
+      const tagline = importer.tagline?.[this.lang] || importer.tagline?.en || `Recommended by ${importer.name}`;
+
+      html += `<div class="pairing-importer-block">
+        <div class="pairing-importer-header" style="background:${importer.color}">
+          <span>🏷️ ${this._esc(tagline)}</span>
+          <a href="${this._esc(importer.website)}" target="_blank" rel="noopener">${this._esc(importer.name)} ↗</a>
+        </div>`;
+
+      for (const { wine: w } of top) {
+        const meta = [this.t('types.' + (w.type || 'red')), w.region].filter(Boolean).join(' · ');
+        html += `
+        <div class="pairing-importer-wine">
+          <div class="pairing-importer-wine-info">
+            <div class="pairing-importer-wine-name">${this._esc(w.name)}${w.vintage ? ` <span style="font-weight:400;font-size:.85em;color:var(--text-lt)">${w.vintage}</span>` : ''}</div>
+            ${w.producer ? `<div class="pairing-importer-wine-meta">${this._esc(w.producer)} · ${meta}</div>` : `<div class="pairing-importer-wine-meta">${meta}</div>`}
+            <div class="pairing-importer-wine-footer">
+              <span class="pairing-importer-badge" style="background:${importer.color}">${this._esc(importer.name)}</span>
+              ${w.priceRange ? `<span class="pairing-importer-price">💶 ${this._esc(w.priceRange)}</span>` : ''}
+              ${w.url ? `<a class="pairing-importer-link" href="${this._esc(w.url)}" target="_blank" rel="noopener">${this.lang === 'nl' ? 'Bestellen' : 'Order'} ↗</a>` : ''}
+            </div>
+          </div>
+        </div>`;
+      }
+
+      html += `</div>`;
+    }
+
+    return html;
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -4234,7 +4629,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <div class="stats-bar-wrap">
           <div class="stats-bar" style="width:${pct}%;background:var(--${tp.replace('é','e')}-wine,var(--burgundy-lt))"></div>
         </div>
-        <span class="stats-type-count">${bottles} ${this.t('stats.bottles')}</span>
+        <span class="stats-type-count">${tw.length} ${this.t('stats.wines')} · ${bottles} ${this.t('stats.bottles')}</span>
         ${val > 0 ? `<span class="stats-type-val">${fmt(val)}</span>` : ''}
       </div>`;
     }).join('');
@@ -4464,6 +4859,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       : this.t('plan.aiUsed', { used: aiUsed, limit: plan.aiLimit });
     const planName    = this.t('plan.' + plan.id + 'Name');
     const isMaxPlan   = plan.id === 'verzamelaar' || plan.id === 'jaarlijks';
+    const isSignedIn  = typeof Sync !== 'undefined' && !!Sync.user;
+    const showManage  = plan.id !== 'free' || isSignedIn; // paid users + signed-in free (may have prior subscription)
 
     return `
     <div class="page-header"><h1>${this.t('settings.title')}</h1></div>
@@ -4483,10 +4880,15 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         <span>🍾 ${bottleText}</span>
         <span>✦ ${aiText}</span>
       </div>
-      ${plan.id !== 'free' ? `
-      <button class="btn-reset-plan" data-action="reset-plan" style="margin-top:10px">
-        ${this.t('plan.resetPlan')}
-      </button>` : ''}
+      ${showManage ? `
+      <div class="settings-plan-actions">
+        <button class="btn btn-secondary btn-sm" data-action="manage-subscription">
+          ⚙️ ${this.t('plan.manageBtn')}
+        </button>
+        ${plan.id !== 'free' ? `<button class="btn-reset-plan" data-action="reset-plan">
+          ${this.t('plan.resetPlan')}
+        </button>` : ''}
+      </div>` : ''}
     </div>
 
     <div class="settings-section">
@@ -4676,6 +5078,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const s = DB.getSettings();
     s.plan = plan;
     DB.saveSettings(s);
+    // Also persist to Firestore so the plan survives app restarts
+    if (typeof Sync !== 'undefined' && Sync.setPlan) {
+      Sync.setPlan(plan).catch(() => {});
+    }
     document.getElementById('beta-code-row').style.display = 'none';
     this.renderView(); // refresh settings to show new plan
     this.toast(this.lang === 'nl' ? `Plan ingesteld: ${plan} ✓` : `Plan set: ${plan} ✓`, 'success');
@@ -4721,6 +5127,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   exportPdf() {
     const wines = DB.getWines();
     const types = TRANSLATIONS[this.lang].types || TRANSLATIONS.en.types;
+    const nl = this.lang === 'nl';
     const rows = wines.map(w => `
       <tr>
         <td>${this._esc(w.name)}</td>
@@ -4736,35 +5143,67 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
       <title>Vinage — Cellar Report</title>
       <style>
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:#1E0E3A;padding:24px}
-        h1{font-size:22px;color:#5C2896;margin-bottom:4px}
-        .sub{font-size:11px;color:#8B72A8;margin-bottom:20px}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:#2A0E16;padding:24px;background:#fff}
+        h1{font-size:22px;color:#3B1422;margin-bottom:4px}
+        .sub{font-size:11px;color:#A3835B;margin-bottom:20px}
         table{width:100%;border-collapse:collapse}
-        th{background:#5C2896;color:#fff;padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-        td{padding:7px 10px;border-bottom:1px solid #EEE6F7;vertical-align:top}
-        tr:nth-child(even) td{background:#FAF7FD}
-        .footer{margin-top:20px;font-size:11px;color:#8B72A8;display:flex;justify-content:space-between}
-        @media print{body{padding:0}}
+        th{background:#3B1422;color:#F2EBE1;padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+        td{padding:7px 10px;border-bottom:1px solid #F2EBE1;vertical-align:top}
+        tr:nth-child(even) td{background:#F8F3EC}
+        .footer{margin-top:20px;font-size:11px;color:#A3835B;display:flex;justify-content:space-between}
+        .close-bar{position:fixed;top:0;left:0;right:0;background:#3B1422;padding:8px 16px;display:flex;align-items:center;gap:12px;z-index:999}
+        .close-bar button{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:8px;padding:6px 16px;font-size:.82rem;cursor:pointer;font-family:inherit}
+        .close-bar span{color:rgba(255,255,255,.5);font-size:.78rem;margin-left:auto}
+        body{padding-top:52px}
+        @media print{.close-bar{display:none}body{padding-top:0}}
       </style>
     </head><body>
+      <div class="close-bar">
+        <button onclick="window.close()">${nl ? '✕ Sluiten' : '✕ Close'}</button>
+        <span>${nl ? 'Of gebruik Afdrukken → Opslaan als PDF' : 'Or use Print → Save as PDF'}</span>
+      </div>
       <h1>Vinage — Cellar Report</h1>
-      <div class="sub">Generated ${new Date().toLocaleDateString()} &nbsp;·&nbsp; ${wines.length} wines &nbsp;·&nbsp; ${wines.reduce((s,w)=>s+(w.quantity||1),0)} bottles</div>
+      <div class="sub">${nl?'Gegenereerd':'Generated'} ${new Date().toLocaleDateString()} &nbsp;·&nbsp; ${wines.length} ${nl?'wijnen':'wines'} &nbsp;·&nbsp; ${wines.reduce((s,w)=>s+(w.quantity||1),0)} ${nl?'flessen':'bottles'}</div>
       <table>
         <thead><tr>
-          <th>Name</th><th>Producer</th><th>Vintage</th><th>Type</th>
-          <th>Region</th><th style="text-align:center">Qty</th>
-          <th style="text-align:right">Price</th><th style="text-align:center">Rating</th>
+          <th>${nl?'Naam':'Name'}</th><th>${nl?'Producent':'Producer'}</th><th>${nl?'Jaar':'Vintage'}</th><th>Type</th>
+          <th>${nl?'Regio':'Region'}</th><th style="text-align:center">${nl?'Aantal':'Qty'}</th>
+          <th style="text-align:right">${nl?'Prijs':'Price'}</th><th style="text-align:center">${nl?'Score':'Rating'}</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
       <div class="footer">
-        <span>Vinage — Your Personal Wine Cellar</span>
-        ${totalValue > 0 ? `<span>Total cellar value: €${totalValue.toLocaleString('nl-NL',{minimumFractionDigits:2})}</span>` : ''}
+        <span>Vinage — ${nl?'Jouw Persoonlijke Wijnkelder':'Your Personal Wine Cellar'}</span>
+        ${totalValue > 0 ? `<span>${nl?'Totale kelderwaarde':'Total cellar value'}: €${totalValue.toLocaleString('nl-NL',{minimumFractionDigits:2})}</span>` : ''}
       </div>
-      <script>window.onload=function(){window.print();}<\/script>
+      <script>window.onload=function(){window.print();}; window.onafterprint=function(){window.close();};<\/script>
     </body></html>`;
-    const w = window.open('', '_blank');
-    if (w) { w.document.write(html); w.document.close(); }
+
+    // Try popup first; if blocked (e.g. PWA standalone mode), fall back to iframe overlay
+    const popup = window.open('', '_blank');
+    if (popup) {
+      popup.document.write(html);
+      popup.document.close();
+    } else {
+      // PWA fallback: full-screen iframe overlay
+      const existing = document.getElementById('pdf-overlay');
+      if (existing) existing.remove();
+      const blob = new Blob([html], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+      const overlay = document.createElement('div');
+      overlay.id = 'pdf-overlay';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column';
+      overlay.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#3B1422;flex-shrink:0">
+          <button onclick="document.getElementById('pdf-overlay').remove();URL.revokeObjectURL('${blobUrl}')"
+            style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 14px;font-size:.85rem;cursor:pointer">✕ ${nl?'Sluiten':'Close'}</button>
+          <a href="${blobUrl}" download="vinage-cellar-report.html"
+            style="background:#A3835B;color:#fff;border-radius:8px;padding:6px 14px;font-size:.85rem;text-decoration:none;font-weight:600">⬇ ${nl?'Opslaan':'Save'}</a>
+          <span style="color:rgba(255,255,255,.5);font-size:.78rem;margin-left:auto">${nl?'PDF: gebruik Afdrukken → Opslaan als PDF':'PDF: use Print → Save as PDF'}</span>
+        </div>
+        <iframe src="${blobUrl}" style="flex:1;border:none;width:100%;background:#fff"></iframe>`;
+      document.body.appendChild(overlay);
+    }
   },
 
   _handleImport(input) {
@@ -4831,6 +5270,174 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
     // Animate in
     requestAnimationFrame(() => el.classList.add('about-overlay-visible'));
+  },
+
+  // ── First-run onboarding walkthrough ────────────────────────────────────
+  _showOnboarding(onDone) {
+    const existing = document.getElementById('onboarding-overlay');
+    if (existing) existing.remove();
+
+    const screens = [
+      { icon: '🍷', titleKey: 's1title', subKey: 's1sub' },
+      { icon: '📸', titleKey: 's2title', subKey: 's2sub' },
+      { icon: '🗄️', titleKey: 's3title', subKey: 's3sub' },
+      { icon: '🥂', titleKey: 's4title', subKey: 's4sub' },
+    ];
+
+    let current = 0;
+
+    const el = document.createElement('div');
+    el.id = 'onboarding-overlay';
+
+    const renderScreen = () => {
+      const s = screens[current];
+      const isLast = current === screens.length - 1;
+      const dots = screens.map((_, i) =>
+        `<span class="onboarding-dot${i === current ? ' active' : ''}"></span>`
+      ).join('');
+
+      el.innerHTML = `
+        <div class="onboarding-top">
+          <div class="onboarding-logo-wrap">
+            <img src="Logo Vinage V-Bottle No Background.png" alt="Vinage" style="height:52px;width:auto">
+            <img src="Logo Vinage Name No Background.png" alt="Vinage" style="height:18px;width:auto">
+          </div>
+        </div>
+        <div class="onboarding-card">
+          <div class="onboarding-icon">${s.icon}</div>
+          <h2 class="onboarding-title">${this.t('onboarding.' + s.titleKey)}</h2>
+          <p class="onboarding-sub">${this.t('onboarding.' + s.subKey)}</p>
+          <div class="onboarding-dots">${dots}</div>
+          <button class="onboarding-next-btn" id="ob-next-btn">
+            ${isLast ? this.t('onboarding.start') : this.t('onboarding.next')}
+          </button>
+          ${isLast ? '' : `<button class="onboarding-skip-btn" id="ob-skip-btn">${this.t('onboarding.skip')}</button>`}
+        </div>`;
+
+      const nextBtn = el.querySelector('#ob-next-btn');
+      const skipBtn = el.querySelector('#ob-skip-btn');
+
+      const dismiss = () => {
+        localStorage.setItem('vinageOnboarding', '1');
+        el.classList.remove('onboarding-visible');
+        setTimeout(() => {
+          el.remove();
+          if (typeof onDone === 'function') onDone();
+          // Show the sync nudge banner after a short delay
+          setTimeout(() => this._showSyncNudge(), 600);
+        }, 420);
+      };
+
+      nextBtn?.addEventListener('click', () => {
+        if (isLast) { dismiss(); } else { current++; renderScreen(); }
+      });
+      skipBtn?.addEventListener('click', dismiss);
+    };
+
+    renderScreen();
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('onboarding-visible'));
+  },
+
+  // ── Sync nudge banner ────────────────────────────────────────────────────
+  // ── PWA Install Prompt ────────────────────────────────────────────────────
+  _showInstallPrompt() {
+    if (localStorage.getItem('vinageInstallPrompt')) return;
+
+    const isIos        = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isStandalone) return; // already installed as PWA
+
+    const hasAndroidPrompt = !!this._deferredInstallPrompt;
+    if (!isIos && !hasAndroidPrompt) return; // nothing to offer
+
+    const existing = document.getElementById('install-nudge');
+    if (existing) return;
+
+    const nl    = this.lang === 'nl';
+    const nudge = document.createElement('div');
+    nudge.id    = 'install-nudge';
+
+    if (isIos) {
+      nudge.innerHTML = `
+        <span class="install-nudge-icon">📲</span>
+        <span class="install-nudge-text">
+          ${nl
+            ? 'Installeer Vinage: tik op <span class="install-nudge-share">⬆</span> en kies <strong>Zet op beginscherm</strong>.'
+            : 'Install Vinage: tap <span class="install-nudge-share">⬆</span> then <strong>Add to Home Screen</strong>.'}
+        </span>
+        <button class="sync-nudge-close" id="install-nudge-close" aria-label="Dismiss">✕</button>`;
+    } else {
+      nudge.innerHTML = `
+        <span class="install-nudge-icon">📲</span>
+        <span class="install-nudge-text">
+          ${nl ? 'Installeer Vinage als app op je telefoon.' : 'Install Vinage as an app on your phone.'}
+        </span>
+        <button class="sync-nudge-btn" id="install-nudge-btn">${nl ? 'Installeer' : 'Install'}</button>
+        <button class="sync-nudge-close" id="install-nudge-close" aria-label="Dismiss">✕</button>`;
+    }
+
+    document.body.appendChild(nudge);
+    requestAnimationFrame(() => nudge.classList.add('install-nudge-visible'));
+
+    const dismiss = () => {
+      localStorage.setItem('vinageInstallPrompt', '1');
+      nudge.classList.remove('install-nudge-visible');
+      setTimeout(() => nudge.remove(), 350);
+    };
+
+    nudge.querySelector('#install-nudge-close').addEventListener('click', dismiss);
+
+    if (!isIos && hasAndroidPrompt) {
+      nudge.querySelector('#install-nudge-btn').addEventListener('click', async () => {
+        dismiss();
+        this._deferredInstallPrompt.prompt();
+        await this._deferredInstallPrompt.userChoice;
+        this._deferredInstallPrompt = null;
+      });
+    }
+  },
+
+  _showSyncNudge() {
+    // Don't show if already dismissed, or user is signed in
+    if (localStorage.getItem('vinageSyncNudge')) return;
+    try { if (typeof firebase !== 'undefined' && firebase.apps?.length && firebase.auth().currentUser) return; } catch (_) {}
+    const existing = document.getElementById('sync-nudge');
+    if (existing) return;
+
+    const nl = this.lang === 'nl';
+    const nudge = document.createElement('div');
+    nudge.id = 'sync-nudge';
+    nudge.innerHTML = `
+      <span class="sync-nudge-icon">☁️</span>
+      <span class="sync-nudge-text">
+        ${nl
+          ? 'Log in om je kelder te bewaren & te synchroniseren.'
+          : 'Sign in to save & sync your cellar across devices.'}
+      </span>
+      <button class="sync-nudge-btn" data-action="go-settings-sync">
+        ${nl ? 'Instellingen →' : 'Settings →'}
+      </button>
+      <button class="sync-nudge-close" id="sync-nudge-close" aria-label="Dismiss">✕</button>`;
+
+    // Insert just above the main content area
+    const anchor = document.getElementById('main-content') || document.getElementById('app') || document.body;
+    anchor.parentElement.insertBefore(nudge, anchor);
+
+    // Animate in
+    requestAnimationFrame(() => nudge.classList.add('sync-nudge-visible'));
+
+    const dismiss = () => {
+      localStorage.setItem('vinageSyncNudge', '1');
+      nudge.classList.remove('sync-nudge-visible');
+      setTimeout(() => nudge.remove(), 350);
+    };
+
+    nudge.querySelector('#sync-nudge-close').addEventListener('click', dismiss);
+    nudge.querySelector('.sync-nudge-btn').addEventListener('click', () => {
+      dismiss();
+      this.navigate('settings');
+    });
   },
 
   // ── First-run consent overlay (GDPR) ────────────────────────────────────

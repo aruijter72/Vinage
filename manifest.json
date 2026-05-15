@@ -2,7 +2,7 @@
   "name": "Vinage",
   "short_name": "Vinage",
   "description": "Your personal wine cellar — scan, store, pair.",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#FAF6F0",
   "theme_color": "#5C2896",

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vinage — Gebruiksvoorwaarden</title>
+  <meta name="description" content="De gebruiksvoorwaarden van Vinage — jouw digitale wijnkelder.">
+  <link rel="icon" href="/icons/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/website/site.css">
+  <style>
+    .legal-hero {
+      background: linear-gradient(155deg, var(--burgundy) 0%, #6B2340 60%, var(--burgundy-mid) 100%);
+      padding: 100px 24px 56px; text-align: center;
+    }
+    .legal-hero .label {
+      font-size: .8rem; font-weight: 600; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--gold-lt); margin-bottom: 14px;
+    }
+    .legal-hero h1 {
+      font-size: clamp(1.8rem,4vw,3rem); font-weight: 300;
+      color: var(--cream); margin-bottom: 12px;
+    }
+    .legal-hero .updated { font-size: .85rem; color: rgba(245,239,230,.55); }
+
+    .legal-body { max-width: 780px; margin: 0 auto; padding: 56px 24px 80px; }
+    .legal-section { margin-bottom: 48px; }
+    .legal-section h2 {
+      font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600;
+      color: var(--burgundy); margin-bottom: 14px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    [data-theme="dark"] .legal-section h2 { color: var(--gold-lt); }
+    .legal-section p { font-size: .94rem; color: var(--text-lt); line-height: 1.8; margin-bottom: 12px; }
+    .legal-section p:last-child { margin-bottom: 0; }
+    .legal-section ul { margin: 10px 0 12px 20px; display: flex; flex-direction: column; gap: 6px; }
+    .legal-section ul li { font-size: .94rem; color: var(--text-lt); line-height: 1.7; }
+    .legal-section strong { color: var(--text); font-weight: 600; }
+    [data-theme="dark"] .legal-section strong { color: var(--cream); }
+
+    .plan-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: .9rem; }
+    .plan-table th { text-align: left; padding: 10px 14px; background: var(--surface-2); color: var(--text); font-weight: 600; }
+    .plan-table td { padding: 10px 14px; border-top: 1px solid var(--border); color: var(--text-lt); }
+    .plan-table tr:hover td { background: var(--surface-2); }
+
+    .lang-notice { background: var(--surface-2); border-left: 3px solid var(--gold); padding: 12px 18px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-bottom: 40px; }
+    .lang-notice p { font-size: .85rem; color: var(--text-lt); margin: 0; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="/" class="nav-logo"><div class="logo-mark">🍷</div><span>Vinage</span></a>
+  <ul class="nav-links">
+    <li><a href="/#features" id="nav-features">Functies</a></li>
+    <li><a href="/pricing"   id="nav-pricing">Abonnementen</a></li>
+    <li><a href="/about"     id="nav-about">Over ons</a></li>
+    <li><a href="/blog"      id="nav-blog">Blog</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-pills">
+      <button class="lang-pill active" data-lang="nl" onclick="setLang('nl')">NL</button>
+      <button class="lang-pill" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-pill" data-lang="de" onclick="setLang('de')">DE</button>
+      <button class="lang-pill" data-lang="fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-pill" data-lang="es" onclick="setLang('es')">ES</button>
+      <button class="lang-pill" data-lang="it" onclick="setLang('it')">IT</button>
+    </div>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    <a href="/app" class="nav-app-btn">Open app</a>
+  </div>
+  <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="/#features" id="mob-features">Functies</a>
+  <a href="/pricing"   id="mob-pricing">Abonnementen</a>
+  <a href="/about"     id="mob-about">Over ons</a>
+  <a href="/blog"      id="mob-blog">Blog</a>
+  <a href="/app" class="nav-app-btn">Open app</a>
+  <div class="mobile-lang-row">
+    <button class="active" data-lang="nl" onclick="setLang('nl')">NL</button>
+    <button data-lang="en" onclick="setLang('en')">EN</button>
+    <button data-lang="de" onclick="setLang('de')">DE</button>
+    <button data-lang="fr" onclick="setLang('fr')">FR</button>
+    <button data-lang="es" onclick="setLang('es')">ES</button>
+    <button data-lang="it" onclick="setLang('it')">IT</button>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="legal-hero">
+  <div class="label" id="t-label">Juridisch</div>
+  <h1 id="t-title">Gebruiksvoorwaarden</h1>
+  <p class="updated" id="t-updated">Laatst bijgewerkt: mei 2025</p>
+</section>
+
+<!-- Body -->
+<main class="legal-body">
+
+  <div class="lang-notice">
+    <p id="t-lang-notice">De Nederlandse versie is de bindende versie van deze voorwaarden. De vertalingen zijn uitsluitend ter informatie.</p>
+  </div>
+
+  <!-- 1. Acceptatie -->
+  <div class="legal-section">
+    <h2 id="t-s1-title">1. Aanvaarding van de voorwaarden</h2>
+    <p id="t-s1-body">Door Vinage te gebruiken ga je akkoord met deze gebruiksvoorwaarden. Als je niet akkoord gaat, mag je de app niet gebruiken. Vinage behoudt zich het recht voor deze voorwaarden te wijzigen. Bij wezenlijke wijzigingen word je via de app of per e-mail op de hoogte gesteld.</p>
+  </div>
+
+  <!-- 2. Dienst -->
+  <div class="legal-section">
+    <h2 id="t-s2-title">2. Beschrijving van de dienst</h2>
+    <p id="t-s2-body">Vinage is een progressieve webapplicatie (PWA) waarmee je jouw wijnverzameling kunt beheren, bijhouden en analyseren. De app biedt functionaliteiten als wijnregistratie, kelderindeling, drinkvensteradvies, AI-gedreven wijnadvies, importeurs-suggesties en abonnementen met uitgebreide functies.</p>
+  </div>
+
+  <!-- 3. Abonnementen -->
+  <div class="legal-section">
+    <h2 id="t-s3-title">3. Abonnementen en tarieven</h2>
+    <p id="t-s3-intro">Vinage biedt de volgende abonnementsopties aan:</p>
+    <table class="plan-table">
+      <thead>
+        <tr>
+          <th id="t-plan-col1">Plan</th>
+          <th id="t-plan-col2">Prijs</th>
+          <th id="t-plan-col3">Kenmerken</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong id="t-plan1-name">Gratis</strong></td>
+          <td id="t-plan1-price">€ 0</td>
+          <td id="t-plan1-feat">Tot 25 flessen, basisfuncties</td>
+        </tr>
+        <tr>
+          <td><strong id="t-plan2-name">Liefhebber</strong></td>
+          <td id="t-plan2-price">€ 2,99 / maand</td>
+          <td id="t-plan2-feat">Onbeperkte flessen, AI-advies, importeursuggesties</td>
+        </tr>
+        <tr>
+          <td><strong id="t-plan3-name">Verzamelaar</strong></td>
+          <td id="t-plan3-price">€ 5,99 / maand · € 59,99 / jaar</td>
+          <td id="t-plan3-feat">Alles in Liefhebber + meerdere kelders, prioriteitsondersteuning</td>
+        </tr>
+      </tbody>
+    </table>
+    <p id="t-s3-stripe" style="margin-top:14px">Betalingen worden verwerkt via Stripe. Abonnementen worden automatisch verlengd tenzij je opzegt. Je kunt je abonnement op elk moment opzeggen via de app (Instellingen → Abonnement) of via de Stripe-klantportal.</p>
+  </div>
+
+  <!-- 4. Account -->
+  <div class="legal-section">
+    <h2 id="t-s4-title">4. Jouw account</h2>
+    <p id="t-s4-body">Je bent verantwoordelijk voor het vertrouwelijk houden van je inloggegevens en voor alle activiteiten die via jouw account plaatsvinden. Vinage is niet aansprakelijk voor verlies of schade als gevolg van ongeautoriseerd gebruik van jouw account. Je kunt je account te allen tijde verwijderen via Instellingen → Account verwijderen.</p>
+  </div>
+
+  <!-- 5. Gebruiksregels -->
+  <div class="legal-section">
+    <h2 id="t-s5-title">5. Acceptabel gebruik</h2>
+    <p id="t-s5-intro">Het is niet toegestaan om Vinage te gebruiken voor:</p>
+    <ul id="t-s5-list">
+      <li>Illegale activiteiten of activiteiten die in strijd zijn met de wet.</li>
+      <li>Het uploaden van schadelijke, beledigende of inbreukmakende inhoud.</li>
+      <li>Het misbruiken, overbelasten of verstoren van de dienst of servers.</li>
+      <li>Het omzeilen van beveiligingsmaatregelen of het ongeautoriseerd toegang verkrijgen tot accounts van anderen.</li>
+      <li>Het automatisch uitlezen van de dienst (scraping) zonder schriftelijke toestemming.</li>
+    </ul>
+  </div>
+
+  <!-- 6. Eigendom -->
+  <div class="legal-section">
+    <h2 id="t-s6-title">6. Intellectueel eigendom</h2>
+    <p id="t-s6-body">De app, het logo, de merknaam Vinage, het ontwerp en de softwarecode zijn eigendom van Arnold Ruijter IT (KVK 99478781). Je behoudt alle rechten op de wijndata die je zelf invoert. Vinage verkrijgt geen eigendomsrechten op jouw data. Je verleent Vinage uitsluitend het recht jouw data op te slaan en te verwerken ten behoeve van de dienstverlening.</p>
+  </div>
+
+  <!-- 7. Aansprakelijkheid -->
+  <div class="legal-section">
+    <h2 id="t-s7-title">7. Aansprakelijkheid en garanties</h2>
+    <p id="t-s7-body">Vinage wordt aangeboden "zoals het is" en "zoals het beschikbaar is". Wij geven geen garanties over ononderbroken beschikbaarheid of foutloosheid. Het AI-wijnadvies is indicatief en niet bedoeld als professioneel advies. Vinage is niet aansprakelijk voor directe of indirecte schade die voortvloeit uit het gebruik of het niet kunnen gebruiken van de app, voor zover wettelijk toegestaan.</p>
+  </div>
+
+  <!-- 8. Beëindiging -->
+  <div class="legal-section">
+    <h2 id="t-s8-title">8. Beëindiging</h2>
+    <p id="t-s8-body">Vinage behoudt zich het recht voor accounts te beëindigen of toegang te weigeren bij ernstige schending van deze voorwaarden, zonder voorafgaande kennisgeving. Je kunt de overeenkomst te allen tijde beëindigen door je account te verwijderen. Bij beëindiging worden jouw gegevens verwijderd conform het privacybeleid.</p>
+  </div>
+
+  <!-- 9. Toepasselijk recht -->
+  <div class="legal-section">
+    <h2 id="t-s9-title">9. Toepasselijk recht</h2>
+    <p id="t-s9-body">Op deze gebruiksvoorwaarden is Nederlands recht van toepassing. Geschillen worden bij voorkeur in onderling overleg opgelost. Indien dit niet mogelijk is, worden geschillen voorgelegd aan de bevoegde rechter in Nederland.</p>
+  </div>
+
+  <!-- 10. Contact -->
+  <div class="legal-section">
+    <h2 id="t-s10-title">10. Contact</h2>
+    <p id="t-s10-body">Vragen over deze gebruiksvoorwaarden? Neem contact op via:</p>
+    <p>📧 <a href="mailto:arnold.ruijter@outlook.com">arnold.ruijter@outlook.com</a></p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Vinage</div>
+      <div class="footer-tagline" id="footer-tagline">Jouw digitale wijnkelder</div>
+    </div>
+    <div class="footer-links">
+      <a href="/app"                id="footer-app">Open app</a>
+      <a href="/"                               >Home</a>
+      <a href="/pricing"            id="nav-pricing-f">Abonnementen</a>
+      <a href="/blog"               id="nav-blog-f">Blog</a>
+      <a href="/privacy"            id="footer-privacy">Privacybeleid</a>
+      <a href="/gebruiksvoorwaarden" id="footer-terms" class="active">Gebruiksvoorwaarden</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span id="footer-copy">© 2025 Vinage. Alle rechten voorbehouden.</span>
+    <span>Made with 🍷 in the Netherlands</span>
+  </div>
+</footer>
+
+<script src="/website/site.js"></script>
+<script>
+const PAGE_T = {
+  nl: {
+    't-label':'Juridisch','t-title':'Gebruiksvoorwaarden','t-updated':'Laatst bijgewerkt: mei 2025',
+    't-lang-notice':'De Nederlandse versie is de bindende versie van deze voorwaarden.',
+    't-s1-title':'1. Aanvaarding van de voorwaarden','t-s1-body':'Door Vinage te gebruiken ga je akkoord met deze gebruiksvoorwaarden. Vinage behoudt zich het recht voor deze voorwaarden te wijzigen.',
+    't-s2-title':'2. Beschrijving van de dienst','t-s2-body':'Vinage is een PWA waarmee je jouw wijnverzameling kunt beheren, bijhouden en analyseren.',
+    't-s3-title':'3. Abonnementen en tarieven','t-s3-intro':'Vinage biedt de volgende abonnementsopties aan:',
+    't-plan-col1':'Plan','t-plan-col2':'Prijs','t-plan-col3':'Kenmerken',
+    't-plan1-name':'Gratis','t-plan1-price':'€ 0','t-plan1-feat':'Tot 25 flessen, basisfuncties',
+    't-plan2-name':'Liefhebber','t-plan2-price':'€ 2,99 / maand','t-plan2-feat':'Onbeperkte flessen, AI-advies, importeursuggesties',
+    't-plan3-name':'Verzamelaar','t-plan3-price':'€ 5,99 / maand · € 59,99 / jaar','t-plan3-feat':'Alles in Liefhebber + meerdere kelders, prioriteitsondersteuning',
+    't-s3-stripe':'Betalingen via Stripe. Abonnementen worden automatisch verlengd tenzij je opzegt.',
+    't-s4-title':'4. Jouw account','t-s4-body':'Je bent verantwoordelijk voor het vertrouwelijk houden van je inloggegevens en alle activiteiten via jouw account.',
+    't-s5-title':'5. Acceptabel gebruik','t-s5-intro':'Het is niet toegestaan om Vinage te gebruiken voor:',
+    't-s6-title':'6. Intellectueel eigendom','t-s6-body':'De app, het logo en de merknam Vinage zijn eigendom van Arnold Ruijter IT (KVK 99478781). Je behoudt alle rechten op de wijndata die je zelf invoert.',
+    't-s7-title':'7. Aansprakelijkheid en garanties','t-s7-body':'Vinage wordt aangeboden "zoals het is". Het AI-advies is indicatief en niet bedoeld als professioneel advies.',
+    't-s8-title':'8. Beëindiging','t-s8-body':'Vinage kan accounts beëindigen bij ernstige schending van deze voorwaarden. Je kunt zelf op elk moment opzeggen via Instellingen → Account verwijderen.',
+    't-s9-title':'9. Toepasselijk recht','t-s9-body':'Op deze voorwaarden is Nederlands recht van toepassing. Geschillen worden voorgelegd aan de bevoegde rechter in Nederland.',
+    't-s10-title':'10. Contact','t-s10-body':'Vragen over deze gebruiksvoorwaarden? Neem contact op via:',
+  },
+  en: {
+    't-label':'Legal','t-title':'Terms of Service','t-updated':'Last updated: May 2025',
+    't-lang-notice':'The Dutch version is the binding version of these terms. Translations are provided for informational purposes only.',
+    't-s1-title':'1. Acceptance of Terms','t-s1-body':'By using Vinage you agree to these Terms of Service. Vinage reserves the right to amend these terms at any time.',
+    't-s2-title':'2. Description of Service','t-s2-body':'Vinage is a progressive web app (PWA) for managing, tracking, and analysing your wine collection.',
+    't-s3-title':'3. Subscriptions and Pricing','t-s3-intro':'Vinage offers the following subscription options:',
+    't-plan-col1':'Plan','t-plan-col2':'Price','t-plan-col3':'Features',
+    't-plan1-name':'Free','t-plan1-price':'€ 0','t-plan1-feat':'Up to 25 bottles, core features',
+    't-plan2-name':'Enthusiast','t-plan2-price':'€ 2.99 / month','t-plan2-feat':'Unlimited bottles, AI advice, importer suggestions',
+    't-plan3-name':'Collector','t-plan3-price':'€ 5.99 / month · € 59.99 / year','t-plan3-feat':'Everything in Enthusiast + multiple cellars, priority support',
+    't-s3-stripe':'Payments processed via Stripe. Subscriptions renew automatically unless cancelled.',
+    't-s4-title':'4. Your Account','t-s4-body':'You are responsible for maintaining the confidentiality of your credentials and all activities under your account.',
+    't-s5-title':'5. Acceptable Use','t-s5-intro':'You may not use Vinage for:',
+    't-s6-title':'6. Intellectual Property','t-s6-body':'The app, logo, and Vinage brand are owned by Arnold Ruijter IT (CoC no. 99478781). You retain all rights to the wine data you enter.',
+    't-s7-title':'7. Liability and Warranties','t-s7-body':'Vinage is provided "as is". AI wine advice is indicative and not professional advice. Vinage is not liable for any direct or indirect damages.',
+    't-s8-title':'8. Termination','t-s8-body':'Vinage may terminate accounts for serious violations. You may cancel at any time via Settings → Delete account.',
+    't-s9-title':'9. Governing Law','t-s9-body':'These terms are governed by Dutch law. Disputes will be submitted to the competent court in the Netherlands.',
+    't-s10-title':'10. Contact','t-s10-body':'Questions about these terms? Contact us at:',
+  },
+  de: {
+    't-label':'Rechtliches','t-title':'Nutzungsbedingungen','t-updated':'Zuletzt aktualisiert: Mai 2025',
+    't-lang-notice':'Die niederländische Version ist die verbindliche Version dieser Bedingungen.',
+    't-s1-title':'1. Annahme der Bedingungen','t-s1-body':'Durch die Nutzung von Vinage stimmen Sie diesen Nutzungsbedingungen zu.',
+    't-s2-title':'2. Beschreibung des Dienstes','t-s2-body':'Vinage ist eine PWA zur Verwaltung, Verfolgung und Analyse Ihrer Weinsammlung.',
+    't-s3-title':'3. Abonnements und Preise','t-s3-intro':'Vinage bietet folgende Abonnementoptionen an:',
+    't-plan-col1':'Plan','t-plan-col2':'Preis','t-plan-col3':'Merkmale',
+    't-plan1-name':'Kostenlos','t-plan1-price':'€ 0','t-plan1-feat':'Bis 25 Flaschen, Grundfunktionen',
+    't-plan2-name':'Enthusiast','t-plan2-price':'€ 2,99 / Monat','t-plan2-feat':'Unbegrenzte Flaschen, KI-Beratung, Importeur-Vorschläge',
+    't-plan3-name':'Sammler','t-plan3-price':'€ 5,99 / Monat · € 59,99 / Jahr','t-plan3-feat':'Alles im Enthusiast-Plan + mehrere Keller, Prioritätssupport',
+    't-s3-stripe':'Zahlungen werden über Stripe abgewickelt. Abonnements verlängern sich automatisch, sofern nicht gekündigt.',
+    't-s4-title':'4. Ihr Konto','t-s4-body':'Sie sind für die Vertraulichkeit Ihrer Anmeldedaten und alle Aktivitäten über Ihr Konto verantwortlich.',
+    't-s5-title':'5. Zulässige Nutzung','t-s5-intro':'Es ist nicht gestattet, Vinage zu nutzen für:',
+    't-s6-title':'6. Geistiges Eigentum','t-s6-body':'Die App, das Logo und die Marke Vinage sind Eigentum von Arnold Ruijter IT (HR-Nr. 99478781). Sie behalten alle Rechte an den von Ihnen eingegebenen Weindaten.',
+    't-s7-title':'7. Haftung und Gewährleistung','t-s7-body':'Vinage wird "wie besehen" angeboten. KI-Weinberatung ist unverbindlich und kein professioneller Rat.',
+    't-s8-title':'8. Kündigung','t-s8-body':'Vinage kann Konten bei schwerwiegenden Verstößen kündigen. Sie können jederzeit über Einstellungen → Konto löschen kündigen.',
+    't-s9-title':'9. Anwendbares Recht','t-s9-body':'Für diese Bedingungen gilt niederländisches Recht. Streitigkeiten werden dem zuständigen Gericht in den Niederlanden vorgelegt.',
+    't-s10-title':'10. Kontakt','t-s10-body':'Fragen zu diesen Nutzungsbedingungen? Kontaktieren Sie uns unter:',
+  },
+  fr: {
+    't-label':'Mentions légales','t-title':"Conditions d'utilisation",'t-updated':'Dernière mise à jour : mai 2025',
+    't-lang-notice':'La version néerlandaise est la version contraignante de ces conditions.',
+    't-s1-title':'1. Acceptation des conditions','t-s1-body':"En utilisant Vinage, vous acceptez ces conditions d'utilisation.",
+    't-s2-title':'2. Description du service','t-s2-body':'Vinage est une PWA pour gérer, suivre et analyser votre cave à vin.',
+    't-s3-title':'3. Abonnements et tarifs','t-s3-intro':'Vinage propose les abonnements suivants :',
+    't-plan-col1':'Plan','t-plan-col2':'Prix','t-plan-col3':'Caractéristiques',
+    't-plan1-name':'Gratuit','t-plan1-price':'0 €','t-plan1-feat':"Jusqu'à 25 bouteilles, fonctions de base",
+    't-plan2-name':'Amateur','t-plan2-price':'2,99 € / mois','t-plan2-feat':'Bouteilles illimitées, conseils IA, suggestions importateurs',
+    't-plan3-name':'Collectionneur','t-plan3-price':'5,99 € / mois · 59,99 € / an','t-plan3-feat':'Tout dans Amateur + plusieurs caves, support prioritaire',
+    't-s3-stripe':'Paiements traités via Stripe. Les abonnements se renouvellent automatiquement sauf résiliation.',
+    't-s4-title':'4. Votre compte','t-s4-body':'Vous êtes responsable de la confidentialité de vos identifiants et de toutes les activités sous votre compte.',
+    't-s5-title':'5. Utilisation acceptable','t-s5-intro':"Il n'est pas autorisé d'utiliser Vinage pour :",
+    't-s6-title':'6. Propriété intellectuelle','t-s6-body':"L'app, le logo et la marque Vinage sont la propriété d'Arnold Ruijter IT (n° KvK 99478781). Vous conservez tous les droits sur vos données de vin.",
+    't-s7-title':'7. Responsabilité et garanties','t-s7-body':'Vinage est fourni "tel quel". Les conseils IA sont indicatifs et ne constituent pas un avis professionnel.',
+    't-s8-title':'8. Résiliation','t-s8-body':"Vinage peut résilier des comptes en cas de violation grave. Vous pouvez résilier à tout moment via Paramètres → Supprimer le compte.",
+    't-s9-title':'9. Droit applicable','t-s9-body':'Ces conditions sont régies par le droit néerlandais. Les litiges seront soumis au tribunal compétent aux Pays-Bas.',
+    't-s10-title':'10. Contact','t-s10-body':'Questions sur ces conditions ? Contactez-nous à :',
+  },
+  es: {
+    't-label':'Legal','t-title':'Términos de uso','t-updated':'Última actualización: mayo 2025',
+    't-lang-notice':'La versión neerlandesa es la versión vinculante de estos términos.',
+    't-s1-title':'1. Aceptación de los términos','t-s1-body':'Al usar Vinage, aceptas estos términos de uso.',
+    't-s2-title':'2. Descripción del servicio','t-s2-body':'Vinage es una PWA para gestionar, rastrear y analizar tu colección de vinos.',
+    't-s3-title':'3. Suscripciones y precios','t-s3-intro':'Vinage ofrece las siguientes opciones de suscripción:',
+    't-plan-col1':'Plan','t-plan-col2':'Precio','t-plan-col3':'Características',
+    't-plan1-name':'Gratis','t-plan1-price':'€ 0','t-plan1-feat':'Hasta 25 botellas, funciones básicas',
+    't-plan2-name':'Entusiasta','t-plan2-price':'€ 2,99 / mes','t-plan2-feat':'Botellas ilimitadas, consejos IA, sugerencias de importadores',
+    't-plan3-name':'Coleccionista','t-plan3-price':'€ 5,99 / mes · € 59,99 / año','t-plan3-feat':'Todo en Entusiasta + varias bodegas, soporte prioritario',
+    't-s3-stripe':'Pagos procesados mediante Stripe. Las suscripciones se renuevan automáticamente salvo cancelación.',
+    't-s4-title':'4. Tu cuenta','t-s4-body':'Eres responsable de mantener la confidencialidad de tus credenciales y todas las actividades bajo tu cuenta.',
+    't-s5-title':'5. Uso aceptable','t-s5-intro':'No está permitido usar Vinage para:',
+    't-s6-title':'6. Propiedad intelectual','t-s6-body':'La app, el logo y la marca Vinage son propiedad de Arnold Ruijter IT (n.º KvK 99478781). Conservas todos los derechos sobre los datos de vino que introduces.',
+    't-s7-title':'7. Responsabilidad y garantías','t-s7-body':'Vinage se ofrece "tal cual". Los consejos de IA son indicativos y no constituyen asesoramiento profesional.',
+    't-s8-title':'8. Rescisión','t-s8-body':'Vinage puede cancelar cuentas por violaciones graves. Puedes cancelar en cualquier momento en Ajustes → Eliminar cuenta.',
+    't-s9-title':'9. Ley aplicable','t-s9-body':'Estos términos se rigen por la ley neerlandesa. Las disputas se someterán al tribunal competente en los Países Bajos.',
+    't-s10-title':'10. Contacto','t-s10-body':'¿Preguntas sobre estos términos? Contáctanos en:',
+  },
+  it: {
+    't-label':'Legale','t-title':"Termini d'uso",'t-updated':'Ultimo aggiornamento: maggio 2025',
+    't-lang-notice':'La versione olandese è la versione vincolante di questi termini.',
+    't-s1-title':'1. Accettazione dei termini','t-s1-body':"Utilizzando Vinage, accetti questi termini d'uso.",
+    't-s2-title':'2. Descrizione del servizio','t-s2-body':"Vinage è una PWA per gestire, monitorare e analizzare la tua collezione di vini.",
+    't-s3-title':'3. Abbonamenti e prezzi','t-s3-intro':'Vinage offre le seguenti opzioni di abbonamento:',
+    't-plan-col1':'Piano','t-plan-col2':'Prezzo','t-plan-col3':'Caratteristiche',
+    't-plan1-name':'Gratuito','t-plan1-price':'€ 0','t-plan1-feat':'Fino a 25 bottiglie, funzioni di base',
+    't-plan2-name':'Appassionato','t-plan2-price':'€ 2,99 / mese','t-plan2-feat':'Bottiglie illimitate, consigli IA, suggerimenti importatori',
+    't-plan3-name':'Collezionista','t-plan3-price':'€ 5,99 / mese · € 59,99 / anno','t-plan3-feat':'Tutto in Appassionato + più cantine, supporto prioritario',
+    't-s3-stripe':'Pagamenti elaborati tramite Stripe. Gli abbonamenti si rinnovano automaticamente salvo disdetta.',
+    't-s4-title':'4. Il tuo account','t-s4-body':'Sei responsabile della riservatezza delle tue credenziali e di tutte le attività sotto il tuo account.',
+    't-s5-title':'5. Uso accettabile','t-s5-intro':'Non è consentito utilizzare Vinage per:',
+    't-s6-title':'6. Proprietà intellettuale','t-s6-body':"L'app, il logo e il marchio Vinage sono di proprietà di Arnold Ruijter IT (n. KvK 99478781). Conservi tutti i diritti sui dati vino che inserisci.",
+    't-s7-title':'7. Responsabilità e garanzie','t-s7-body':"Vinage è fornito \"così com'è\". I consigli IA sono indicativi e non costituiscono consulenza professionale.",
+    't-s8-title':'8. Risoluzione','t-s8-body':'Vinage può terminare account per violazioni gravi. Puoi annullare in qualsiasi momento in Impostazioni → Elimina account.',
+    't-s9-title':'9. Legge applicabile','t-s9-body':'Questi termini sono regolati dalla legge olandese. Le controversie saranno sottoposte al tribunale competente nei Paesi Bassi.',
+    't-s10-title':'10. Contatto','t-s10-body':"Domande su questi termini? Contattaci a:",
+  },
+};
+function applyPageLang(lang) {
+  const data = PAGE_T[lang] || PAGE_T.nl;
+  Object.entries(data).forEach(([id, text]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  });
+  document.querySelectorAll('.mobile-lang-row button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+}
+</script>
+</body>
+</html>

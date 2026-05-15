@@ -17,6 +17,7 @@ git diff --quiet && git diff --staged --quiet && [ -z "$(git ls-files --others -
 # 2. Bumps SW_VERSION in sw.js → Safari installs the new SW and wipes old cache.
 TS=$(date +%s)
 sed -i '' "s|\.css?v=[^\"']*|.css?v=${TS}|g; s|\.js?v=[^\"']*|.js?v=${TS}|g" index.html
+sed -i '' "s|\.css?v=[^\"']*|.css?v=${TS}|g; s|\.js?v=[^\"']*|.js?v=${TS}|g" app.html
 sed -i '' "s|const SW_VERSION = '[^']*'|const SW_VERSION = 'v${TS}'|" sw.js
 # ─────────────────────────────────────────────────────────────────────────────
 
