@@ -2,6 +2,14 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ── Beta access codes ─────────────────────────────────────────────────────
+    // Codes are read by signed-in users to verify redemption.
+    // Write is console-only (admin manages codes manually in Firestore).
+    match /betaCodes/{code} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
     // ── User profiles ─────────────────────────────────────────────────────────
     // Each user can only read/write their own profile document.
     match /users/{userId} {
