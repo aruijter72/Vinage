@@ -4963,6 +4963,50 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     a.click();
   },
 
+  exportCsv() {
+    const wines = DB.getWines();
+    const nl    = this.lang === 'nl';
+    const headers = nl
+      ? ['Naam','Producent','Vintage','Regio','Land','Type','Druiven','Aantal','Prijs (€)','Score','Drink vanaf','Drink tot','Notities','Spijscombinaties','Toegevoegd']
+      : ['Name','Producer','Vintage','Region','Country','Type','Grapes','Quantity','Price (€)','Score','Drink from','Drink until','Notes','Pairings','Added'];
+
+    const esc = v => {
+      if (v === null || v === undefined) return '';
+      const str = String(v);
+      return str.includes(',') || str.includes('"') || str.includes('\n')
+        ? '"' + str.replace(/"/g, '""') + '"'
+        : str;
+    };
+
+    const rows = wines.map(w => [
+      esc(w.name),
+      esc(w.producer),
+      esc(w.vintage),
+      esc(w.region),
+      esc(w.country),
+      esc(w.type),
+      esc((w.grapes || []).join('; ')),
+      esc(w.quantity || 1),
+      esc(w.price),
+      esc(w.score),
+      esc(w.drinkFrom),
+      esc(w.drinkUntil),
+      esc(w.notes),
+      esc((w.pairings || []).join('; ')),
+      esc(w.addedAt ? new Date(w.addedAt).toLocaleDateString() : ''),
+    ].join(','));
+
+    const csv  = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `vinage-export-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.toast(nl ? '✓ CSV geëxporteerd' : '✓ CSV exported', 'success');
+  },
+
   exportPdf() {
     const wines = DB.getWines();
     const types = TRANSLATIONS[this.lang].types || TRANSLATIONS.en.types;
