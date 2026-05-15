@@ -9,9 +9,9 @@ PLANS.jaarlijks = { ...PLANS.verzamelaar, id: 'jaarlijks', price: 47.99 };
 
 // ── Stripe Payment Links — replace placeholders with real links from Stripe dashboard ──
 const STRIPE_LINKS = {
-  liefhebber:  'https://buy.stripe.com/test_9B6cN48eo3vu8QU36WbAs00',
-  verzamelaar: 'https://buy.stripe.com/test_7sY6oGamw6HG2swfTIbAs01',
-  jaarlijks:   'https://buy.stripe.com/test_7sY7sK52c8PO4AE4b0bAs02',
+  liefhebber:  'https://buy.stripe.com/bJe14m2Ubc2vgTo9iubZe02',
+  verzamelaar: 'https://buy.stripe.com/6oU28qcuL0jNav0fGSbZe00',
+  jaarlijks:   'https://buy.stripe.com/8x2cN4dyP1nRav0amybZe01',
 };
 
 // Vinage — Data Layer (localStorage)
