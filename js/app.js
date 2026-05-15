@@ -4900,30 +4900,68 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
   // ── Beta access code ──────────────────────────────────────────────────────
   // Tap the version text 5 times to reveal the code input.
-  // Change BETA_CODES to revoke or rotate access codes.
+  // Codes are stored in Firestore collection `betaCodes` — manage them there.
+  // To revoke a user: add their UID to the `revokedUsers` array on the code doc.
+  // To disable a code entirely: set `active: false` on the code doc.
   _betaTapCount: 0,
-  _redeemBetaCode() {
-    const BETA_CODES = {
-      'VINAGE-BETA':       'verzamelaar',  // full access for testers
-      'VINAGE-LIEFHEBBER': 'liefhebber',  // liefhebber plan
-    };
+  async _redeemBetaCode() {
     const input = document.getElementById('beta-code-input');
     const code  = (input?.value || '').trim().toUpperCase();
-    const plan  = BETA_CODES[code];
-    if (!plan) {
-      this.toast(this.lang === 'nl' ? 'Ongeldige code.' : 'Invalid code.', 'error');
+    const nl    = this.lang === 'nl';
+
+    if (!code) return;
+
+    // Require sign-in — codes are verified against Firestore
+    if (typeof Sync === 'undefined' || !Sync.user) {
+      this.toast(nl ? 'Log eerst in om een toegangscode te gebruiken.' : 'Please sign in to redeem an access code.', 'error');
       return;
     }
-    const s = DB.getSettings();
-    s.plan = plan;
-    DB.saveSettings(s);
-    // Also persist to Firestore so the plan survives app restarts
-    if (typeof Sync !== 'undefined' && Sync.setPlan) {
-      Sync.setPlan(plan).catch(() => {});
+
+    const btn = document.querySelector('#beta-code-row .btn');
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+    try {
+      const db  = firebase.firestore();
+      const uid = Sync.user.uid;
+      const snap = await db.doc(`betaCodes/${code}`).get();
+
+      if (!snap.exists || !snap.data().active) {
+        this.toast(nl ? 'Ongeldige of verlopen code.' : 'Invalid or expired code.', 'error');
+        return;
+      }
+
+      const data    = snap.data();
+      const revoked = data.revokedUsers || [];
+
+      if (revoked.includes(uid)) {
+        this.toast(nl ? 'Deze code is voor jouw account ingetrokken.' : 'This code has been revoked for your account.', 'error');
+        return;
+      }
+
+      const plan = data.plan;
+      if (!['free','liefhebber','verzamelaar','jaarlijks'].includes(plan)) {
+        this.toast(nl ? 'Ongeldige code.' : 'Invalid code.', 'error');
+        return;
+      }
+
+      // Apply plan locally + persist to Firestore user doc
+      const s = DB.getSettings();
+      s.plan = plan;
+      DB.saveSettings(s);
+      await Sync.setPlan(plan);
+      // Record which code this user redeemed (audit trail + revocation reference)
+      await db.doc(`users/${uid}`).set({ betaCode: code }, { merge: true });
+
+      document.getElementById('beta-code-row').style.display = 'none';
+      this.renderView();
+      this.toast(nl ? `✓ Toegang geactiveerd (${plan})` : `✓ Access activated (${plan})`, 'success');
+
+    } catch (err) {
+      console.error('[betaCode]', err);
+      this.toast(nl ? 'Kon code niet controleren. Probeer opnieuw.' : 'Could not verify code. Please try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'OK'; }
     }
-    document.getElementById('beta-code-row').style.display = 'none';
-    this.renderView(); // refresh settings to show new plan
-    this.toast(this.lang === 'nl' ? `Plan ingesteld: ${plan} ✓` : `Plan set: ${plan} ✓`, 'success');
   },
 
   saveSettings() {
