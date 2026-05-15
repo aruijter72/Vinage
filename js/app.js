@@ -4940,7 +4940,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     this.lang = lang;
     const s = DB.getSettings(); s.lang = lang; DB.saveSettings(s);
     this.render();
-    this.navigate('settings');
+    this.navigate(this.view && this.view.startsWith('settings-') ? this.view : 'settings');
   },
 
   toggleProvider(provider) {
