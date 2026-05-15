@@ -3161,7 +3161,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   display: flex; align-items: center; gap: 10px;
   background: linear-gradient(135deg, var(--burgundy-dk) 0%, var(--burgundy) 100%);
   color: var(--white);
-  padding: 11px 14px;
+  padding: calc(11px + env(safe-area-inset-top, 0px)) 14px 11px;
   font-size: .82rem;
   opacity: 0;
   transform: translateY(-8px);
