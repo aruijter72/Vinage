@@ -5318,6 +5318,274 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     });
   },
 
+  // ── Settings sub-page router ──────────────────────────────────────────────
+  buildSettingsSubView(section) {
+    const nl = this.lang === 'nl';
+    const title = {
+      plan:          nl ? 'Abonnement'      : 'Subscription',
+      preferences:   nl ? 'Taal & weergave' : 'Language & display',
+      ai:            nl ? 'AI & sleutels'   : 'AI & API keys',
+      sync:          nl ? 'Sync & delen'    : 'Sync & sharing',
+      notifications: nl ? 'Meldingen'       : 'Notifications',
+      data:          nl ? 'Gegevens'        : 'Data',
+      about:         nl ? 'Over & juridisch': 'About & legal',
+    }[section] || 'Settings';
+
+    const header = `
+      <div class="settings-sub-header">
+        <button class="settings-sub-back" data-action="back-to-settings">‹ ${this.t('settings.title')}</button>
+        <span class="settings-sub-title">${title}</span>
+      </div>`;
+
+    switch (section) {
+      case 'plan':          return header + this._buildPlanSubPage();
+      case 'preferences':   return header + this._buildPreferencesSubPage();
+      case 'ai':            return header + this._buildAiSubPage();
+      case 'sync':          return header + this._buildSyncSubPage();
+      case 'notifications': return header + this._buildNotifSubPage();
+      case 'data':          return header + this._buildDataSubPage();
+      case 'about':         return header + this._buildAboutSubPage();
+      default:              return header;
+    }
+  },
+
+  _buildPlanSubPage() {
+    const s           = DB.getSettings();
+    DB.resetAiMonthlyCounterIfNeeded();
+    const plan        = this._getPlan();
+    const isUnlimited = plan.bottleLimit === null;
+    const bottleCount = this._totalBottleCount();
+    const aiUsed      = s.aiCallsMonth || 0;
+    const bottleText  = isUnlimited
+      ? this.t('plan.bottlesUnlimited')
+      : this.t('plan.bottlesUsed', { used: bottleCount, limit: plan.bottleLimit });
+    const aiText      = plan.aiLimit === null
+      ? this.t('plan.aiUnlimited')
+      : this.t('plan.aiUsed', { used: aiUsed, limit: plan.aiLimit });
+    const planName    = this.t('plan.' + plan.id + 'Name');
+    const isMaxPlan   = plan.id === 'verzamelaar' || plan.id === 'jaarlijks';
+    const isSignedIn  = typeof Sync !== 'undefined' && !!Sync.user;
+    const showManage  = plan.id !== 'free' || isSignedIn;
+
+    return `
+    <div class="settings-section settings-plan-card">
+      <div class="settings-plan-header">
+        <div>
+          <div class="settings-plan-label">${this.t('plan.sectionTitle')}</div>
+          <div class="settings-plan-name">${planName}</div>
+        </div>
+        ${isMaxPlan
+          ? `<div class="settings-plan-badge">${this.t('plan.currentPlan')}</div>`
+          : `<button class="btn btn-primary btn-sm" data-action="show-upgrade">${this.t('plan.upgradeBtn')}</button>`}
+      </div>
+      <div class="settings-plan-usage">
+        <span>🍾 ${bottleText}</span>
+        <span>✦ ${aiText}</span>
+      </div>
+      ${showManage ? `
+      <div class="settings-plan-actions">
+        <button class="btn btn-secondary btn-sm" data-action="manage-subscription">
+          ⚙️ ${this.t('plan.manageBtn')}
+        </button>
+        ${plan.id !== 'free' ? `<button class="btn-reset-plan" data-action="reset-plan">${this.t('plan.resetPlan')}</button>` : ''}
+      </div>` : ''}
+    </div>`;
+  },
+
+  _buildPreferencesSubPage() {
+    const s  = DB.getSettings();
+    return `
+    <div class="settings-section">
+      <h2>${this.t('settings.language')}</h2>
+      <div class="settings-row">
+        <label>Language / Taal / Lingua / Langue / Idioma / Sprache</label>
+        <div class="lang-toggle">
+          <button class="${this.lang==='en'?'active':''}" data-action="toggle-lang" data-lang="en">EN</button>
+          <button class="${this.lang==='nl'?'active':''}" data-action="toggle-lang" data-lang="nl">NL</button>
+          <button class="${this.lang==='it'?'active':''}" data-action="toggle-lang" data-lang="it">IT</button>
+          <button class="${this.lang==='fr'?'active':''}" data-action="toggle-lang" data-lang="fr">FR</button>
+          <button class="${this.lang==='es'?'active':''}" data-action="toggle-lang" data-lang="es">ES</button>
+          <button class="${this.lang==='de'?'active':''}" data-action="toggle-lang" data-lang="de">DE</button>
+        </div>
+      </div>
+      <div class="settings-row" style="margin-top:10px">
+        <div>
+          <label style="display:block;font-weight:600">${this.t('settings.darkMode')}</label>
+          <span style="font-size:.75rem;color:var(--text-lt)">${this.t('settings.darkModeHint')}</span>
+        </div>
+        <div class="dark-toggle" data-action="toggle-dark-mode" style="cursor:pointer">
+          <div class="dark-toggle-track${s.darkMode ? ' on' : ''}">
+            <div class="dark-toggle-thumb"></div>
+          </div>
+          <span class="dark-toggle-label">${s.darkMode ? (this.lang==='nl' ? 'Aan' : 'On') : (this.lang==='nl' ? 'Uit' : 'Off')}</span>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  _buildAiSubPage() {
+    const s        = DB.getSettings();
+    const provider = s.apiProvider || 'anthropic';
+    const signedIn = typeof firebase !== 'undefined' && !!firebase.auth().currentUser;
+    const nl       = this.lang === 'nl';
+
+    const aiContent = signedIn ? `
+      <div class="settings-ai-proxy-notice">
+        <span style="font-size:1.1rem">✦</span>
+        <div>
+          <div style="font-weight:600;font-size:.88rem">${nl ? 'AI werkt automatisch' : 'AI works automatically'}</div>
+          <div style="font-size:.78rem;color:var(--text-lt);margin-top:2px">${nl
+            ? 'Je bent ingelogd — alle AI-functies zijn inbegrepen bij jouw abonnement.'
+            : 'You are signed in — all AI features are included with your subscription.'}</div>
+        </div>
+      </div>
+      <details style="margin-top:10px">
+        <summary style="font-size:.78rem;color:var(--text-lt);cursor:pointer;list-style:none;padding:4px 0">
+          ${nl ? '▸ Eigen API-sleutel gebruiken (optioneel)' : '▸ Use your own API key (optional)'}
+        </summary>
+        <div style="margin-top:10px">
+          <div class="form-group">
+            <label>${this.t('settings.anthropicKey')}</label>
+            <div class="key-input-wrap">
+              <input id="s-anthropic-key" class="form-control" type="password"
+                     placeholder="${this.t('settings.keyPlaceholder')}"
+                     value="${this._esc(s.anthropicKey||'')}">
+              <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-anthropic-key">show</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>${this.t('settings.openaiKey')}</label>
+            <div class="key-input-wrap">
+              <input id="s-openai-key" class="form-control" type="password"
+                     placeholder="${this.t('settings.keyPlaceholder')}"
+                     value="${this._esc(s.openaiKey||'')}">
+              <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-openai-key">show</span>
+            </div>
+            <div class="key-hint">${this.t('settings.keyHint')}</div>
+          </div>
+        </div>
+      </details>` : `
+      <div class="settings-row">
+        <label>${this.t('settings.apiProvider')}</label>
+        <div class="provider-toggle">
+          <button class="provider-btn${provider==='anthropic'?' active':''}" data-action="toggle-provider" data-provider="anthropic">Claude</button>
+          <button class="provider-btn${provider==='openai'?' active':''}" data-action="toggle-provider" data-provider="openai">OpenAI</button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label>${this.t('settings.anthropicKey')}</label>
+        <div class="key-input-wrap">
+          <input id="s-anthropic-key" class="form-control" type="password"
+                 placeholder="${this.t('settings.keyPlaceholder')}"
+                 value="${this._esc(s.anthropicKey||'')}">
+          <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-anthropic-key">show</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>${this.t('settings.openaiKey')}</label>
+        <div class="key-input-wrap">
+          <input id="s-openai-key" class="form-control" type="password"
+                 placeholder="${this.t('settings.keyPlaceholder')}"
+                 value="${this._esc(s.openaiKey||'')}">
+          <span class="key-toggle-vis" data-action="toggle-key-vis" data-field="s-openai-key">show</span>
+        </div>
+        <div class="key-hint">${this.t('settings.keyHint')}</div>
+      </div>`;
+
+    return `
+    <div class="settings-section">
+      <h2>${this.t('settings.ai')}</h2>
+      ${aiContent}
+    </div>
+    <div class="settings-section">
+      <h2>${this.t('settings.origovero')}</h2>
+      <div class="origo-status">
+        <span class="origo-status-dot">✓</span>
+        <div>
+          <div class="origo-status-title">${nl ? 'Actief' : 'Active'}</div>
+          <div class="origo-status-sub">${nl
+            ? 'Uitgebreide wijndata via OrigoVero Digital Product Passport'
+            : 'Extended wine data via OrigoVero Digital Product Passport'}</div>
+        </div>
+      </div>
+    </div>
+    <div class="settings-btn-row">
+      <button class="btn btn-primary btn-full" data-action="save-settings">${this.t('settings.save')}</button>
+    </div>`;
+  },
+
+  _buildSyncSubPage() {
+    // Reuse _buildSyncSection but strip the outer settings-section wrapper
+    // by calling it directly — the sub-page header already provides context
+    return this._buildSyncSection();
+  },
+
+  _buildNotifSubPage() {
+    return this._buildNotifSection() || `
+    <div class="settings-section">
+      <p style="color:var(--text-lt);font-size:.88rem;text-align:center;padding:24px 0">
+        ${this.lang === 'nl'
+          ? 'Meldingen worden niet ondersteund in deze browser.'
+          : 'Notifications are not supported in this browser.'}
+      </p>
+    </div>`;
+  },
+
+  _buildDataSubPage() {
+    const nl = this.lang === 'nl';
+    return `
+    <div class="settings-section">
+      <h2>${this.t('settings.data')}</h2>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-ghost btn-full" data-action="export-data">${this.t('settings.exportData')}</button>
+        <button class="btn btn-ghost btn-full" data-action="export-csv">📊 ${nl ? 'Exporteer als CSV' : 'Export as CSV'}</button>
+        <button class="btn btn-ghost btn-full" data-action="export-pdf">${this.t('settings.exportPdf')}</button>
+        <label class="btn btn-ghost btn-full" style="cursor:pointer;justify-content:center;display:flex;align-items:center">
+          ${this.t('settings.importData')}
+          <input type="file" accept=".json" id="import-file-input" style="display:none"
+                 onchange="App._handleImport(this)">
+        </label>
+        <button class="btn btn-danger btn-full" data-action="clear-data">${this.t('settings.clearData')}</button>
+      </div>
+    </div>`;
+  },
+
+  _buildAboutSubPage() {
+    const nl = this.lang === 'nl';
+    return `
+    <div class="settings-section">
+      <h2>${this.t('settings.legal')}</h2>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-ghost btn-full" data-action="show-privacy">📄 ${this.t('settings.privacyLink')}</button>
+        <button class="btn btn-ghost btn-full" data-action="show-terms">📋 ${this.t('settings.termsLink')}</button>
+        <button class="btn btn-ghost btn-full" data-action="preview-consent" style="font-size:.82rem;color:var(--text-lt)">
+          👁 ${nl ? 'Toestemmingsscherm bekijken' : 'Preview consent screen'}
+        </button>
+      </div>
+    </div>
+    <div class="about-info">
+      <button class="btn btn-full" data-action="show-about"
+              style="gap:10px;font-weight:600;background:#3B1421;color:#F2EBE1;border-radius:var(--radius);padding:14px 20px;justify-content:center;align-items:center;display:flex;">
+        <img src="Logo Vinage V-Bottle No Background.png" style="height:22px;width:auto;filter:brightness(0) invert(1) opacity(.90)"> ${this.t('settings.about')}
+      </button>
+      <button class="btn btn-ghost btn-full" data-action="show-help"
+              style="gap:8px;margin-top:8px;color:var(--gold);font-weight:600;border:1px solid var(--cream-dk);">
+        📖 ${nl ? 'Hulp & Functies' : 'Help & Features'}
+      </button>
+      <div style="font-size:.78rem;color:var(--text-lt);margin-top:10px;text-align:center;letter-spacing:.04em"
+           onclick="App._betaTapCount=(App._betaTapCount||0)+1;if(App._betaTapCount>=5){App._betaTapCount=0;document.getElementById('beta-code-row').style.display='flex';}">
+        ${this.t('settings.version')} · ${nl ? 'JOUW WIJN. JOUW COLLECTIE.' : 'YOUR WINE. YOUR COLLECTION.'}
+      </div>
+      <div id="beta-code-row" style="display:none;margin-top:12px;gap:8px;align-items:center">
+        <input id="beta-code-input" class="form-control" type="text"
+               placeholder="${nl ? 'Toegangscode…' : 'Access code…'}"
+               style="flex:1;font-size:.88rem;letter-spacing:.08em;text-transform:uppercase"
+               oninput="this.value=this.value.toUpperCase()">
+        <button class="btn btn-primary btn-sm" onclick="App._redeemBetaCode()">OK</button>
+      </div>
+    </div>`;
+  },
+
   // ── Privacy Policy view ───────────────────────────────────────────────────
   buildPrivacyView() {
     const nl = this.lang === 'nl';
