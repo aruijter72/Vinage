@@ -6541,7 +6541,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
               <li>${nl?'Richt de camera recht op het etiket':'Point the camera straight at the label'}</li>
               <li>${nl?'Werkt het beste met duidelijke, schone etiketten':'Works best with clean, front-facing labels'}</li>
               <li>${nl?'De AI herkent druif, regio, oogstjaar en meer':'The AI identifies grape, region, vintage and more'}</li>
-              <li>${nl?'Geen API-sleutel? Voeg handmatig toe via + Handmatig toevoegen':'No API key? Use + Add manually on the scan screen'}</li>
+              <li>${nl?'Ben je ingelogd? Dan werkt de AI automatisch — geen API-sleutel nodig.':'Signed in? AI works automatically — no API key needed.'}</li>
+              <li>${nl?'Niet ingelogd of geen abonnement? Voeg handmatig toe via <em>+ Handmatig toevoegen</em>.':'Not signed in or no subscription? Use <em>+ Add manually</em> on the scan screen.'}</li>
             </ul>
           </div>
 
