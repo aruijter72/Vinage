@@ -5807,6 +5807,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <h2>Use of the app</h2>
       <p>Vinage is provided as a personal tool for managing your wine collection. By using the app you agree to these terms.</p>
 
+      <h2>Shared cellar</h2>
+      <p>Paid plans allow sharing your cellar via an invite code. Liefhebber allows max. 2 members, Verzamelaar/Jaarlijks max. 4 members. Sharing is intended for household use; abuse may result in account termination.</p>
+
       <h2>No warranty</h2>
       <p>The app is provided "as is", without any guarantee of accuracy, reliability or availability. Wine identification by AI may differ from reality; always verify the bottle yourself.</p>
 
