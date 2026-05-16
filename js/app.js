@@ -5483,8 +5483,29 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   _buildPreferencesSubPage() {
-    const s  = DB.getSettings();
+    const s        = DB.getSettings();
+    const nl       = this.lang === 'nl';
+    const isSignedIn = typeof firebase !== 'undefined' && !!firebase.auth?.()?.currentUser;
+    const savedName  = s.displayName || '';
     return `
+    ${isSignedIn ? `
+    <div class="settings-section">
+      <h2>${nl ? 'Jouw naam' : 'Your name'}</h2>
+      <div class="settings-row" style="align-items:flex-end;gap:10px">
+        <input id="s-display-name" class="form-control" type="text"
+          placeholder="${nl ? 'Naam…' : 'Name…'}"
+          value="${this._esc(savedName)}"
+          style="flex:1">
+        <button class="btn btn-secondary btn-sm" data-action="sync-save-name" style="white-space:nowrap">
+          ${nl ? 'Opslaan' : 'Save'}
+        </button>
+      </div>
+      <p style="font-size:.75rem;color:var(--text-lt);margin-top:6px">
+        ${nl
+          ? 'Deze naam is zichtbaar voor leden van jouw gedeelde kelder.'
+          : 'This name is visible to members of your shared cellar.'}
+      </p>
+    </div>` : ''}
     <div class="settings-section">
       <h2>${this.t('settings.language')}</h2>
       <div class="settings-row">
