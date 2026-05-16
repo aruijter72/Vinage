@@ -538,8 +538,11 @@ const Sync = {
   },
 
   _deleteImage(wineId) {
-    if (!this._storage || !this.householdId) return;
-    const path = `households/${this.householdId}/wines/${wineId}.jpg`;
+    if (!this._storage || !this.user) return;
+    const container = this.householdId
+      ? `households/${this.householdId}`
+      : `users/${this.user.uid}`;
+    const path = `${container}/wines/${wineId}.jpg`;
     this._storage.ref(path).delete().catch(() => {});
   },
 
