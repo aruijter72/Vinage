@@ -231,6 +231,7 @@ const Sync = {
         if (!snap.exists) return;
         const d = snap.data();
         if (d.plan) this._applyPlanLocally(d.plan);
+        if (d.stripeCustomerId) this.stripeCustomerId = d.stripeCustomerId;
       }, () => {});
     this._unsubs.push(unsub);
   },

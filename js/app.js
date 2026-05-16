@@ -5453,8 +5453,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       : this.t('plan.aiUsed', { used: aiUsed, limit: plan.aiLimit });
     const planName    = this.t('plan.' + plan.id + 'Name');
     const isMaxPlan   = plan.id === 'verzamelaar' || plan.id === 'jaarlijks';
-    const isSignedIn  = typeof Sync !== 'undefined' && !!Sync.user;
-    const showManage  = plan.id !== 'free' || isSignedIn;
+    const hasStripeCustomer = typeof Sync !== 'undefined' && !!Sync.stripeCustomerId;
+    const showManage  = hasStripeCustomer;
 
     return `
     <div class="settings-section settings-plan-card">
