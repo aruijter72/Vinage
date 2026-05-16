@@ -1655,8 +1655,14 @@ const App = {
       }
     } catch (err) {
       console.error('[portal]', err);
+      const isNoSubscription =
+        err.code === 'not-found' ||
+        err.message?.includes('not-found') ||
+        err.details?.includes('not-found');
       this.toast(
-        nl ? 'Kon portaal niet openen. Probeer het opnieuw.' : 'Could not open portal. Please try again.',
+        isNoSubscription
+          ? (nl ? 'Je hebt nog geen betaald abonnement om te beheren.' : 'You don\'t have an active subscription to manage.')
+          : (nl ? 'Kon portaal niet openen. Probeer het opnieuw.' : 'Could not open portal. Please try again.'),
         'error'
       );
     } finally {
