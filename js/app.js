@@ -346,6 +346,7 @@ const App = {
       case 'sync-create':         Sync.createHousehold(); break;
       case 'sync-join':           this._syncJoin(); break;
       case 'sync-leave':          this._syncLeave(); break;
+      case 'sync-save-name':      this._saveName(); break;
       case 'delete-account':      this._deleteAccount(); break;
       // Wine location — jump directly to a cellar from the detail card
       case 'goto-cellar': {
