@@ -5781,6 +5781,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <h2>Gebruik van de app</h2>
       <p>Vinage wordt aangeboden als persoonlijk hulpmiddel voor het beheer van jouw wijnverzameling. Door de app te gebruiken ga je akkoord met deze voorwaarden.</p>
 
+      <h2>Gedeelde kelder</h2>
+      <p>Met een betaald abonnement kun je jouw kelder delen via een uitnodigingscode. Liefhebber staat max. 2 leden toe, Verzamelaar/Jaarlijks max. 4 leden. Delen is bedoeld voor huishoudensgebruik; misbruik kan leiden tot beëindiging van het account.</p>
+
       <h2>Geen garantie</h2>
       <p>De app wordt aangeboden "zoals hij is", zonder enige garantie voor juistheid, betrouwbaarheid of beschikbaarheid. Wijnidentificatie door AI kan afwijken van de werkelijkheid; verificeer altijd de fles zelf.</p>
 
