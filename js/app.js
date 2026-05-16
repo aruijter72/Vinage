@@ -6091,8 +6091,34 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   _syncLeave() {
-    if (!confirm(this.t('settings.syncLeaveConfirm'))) return;
-    Sync.leaveHousehold();
+    const nl = this.lang === 'nl';
+    const body = `
+      <div style="padding:4px 0 8px">
+        <p style="font-size:.9rem;line-height:1.6;color:var(--text);margin:0 0 16px">
+          ${nl
+            ? 'Je staat op het punt de gedeelde kelder te verlaten. Wil je de gegevens behouden of wissen?'
+            : 'You are about to leave the shared cellar. Do you want to keep or clear the data?'}
+        </p>
+        <label style="display:flex;align-items:flex-start;gap:10px;font-size:.88rem;line-height:1.5;cursor:pointer;margin-bottom:20px">
+          <input type="checkbox" id="sync-leave-keep" style="margin-top:3px;flex-shrink:0">
+          <span>${nl
+            ? 'Bewaar lokale kopie (wordt niet meer bijgewerkt)'
+            : 'Keep local copy (will no longer be updated)'}</span>
+        </label>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-danger btn-full" id="confirm-leave-btn">
+            ${nl ? 'Verlaten' : 'Leave'}
+          </button>
+          <button class="btn btn-ghost btn-full" id="cancel-leave-btn">${this.t('common.cancel')}</button>
+        </div>
+      </div>`;
+    this.openModal(nl ? 'Gedeelde kelder verlaten' : 'Leave shared cellar', body);
+    document.getElementById('cancel-leave-btn')?.addEventListener('click', () => this.closeModal());
+    document.getElementById('confirm-leave-btn')?.addEventListener('click', () => {
+      const keepData = document.getElementById('sync-leave-keep')?.checked ?? false;
+      this.closeModal();
+      Sync.leaveHousehold(keepData);
+    });
   },
 
   async _deleteAccount() {
