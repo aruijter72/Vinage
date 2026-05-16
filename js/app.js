@@ -1656,6 +1656,7 @@ const App = {
     } catch (err) {
       console.error('[portal]', err);
       const isNoSubscription =
+        err.code === 'functions/not-found' ||
         err.code === 'not-found' ||
         err.message?.includes('not-found') ||
         err.details?.includes('not-found');
