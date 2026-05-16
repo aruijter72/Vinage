@@ -6023,7 +6023,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       </div>`;
     }
 
-    const userName = this._esc(status.user.displayName || status.user.email || '');
+    const userName = this._esc(DB.getSettings().displayName || status.user.displayName || status.user.email || '');
 
     if (status.mode === 'no-household') {
       return `
@@ -6141,6 +6141,37 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       this.closeModal();
       Sync.leaveHousehold(keepData);
     });
+  },
+
+  async _saveName() {
+    const nl   = this.lang === 'nl';
+    const name = document.getElementById('s-display-name')?.value?.trim();
+    if (!name) { this.toast(nl ? 'Voer een naam in.' : 'Enter a name.', 'error'); return; }
+    // Save locally
+    const s = DB.getSettings();
+    s.displayName = name;
+    DB.saveSettings(s);
+    // Update Firebase Auth displayName
+    try {
+      const user = firebase.auth?.()?.currentUser;
+      if (user) {
+        await user.updateProfile({ displayName: name });
+        // Update Firestore user doc so household members see the right name
+        if (Sync._db && Sync.user) {
+          await Sync._db.doc(`users/${user.uid}`).set({ name }, { merge: true });
+          // Also update name in household members map
+          if (Sync.householdId) {
+            const patch = {};
+            patch[`members.${user.uid}.name`] = name;
+            Sync._db.doc(`households/${Sync.householdId}`).update(patch).catch(() => {});
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[Vinage] Could not update profile name', e);
+    }
+    this.toast(nl ? 'Naam opgeslagen.' : 'Name saved.', 'success');
+    this.renderView();
   },
 
   async _deleteAccount() {
