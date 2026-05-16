@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://vinage.app/sitemap.xml
+
+# Block the app itself (behind auth, not useful for Google)
+Disallow: /app
+Disallow: /app/
