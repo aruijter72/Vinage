@@ -277,8 +277,13 @@ const Sync = {
       .onSnapshot(snap => {
         if (!snap.exists) return;
         const data = snap.data();
-        this._members  = data.members   || {};
-        this.inviteCode = data.inviteCode || this.inviteCode;
+        this._members             = data.members   || {};
+        this.inviteCode           = data.inviteCode || this.inviteCode;
+        this._householdCreatedBy  = data.createdBy  || this._householdCreatedBy;
+        // Apply owner's plan to non-owner members
+        if (data.ownerPlan && this.user?.uid !== this._householdCreatedBy) {
+          this._applyPlanLocally(data.ownerPlan);
+        }
         // Enrich with lastSeen from each user's doc (best-effort, no await)
         Object.keys(this._members).forEach(uid => {
           this._db.doc(`users/${uid}`).get().then(ud => {
