@@ -173,6 +173,14 @@ const Sync = {
     if (data.householdId) {
       this.householdId = data.householdId;
       await this._loadHousehold();
+      // If this user is the household owner, push their plan to the household doc
+      // so members automatically inherit it (fixes timing gap where _householdCreatedBy
+      // wasn't set yet when _applyPlanLocally was called above)
+      if (this._householdCreatedBy === user.uid && data.plan) {
+        this._db.doc(`households/${this.householdId}`)
+          .update({ ownerPlan: data.plan })
+          .catch(() => {});
+      }
       // Eagerly download so the collection is populated immediately on sign-in,
       // before the onSnapshot listener fires (important on fresh devices).
       try {
