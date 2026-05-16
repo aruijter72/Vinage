@@ -343,7 +343,23 @@ const Sync = {
         return;
       }
 
-      const hdoc = snap.docs[0];
+      const hdoc     = snap.docs[0];
+      const hdocData = hdoc.data();
+      const nl       = App.lang === 'nl';
+
+      // Enforce member limit based on owner's plan
+      const ownerPlan    = hdocData.ownerPlan || 'free';
+      const currentCount = Object.keys(hdocData.members || {}).length;
+      const maxMembers   = (ownerPlan === 'verzamelaar' || ownerPlan === 'jaarlijks') ? 4 : 2;
+      if (currentCount >= maxMembers) {
+        App.toast(
+          nl ? `Deze kelder zit vol. Het actieve abonnement staat max. ${maxMembers} leden toe.`
+             : `This cellar is full. The active plan allows max. ${maxMembers} members.`,
+          'error'
+        );
+        return;
+      }
+
       this.householdId = hdoc.id;
       this.inviteCode  = code;
 
