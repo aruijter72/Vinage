@@ -126,7 +126,19 @@ const Sync = {
       window.history.replaceState({}, document.title, '/app');
     } catch (e) {
       console.warn('Vinage: email link sign-in failed', e);
-      App.toast('Sign-in failed: ' + (e.message || e), 'error');
+      const nl = (DB.getSettings().language || navigator.language || 'en').slice(0, 2) === 'nl';
+      if (e.code === 'auth/invalid-action-code') {
+        App.toast(
+          nl ? 'Deze inloglink is verlopen of al gebruikt. Vraag een nieuwe link aan.'
+             : 'This sign-in link has expired or was already used. Please request a new one.',
+          'error'
+        );
+      } else {
+        App.toast(
+          nl ? 'Inloggen mislukt. Probeer het opnieuw.' : 'Sign-in failed. Please try again.',
+          'error'
+        );
+      }
     }
   },
 
