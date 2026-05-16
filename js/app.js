@@ -4870,7 +4870,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const nl         = this.lang === 'nl';
     const planName   = this.t('plan.' + plan.id + 'Name');
     const syncSub    = isSignedIn
-      ? (Sync.user?.displayName || Sync.user?.email || (nl ? 'Ingelogd' : 'Signed in'))
+      ? (DB.getSettings().displayName || Sync.user?.displayName || Sync.user?.email || (nl ? 'Ingelogd' : 'Signed in'))
       : (nl ? 'Niet ingelogd' : 'Not signed in');
 
     const row = (icon, label, action, sub = '') => `
@@ -6030,7 +6030,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       <div class="settings-section">
         <h2>${this.t('settings.sync')}</h2>
         <div class="sync-user-row">
-          <span class="sync-avatar">${this._esc((status.user.displayName||'?')[0].toUpperCase())}</span>
+          <span class="sync-avatar">${this._esc((DB.getSettings().displayName || status.user.displayName||'?')[0].toUpperCase())}</span>
           <span>${this.t('settings.syncSignedInAs')} <strong>${userName}</strong></span>
           <button class="btn btn-ghost btn-sm" data-action="sync-sign-out" style="margin-left:auto">${this.t('settings.syncSignOut')}</button>
         </div>
