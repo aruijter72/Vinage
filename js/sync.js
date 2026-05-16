@@ -248,8 +248,25 @@ const Sync = {
     const doc = await this._db.doc(`households/${this.householdId}`).get();
     if (doc.exists) {
       const data = doc.data();
-      this.inviteCode = data.inviteCode || null;
-      this._members   = data.members   || {};
+      this.inviteCode           = data.inviteCode  || null;
+      this._members             = data.members     || {};
+      this._householdCreatedBy  = data.createdBy   || null;
+      // Apply owner's plan to all members (household plan sharing)
+      const ownerPlan = data.ownerPlan || null;
+      if (ownerPlan && this.user?.uid !== this._householdCreatedBy) {
+        this._applyPlanLocally(ownerPlan);
+      } else if (!ownerPlan && this._householdCreatedBy && this.user?.uid !== this._householdCreatedBy) {
+        // ownerPlan not yet set — read directly from owner's user doc
+        try {
+          const ownerDoc = await this._db.doc(`users/${this._householdCreatedBy}`).get();
+          if (ownerDoc.exists && ownerDoc.data().plan) {
+            // Also write back to household so members get it via listener in future
+            this._db.doc(`households/${this.householdId}`)
+              .update({ ownerPlan: ownerDoc.data().plan }).catch(() => {});
+            this._applyPlanLocally(ownerDoc.data().plan);
+          }
+        } catch (e) { /* ignore — use own plan */ }
+      }
     }
   },
 
