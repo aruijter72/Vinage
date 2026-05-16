@@ -396,7 +396,7 @@ const Sync = {
     }
   },
 
-  async leaveHousehold() {
+  async leaveHousehold(keepData = false) {
     if (!this._ready || !this.user || !this.householdId) return;
     this._stopSync();
 
@@ -406,10 +406,27 @@ const Sync = {
     await this._db.doc(`households/${this.householdId}`).update(patch);
     await this._db.doc(`users/${this.user.uid}`).set({ householdId: null }, { merge: true });
 
-    this.householdId = null;
-    this.inviteCode  = null;
+    this.householdId         = null;
+    this.inviteCode          = null;
+    this._householdCreatedBy = null;
+
+    if (!keepData) {
+      // Wipe shared data; re-apply own plan from Firestore (or free)
+      DB.clearAll();
+    }
+    // Always revert to own plan (no longer inheriting owner's plan)
+    try {
+      const userDoc = await this._db.doc(`users/${this.user.uid}`).get();
+      const ownPlan = (userDoc.exists && userDoc.data().plan) ? userDoc.data().plan : 'free';
+      this._applyPlanLocally(ownPlan);
+    } catch (e) {
+      this._applyPlanLocally('free');
+    }
+
     this._updateSyncUI();
-    App.toast('Left household.', 'success');
+    const nl = App.lang === 'nl';
+    App.toast(nl ? 'Gedeelde kelder verlaten.' : 'Left shared cellar.', 'success');
+    App.renderView();
   },
 
   // ── Realtime sync ─────────────────────────────────────────────────────────
