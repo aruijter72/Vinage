@@ -164,6 +164,8 @@ const Sync = {
     if (data.plan) {
       this._applyPlanLocally(data.plan);
     }
+    // Cache stripeCustomerId so the UI can show/hide the portal button
+    if (data.stripeCustomerId) this.stripeCustomerId = data.stripeCustomerId;
 
     // Start live listener on user doc — picks up plan changes in real time
     this._startUserDocListener(user.uid);
