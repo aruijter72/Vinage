@@ -6589,6 +6589,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
               <li><strong>${nl?'Wat wordt gesynchroniseerd?':'What syncs?'}</strong><br>
                 ${nl?'Alle wijnen, kelderlocaties en drinkgeschiedenis (Statistieken) synchroniseren live op alle apparaten. Wijzigingen zijn binnen seconden zichtbaar.':'All wines, cellar locations and consumption history (Stats) sync live across all devices. Changes appear within seconds.'}
               </li>
+              <li><strong>${nl?'Ledenlimiet':'Member limit'}</strong><br>
+                ${nl?'Het aantal leden per huishouden hangt af van het abonnement van de eigenaar: <em>Liefhebber</em> max. 2 leden, <em>Verzamelaar</em> of <em>Jaarlijks</em> max. 4 leden. Het abonnement van de eigenaar geldt automatisch voor alle leden.':'The number of members per household depends on the owner\'s plan: <em>Enthusiast</em> max. 2 members, <em>Collector</em> or <em>Annual</em> max. 4 members. The owner\'s subscription automatically applies to all members.'}
+              </li>
               <li><strong>${nl?'Tip — Als iets niet synchroniseert':'Tip — If something doesn\'t sync'}</strong><br>
                 ${nl?'Sluit de app volledig af en open hem opnieuw, of doe een harde herlaad in de browser (⟳). Controleer of je bent aangemeld en een actieve internetverbinding hebt.':'Force-close and reopen the app, or do a hard reload in the browser (⟳). Check that you\'re signed in and have an active internet connection.'}
               </li>
