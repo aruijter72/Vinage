@@ -200,6 +200,13 @@ const Sync = {
     DB.saveSettings(s);
     console.log('[Sync] Plan applied locally:', planId);
     if (App.view === 'settings' || App.view === 'upgrade') App.renderView();
+    // If this user is the household owner, propagate plan to the household doc
+    // so all members pick it up via _startHouseholdListener
+    if (this.householdId && this._db && this.user && this._householdCreatedBy === this.user.uid) {
+      this._db.doc(`households/${this.householdId}`)
+        .update({ ownerPlan: planId })
+        .catch(() => {});
+    }
   },
 
   // Write plan to both localStorage and Firestore
