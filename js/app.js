@@ -6184,7 +6184,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           <button class="btn btn-ghost btn-full" id="cancel-delete-account-btn">${this.t('common.cancel')}</button>
         </div>
       </div>`;
-    this.openModal(this.t('settings.deleteAccountTitle'), body);
+    this.showModal(this.t('settings.deleteAccountTitle'), body);
 
     document.getElementById('cancel-delete-account-btn')?.addEventListener('click', () => this.closeModal());
     document.getElementById('confirm-delete-account-btn')?.addEventListener('click', async () => {
