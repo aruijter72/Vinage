@@ -6134,7 +6134,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           <button class="btn btn-ghost btn-full" id="cancel-leave-btn">${this.t('common.cancel')}</button>
         </div>
       </div>`;
-    this.openModal(nl ? 'Gedeelde kelder verlaten' : 'Leave shared cellar', body);
+    this.showModal(nl ? 'Gedeelde kelder verlaten' : 'Leave shared cellar', body);
     document.getElementById('cancel-leave-btn')?.addEventListener('click', () => this.closeModal());
     document.getElementById('confirm-leave-btn')?.addEventListener('click', () => {
       const keepData = document.getElementById('sync-leave-keep')?.checked ?? false;
