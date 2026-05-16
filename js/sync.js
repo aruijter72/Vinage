@@ -516,9 +516,12 @@ const Sync = {
 
   // ── Image Storage helpers ─────────────────────────────────────────────────
   async _uploadImage(wineId, base64jpg) {
-    if (!this._storage || !this.householdId || !base64jpg) return null;
+    if (!this._storage || !this.user || !base64jpg) return null;
     try {
-      const path = `households/${this.householdId}/wines/${wineId}.jpg`;
+      const container = this.householdId
+        ? `households/${this.householdId}`
+        : `users/${this.user.uid}`;
+      const path = `${container}/wines/${wineId}.jpg`;
       const ref  = this._storage.ref(path);
       await ref.putString(base64jpg, 'base64', { contentType: 'image/jpeg' });
       const url = await ref.getDownloadURL();
