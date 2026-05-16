@@ -6606,6 +6606,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
               <li><strong>${nl?'Spijscombinaties':'Food pairings'}</strong> — ${nl?'AI stelt wijnen voor bij een gerecht.':'AI suggests wines to match a dish.'}</li>
               <li><strong>${nl?'Statistieken':'Statistics'}</strong> — ${nl?'Kelderwaarde, gemiddelde prijs en drinkklaar overzicht.':'Cellar value, average price and ready-to-drink overview.'}</li>
               <li><strong>${nl?'Fles openen':'Open a bottle'}</strong> — ${nl?'Registreert consumptie en verwijdert uit kelder. Herstelbaar via Statistieken.':'Logs consumption and removes from cellar. Undoable from Stats.'}</li>
+              <li><strong>${nl?'Naam instellen':'Display name'}</strong> — ${nl?'Stel je naam in via <em>Instellingen → Voorkeuren</em>. Zichtbaar voor huishoudleden in de gedeelde kelder.':'Set your name in <em>Settings → Preferences</em>. Visible to household members in the shared cellar.'}</li>
               <li><strong>${nl?'Delen':'Share'}</strong> — ${nl?'Exporteer een wijn als mooi HTML-bestand om te delen.':'Export any wine as a beautiful HTML file to share.'}</li>
             </ul>
           </div>
