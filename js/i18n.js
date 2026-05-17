@@ -1682,7 +1682,10 @@ const TRANSLATIONS = {
       noWines: 'Zuerst Weine zur Sammlung hinzufügen.',
       match: 'perfekte Wahl', acceptable: 'akzeptabel', apiKeyMissing: 'API-Schlüssel in Einstellungen hinzufügen für KI-Pairing.',
       rulesBased: 'Regelbasierte Vorschläge (kein API-Schlüssel gesetzt).',
-      topPicks: 'Top-Empfehlungen zum Kaufen', findNear: 'Weinhandlungen in der Nähe von {city} finden', findStores: 'Weinhandlungen in meiner Nähe finden'
+      topPicks: 'Top-Empfehlungen zum Kaufen', findNear: 'Weinhandlungen in der Nähe von {city} finden', findStores: 'Weinhandlungen in meiner Nähe finden',
+      photoBtn: 'Foto', analyzingPhoto: 'Gericht erkennen…', photoDetected: 'Erkannt: ',
+      notFood: 'Kein Essen erkannt. Versuchen Sie ein Gericht, ein Rezept oder Zutaten.',
+      photoHint: 'oder fotografieren Sie Ihr Gericht, Rezept oder die Zutaten'
     },
     settings: {
       title: 'Einstellungen', language: 'Sprache', ai: 'KI & Scannen', apiProvider: 'KI-Anbieter',
