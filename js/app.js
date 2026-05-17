@@ -2709,9 +2709,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         </div>` : ''}
       </div>
       <div class="rack-subtitle">${this.t('cellar.typeDescriptions.' + c.type)}</div>
-      <div class="rack-zoom-container" id="rack-zoom-container">
-        <div id="rack-zoom-inner">${rackHtml}</div>
-      </div>
+      ${is3D
+        ? rackHtml
+        : `<div class="rack-zoom-container" id="rack-zoom-container">
+             <div id="rack-zoom-inner">${rackHtml}</div>
+           </div>`}
     </div>`;
   },
 
