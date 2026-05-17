@@ -313,11 +313,11 @@ function makeBottle(wtype) {
   const grp = new THREE.Group();
 
   // ── Wijnvulling (vóór het glaslichaam → binnenin zichtbaar) ────
-  // Lichaamslengte = h − hals − schouder; vulling = fill% daarvan
+  // fill=1.0 → vult van bodem tot en met de schouder (volledig gevuld)
   const bodyH  = h - nH - sH;
-  const liqH   = bodyH * w.fill;
-  const liqR   = bR * 0.80;                // iets smaller dan glas
-  const liqY   = -h/2 + liqH/2 + 0.008;   // vanaf bodem omhoog, klein speling
+  const liqH   = (bodyH + sH * 0.85) * w.fill;  // lichaam + meeste schouder
+  const liqR   = bR * 0.80;
+  const liqY   = -h/2 + liqH/2 + 0.006;
   const liquid = new THREE.Mesh(
     new THREE.CylinderGeometry(liqR, liqR * 0.98, liqH, 40),
     new THREE.MeshStandardMaterial({
@@ -382,9 +382,8 @@ function placeBottles() {
       pos.y + ((ix*23+iy*3 +iz*29)%5-2)*0.0008,
       pos.z + ((ix*13+iy*19+iz*5 )%5-2)*0.0012
     );
-    // Rx(-π/2) → hals naar -Z; Ry(π) voor bovenste rij (iz=1) → hals naar +Z
-    // Met NY=1 wisselen we per hoogte-rij zodat caps aan beide kanten zichtbaar zijn
-    bottle.rotation.set(-Math.PI/2, (iz % 2 === 1) ? Math.PI : 0, 0);
+    // Rx(-π/2) → hals naar -Z (weg van kijker); Ry(π) voor achterste rij → hals naar +Z
+    bottle.rotation.set(-Math.PI/2, (iy % 2 === 1) ? Math.PI : 0, 0);
     grp.add(bottle);
   }
   return grp;
