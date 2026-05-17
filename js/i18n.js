@@ -211,7 +211,12 @@ const TRANSLATIONS = {
       rulesBased: 'Showing rule-based suggestions (no API key set).',
       topPicks: 'Top Picks to Buy',
       findNear: 'Find wine shops near {city}',
-      findStores: 'Find wine shops near me'
+      findStores: 'Find wine shops near me',
+      photoBtn: 'Photo',
+      analyzingPhoto: 'Identifying food…',
+      photoDetected: 'Detected: ',
+      notFood: 'No food detected. Try a photo of a dish, recipe or ingredients.',
+      photoHint: 'or take a photo of your dish, recipe or ingredients'
     },
     settings: {
       title: 'Settings',
@@ -633,7 +638,12 @@ const TRANSLATIONS = {
       rulesBased: 'Op basis van regels (geen API-sleutel ingesteld).',
       topPicks: 'Top Aanbevelingen om te Kopen',
       findNear: 'Vind wijnwinkels bij {city}',
-      findStores: 'Vind wijnwinkels bij mij in de buurt'
+      findStores: 'Vind wijnwinkels bij mij in de buurt',
+      photoBtn: 'Foto',
+      analyzingPhoto: 'Eten herkennen…',
+      photoDetected: 'Herkend: ',
+      notFood: 'Geen eten herkend. Probeer een foto van een gerecht, recept of ingrediënten.',
+      photoHint: 'of maak een foto van je gerecht, recept of ingrediënten'
     },
     settings: {
       title: 'Instellingen',
