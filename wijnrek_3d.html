@@ -134,16 +134,43 @@ const BOTTLE_IMG={
 const BOTTLE_ASPECT={red:1.2356,white:1.2053,rose:1.1935,sparkling:1.2263,fortified:1.2074};
 
 
-const SEQ=[
-  ...Array(7).fill('red'),  ...Array(6).fill('white'),
-  ...Array(4).fill('rose'), ...Array(3).fill('sparkling'),
-  ...Array(2).fill('fortified')
-];
-const EMPTY=new Set(['0,4','4,3','2,2']);
+// Slot data — ingevuld via postMessage vanuit Vinage app
+// Format: { "ix,iz": "red"|"white"|"rose"|"sparkling"|"fortified" }
+let SLOT_TYPES = null;
+let _texturesReady = false;
+let _cellarId = null;
+
+function _demoSlots(){
+  const DS=['red','red','red','red','red','red','red','white','white','white','white','white','white','rose','rose','rose','rose','sparkling','sparkling','sparkling','fortified','fortified'];
+  const DE=new Set(['0,4','4,3','2,2']);
+  const out={};let ti=0;
+  for(let iz=0;iz<NZ;iz++) for(let ix=0;ix<NX;ix++){
+    if(!DE.has(ix+','+iz)) out[ix+','+iz]=DS[ti++%DS.length];
+  }
+  return out;
+}
+
+// Luister naar slotdata van de Vinage app (postMessage)
+window.addEventListener('message',function(e){
+  if(!e.data||e.data.type!=='vinage-slots') return;
+  SLOT_TYPES=e.data.slots||{};
+  _cellarId=e.data.cellarId||null;
+  if(_texturesReady) finishBuild();
+});
 
 const textures={};
 let loaded=0, total=Object.keys(BOTTLE_IMG).length;
-function onLoad(){loaded++;if(loaded===total)finishBuild();}
+function onLoad(){
+  loaded++;
+  if(loaded===total){
+    _texturesReady=true;
+    if(SLOT_TYPES!==null){ finishBuild(); }
+    else {
+      // Demo-modus na 1.5s als er geen app-data binnenkomt
+      setTimeout(function(){ if(SLOT_TYPES===null){ SLOT_TYPES=_demoSlots(); finishBuild(); } },1500);
+    }
+  }
+}
 
 for(const[wtype,src]of Object.entries(BOTTLE_IMG)){
   const img=new Image();
