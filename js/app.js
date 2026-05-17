@@ -2674,12 +2674,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     if (!c) return this.buildCellarList();
 
     const stats = DB.getCellarStats(c);
+    const is3D = c.type === 'grid' && c.rows === 5 && c.cols === 5;
     let rackHtml = '';
-    if      (c.type === 'grid' && c.rows === 5 && c.cols === 5) rackHtml = this._build3DRackHtml(c);
-    else if (c.type === 'grid')    rackHtml = this._buildGridRack(c, false);
-    else if (c.type === 'diamond') rackHtml = this._buildGridRack(c, true);
+    if      (is3D)                          rackHtml = this._build3DRackHtml(c);
+    else if (c.type === 'grid')             rackHtml = this._buildGridRack(c, false);
+    else if (c.type === 'diamond')          rackHtml = this._buildGridRack(c, true);
     else if (c.type === 'case' || c.type === 'case6') rackHtml = this._buildCaseRack(c);
-    else                           rackHtml = this._buildShelfRack(c);
+    else                                    rackHtml = this._buildShelfRack(c);
 
     return `
     <div class="page-header">
@@ -2697,12 +2698,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         ${stats.capacity !== null
           ? `<span style="font-size:.8rem;font-weight:400;color:var(--text-lt)">${stats.occupied}/${stats.capacity}</span>`
           : `<span style="font-size:.8rem;font-weight:400;color:var(--text-lt)">${stats.occupied} ${this.t('cellar.bottles')}</span>`}
-        <div class="rack-zoom-bar">
+        ${!is3D ? `<div class="rack-zoom-bar">
           <button class="rack-zoom-btn" id="zoom-out-btn" title="Zoom out">−</button>
           <span class="rack-zoom-level" id="rack-zoom-level">100%</span>
           <button class="rack-zoom-btn" id="zoom-in-btn" title="Zoom in">+</button>
           <button class="rack-zoom-btn" id="zoom-reset-btn" title="Reset zoom" style="font-size:.7rem;font-weight:800">⊡</button>
-        </div>
+        </div>` : ''}
       </div>
       <div class="rack-subtitle">${this.t('cellar.typeDescriptions.' + c.type)}</div>
       <div class="rack-zoom-container" id="rack-zoom-container">
