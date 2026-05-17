@@ -2677,10 +2677,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     if (!c) return this.buildCellarList();
 
     const stats = DB.getCellarStats(c);
-    const is3D = c.type === 'grid' && c.rows === 5 && c.cols === 5;
+    const is3D = c.type === 'grid' || c.type === 'diamond';
     let rackHtml = '';
     if      (is3D)                          rackHtml = this._build3DRackHtml(c);
-    else if (c.type === 'grid')             rackHtml = this._buildGridRack(c, false);
     else if (c.type === 'diamond')          rackHtml = this._buildGridRack(c, true);
     else if (c.type === 'case' || c.type === 'case6') rackHtml = this._buildCaseRack(c);
     else                                    rackHtml = this._buildShelfRack(c);
