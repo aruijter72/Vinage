@@ -254,7 +254,7 @@ function buildProfile(shape) {
 
   const geo = new THREE.LatheGeometry(pts, 88);
   geo.computeVertexNormals();
-  return { geo, h, bR, nR };
+  return { geo, h, bR, nR, nH, sH };   // nH + sH nodig voor wijnvulling
 }
 
 const GEO = {
