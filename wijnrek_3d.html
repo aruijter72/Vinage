@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <title>Vinage – 3D Wijnrek</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #d8d8d8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      gap: 14px;
+    }
+    h2 {
+      color: #3a1a10;
+      font-size: 15px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    #wrap {
+      position: relative;
+      box-shadow: 0 12px 60px rgba(0,0,0,0.35);
+      border-radius: 3px;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #wrap:active { cursor: grabbing; }
+    canvas { display: block; }
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    button {
+      padding: 9px 22px;
+      background: #5a1a10;
+      color: #f5e8df;
+      border: none;
+      border-radius: 22px;
+      cursor: pointer;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    button:hover { background: #7a2518; }
+    p { color: #666; font-size: 11px; letter-spacing: 0.5px; }
+  </style>
+</head>
+<body>
+
+<h2>Vinage &mdash; Wijnkelder</h2>
+<div id="wrap"></div>
+<div class="controls">
+  <button id="save-btn">Opslaan als PNG</button>
+</div>
+<p>Sleep om te draaien &nbsp;·&nbsp; Scroll om in/uit te zoomen</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================
+// VINAGE – 3D Wijnrek  |  Three.js r128
+// Gebaseerd op: generate_grid_winerack.py (Blender/Cycles)
+//
+// Coördinaten-mapping: Blender(x,y,z) → Three.js(x, z, -y)
+//   Blender X  = links-rechts  →  Three.js X
+//   Blender Y  = diepte        →  Three.js -Z
+//   Blender Z  = hoogte        →  Three.js Y
+// ============================================================
+
+const W = 900, H = 900;
+
+// ── Renderer ──────────────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type   = THREE.PCFSoftShadowMap;
+renderer.physicallyCorrectLights = true;
+renderer.outputEncoding   = THREE.sRGBEncoding;
+renderer.toneMapping      = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.35;
+document.getElementById('wrap').appendChild(renderer.domElement);
+
+// ── Scene ─────────────────────────────────────────────────
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf5f5f5);
+
+// ── Camera ────────────────────────────────────────────────
+// Blender: pos(1.6, -2.2, 1.25)  →  Three.js: (1.6, 1.25, 2.2)
+// Blender: target(0, 0, 0.25)    →  Three.js: (0, 0.25, 0)
+const CAM_TARGET = new THREE.Vector3(0, 0.25, 0);
+const camera = new THREE.PerspectiveCamera(35, W / H, 0.001, 50);
+camera.position.set(1.6, 1.25, 2.2);
+camera.lookAt(CAM_TARGET);
+
+// ── Lights ────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+
+// Key light  Blender(1.2, -2.0, 1.8) → Three.js(1.2, 1.8, 2.0)
+const keyL = new THREE.SpotLight(0xfff6ee, 140, 10, Math.PI * 0.38, 0.5, 2);
+keyL.position.set(1.2, 1.8, 2.0);
+keyL.target.position.set(0, 0, 0);
+keyL.castShadow = true;
+keyL.shadow.mapSize.set(2048, 2048);
+keyL.shadow.bias = -0.0008;
+scene.add(keyL);
+scene.add(keyL.target);
+
+// Fill light  Blender(-1.6, -1.2, 1.2) → Three.js(-1.6, 1.2, 1.2)
+const fillL = new THREE.PointLight(0xddeeff, 55, 8, 2);
+fillL.position.set(-1.6, 1.2, 1.2);
+scene.add(fillL);
+
+// Rim light  Blender(0, 2.2, 1.6) → Three.js(0, 1.6, -2.2)
+const rimL = new THREE.PointLight(0xffffff, 65, 8, 2);
+rimL.position.set(0, 1.6, -2.2);
+scene.add(rimL);
+
+// ── Rack parameters (identical to Blender script) ─────────
+const NX = 5, NY = 3, NZ = 2;
+const CELL  = 0.12;
+const ROD_R = 0.006;
+const NODE_R = 0.0108;
+
+// Helper: Blender grid-corner → Three.js position
+function bPt(ix, iy, iz) {
+  return new THREE.Vector3(
+    (ix - NX / 2) * CELL,
+     (iz - NZ / 2) * CELL,
+    -((iy - NY / 2) * CELL)
+  );
+}
+
+// Helper: Blender slot-center → Three.js position
+function slotPt(ix, iy, iz) {
+  return new THREE.Vector3(
+    ((ix + 0.5) - NX / 2) * CELL,
+     ((iz + 0.5) - NZ / 2) * CELL,
+    -(((iy + 0.5) - NY / 2) * CELL)
+  );
+}
+
+// ── Rack material ─────────────────────────────────────────
+const rackMat = new THREE.MeshStandardMaterial({
+  color:     0x0a0a0d,
+  metalness: 1.0,
+  roughness: 0.20,
+});
+
+// ── Build rack grid: (NX+1)×(NY+1)×(NZ+1) nodes + rods ──
+function buildRack() {
+  const grp     = new THREE.Group();
+  const sphGeo  = new THREE.SphereGeometry(NODE_R, 16, 12);
+
+  function addRod(p1, p2) {
+    const dir = new THREE.Vector3().subVectors(p2, p1);
+    const len = dir.length();
+    if (len < 1e-6) return;
+    const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+    const geo  = new THREE.CylinderGeometry(ROD_R, ROD_R, len, 10, 1);
+    const mesh = new THREE.Mesh(geo, rackMat);
+    mesh.position.copy(mid);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+    mesh.castShadow = true;
+    grp.add(mesh);
+  }
+
+  for (let ix = 0; ix <= NX; ix++) {
+    for (let iy = 0; iy <= NY; iy++) {
+      for (let iz = 0; iz <= NZ; iz++) {
+        const p = bPt(ix, iy, iz);
+
+        // Corner sphere
+        const s = new THREE.Mesh(sphGeo, rackMat);
+        s.position.copy(p);
+        s.castShadow = true;
+        grp.add(s);
+
+        // Edges toward +IX, +IY, +IZ
+        if (ix < NX) addRod(p, bPt(ix + 1, iy,     iz    ));
+        if (iy < NY) addRod(p, bPt(ix,     iy + 1,  iz    ));
+        if (iz < NZ) addRod(p, bPt(ix,     iy,      iz + 1));
+      }
+    }
+  }
+  return grp;
+}
+
+// ── Wine-type definitions ──────────────────────────────────
+const WINE = {
+  red:       { glass: 0x280606, cap: 0x8c1010, capMetal: 0.15, opacity: 0.82, rough: 0.05 },
+  white:     { glass: 0x7db860, cap: 0xe5e5dc, capMetal: 0.10, opacity: 0.72, rough: 0.04 },
+  rose:      { glass: 0xc03248, cap: 0xe080a0, capMetal: 0.12, opacity: 0.72, rough: 0.05 },
+  sparkling: { glass: 0x0d280d, cap: 0xc8a418, capMetal: 0.65, opacity: 0.80, rough: 0.04, foil: 0xd4b020 },
+  fortified: { glass: 0x6a2606, cap: 0x481c05, capMetal: 0.15, opacity: 0.82, rough: 0.06 },
+};
+
+// 22-bottle sequence (matches Blender)
+const SEQ = [
+  ...Array(7).fill('red'),
+  ...Array(6).fill('white'),
+  ...Array(4).fill('rose'),
+  ...Array(3).fill('sparkling'),
+  ...Array(2).fill('fortified'),
+];
+
+// 8 empty slots (matches Blender exactly)
+const EMPTY = new Set([
+  '0,0,0','4,2,0','2,1,0',
+  '1,2,1','3,0,1','0,1,1','4,1,1','2,2,1'
+]);
+
+// ── Bottle geometry constants (identical to Blender) ───────
+const B_LEN  = 0.26,  B_RAD  = 0.038;
+const SH_LEN = 0.03;
+const NK_LEN = 0.10,  NK_RAD = 0.015;
+const LP_LEN = 0.012, LP_RAD = 0.017;
+const CP_LEN = 0.030, CP_RAD = NK_RAD * 1.05;
+const LB_LEN = 0.08,  LB_RAD = B_RAD * 1.006;
+
+const labelMat = new THREE.MeshStandardMaterial({
+  color: 0xf0ece3, roughness: 0.70, metalness: 0,
+});
+
+// ── Build one bottle group (neck points toward +Y) ─────────
+function makeBottle(wtype) {
+  const grp = new THREE.Group();
+  const w   = WINE[wtype];
+
+  const glassMat = new THREE.MeshPhysicalMaterial({
+    color:       new THREE.Color(w.glass),
+    metalness:   0,
+    roughness:   w.rough,
+    transparent: true,
+    opacity:     w.opacity,
+    transmission: 0.55,
+    thickness:   0.06,
+    side:        THREE.FrontSide,
+    depthWrite:  false,
+  });
+
+  const capMat = new THREE.MeshStandardMaterial({
+    color:     new THREE.Color(w.cap),
+    metalness: w.capMetal,
+    roughness: 0.32,
+  });
+
+  // Shorthand: add cylinder part at given Y center
+  const cyl = (geo, mat, y) => {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.y = y;
+    m.castShadow = true;
+    grp.add(m);
+  };
+
+  // Body (centered at y=0)
+  cyl(new THREE.CylinderGeometry(B_RAD,          B_RAD,           B_LEN,  40), glassMat, 0);
+
+  // Shoulder (frustum): bottom radius = B_RAD, top = NK_RAD*1.15
+  cyl(new THREE.CylinderGeometry(NK_RAD * 1.15,  B_RAD,           SH_LEN, 36), glassMat,
+      B_LEN / 2 + SH_LEN / 2);
+
+  // Neck
+  cyl(new THREE.CylinderGeometry(NK_RAD,          NK_RAD,          NK_LEN, 28), glassMat,
+      B_LEN / 2 + SH_LEN + NK_LEN / 2);
+
+  // Lip ring (slightly wider)
+  cyl(new THREE.CylinderGeometry(LP_RAD,          LP_RAD,          LP_LEN, 28), glassMat,
+      B_LEN / 2 + SH_LEN + NK_LEN + LP_LEN / 2);
+
+  // Cap (coloured cork/foil top)
+  cyl(new THREE.CylinderGeometry(CP_RAD,          CP_RAD,          CP_LEN, 28), capMat,
+      B_LEN / 2 + SH_LEN + NK_LEN + CP_LEN / 2);
+
+  // Sparkling: gold foil sleeve over cap
+  if (w.foil !== undefined) {
+    const foilMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(w.foil), metalness: 0.88, roughness: 0.16,
+    });
+    cyl(new THREE.CylinderGeometry(CP_RAD * 1.20, CP_RAD * 1.20, CP_LEN * 1.15, 28), foilMat,
+        B_LEN / 2 + SH_LEN + NK_LEN + CP_LEN / 2);
+  }
+
+  // Label (slightly offset from body center toward bottom)
+  cyl(new THREE.CylinderGeometry(LB_RAD, LB_RAD, LB_LEN, 40), labelMat, -0.022);
+
+  return grp;
+}
+
+// ── Place 22 bottles in rack slots ─────────────────────────
+function placeBottles() {
+  const grp = new THREE.Group();
+
+  // Same iteration order as Blender: iz outer, iy middle, ix inner
+  const allSlots = [];
+  for (let iz = 0; iz < NZ; iz++)
+    for (let iy = 0; iy < NY; iy++)
+      for (let ix = 0; ix < NX; ix++)
+        allSlots.push([ix, iy, iz]);
+
+  let ti = 0;
+
+  for (const [ix, iy, iz] of allSlots) {
+    if (EMPTY.has(`${ix},${iy},${iz}`)) continue;
+
+    const wtype  = SEQ[ti++ % SEQ.length];
+    const bottle = makeBottle(wtype);
+
+    // Slot centre (Three.js coords)
+    const pos = slotPt(ix, iy, iz);
+
+    // Deterministic micro-jitter (identical formula to Blender)
+    const jx = ((ix * 17 + iy *  7 + iz * 11) % 5 - 2) * 0.0012;
+    const jy = ((ix * 23 + iy *  3 + iz * 29) % 5 - 2) * 0.0008;
+    const jz = ((ix * 13 + iy * 19 + iz *  5) % 5 - 2) * 0.0012;
+
+    bottle.position.set(pos.x + jx, pos.y + jy, pos.z + jz);
+
+    // Bottle built with neck along +Y.
+    // Rx(-π/2)  →  neck(+Y) maps to -Z  (into screen, away from viewer)
+    // Ry(π) additionally  →  flips to +Z  (toward viewer)  [for odd iy rows]
+    bottle.rotation.set(
+      -Math.PI / 2,
+      (iy % 2 === 1) ? Math.PI : 0,
+      0
+    );
+
+    grp.add(bottle);
+  }
+  return grp;
+}
+
+// ── Ground plane ─────────────────────────────────────────
+const gndMat  = new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.88, metalness: 0 });
+const ground  = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), gndMat);
+ground.rotation.x  = -Math.PI / 2;
+ground.position.y  = -0.22;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ── Assemble ──────────────────────────────────────────────
+const rack    = buildRack();
+rack.position.y = 0.06;            // slight lift (same as Blender: rack.location.z += 0.06)
+scene.add(rack);
+
+const bottles = placeBottles();
+bottles.position.y = 0.06;
+scene.add(bottles);
+
+// ── Initial render ────────────────────────────────────────
+renderer.render(scene, camera);
+
+// ── Interactive orbit (mouse drag + scroll zoom) ──────────
+let dragging = false, lastX = 0, lastY = 0;
+// Spherical coordinates of camera relative to target
+const camDir  = camera.position.clone().sub(CAM_TARGET);
+let camR      = camDir.length();
+let camTheta  = Math.atan2(camDir.x, camDir.z);   // azimuth
+let camPhi    = Math.asin(camDir.y / camR);         // elevation
+
+function updateCamera() {
+  camera.position.set(
+    CAM_TARGET.x + camR * Math.cos(camPhi) * Math.sin(camTheta),
+    CAM_TARGET.y + camR * Math.sin(camPhi),
+    CAM_TARGET.z + camR * Math.cos(camPhi) * Math.cos(camTheta)
+  );
+  camera.lookAt(CAM_TARGET);
+  renderer.render(scene, camera);
+}
+
+const el = renderer.domElement;
+el.addEventListener('mousedown',  e => { dragging = true;  lastX = e.clientX; lastY = e.clientY; });
+el.addEventListener('mouseup',    ()  => { dragging = false; });
+el.addEventListener('mouseleave', ()  => { dragging = false; });
+el.addEventListener('mousemove',  e  => {
+  if (!dragging) return;
+  const dx = e.clientX - lastX;
+  const dy = e.clientY - lastY;
+  lastX = e.clientX;
+  lastY = e.clientY;
+  camTheta -= dx * 0.006;
+  camPhi    = Math.max(-0.05, Math.min(Math.PI / 2 - 0.05, camPhi - dy * 0.005));
+  updateCamera();
+});
+el.addEventListener('wheel', e => {
+  e.preventDefault();
+  camR = Math.max(0.5, Math.min(6, camR + e.deltaY * 0.003));
+  updateCamera();
+}, { passive: false });
+
+// Touch support
+el.addEventListener('touchstart', e => {
+  dragging = true;
+  lastX = e.touches[0].clientX;
+  lastY = e.touches[0].clientY;
+});
+el.addEventListener('touchend', () => { dragging = false; });
+el.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  const dx = e.touches[0].clientX - lastX;
+  const dy = e.touches[0].clientY - lastY;
+  lastX = e.touches[0].clientX;
+  lastY = e.touches[0].clientY;
+  camTheta -= dx * 0.006;
+  camPhi    = Math.max(-0.05, Math.min(Math.PI / 2 - 0.05, camPhi - dy * 0.005));
+  updateCamera();
+}, { passive: true });
+
+// ── Save PNG ───────────────────────────────────────────────
+document.getElementById('save-btn').addEventListener('click', () => {
+  renderer.render(scene, camera);
+  const a    = document.createElement('a');
+  a.download = 'vinage_wijnrek.png';
+  a.href     = renderer.domElement.toDataURL('image/png');
+  a.click();
+});
+</script>
+</body>
+</html>
