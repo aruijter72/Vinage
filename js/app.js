@@ -2797,6 +2797,51 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     </div>`;
   },
 
+  // ── 3D Wijnrek (iframe) ────────────────────────────────────────────────────
+
+  _build3DRackHtml(c) {
+    // Retourneert een iframe dat wijnrek_3d.html laadt; data volgt via postMessage
+    return `
+    <div class="rack-3d-container">
+      <iframe id="rack3d-iframe"
+        src="./wijnrek_3d.html"
+        style="width:100%;height:420px;border:none;border-radius:10px;display:block;"
+        onload="App._onRack3DLoad('${c.id}')">
+      </iframe>
+      <div class="rack-3d-hint">${this.lang === 'nl' ? 'Tik op een coördinaat om de wijn te bekijken' : 'Tap a coordinate to view the wine'}</div>
+    </div>`;
+  },
+
+  _onRack3DLoad(cellarId) {
+    const c = DB.getCellars().find(x => x.id === cellarId);
+    const iframe = document.getElementById('rack3d-iframe');
+    if (!c || !iframe) return;
+
+    const NZ = 5; // rijen (iz=0 onderaan, iz=4 bovenaan)
+    const slots = {};
+    const rows = c.rows || 5;
+    const cols = c.cols || 5;
+
+    for (let r = 0; r < rows; r++) {
+      for (let col = 0; col < cols; col++) {
+        const key = `${r}-${col}`;
+        const wineId = c.slots && c.slots[key];
+        if (wineId) {
+          const wine = DB.getWineById(wineId);
+          if (wine) {
+            const ix = col;
+            const iz = (NZ - 1) - r;
+            // 'rosé' → 'rose' (key in wijnrek_3d.html)
+            const wtype = wine.type === 'rosé' ? 'rose' : (wine.type || 'red');
+            slots[ix + ',' + iz] = wtype;
+          }
+        }
+      }
+    }
+
+    iframe.contentWindow.postMessage({ type: 'vinage-slots', slots, cellarId }, '*');
+  },
+
   _slotPositionLabel(slotKey) {
     const s = String(slotKey);
     if (s.includes('-')) {
