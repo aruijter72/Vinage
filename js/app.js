@@ -272,6 +272,7 @@ const App = {
       case 'add-to-shelf':        this.showWinePickerForShelf(args.cellarid); break;
       case 'remove-from-shelf':   this.removeFromShelf(args.cellarid, args.wineid); break;
       case 'find-pairings':       this.findPairings(); break;
+      case 'analyze-food-photo':  document.getElementById('food-photo-input')?.click(); break;
       case 'save-settings':       this.saveSettings(); break;
       case 'toggle-lang':         this.toggleLang(args.lang); break;
       case 'toggle-provider':     this.toggleProvider(args.provider); break;
@@ -4266,7 +4267,22 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
                  onkeydown="if(event.key==='Enter')App.findPairings()">
           <button class="btn btn-gold" data-action="find-pairings">${this._iconFork()} ${this.t('pairing.find')}</button>
         </div>
+        <div class="pairing-photo-row">
+          <button class="pairing-photo-btn" data-action="analyze-food-photo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            ${this.t('pairing.photoBtn')}
+          </button>
+          <span class="pairing-photo-hint">${this.t('pairing.photoHint')}</span>
+        </div>
+        <div id="pairing-photo-feedback" style="display:none"></div>
       </div>
+      <!-- Hidden file input — accepts camera or gallery on mobile -->
+      <input type="file" id="food-photo-input" accept="image/*" capture="environment"
+             style="display:none" onchange="App.onFoodPhotoSelected(this)">
       <div class="pairing-results" id="pairing-results">
         <div style="text-align:center;color:var(--text-lt);padding:32px;font-size:.9rem">
           ${this.t('pairing.dish')}…
