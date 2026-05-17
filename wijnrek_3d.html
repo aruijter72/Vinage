@@ -102,9 +102,29 @@ renderer.physicallyCorrectLights = true;
 document.body.appendChild(renderer.domElement);
 
 // ── Environment map (essentieel voor glasreflecties) ─────────────
+// Bouw een eenvoudige studio-scene (6 gekleurde wanden) als PMREM.
+// PMREMGenerator.fromScene() werkt in r148 zonder externe dependencies.
+function buildStudioScene() {
+  const s   = new THREE.Scene();
+  const geo = new THREE.PlaneGeometry(20, 20);
+  function panel(px, py, pz, rx, ry, color) {
+    const m = new THREE.Mesh(geo,
+      new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide }));
+    m.position.set(px, py, pz);
+    m.rotation.set(rx, ry, 0);
+    s.add(m);
+  }
+  panel( 0,  8,  0, -Math.PI/2, 0,         0xffffff);  // plafond (helder)
+  panel( 0, -8,  0,  Math.PI/2, 0,         0xd8d8d8);  // vloer
+  panel( 8,  0,  0,  0, -Math.PI/2,        0xfff5e0);  // rechts – warme key
+  panel(-8,  0,  0,  0,  Math.PI/2,        0xe0ebff);  // links  – koele fill
+  panel( 0,  0, -8,  0,  Math.PI,          0xffffff);  // achter – rim
+  panel( 0,  0,  8,  0,  0,                0xefefef);  // voor
+  return s;
+}
 const pmrem  = new THREE.PMREMGenerator(renderer);
 pmrem.compileEquirectangularShader();
-const envTex = pmrem.fromScene(new THREE.RoomEnvironment(renderer), 0.04).texture;
+const envTex = pmrem.fromScene(buildStudioScene(), 0.02).texture;
 pmrem.dispose();
 
 // ── Scene ────────────────────────────────────────────────────────
