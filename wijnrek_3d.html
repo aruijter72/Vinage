@@ -305,10 +305,29 @@ const EMPTY = new Set(['0,0,0','4,2,0','2,1,0','1,2,1','3,0,1','0,1,1','4,1,1','
 // ================================================================
 function makeBottle(wtype) {
   const w = WINE[wtype], bg = GEO[w.shape];
-  const { h, nR, bR } = bg;
+  const { h, bR, nR, nH, sH } = bg;
   const grp = new THREE.Group();
 
-  // Glaslichaam
+  // ── Wijnvulling (vóór het glaslichaam → binnenin zichtbaar) ────
+  // Lichaamslengte = h − hals − schouder; vulling = fill% daarvan
+  const bodyH  = h - nH - sH;
+  const liqH   = bodyH * w.fill;
+  const liqR   = bR * 0.80;                // iets smaller dan glas
+  const liqY   = -h/2 + liqH/2 + 0.008;   // vanaf bodem omhoog, klein speling
+  const liquid = new THREE.Mesh(
+    new THREE.CylinderGeometry(liqR, liqR * 0.98, liqH, 40),
+    new THREE.MeshStandardMaterial({
+      color:     new THREE.Color(w.liquid),
+      roughness: 0.08,
+      metalness: 0,
+      transparent: true,
+      opacity:   0.92,
+    })
+  );
+  liquid.position.y = liqY;
+  grp.add(liquid);
+
+  // Glaslichaam (over de vulling heen – transmission maakt vloeistof zichtbaar)
   const body = new THREE.Mesh(bg.geo, makeGlass(w.glass));
   body.castShadow = true; grp.add(body);
 
