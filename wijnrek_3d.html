@@ -49,6 +49,7 @@
 <div id="loading"><p>Laden…</p><span id="load-err"></span></div>
 <div id="labels"></div>
 <button id="save-btn">PNG Opslaan</button>
+<script>if(window.parent!==window)document.getElementById('save-btn').style.display='none';</script>
 
 <script src="./three.min.js"></script>
 <script>
@@ -256,11 +257,11 @@ function updateLabels(){
 }
 
 function finishBuild(){
-  let ti=0;
+  // Verwijder eerder geplaatste flessen (bij heroproepen)
   for(let iz=0;iz<NZ;iz++){
     for(let ix=0;ix<NX;ix++){
-      if(EMPTY.has(ix+','+iz))continue;
-      const wtype=SEQ[ti++%SEQ.length];
+      const wtype=(SLOT_TYPES||{})[ix+','+iz];
+      if(!wtype)continue;  // leeg slot — geen fles
       const asp=BOTTLE_ASPECT[wtype];
       const sh=CELL*0.88;
       const sw=sh*asp;
