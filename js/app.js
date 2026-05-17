@@ -218,7 +218,7 @@ const App = {
         el.innerHTML = this.cellarDetailId ? this.buildCellarDetail() : this.buildCellarList();
         if (this.cellarDetailId) {
           const _c = DB.getCellars().find(x => x.id === this.cellarDetailId);
-          const _is3D = _c && _c.type === 'grid' && _c.rows === 5 && _c.cols === 5;
+          const _is3D = _c && (_c.type === 'grid' || _c.type === 'diamond');
           if (!_is3D) setTimeout(() => { this._initRackHover(); this._initRackZoom(); }, 0);
         } else setTimeout(() => this._initCellarDrag(), 0);
         break;
@@ -2679,10 +2679,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const stats = DB.getCellarStats(c);
     const is3D = c.type === 'grid' || c.type === 'diamond';
     let rackHtml = '';
-    if      (is3D)                          rackHtml = this._build3DRackHtml(c);
-    else if (c.type === 'diamond')          rackHtml = this._buildGridRack(c, true);
+    if      (is3D)                                    rackHtml = this._build3DRackHtml(c);
     else if (c.type === 'case' || c.type === 'case6') rackHtml = this._buildCaseRack(c);
-    else                                    rackHtml = this._buildShelfRack(c);
+    else                                              rackHtml = this._buildShelfRack(c);
 
     return `
     <div class="page-header">
