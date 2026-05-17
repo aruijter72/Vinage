@@ -156,7 +156,7 @@ for(const[wtype,src]of Object.entries(BOTTLE_IMG)){
 }
 
 const rack=buildRack();
-rack.rotation.x = -45 * Math.PI / 180;  // -45° naar voren
+rack.rotation.x = (-45 + 40) * Math.PI / 180;  // -5° naar voren
 scene.add(rack);
 
 const gnd=new THREE.Mesh(
