@@ -168,11 +168,11 @@ gnd.position.y=(-NZ/2)*CELL-0.012;
 gnd.receiveShadow=true;
 scene.add(gnd);
 
-// ── Camera – vaste hoek passend bij de screenshot ─────────────────
-// theta=0.58 (rechts), phi=-0.20 (iets onder horizontaal, kijkt licht omhoog)
-const CAM_TARGET=new THREE.Vector3(0,0,0);
+// ── Camera – steil van boven, bovenkant rek net zichtbaar ────────
+// phi=0.72 (hoge hoek, ~41° boven horizontaal), theta=0.50 (iets rechts)
+const CAM_TARGET=new THREE.Vector3(0,-0.08,0);  // iets onder middelpunt richten
 const camera=new THREE.PerspectiveCamera(36,window.innerWidth/window.innerHeight,0.001,30);
-const THETA=0.58, PHI=-0.20, DIST=2.05;
+const THETA=0.50, PHI=0.72, DIST=1.95;
 camera.position.set(
   DIST*Math.cos(PHI)*Math.sin(THETA),
   DIST*Math.sin(PHI),
