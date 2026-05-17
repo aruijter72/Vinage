@@ -155,7 +155,9 @@ for(const[wtype,src]of Object.entries(BOTTLE_IMG)){
   img.src=src;
 }
 
-scene.add(buildRack());
+const rack=buildRack();
+rack.rotation.x = -Math.PI / 4;  // 45° naar voren gekanteld
+scene.add(rack);
 
 const gnd=new THREE.Mesh(
   new THREE.PlaneGeometry(8,8),
