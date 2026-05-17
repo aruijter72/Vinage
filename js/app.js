@@ -2844,7 +2844,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       }
     }
 
-    iframe.contentWindow.postMessage({ type: 'vinage-slots', slots, cellarId }, '*');
+    iframe.contentWindow.postMessage({ type: 'vinage-slots', slots, cellarId, nx: cols, nz: rows }, '*');
   },
 
   _slotPositionLabel(slotKey) {
