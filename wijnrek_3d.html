@@ -52,8 +52,8 @@
   <div id="hint">Sleep · Scroll om te zoomen</div>
 </div>
 
-<!-- Three.js r128 van cdnjs – bewezen werkende URL -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Three.js r128 – lokaal opgeslagen, geen internet nodig -->
+<script src="./three.min.js"></script>
 
 <script>
 window.onerror = function(msg, _s, line) {
@@ -62,7 +62,7 @@ window.onerror = function(msg, _s, line) {
 
 if (typeof THREE === 'undefined') {
   document.getElementById('load-err').textContent =
-    'Three.js kon niet laden – controleer je internetverbinding en herlaad de pagina.';
+    'Three.js kon niet laden – zorg dat three.min.js in dezelfde map staat als dit bestand.';
 } else {
   build();
 }
