@@ -167,10 +167,16 @@ function onLoad(){
   loaded++;
   if(loaded===total){
     _texturesReady=true;
-    if(SLOT_TYPES!==null&&!_built){ finishBuild(); }
+    if(SLOT_TYPES!==null&&_sceneReady&&!_built){ finishBuild(); }
     else {
       // Demo-modus na 1.5s als er geen app-data binnenkomt
-      setTimeout(function(){ if(SLOT_TYPES===null&&!_built){ SLOT_TYPES=_demoSlots(); finishBuild(); } },1500);
+      setTimeout(function(){
+        if(!_built){
+          if(SLOT_TYPES===null) SLOT_TYPES=_demoSlots();
+          if(!_sceneReady) _setupScene(5,5);
+          finishBuild();
+        }
+      },1500);
     }
   }
 }
