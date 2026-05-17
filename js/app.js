@@ -4291,6 +4291,74 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     </div>`;
   },
 
+  // ── Food photo → dish description → pairings ─────────────────────────────
+  // Called by the hidden <input type="file"> onchange handler
+  async onFoodPhotoSelected(input) {
+    const file = input?.files?.[0];
+    if (!file) return;
+
+    const feedbackEl = document.getElementById('pairing-photo-feedback');
+    const dishInput  = document.getElementById('dish-input');
+    if (feedbackEl) {
+      feedbackEl.style.display = 'block';
+      feedbackEl.innerHTML = `<span class="spinner" style="display:inline-block;width:14px;height:14px;margin-right:6px"></span>${this.t('pairing.analyzingPhoto')}`;
+    }
+
+    // Compress image to max 1024px wide before sending to vision API
+    let base64jpeg;
+    try {
+      base64jpeg = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const MAX_W = 1024;
+            const scale = Math.min(1, MAX_W / img.width);
+            const c = document.createElement('canvas');
+            c.width  = Math.round(img.width  * scale);
+            c.height = Math.round(img.height * scale);
+            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+            resolve(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    } catch (err) {
+      if (feedbackEl) feedbackEl.innerHTML = `<span style="color:var(--red)">${this.t('common.error')} ${err.message}</span>`;
+      return;
+    }
+
+    // Reset file input so the same photo can be re-selected
+    input.value = '';
+
+    const settings  = DB.getSettings();
+    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
+      if (feedbackEl) feedbackEl.innerHTML = `<span style="color:var(--red)">${this.t('pairing.apiKeyMissing')}</span>`;
+      return;
+    }
+
+    try {
+      const result = await API.identifyFood(base64jpeg, settings, this.lang);
+      if (result.notFood) {
+        if (feedbackEl) feedbackEl.innerHTML = `<span style="color:var(--red)">📷 ${this.t('pairing.notFood')}</span>`;
+        return;
+      }
+      // Fill the text input with what the AI detected
+      if (dishInput) dishInput.value = result.dish;
+      if (feedbackEl) {
+        feedbackEl.innerHTML = `<span style="color:var(--gold)">✓ ${this.t('pairing.photoDetected')}</span><em>${this._esc(result.dish)}</em>`;
+      }
+      // Auto-run pairing
+      await this.findPairings();
+    } catch (err) {
+      if (feedbackEl) feedbackEl.innerHTML = `<span style="color:var(--red)">${this.t('common.error')} ${err.message}</span>`;
+    }
+  },
+
   async findPairings() {
     const dish = document.getElementById('dish-input')?.value.trim();
     if (!dish) return;
