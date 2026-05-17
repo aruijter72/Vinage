@@ -286,12 +286,13 @@ const LABEL_MAT = new THREE.MeshStandardMaterial({
 // WIJNTYPEN – identiek aan Blender
 // ================================================================
 const WINE = {
-  red:       { glass:'#0d0404', cap:'#b01010', capM:0.12, shape:'wine'      },
-  white:     { glass:'#8ec05a', cap:'#e5e5dc', capM:0.08, shape:'wine'      },
-  rose:      { glass:'#c02848', cap:'#f090a8', capM:0.10, shape:'wine'      },
+  //                                                          vloeistofkleur  vul%
+  red:       { glass:'#0d0404', cap:'#b01010', capM:0.12, shape:'wine',      liquid:'#6b0f18', fill:0.74 },
+  white:     { glass:'#8ec05a', cap:'#e5e5dc', capM:0.08, shape:'wine',      liquid:'#d4aa28', fill:0.72 },
+  rose:      { glass:'#c02848', cap:'#f090a8', capM:0.10, shape:'wine',      liquid:'#d45870', fill:0.71 },
   sparkling: { glass:'#0b2410', cap:'#c8a420', capM:0.72,
-               foil: '#d4b02a',                           shape:'champagne' },
-  fortified: { glass:'#561e06', cap:'#3a1404', capM:0.12, shape:'fortified' },
+               foil: '#d4b02a',                           shape:'champagne', liquid:'#c8a030', fill:0.68 },
+  fortified: { glass:'#561e06', cap:'#3a1404', capM:0.12, shape:'fortified', liquid:'#8c3a10', fill:0.76 },
 };
 const SEQ = [
   ...Array(7).fill('red'),   ...Array(6).fill('white'),
