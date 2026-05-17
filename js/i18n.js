@@ -974,7 +974,10 @@ const TRANSLATIONS = {
       noMatch: 'Nessun abbinamento nel tuo cantina', noMatchSub: 'Nessun vino si abbina bene a questo piatto. Vedi i suggerimenti per l\'acquisto.', noWines: 'Aggiungi prima dei vini alla collezione.',
       match: 'ottimo abbinamento', acceptable: 'accettabile', apiKeyMissing: 'Aggiungi una chiave API nelle Impostazioni per gli abbinamenti AI.',
       rulesBased: 'Suggerimenti basati su regole (nessuna chiave API).',
-      topPicks: 'I migliori da acquistare', findNear: 'Trova enoteche vicino a {city}', findStores: 'Trova enoteche vicino a me'
+      topPicks: 'I migliori da acquistare', findNear: 'Trova enoteche vicino a {city}', findStores: 'Trova enoteche vicino a me',
+      photoBtn: 'Foto', analyzingPhoto: 'Riconoscimento cibo…', photoDetected: 'Rilevato: ',
+      notFood: 'Nessun cibo rilevato. Prova con un piatto, una ricetta o degli ingredienti.',
+      photoHint: 'o scatta una foto del tuo piatto, ricetta o ingredienti'
     },
     settings: {
       title: 'Impostazioni', language: 'Lingua', ai: 'AI & Scansione', apiProvider: 'Provider AI',
@@ -1207,7 +1210,10 @@ const TRANSLATIONS = {
       noWines: "Ajoutez d'abord des vins à votre collection.",
       match: 'excellent accord', acceptable: 'acceptable', apiKeyMissing: 'Ajoutez une clé API dans les Paramètres pour les accords IA.',
       rulesBased: 'Suggestions basées sur des règles (aucune clé API définie).',
-      topPicks: 'Top vins à acheter', findNear: 'Trouver des cavistes près de {city}', findStores: 'Trouver des cavistes près de moi'
+      topPicks: 'Top vins à acheter', findNear: 'Trouver des cavistes près de {city}', findStores: 'Trouver des cavistes près de moi',
+      photoBtn: 'Photo', analyzingPhoto: 'Identification de l\'aliment…', photoDetected: 'Détecté : ',
+      notFood: 'Aucun aliment détecté. Essayez avec un plat, une recette ou des ingrédients.',
+      photoHint: 'ou prenez une photo de votre plat, recette ou ingrédients'
     },
     settings: {
       title: 'Paramètres', language: 'Langue', ai: 'IA & Scan', apiProvider: 'Fournisseur IA',
@@ -1440,7 +1446,10 @@ const TRANSLATIONS = {
       noWines: 'Añade vinos a tu colección primero.',
       match: 'maridaje perfecto', acceptable: 'aceptable', apiKeyMissing: 'Añade una clave API en Ajustes para maridajes con IA.',
       rulesBased: 'Sugerencias basadas en reglas (sin clave API).',
-      topPicks: 'Mejores vinos para comprar', findNear: 'Encontrar vinotecas cerca de {city}', findStores: 'Encontrar vinotecas cerca de mí'
+      topPicks: 'Mejores vinos para comprar', findNear: 'Encontrar vinotecas cerca de {city}', findStores: 'Encontrar vinotecas cerca de mí',
+      photoBtn: 'Foto', analyzingPhoto: 'Identificando comida…', photoDetected: 'Detectado: ',
+      notFood: 'No se detectó comida. Prueba con un plato, receta o ingredientes.',
+      photoHint: 'o toma una foto de tu plato, receta o ingredientes'
     },
     settings: {
       title: 'Ajustes', language: 'Idioma', ai: 'IA & Escaneo', apiProvider: 'Proveedor IA',
