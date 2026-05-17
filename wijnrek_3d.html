@@ -195,7 +195,7 @@ function finishBuild(){
       // Positie: midden van kolom ix, hoogte-rij iz, gecentreerd in diepte
       const px=((ix+0.5)-NX/2)*CELL;
       const py=((iz+0.5)-NZ/2)*CELL;
-      mesh.position.set(px, py, 0);
+      mesh.position.set(px, py, CELL * 0.38);
 
       // Vlak wijst naar de camera zodat de fles er altijd correct uitziet
       mesh.lookAt(CAM_POS);
