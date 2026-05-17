@@ -89,8 +89,8 @@ keyL.shadow.bias=-0.0006; scene.add(keyL);
 const fillL=new THREE.DirectionalLight(0xddeeff,0.6);
 fillL.position.set(-2,1.5,1); scene.add(fillL);
 
-// ── REKPARAMETERS ─────────────────────────────────────────────────
-const NX=5, NY=2, NZ=5, CELL=0.12;
+// ── REKPARAMETERS (dynamisch ingesteld via _setupScene) ───────────
+let NX=5, NY=2, NZ=5, CELL=0.12;
 const ROD_R=0.0052, NODE_R=0.0095;
 
 function bPt(ix,iy,iz){
