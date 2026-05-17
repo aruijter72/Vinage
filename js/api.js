@@ -59,6 +59,61 @@ If this is clearly NOT a wine bottle, return: {"error":"not_a_wine"}`;
     }
   },
 
+  // ── Food photo → dish description ────────────────────────────────────────
+  // Accepts a photo of a dish, recipe, or ingredients and returns a short
+  // culinary description suitable for passing straight into suggestPairings().
+  async identifyFood(base64jpeg, settings, lang) {
+    const langNote = lang === 'nl'
+      ? 'Respond in Dutch (e.g. "Gegrilde zalm met citroenboter en asperges").'
+      : lang === 'de'
+        ? 'Respond in German.'
+        : lang === 'fr'
+          ? 'Respond in French.'
+          : lang === 'es'
+            ? 'Respond in Spanish.'
+            : lang === 'it'
+              ? 'Respond in Italian.'
+              : 'Respond in English.';
+
+    const prompt = `You are a culinary assistant analyzing an image for wine pairing purposes.
+
+The image may show:
+- A plated dish or meal
+- A recipe (printed, handwritten, or on screen — in any language)
+- Raw or prepared ingredients laid out on a counter or cutting board
+- A shopping list or written ingredient list
+- A restaurant menu item
+
+Your task: identify what food is being prepared or shown, and return a SHORT culinary description (max 100 characters) suitable for wine pairing.
+
+Rules:
+- Complete dish → describe it briefly: e.g. "Grilled salmon with lemon butter and asparagus"
+- Recipe → identify the main dish + key ingredients: e.g. "Beef bourguignon — beef, mushrooms, red wine"
+- Ingredients only → list the key ones: e.g. "Lamb, rosemary, garlic, potatoes"
+- Written list → interpret what dish these make: e.g. "Pasta carbonara ingredients"
+- Keep your entire response under 100 characters
+- ${langNote}
+- Respond ONLY with the food description — no preamble, no explanation
+- If you genuinely cannot identify any food-related content, respond with exactly: NOT_FOOD`;
+
+    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    const provider   = settings.provider || 'anthropic';
+    const key        = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
+
+    try {
+      const raw = (key || !isSignedIn)
+        ? (provider === 'anthropic'
+            ? await this._claudeVision(base64jpeg, prompt, key)
+            : await this._openaiVision(base64jpeg, prompt, key))
+        : await this._proxyVision(base64jpeg, prompt);
+      const text = (typeof raw === 'string' ? raw : raw?.content?.[0]?.text || '').trim();
+      if (!text || text === 'NOT_FOOD') return { notFood: true };
+      return { dish: text };
+    } catch (e) {
+      throw new Error('food_id_error: ' + e.message);
+    }
+  },
+
   // ── Meal → wine pairing ───────────────────────────────────────────────────
   async suggestPairings(dish, wines, settings, lang, city) {
     const now = new Date().getFullYear();
