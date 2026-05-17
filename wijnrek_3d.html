@@ -149,8 +149,8 @@ scene.environment = envTex;
 // ── Camera ────────────────────────────────────────────────────────
 // Blender pos(1.6, -2.2, 1.25) → Three.js(1.6, 1.25, 2.2)
 const CAM_TARGET = new THREE.Vector3(0, 0.18, 0);
-const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.001, 50);
-camera.position.set(1.4, 1.0, 1.8);
+const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.001, 50);
+camera.position.set(1.5, 1.1, 2.0);
 camera.lookAt(CAM_TARGET);
 
 // ── Verlichting ───────────────────────────────────────────────────
