@@ -256,13 +256,23 @@ function updateLabels(){
   }
 }
 
+// Normaliseer wijntype naar beschikbare flesafbeelding
+function _normaliseType(t){
+  if(!t) return null;
+  if(t==='rosé'||t==='rose') return 'rose';
+  if(t==='dessert') return 'fortified';  // dessert → fortified fles
+  if(BOTTLE_IMG[t]) return t;
+  return 'red'; // fallback
+}
+
 function finishBuild(){
   // Verwijder eerder geplaatste flessen (bij heroproepen)
   for(let iz=0;iz<NZ;iz++){
     for(let ix=0;ix<NX;ix++){
-      const wtype=(SLOT_TYPES||{})[ix+','+iz];
+      const raw=(SLOT_TYPES||{})[ix+','+iz];
+      const wtype=_normaliseType(raw);
       if(!wtype)continue;  // leeg slot — geen fles
-      const asp=BOTTLE_ASPECT[wtype];
+      const asp=BOTTLE_ASPECT[wtype]||BOTTLE_ASPECT['red'];
       const sh=CELL*0.88;
       const sw=sh*asp;
       const geo=new THREE.PlaneGeometry(sw,sh);
