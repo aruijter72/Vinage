@@ -286,18 +286,23 @@ const LABEL_MAT = new THREE.MeshStandardMaterial({
 // WIJNTYPEN – identiek aan Blender
 // ================================================================
 const WINE = {
-  //                                                          vloeistofkleur (donker)   vul%
-  red:       { glass:'#080202', cap:'#b01010', capM:0.12, shape:'wine',      liquid:'#280005', fill:0.74 },
-  white:     { glass:'#6a9038', cap:'#e5e5dc', capM:0.08, shape:'wine',      liquid:'#8a6010', fill:0.72 },
-  rose:      { glass:'#a02038', cap:'#f090a8', capM:0.10, shape:'wine',      liquid:'#8c1838', fill:0.71 },
+  //                                                          vloeistofkleur (donker)   vul% → volledig gevuld
+  red:       { glass:'#080202', cap:'#b01010', capM:0.12, shape:'wine',      liquid:'#280005', fill:1.0 },
+  white:     { glass:'#6a9038', cap:'#e5e5dc', capM:0.08, shape:'wine',      liquid:'#8a6010', fill:1.0 },
+  rose:      { glass:'#a02038', cap:'#f090a8', capM:0.10, shape:'wine',      liquid:'#8c1838', fill:1.0 },
   sparkling: { glass:'#0b2410', cap:'#c8a420', capM:0.72,
-               foil: '#d4b02a',                           shape:'champagne', liquid:'#7a5e08', fill:0.68 },
-  fortified: { glass:'#3a1002', cap:'#3a1404', capM:0.12, shape:'fortified', liquid:'#3c1505', fill:0.76 },
+               foil: '#d4b02a',                           shape:'champagne', liquid:'#7a5e08', fill:1.0 },
+  fortified: { glass:'#3a1002', cap:'#3a1404', capM:0.12, shape:'fortified', liquid:'#3c1505', fill:1.0 },
 };
-// Gebalanceerde volgorde voor 10 slots (NY=1: 5×2)
-const SEQ = ['red','white','rose','sparkling','fortified','red','white','rose','red','white'];
-// Geen lege slots bij 1-diep rack — alle 10 zichtbaar
-const EMPTY = new Set([]);
+// Gebalanceerde verdeling voor 20 slots (NY=2: 5×2×2)
+const SEQ = [
+  'red','white','rose','sparkling','fortified',
+  'red','white','rose','red','white',
+  'rose','red','sparkling','white','fortified',
+  'red','white','rose','red','sparkling',
+];
+// 2 lege slots voor realisme
+const EMPTY = new Set(['0,0,0','4,1,1']);
 
 // ================================================================
 // FLES BOUWEN
