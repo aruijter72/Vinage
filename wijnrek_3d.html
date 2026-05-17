@@ -148,9 +148,9 @@ scene.environment = envTex;
 
 // ── Camera ────────────────────────────────────────────────────────
 // Blender pos(1.6, -2.2, 1.25) → Three.js(1.6, 1.25, 2.2)
-const CAM_TARGET = new THREE.Vector3(0, 0.25, 0);
-const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.001, 50);
-camera.position.set(1.6, 1.25, 2.2);
+const CAM_TARGET = new THREE.Vector3(0, 0.18, 0);
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.001, 50);
+camera.position.set(1.4, 1.0, 1.8);
 camera.lookAt(CAM_TARGET);
 
 // ── Verlichting ───────────────────────────────────────────────────
@@ -415,7 +415,7 @@ let drag=false, lx=0, ly=0;
 const tgt = CAM_TARGET.clone();
 let camDist = camera.position.distanceTo(tgt);
 let theta   = Math.atan2(camera.position.x - tgt.x, camera.position.z - tgt.z);
-let phi     = Math.asin((camera.position.y - tgt.y) / camDist);
+let phi     = Math.asin(Math.max(-0.99, Math.min(0.99, (camera.position.y - tgt.y) / camDist)));
 
 function applyCam() {
   camera.position.set(
