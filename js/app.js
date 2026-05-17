@@ -35,6 +35,15 @@ const App = {
     this.navigate('home');
     document.addEventListener('click',  e => this._delegateClick(e));
     document.addEventListener('change', e => this._delegateChange(e));
+    // Ontvang slot-klikken vanuit het 3D-wijnrek iframe
+    window.addEventListener('message', e => {
+      if (!e.data || e.data.type !== 'vinage-slot-click') return;
+      const { slot, cellarId } = e.data;
+      const c = DB.getCellars().find(x => x.id === cellarId);
+      if (!c) return;
+      const wineId = c.slots && c.slots[slot];
+      this.handleSlotClick(cellarId, slot, wineId || null);
+    });
     Sync.init();
     this._restoreDecantTimer();
     this._checkDrinkWindowNotifications();
