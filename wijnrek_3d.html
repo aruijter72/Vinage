@@ -191,62 +191,83 @@ for(const[wtype,src]of Object.entries(BOTTLE_IMG)){
   img.src=src;
 }
 
-const rack=buildRack();
-rack.rotation.x = 0;  // rechtop
-scene.add(rack);
-
-const gnd=new THREE.Mesh(
-  new THREE.PlaneGeometry(8,8),
-  new THREE.MeshStandardMaterial({color:0xede8e2,roughness:0.95,metalness:0})
-);
-gnd.rotation.x=-Math.PI/2;
-gnd.position.y=(-NZ/2)*CELL-0.012;
-gnd.receiveShadow=true;
-scene.add(gnd);
-
-// ── Camera – steil van boven, bovenkant rek net zichtbaar ────────
-// phi=0.72 (hoge hoek, ~41° boven horizontaal), theta=0.50 (iets rechts)
-const CAM_TARGET=new THREE.Vector3(0,-0.08,0);  // iets onder middelpunt richten
+// ── Vaste camera + container voor dynamische opbouw ──────────────
+const THETA=0.38, PHI=0.24;
 const camera=new THREE.PerspectiveCamera(36,window.innerWidth/window.innerHeight,0.001,30);
-const THETA=0.38, PHI=0.24, DIST=1.95;
-camera.position.set(
-  DIST*Math.cos(PHI)*Math.sin(THETA),
-  DIST*Math.sin(PHI),
-  DIST*Math.cos(PHI)*Math.cos(THETA)
-);
-camera.lookAt(CAM_TARGET);
-
-// ── Coördinaat-labels per vakje ───────────────────────────────────
-// Kolommen: A–E (ix 0→A), Rijen: 1–5 (iz=4 bovenste→rij 1, iz=0 onderste→rij 5)
 const labelContainer=document.getElementById('labels');
-const slotLabels=[]; // {el, worldPos}
+let slotLabels=[];
+let _rackGroup=null, _gndMesh=null;
+let _sceneReady=false;
 
-for(let iz=0;iz<NZ;iz++){
-  for(let ix=0;ix<NX;ix++){
-    const col=String.fromCharCode(65+ix);       // A B C D E
-    const row=NZ-iz;                            // 5 4 3 2 1 (top=1)
-    const el=document.createElement('div');
-    el.className='slot-label';
-    el.textContent=col+row;
-    // In iframe-modus: klikbaar maken zodat wijndetail opent in de app
-    if(window.parent!==window){
-      el.style.pointerEvents='auto';
-      el.style.cursor='pointer';
-      (function(slotKey){
-        el.addEventListener('click',function(){
-          window.parent.postMessage({type:'vinage-slot-click',slot:slotKey,cellarId:_cellarId},'*');
-        });
-      })((NZ-1-iz)+'-'+ix);
+function _setupScene(nx,nz){
+  NX=nx; NZ=nz;
+  // Auto-schaal CELL zodat het rek altijd ≈0.60m groot is in de grootste dimensie
+  CELL=Math.min(0.12, 0.60/Math.max(NX,NZ));
+  const DIST=1.95;
+
+  // Verwijder oud rek + vloer
+  if(_rackGroup){ scene.remove(_rackGroup); _rackGroup=null; }
+  if(_gndMesh){ scene.remove(_gndMesh); _gndMesh=null; }
+
+  // Nieuw rek
+  _rackGroup=buildRack();
+  _rackGroup.rotation.x=0;
+  scene.add(_rackGroup);
+
+  // Vloer
+  _gndMesh=new THREE.Mesh(
+    new THREE.PlaneGeometry(8,8),
+    new THREE.MeshStandardMaterial({color:0xede8e2,roughness:0.95,metalness:0})
+  );
+  _gndMesh.rotation.x=-Math.PI/2;
+  _gndMesh.position.y=(-NZ/2)*CELL-0.012;
+  _gndMesh.receiveShadow=true;
+  scene.add(_gndMesh);
+
+  // Camera
+  const camTarget=new THREE.Vector3(0,0,0);
+  camera.position.set(
+    DIST*Math.cos(PHI)*Math.sin(THETA),
+    DIST*Math.sin(PHI),
+    DIST*Math.cos(PHI)*Math.cos(THETA)
+  );
+  camera.lookAt(camTarget);
+
+  // Verwijder oude labels
+  while(labelContainer.firstChild) labelContainer.removeChild(labelContainer.firstChild);
+  slotLabels=[];
+
+  // Schaal lettergrootte mee voor grote rekken
+  const fs=Math.max(7,Math.min(11,Math.round(55/Math.max(NX,NZ))));
+
+  // Coördinaat-labels per vakje
+  // Kolommen: A-Z, daarna AA, AB, … | Rijen: iz=0 onderste → rij NZ
+  for(let iz=0;iz<NZ;iz++){
+    for(let ix=0;ix<NX;ix++){
+      const col=ix<26 ? String.fromCharCode(65+ix)
+                      : String.fromCharCode(65+Math.floor((ix-26)/26))+String.fromCharCode(65+(ix-26)%26);
+      const row=NZ-iz;
+      const el=document.createElement('div');
+      el.className='slot-label';
+      el.textContent=col+row;
+      el.style.fontSize=fs+'px';
+      if(window.parent!==window){
+        el.style.pointerEvents='auto';
+        el.style.cursor='pointer';
+        (function(slotKey){
+          el.addEventListener('click',function(){
+            window.parent.postMessage({type:'vinage-slot-click',slot:slotKey,cellarId:_cellarId},'*');
+          });
+        })((NZ-1-iz)+'-'+ix);
+      }
+      labelContainer.appendChild(el);
+      const wx=((ix+0.5)-NX/2)*CELL;
+      const wy=((iz+0.5)-NZ/2)*CELL;
+      const wz=(NY/2)*CELL+0.018;
+      slotLabels.push({el, pos:new THREE.Vector3(wx,wy,wz)});
     }
-    labelContainer.appendChild(el);
-
-    // Wereld-positie: voorkant rek (positieve Z), midden van het vakje
-    const wx=((ix+0.5)-NX/2)*CELL;
-    const wy=((iz+0.5)-NZ/2)*CELL;
-    const wz=(NY/2)*CELL+0.018;  // iets voor het rek
-
-    slotLabels.push({el, pos: new THREE.Vector3(wx,wy,wz)});
   }
+  _sceneReady=true;
 }
 
 function updateLabels(){
