@@ -53,7 +53,7 @@
   <div id="hint">Sleep · Scroll om te zoomen</div>
 </div>
 
-<!-- Three.js r148  (global THREE) – cdnjs is highly reliable -->
+<!-- Three.js r148  (global THREE) – cdnjs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"
         onerror="document.getElementById('load-err').textContent='Fout: Three.js kon niet laden. Controleer je internetverbinding.'">
 </script>
@@ -61,10 +61,7 @@
 <script src="https://unpkg.com/three@0.148.0/examples/js/controls/OrbitControls.js"
         onerror="document.getElementById('load-err').textContent='Fout: OrbitControls kon niet laden.'">
 </script>
-<!-- RoomEnvironment r148 (examples/js) -->
-<script src="https://unpkg.com/three@0.148.0/examples/js/environments/RoomEnvironment.js"
-        onerror="document.getElementById('load-err').textContent='Fout: RoomEnvironment kon niet laden.'">
-</script>
+<!-- RoomEnvironment NIET meer als extern script – wordt hieronder inline gebouwd -->
 
 <script>
 // Zichtbare foutafhandeling – elke JS-fout verschijnt in het laadscherm
