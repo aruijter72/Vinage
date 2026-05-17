@@ -8,24 +8,23 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #d4d4d4; overflow: hidden;
            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-    canvas { display: block; }
-
+    canvas { display: block; cursor: grab; }
+    canvas:active { cursor: grabbing; }
     #loading {
       position: fixed; inset: 0; background: #f5f5f5; z-index: 99;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 10px;
     }
     #loading p   { font-size: 12px; color: #888; letter-spacing: 2px; }
-    #loading .err { color: #c03030; font-size: 11px; max-width: 500px; text-align: center; }
-
+    #load-err    { color: #c03030; font-size: 11px; max-width: 520px; text-align: center; }
     #title {
       position: fixed; top: 16px; left: 0; right: 0; text-align: center;
       color: #3a1a10; font-size: 13px; letter-spacing: 5px;
       text-transform: uppercase; font-weight: 400; pointer-events: none;
     }
     #ui {
-      position: fixed; bottom: 18px; left: 0; right: 0;
-      display: flex; justify-content: center; align-items: center; gap: 14px;
+      position: fixed; bottom: 18px; left: 0; right: 0; display: none;
+      justify-content: center; align-items: center; gap: 14px;
     }
     button {
       padding: 9px 24px; background: #5c1a10; color: #f5e8de;
@@ -44,48 +43,38 @@
 <body>
 
 <div id="loading">
-  <p id="load-status">LADEN…</p>
-  <span class="err" id="load-err"></span>
+  <p>LADEN…</p>
+  <span id="load-err"></span>
 </div>
 <div id="title">Vinage &mdash; Wijnkelder</div>
-<div id="ui" style="display:none">
+<div id="ui">
   <button id="save-btn">PNG Opslaan</button>
   <div id="hint">Sleep · Scroll om te zoomen</div>
 </div>
 
-<!-- Three.js r148  (global THREE) – cdnjs -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"
-        onerror="document.getElementById('load-err').textContent='Fout: Three.js kon niet laden. Controleer je internetverbinding.'">
-</script>
-<!-- OrbitControls r148 (examples/js, compatible met global THREE) -->
-<script src="https://unpkg.com/three@0.148.0/examples/js/controls/OrbitControls.js"
-        onerror="document.getElementById('load-err').textContent='Fout: OrbitControls kon niet laden.'">
-</script>
-<!-- RoomEnvironment NIET meer als extern script – wordt hieronder inline gebouwd -->
+<!-- Three.js r128 van cdnjs – bewezen werkende URL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
-// Zichtbare foutafhandeling – elke JS-fout verschijnt in het laadscherm
-window.onerror = function(msg, src, line) {
-  var el = document.getElementById('load-err');
-  if (el) el.textContent = 'JS-fout (r' + line + '): ' + msg;
+window.onerror = function(msg, _s, line) {
+  document.getElementById('load-err').textContent = 'Fout (r' + line + '): ' + msg;
 };
 
-try {
+if (typeof THREE === 'undefined') {
+  document.getElementById('load-err').textContent =
+    'Three.js kon niet laden – controleer je internetverbinding en herlaad de pagina.';
+} else {
   build();
-} catch(e) {
-  document.getElementById('load-err').textContent = 'Opbouwfout: ' + e.message;
 }
 
 function build() {
+try {
 
 // ================================================================
-// VINAGE – 3D Wijnrek v3  |  Three.js r148
+// VINAGE – 3D Wijnrek  |  Three.js r128
 //
-// Verbeteringen:
-//   • LatheGeometry: echte flesvorm via gedraaid 2D-profiel
-//   • RoomEnvironment + PMREMGenerator: realistisch glaseffect
-//   • OrbitControls: sleep / scroll om te draaien / zoomen
-//
+// Flesvorm  : LatheGeometry (gedraaid 2D-profiel)
+// Glas      : MeshPhysicalMaterial + transmission + eigen env-map
 // Coördinaten: Blender(x,y,z) → Three.js(x, z, -y)
 // ================================================================
 
@@ -93,114 +82,118 @@ function build() {
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
-renderer.outputEncoding    = THREE.sRGBEncoding;   // r148 API
-renderer.toneMapping       = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.shadowMap.enabled   = true;
+renderer.shadowMap.type      = THREE.PCFSoftShadowMap;
 renderer.physicallyCorrectLights = true;
+renderer.outputEncoding      = THREE.sRGBEncoding;
+renderer.toneMapping         = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
 document.body.appendChild(renderer.domElement);
 
-// ── Environment map (essentieel voor glasreflecties) ─────────────
-// Bouw een eenvoudige studio-scene (6 gekleurde wanden) als PMREM.
-// PMREMGenerator.fromScene() werkt in r148 zonder externe dependencies.
-function buildStudioScene() {
-  const s   = new THREE.Scene();
-  const geo = new THREE.PlaneGeometry(20, 20);
-  function panel(px, py, pz, rx, ry, color) {
-    const m = new THREE.Mesh(geo,
-      new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide }));
-    m.position.set(px, py, pz);
-    m.rotation.set(rx, ry, 0);
-    s.add(m);
+// ── Environment map voor glasreflecties (r128-compatibel) ────────
+// Maak een equirectangulaire DataTexture die een studio simuleert:
+// warm rechts (key), koel links (fill), helder plafond, neutraal rest.
+function buildEnvTexture() {
+  const W = 512, H = 256;
+  const data = new Uint8Array(W * H * 4);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const az  = (x / W) * Math.PI * 2;   // azimuth 0..2π
+      const el  = 1 - (y / H);             // elevatie 0=onder 1=boven
+
+      // basis: helder studio-wit
+      let r = 235, g = 235, b = 235;
+
+      // warm key-licht (rechtsvoor, az ≈ 0.4)
+      const key  = Math.pow(Math.max(0, Math.cos(az - 0.4)), 3);
+      r += key * 20; g += key * 10; b -= key * 8;
+
+      // koel fill (linksvoor, az ≈ π*0.8)
+      const fill = Math.pow(Math.max(0, Math.cos(az - Math.PI * 0.8)), 3);
+      r -= fill * 5; g -= fill * 3; b += fill * 15;
+
+      // helder plafond
+      const ceil = Math.pow(Math.max(0, el - 0.55) / 0.45, 2);
+      r += ceil * 20; g += ceil * 20; b += ceil * 20;
+
+      // donkerdere vloer
+      const floor = Math.pow(Math.max(0, 0.25 - el) / 0.25, 2);
+      r -= floor * 40; g -= floor * 40; b -= floor * 40;
+
+      const i = (y * W + x) * 4;
+      data[i]   = Math.min(255, Math.max(0, r));
+      data[i+1] = Math.min(255, Math.max(0, g));
+      data[i+2] = Math.min(255, Math.max(0, b));
+      data[i+3] = 255;
+    }
   }
-  panel( 0,  8,  0, -Math.PI/2, 0,         0xffffff);  // plafond (helder)
-  panel( 0, -8,  0,  Math.PI/2, 0,         0xd8d8d8);  // vloer
-  panel( 8,  0,  0,  0, -Math.PI/2,        0xfff5e0);  // rechts – warme key
-  panel(-8,  0,  0,  0,  Math.PI/2,        0xe0ebff);  // links  – koele fill
-  panel( 0,  0, -8,  0,  Math.PI,          0xffffff);  // achter – rim
-  panel( 0,  0,  8,  0,  0,                0xefefef);  // voor
-  return s;
+  const tex = new THREE.DataTexture(data, W, H, THREE.RGBAFormat);
+  tex.mapping  = THREE.EquirectangularReflectionMapping;
+  tex.encoding = THREE.sRGBEncoding;
+  tex.needsUpdate = true;
+  return tex;
 }
+
+const envRaw = buildEnvTexture();
 const pmrem  = new THREE.PMREMGenerator(renderer);
 pmrem.compileEquirectangularShader();
-const envTex = pmrem.fromScene(buildStudioScene(), 0.02).texture;
+const envTex = pmrem.fromEquirectangular(envRaw).texture;
 pmrem.dispose();
+envRaw.dispose();
 
 // ── Scene ────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background  = new THREE.Color(0xf5f5f5);
-scene.environment = envTex;   // geeft transmission-glas zijn reflecties
+scene.environment = envTex;
 
 // ── Camera ────────────────────────────────────────────────────────
+// Blender pos(1.6, -2.2, 1.25) → Three.js(1.6, 1.25, 2.2)
 const CAM_TARGET = new THREE.Vector3(0, 0.25, 0);
 const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.001, 50);
 camera.position.set(1.6, 1.25, 2.2);
-
-// ── OrbitControls ─────────────────────────────────────────────────
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.target.copy(CAM_TARGET);
-controls.enableDamping = true;
-controls.dampingFactor = 0.055;
-controls.minDistance   = 0.35;
-controls.maxDistance   = 5.5;
-controls.maxPolarAngle = Math.PI / 2 + 0.04;
-controls.update();
+camera.lookAt(CAM_TARGET);
 
 // ── Verlichting ───────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-// Key  – Blender(1.2, -2.0, 1.8) → Three.js(1.2, 1.8, 2.0)
 const keyL = new THREE.DirectionalLight(0xfffaf4, 3.0);
 keyL.position.set(1.2, 1.8, 2.0);
 keyL.castShadow = true;
 keyL.shadow.mapSize.set(2048, 2048);
-keyL.shadow.camera.left   = -1.5; keyL.shadow.camera.right  =  1.5;
-keyL.shadow.camera.top    =  1.5; keyL.shadow.camera.bottom = -1.5;
-keyL.shadow.camera.near   =  0.1; keyL.shadow.camera.far    = 10;
+keyL.shadow.camera.left = -1.5; keyL.shadow.camera.right =  1.5;
+keyL.shadow.camera.top  =  1.5; keyL.shadow.camera.bottom = -1.5;
+keyL.shadow.camera.near =  0.1; keyL.shadow.camera.far   = 10;
 keyL.shadow.bias = -0.0008;
 scene.add(keyL);
 
-// Fill – Blender(-1.6, -1.2, 1.2) → Three.js(-1.6, 1.2, 1.2)
-const fillL = new THREE.DirectionalLight(0xddeeff, 1.0);
-fillL.position.set(-1.6, 1.2, 1.2);
-scene.add(fillL);
-
-// Rim  – Blender(0, 2.2, 1.6) → Three.js(0, 1.6, -2.2)
-const rimL = new THREE.DirectionalLight(0xffffff, 1.3);
-rimL.position.set(0, 1.6, -2.2);
-scene.add(rimL);
+scene.add(Object.assign(new THREE.DirectionalLight(0xddeeff, 1.0),
+  { position: new THREE.Vector3(-1.6, 1.2, 1.2) }));
+scene.add(Object.assign(new THREE.DirectionalLight(0xffffff, 1.3),
+  { position: new THREE.Vector3(0, 1.6, -2.2) }));
 
 // ================================================================
-// REKPARAMETERS (identiek aan Blender-script)
+// REKPARAMETERS – identiek aan Blender-script
 // ================================================================
-const NX = 5, NY = 3, NZ = 2;
-const CELL   = 0.12;    // m per cel
-const ROD_R  = 0.006;   // staafradius
-const NODE_R = 0.0108;  // knooppuntradius
+const NX = 5, NY = 3, NZ = 2, CELL = 0.12;
+const ROD_R = 0.006, NODE_R = 0.0108;
 
-function bPt(ix, iy, iz) {           // roosterpunt → Three.js
+function bPt(ix, iy, iz) {
   return new THREE.Vector3(
-    (ix - NX/2) * CELL,
-    (iz - NZ/2) * CELL,
-   -((iy - NY/2) * CELL)
-  );
+    (ix - NX/2) * CELL,  (iz - NZ/2) * CELL,  -((iy - NY/2) * CELL));
 }
-function slotPt(ix, iy, iz) {        // slot-midden → Three.js
+function slotPt(ix, iy, iz) {
   return new THREE.Vector3(
-    ((ix+0.5) - NX/2) * CELL,
-    ((iz+0.5) - NZ/2) * CELL,
-   -(((iy+0.5) - NY/2) * CELL)
-  );
+    ((ix+0.5) - NX/2) * CELL,  ((iz+0.5) - NZ/2) * CELL,
+    -(((iy+0.5) - NY/2) * CELL));
 }
 
-// ── Rekmateriaal: zwart, glanzend metaal ─────────────────────────
+// ── Rekmateriaal ─────────────────────────────────────────────────
 const rackMat = new THREE.MeshStandardMaterial({
   color: 0x090909, metalness: 1.0, roughness: 0.18, envMapIntensity: 0.9,
 });
 
 // ================================================================
-// REKSTRUCTUUR BOUWEN (6×4×3 knooppunten + staven)
+// REKSTRUCTUUR (5×3×2 = 30 slots)
 // ================================================================
 function buildRack() {
   const grp    = new THREE.Group();
@@ -210,11 +203,9 @@ function buildRack() {
     const dir = new THREE.Vector3().subVectors(p2, p1);
     const len = dir.length();
     if (len < 1e-6) return;
-    const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+    const mid  = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
     const mesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(ROD_R, ROD_R, len, 10, 1),
-      rackMat
-    );
+      new THREE.CylinderGeometry(ROD_R, ROD_R, len, 10), rackMat);
     mesh.position.copy(mid);
     mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.normalize());
     mesh.castShadow = true;
@@ -226,68 +217,57 @@ function buildRack() {
       for (let iz = 0; iz <= NZ; iz++) {
         const p = bPt(ix, iy, iz);
         const s = new THREE.Mesh(sphGeo, rackMat);
-        s.position.copy(p); s.castShadow = true;
-        grp.add(s);
-        if (ix < NX) addRod(p, bPt(ix+1, iy,   iz  ));
-        if (iy < NY) addRod(p, bPt(ix,   iy+1,  iz  ));
-        if (iz < NZ) addRod(p, bPt(ix,   iy,    iz+1));
+        s.position.copy(p); s.castShadow = true; grp.add(s);
+        if (ix < NX) addRod(p, bPt(ix+1,iy,  iz  ));
+        if (iy < NY) addRod(p, bPt(ix,  iy+1, iz  ));
+        if (iz < NZ) addRod(p, bPt(ix,  iy,   iz+1));
       }
   return grp;
 }
 
 // ================================================================
 // FLESVORMEN via LatheGeometry
-// Profiel langs Y-as (bodem → hals). Gecentreerd op y=0
-// zodat bottle.position = slot-midden klopt na rotatie.
+// Profiel langs +Y. Gecentreerd op y=0 (off = -h/2).
 // ================================================================
 function buildProfile(shape) {
-  // Dimensies per flestype (in meters)
   let h=0.355, bR=0.036, nR=0.0140, nH=0.090, sH=0.070;
-  if (shape === "champagne") { h=0.368; nR=0.0115; nH=0.115; sH=0.082; }
-  if (shape === "fortified") { h=0.328; nR=0.0155; nH=0.065; sH=0.048; }
-
-  const off     = -h / 2;           // centreerverschuiving
-  const shStart = h - nH - sH;      // schouder begint hier
-
+  if (shape === 'champagne') { h=0.368; nR=0.0115; nH=0.115; sH=0.082; }
+  if (shape === 'fortified') { h=0.328; nR=0.0155; nH=0.065; sH=0.048; }
+  const off = -h/2, sh = h - nH - sH;
   const pts = [
-    [0,           0                     ],  // midden bodem
-    [bR * 0.84,   0                     ],  // voetrand
-    [bR,          0.013                 ],  // voetring
-    [bR * 1.016,  0.028                 ],  // buikprofiel
-    [bR,          shStart * 0.90        ],
-    [bR,          shStart               ],  // schouder start
-    [nR * 1.35,   shStart + sH * 0.60  ],  // schouder curve
-    [nR * 1.08,   h - nH               ],  // hals start
-    [nR,          h - nH * 0.42        ],  // halsmidden
-    [nR * 1.06,   h - 0.020            ],  // liprand
-    [nR * 1.18,   h - 0.008            ],  // lip top
-    [0,           h                    ],  // midden hals
-  ].map(([x,y]) => new THREE.Vector2(x, y + off));
+    [0,          0          ],
+    [bR*0.84,    0          ],
+    [bR,         0.013      ],
+    [bR*1.016,   0.028      ],
+    [bR,         sh*0.90    ],
+    [bR,         sh         ],
+    [nR*1.35,    sh+sH*0.60 ],
+    [nR*1.08,    h-nH       ],
+    [nR,         h-nH*0.42  ],
+    [nR*1.06,    h-0.020    ],
+    [nR*1.18,    h-0.008    ],
+    [0,          h          ],
+  ].map(([x,y]) => new THREE.Vector2(x, y+off));
 
   const geo = new THREE.LatheGeometry(pts, 88);
   geo.computeVertexNormals();
   return { geo, h, bR, nR };
 }
 
-// Eenmalig vooraf bouwen (gedeeld voor alle flessen van hetzelfde type)
 const GEO = {
-  wine:      buildProfile("wine"),
-  champagne: buildProfile("champagne"),
-  fortified: buildProfile("fortified"),
+  wine:      buildProfile('wine'),
+  champagne: buildProfile('champagne'),
+  fortified: buildProfile('fortified'),
 };
 
-// ── Materiaalfabrieken ────────────────────────────────────────────
+// ── Materiaalfuncties ─────────────────────────────────────────────
 function makeGlass(color) {
   return new THREE.MeshPhysicalMaterial({
     color:           new THREE.Color(color),
-    roughness:       0.02,
-    metalness:       0,
-    transmission:    0.92,          // echt glaseffect
-    ior:             1.45,
-    thickness:       0.80,
+    roughness:       0.02, metalness: 0,
+    transmission:    0.92, ior: 1.45, thickness: 0.80,
     envMapIntensity: 1.4,
-    transparent:     true,
-    depthWrite:      false,
+    transparent:     true, depthWrite: false,
   });
 }
 function makeCap(color, metalness) {
@@ -300,20 +280,19 @@ const LABEL_MAT = new THREE.MeshStandardMaterial({
 });
 
 // ================================================================
-// WIJNTYPEN (identiek aan Blender-script)
+// WIJNTYPEN – identiek aan Blender
 // ================================================================
 const WINE = {
-  red:       { glass:"#0d0404", cap:"#b01010", capM:0.12, shape:"wine"      },
-  white:     { glass:"#8ec05a", cap:"#e5e5dc", capM:0.08, shape:"wine"      },
-  rose:      { glass:"#c02848", cap:"#f090a8", capM:0.10, shape:"wine"      },
-  sparkling: { glass:"#0b2410", cap:"#c8a420", capM:0.72,
-               foil: "#d4b02a",                           shape:"champagne" },
-  fortified: { glass:"#561e06", cap:"#3a1404", capM:0.12, shape:"fortified" },
+  red:       { glass:'#0d0404', cap:'#b01010', capM:0.12, shape:'wine'      },
+  white:     { glass:'#8ec05a', cap:'#e5e5dc', capM:0.08, shape:'wine'      },
+  rose:      { glass:'#c02848', cap:'#f090a8', capM:0.10, shape:'wine'      },
+  sparkling: { glass:'#0b2410', cap:'#c8a420', capM:0.72,
+               foil: '#d4b02a',                           shape:'champagne' },
+  fortified: { glass:'#561e06', cap:'#3a1404', capM:0.12, shape:'fortified' },
 };
-
 const SEQ = [
-  ...Array(7).fill('red'), ...Array(6).fill('white'),
-  ...Array(4).fill('rose'), ...Array(3).fill('sparkling'), ...Array(2).fill('fortified'),
+  ...Array(7).fill('red'),   ...Array(6).fill('white'),
+  ...Array(4).fill('rose'),  ...Array(3).fill('sparkling'), ...Array(2).fill('fortified'),
 ];
 const EMPTY = new Set(['0,0,0','4,2,0','2,1,0','1,2,1','3,0,1','0,1,1','4,1,1','2,2,1']);
 
@@ -321,131 +300,152 @@ const EMPTY = new Set(['0,0,0','4,2,0','2,1,0','1,2,1','3,0,1','0,1,1','4,1,1','
 // FLES BOUWEN
 // ================================================================
 function makeBottle(wtype) {
-  const w  = WINE[wtype];
-  const bg = GEO[w.shape];
+  const w = WINE[wtype], bg = GEO[w.shape];
   const { h, nR, bR } = bg;
   const grp = new THREE.Group();
 
-  // Glaslichaam (LatheGeometry, al gecentreerd op y=0)
+  // Glaslichaam
   const body = new THREE.Mesh(bg.geo, makeGlass(w.glass));
-  body.castShadow = true;
-  grp.add(body);
+  body.castShadow = true; grp.add(body);
 
-  // Dop/capsule bovenop de hals (y = +h/2)
-  const cpH = w.shape === "champagne" ? 0.035 : 0.024;
+  // Dop
+  const cpH = w.shape==='champagne' ? 0.035 : 0.024;
   const cpR = nR * 1.14;
   const cap = new THREE.Mesh(
-    new THREE.CylinderGeometry(cpR, cpR, cpH, 36),
-    makeCap(w.cap, w.capM)
-  );
-  cap.position.y = h/2 - cpH * 0.5;
-  cap.castShadow = true;
-  grp.add(cap);
+    new THREE.CylinderGeometry(cpR, cpR, cpH, 36), makeCap(w.cap, w.capM));
+  cap.position.y = h/2 - cpH*0.5; cap.castShadow = true; grp.add(cap);
 
-  // Foliehuls (alleen bij mousserende wijn)
+  // Foliehuls (mousserende wijn)
   if (w.foil) {
-    const fH = cpH * 1.45, fR = cpR * 1.25;
-    const fMat = makeCap(w.foil, 0.90);
-    fMat.roughness = 0.16;
-    const foil = new THREE.Mesh(new THREE.CylinderGeometry(fR, fR, fH, 36), fMat);
-    foil.position.y = h/2 - fH * 0.52;
-    foil.castShadow = true;
-    grp.add(foil);
+    const fH=cpH*1.45, fR=cpR*1.25;
+    const fMat = makeCap(w.foil, 0.90); fMat.roughness = 0.16;
+    const foil = new THREE.Mesh(new THREE.CylinderGeometry(fR,fR,fH,36), fMat);
+    foil.position.y = h/2 - fH*0.52; foil.castShadow = true; grp.add(foil);
   }
 
-  // Etiket (open cilinder rond de buik)
-  const lH = w.shape === "champagne" ? 0.062 : 0.068;
-  const lR = bR * 1.007;
-  const lY = w.shape === "champagne" ? -h * 0.07 : -h * 0.03;
+  // Etiket
+  const lH = w.shape==='champagne' ? 0.062 : 0.068;
   const lbl = new THREE.Mesh(
-    new THREE.CylinderGeometry(lR, lR, lH, 64, 1, true),
-    LABEL_MAT
-  );
-  lbl.position.y = lY;
+    new THREE.CylinderGeometry(bR*1.007, bR*1.007, lH, 64, 1, true), LABEL_MAT);
+  lbl.position.y = w.shape==='champagne' ? -h*0.07 : -h*0.03;
   grp.add(lbl);
 
   return grp;
 }
 
 // ================================================================
-// FLESSEN PLAATSEN IN HET REK
+// FLESSEN PLAATSEN
 // ================================================================
 function placeBottles() {
   const grp = new THREE.Group();
   const all = [];
-  for (let iz = 0; iz < NZ; iz++)
-    for (let iy = 0; iy < NY; iy++)
-      for (let ix = 0; ix < NX; ix++)
-        all.push([ix, iy, iz]);
-
+  for (let iz=0; iz<NZ; iz++)
+    for (let iy=0; iy<NY; iy++)
+      for (let ix=0; ix<NX; ix++)
+        all.push([ix,iy,iz]);
   let ti = 0;
-  for (const [ix, iy, iz] of all) {
+  for (const [ix,iy,iz] of all) {
     if (EMPTY.has(`${ix},${iy},${iz}`)) continue;
     const wtype  = SEQ[ti++ % SEQ.length];
     const bottle = makeBottle(wtype);
-
-    // Slot-midden + deterministisch micro-ruis (zelfde formule als Blender)
-    const pos = slotPt(ix, iy, iz);
-    const jx  = ((ix*17 + iy*7  + iz*11) % 5 - 2) * 0.0012;
-    const jy  = ((ix*23 + iy*3  + iz*29) % 5 - 2) * 0.0008;
-    const jz  = ((ix*13 + iy*19 + iz*5 ) % 5 - 2) * 0.0012;
-    bottle.position.set(pos.x+jx, pos.y+jy, pos.z+jz);
-
-    // Horizontaal oriënteren langs Z (diepte-as):
-    //   Rx(-π/2)  → hals (+Y) → -Z (weg van kijker)    [even iy]
-    //   Ry(π)     → hals (+Y) → +Z (naar kijker)       [oneven iy]
-    bottle.rotation.set(-Math.PI/2, (iy % 2 === 1) ? Math.PI : 0, 0);
+    const pos    = slotPt(ix, iy, iz);
+    // Deterministisch micro-ruis – zelfde formule als Blender
+    bottle.position.set(
+      pos.x + ((ix*17+iy*7 +iz*11)%5-2)*0.0012,
+      pos.y + ((ix*23+iy*3 +iz*29)%5-2)*0.0008,
+      pos.z + ((ix*13+iy*19+iz*5 )%5-2)*0.0012
+    );
+    // Rx(-π/2) → hals naar -Z; Ry(π) voor oneven iy-rijen → hals naar +Z
+    bottle.rotation.set(-Math.PI/2, (iy%2===1) ? Math.PI : 0, 0);
     grp.add(bottle);
   }
   return grp;
 }
 
-// ── Grondvlak ────────────────────────────────────────────────────
+// ── Grondvlak ─────────────────────────────────────────────────────
 const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(10, 10),
-  new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.90 })
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshStandardMaterial({ color:0xf0f0f0, roughness:0.90 })
 );
-ground.rotation.x = -Math.PI / 2;
-ground.position.y = -0.21;
-ground.receiveShadow = true;
-scene.add(ground);
+ground.rotation.x = -Math.PI/2; ground.position.y = -0.21;
+ground.receiveShadow = true; scene.add(ground);
 
-// ── Scene samenstellen ───────────────────────────────────────────
-const rack = buildRack();
-rack.position.y = 0.06;
-scene.add(rack);
+// ── Scene samenstellen ────────────────────────────────────────────
+const rack = buildRack();    rack.position.y    = 0.06; scene.add(rack);
+const bottles = placeBottles(); bottles.position.y = 0.06; scene.add(bottles);
 
-const bottles = placeBottles();
-bottles.position.y = 0.06;
-scene.add(bottles);
-
-// ── Laadscherm verbergen, UI tonen ──────────────────────────────
+// ── Laadscherm weg, UI zichtbaar ─────────────────────────────────
 document.getElementById('loading').style.display = 'none';
 document.getElementById('ui').style.display      = 'flex';
 
-// ── Responsive resize ────────────────────────────────────────────
+// ── Responsive ───────────────────────────────────────────────────
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+// ================================================================
+// EIGEN ORBIT-CONTROLS (geen extern bestand nodig)
+// ================================================================
+let drag=false, lx=0, ly=0;
+const tgt = CAM_TARGET.clone();
+let camDist = camera.position.distanceTo(tgt);
+let theta   = Math.atan2(camera.position.x - tgt.x, camera.position.z - tgt.z);
+let phi     = Math.asin((camera.position.y - tgt.y) / camDist);
+
+function applyCam() {
+  camera.position.set(
+    tgt.x + camDist * Math.cos(phi) * Math.sin(theta),
+    tgt.y + camDist * Math.sin(phi),
+    tgt.z + camDist * Math.cos(phi) * Math.cos(theta)
+  );
+  camera.lookAt(tgt);
+}
+
+const cv = renderer.domElement;
+cv.addEventListener('mousedown',  e => { drag=true; lx=e.clientX; ly=e.clientY; });
+cv.addEventListener('mouseup',    () => { drag=false; });
+cv.addEventListener('mouseleave', () => { drag=false; });
+cv.addEventListener('mousemove',  e => {
+  if (!drag) return;
+  theta -= (e.clientX-lx)*0.006;
+  phi    = Math.max(-0.05, Math.min(Math.PI/2-0.05, phi-(e.clientY-ly)*0.005));
+  lx=e.clientX; ly=e.clientY;
+  applyCam(); renderer.render(scene, camera);
+});
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  camDist = Math.max(0.35, Math.min(5.5, camDist + e.deltaY*0.003));
+  applyCam(); renderer.render(scene, camera);
+}, { passive: false });
+
+// Touch
+let tLx=0, tLy=0;
+cv.addEventListener('touchstart', e => { drag=true; tLx=e.touches[0].clientX; tLy=e.touches[0].clientY; });
+cv.addEventListener('touchend',   () => { drag=false; });
+cv.addEventListener('touchmove',  e => {
+  if (!drag) return;
+  theta -= (e.touches[0].clientX-tLx)*0.006;
+  phi    = Math.max(-0.05, Math.min(Math.PI/2-0.05, phi-(e.touches[0].clientY-tLy)*0.005));
+  tLx=e.touches[0].clientX; tLy=e.touches[0].clientY;
+  applyCam(); renderer.render(scene, camera);
+}, { passive:true });
+
 // ── Animatielus ──────────────────────────────────────────────────
-(function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-})();
+(function loop() { requestAnimationFrame(loop); renderer.render(scene, camera); })();
 
 // ── PNG opslaan ──────────────────────────────────────────────────
 document.getElementById('save-btn').addEventListener('click', () => {
   renderer.render(scene, camera);
-  const a = document.createElement('a');
-  a.download = 'vinage_wijnrek.png';
-  a.href     = renderer.domElement.toDataURL('image/png');
-  a.click();
+  Object.assign(document.createElement('a'),
+    { download:'vinage_wijnrek.png', href: renderer.domElement.toDataURL('image/png') }
+  ).click();
 });
 
+} catch(e) {
+  document.getElementById('load-err').textContent = 'Opbouwfout: ' + e.message;
+}
 } // end build()
 </script>
 </body>
