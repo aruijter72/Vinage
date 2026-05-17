@@ -219,6 +219,16 @@ for(let iz=0;iz<NZ;iz++){
     const el=document.createElement('div');
     el.className='slot-label';
     el.textContent=col+row;
+    // In iframe-modus: klikbaar maken zodat wijndetail opent in de app
+    if(window.parent!==window){
+      el.style.pointerEvents='auto';
+      el.style.cursor='pointer';
+      (function(slotKey){
+        el.addEventListener('click',function(){
+          window.parent.postMessage({type:'vinage-slot-click',slot:slotKey,cellarId:_cellarId},'*');
+        });
+      })((NZ-1-iz)+'-'+ix);
+    }
     labelContainer.appendChild(el);
 
     // Wereld-positie: voorkant rek (positieve Z), midden van het vakje
