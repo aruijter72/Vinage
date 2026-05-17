@@ -172,7 +172,7 @@ scene.add(gnd);
 // phi=0.72 (hoge hoek, ~41° boven horizontaal), theta=0.50 (iets rechts)
 const CAM_TARGET=new THREE.Vector3(0,-0.08,0);  // iets onder middelpunt richten
 const camera=new THREE.PerspectiveCamera(36,window.innerWidth/window.innerHeight,0.001,30);
-const THETA=0.38, PHI=0.26, DIST=1.95;
+const THETA=0.38, PHI=0.24, DIST=1.95;
 camera.position.set(
   DIST*Math.cos(PHI)*Math.sin(THETA),
   DIST*Math.sin(PHI),
