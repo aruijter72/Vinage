@@ -164,6 +164,7 @@ window.addEventListener('message',function(e){
   if(e.data.type!=='vinage-slots') return;
   SLOT_TYPES=e.data.slots||{};
   _cellarId=e.data.cellarId||null;
+  _rackType=e.data.rackType||'grid';
   _setupScene(e.data.nx||5, e.data.nz||5);
   if(_texturesReady&&!_built) finishBuild();
 });
