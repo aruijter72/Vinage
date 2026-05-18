@@ -297,6 +297,7 @@ const App = {
       case 'export-data':         this.exportData(); break;
       case 'import-data':         document.getElementById('import-file-input')?.click(); break;
       case 'clear-data':          this.clearData(); break;
+      case 'force-refresh':       this.forceRefresh(); break;
       case 'star-pick':           this.pickStar(parseInt(args.val, 10)); break;
       case 'type-pick':           this.pickType(args.type); break;
       // Collection extras
