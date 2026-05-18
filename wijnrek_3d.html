@@ -152,6 +152,11 @@ function _demoSlots(){
   return out;
 }
 
+// Signaleer aan de parent-app dat het iframe klaar is om data te ontvangen
+if(window.parent!==window){
+  window.parent.postMessage({type:'vinage-ready'},'*');
+}
+
 // Luister naar slotdata van de Vinage app (postMessage)
 window.addEventListener('message',function(e){
   if(!e.data||e.data.type!=='vinage-slots') return;
