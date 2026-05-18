@@ -228,8 +228,9 @@ function _setupScene(nx,nz){
   _gndMesh.receiveShadow=true;
   scene.add(_gndMesh);
 
-  // Camera
-  const camTarget=new THREE.Vector3(0,0,0);
+  // Camera — dichter bij voor groter rek in beeld
+  const DIST=1.55;
+  const camTarget=new THREE.Vector3(0,-0.04,0);
   camera.position.set(
     DIST*Math.cos(PHI)*Math.sin(THETA),
     DIST*Math.sin(PHI),
@@ -241,8 +242,8 @@ function _setupScene(nx,nz){
   while(labelContainer.firstChild) labelContainer.removeChild(labelContainer.firstChild);
   slotLabels=[];
 
-  // Schaal lettergrootte mee: klein voor grote rekken, max 8px
-  const fs=Math.max(5,Math.min(8,Math.floor(42/Math.max(NX,NZ))));
+  // Schaal lettergrootte: max 7px, agressief kleiner voor grote rekken
+  const fs=Math.max(4,Math.min(7,Math.floor(34/Math.max(NX,NZ))));
 
   // Coördinaat-labels per vakje
   // Kolommen: A-Z, daarna AA, AB, … | Rijen: iz=0 onderste → rij NZ
