@@ -241,8 +241,8 @@ function _setupScene(nx,nz){
   while(labelContainer.firstChild) labelContainer.removeChild(labelContainer.firstChild);
   slotLabels=[];
 
-  // Schaal lettergrootte mee voor grote rekken
-  const fs=Math.max(7,Math.min(11,Math.round(55/Math.max(NX,NZ))));
+  // Schaal lettergrootte mee: klein voor grote rekken, max 8px
+  const fs=Math.max(5,Math.min(8,Math.floor(42/Math.max(NX,NZ))));
 
   // Coördinaat-labels per vakje
   // Kolommen: A-Z, daarna AA, AB, … | Rijen: iz=0 onderste → rij NZ
