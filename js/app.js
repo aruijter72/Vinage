@@ -5327,6 +5327,24 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     this.renderView();
   },
 
+  forceRefresh() {
+    const nl = this.lang === 'nl';
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (!reg) { location.reload(); return; }
+        // Unregister the SW, clear all caches, then reload
+        reg.unregister().then(() => {
+          caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
+            this.toast(nl ? 'App wordt ververst…' : 'Refreshing app…', 'success');
+            location.reload();
+          });
+        });
+      });
+    } else {
+      location.reload();
+    }
+  },
+
   // ── About screen ──────────────────────────────────────────────────────────
   _showAbout() {
     // Build full-screen overlay (outside the modal system so it can be truly full-screen)
