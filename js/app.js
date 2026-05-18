@@ -5828,6 +5828,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         </label>
         <button class="btn btn-danger btn-full" data-action="clear-data">${this.t('settings.clearData')}</button>
       </div>
+    </div>
+    <div class="settings-section" style="margin-top:18px">
+      <h2>${nl ? 'App vernieuwen' : 'Refresh app'}</h2>
+      <p style="font-size:.85rem;color:var(--muted)">${nl ? 'Forceer een update van de app naar de nieuwste versie. Handig als de PWA niet automatisch ververst.' : 'Force the app to update to the latest version. Useful when the PWA does not refresh automatically.'}</p>
+      <button class="btn btn-ghost btn-full" data-action="force-refresh">${nl ? '🔄 Forceer vernieuwing' : '🔄 Force refresh'}</button>
     </div>`;
   },
 
