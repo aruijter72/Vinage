@@ -2707,19 +2707,17 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         ${stats.capacity !== null
           ? `<span style="font-size:.8rem;font-weight:400;color:var(--text-lt)">${stats.occupied}/${stats.capacity}</span>`
           : `<span style="font-size:.8rem;font-weight:400;color:var(--text-lt)">${stats.occupied} ${this.t('cellar.bottles')}</span>`}
-        ${!is3D ? `<div class="rack-zoom-bar">
+        <div class="rack-zoom-bar">
           <button class="rack-zoom-btn" id="zoom-out-btn" title="Zoom out">−</button>
           <span class="rack-zoom-level" id="rack-zoom-level">100%</span>
           <button class="rack-zoom-btn" id="zoom-in-btn" title="Zoom in">+</button>
           <button class="rack-zoom-btn" id="zoom-reset-btn" title="Reset zoom" style="font-size:.7rem;font-weight:800">⊡</button>
-        </div>` : ''}
+        </div>
       </div>
       <div class="rack-subtitle">${this.t('cellar.typeDescriptions.' + c.type)}</div>
-      ${is3D
-        ? rackHtml
-        : `<div class="rack-zoom-container" id="rack-zoom-container">
-             <div id="rack-zoom-inner">${rackHtml}</div>
-           </div>`}
+      <div class="rack-zoom-container" id="rack-zoom-container">
+        <div id="rack-zoom-inner">${rackHtml}</div>
+      </div>
     </div>`;
   },
 
