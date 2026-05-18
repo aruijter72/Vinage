@@ -207,7 +207,6 @@ function _setupScene(nx,nz){
   NX=nx; NZ=nz;
   // Auto-schaal CELL zodat het rek altijd ≈0.60m groot is in de grootste dimensie
   CELL=Math.min(0.12, 0.60/Math.max(NX,NZ));
-  const DIST=1.95;
 
   // Verwijder oud rek + vloer
   if(_rackGroup){ scene.remove(_rackGroup); _rackGroup=null; }
