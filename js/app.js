@@ -35,14 +35,22 @@ const App = {
     this.navigate('home');
     document.addEventListener('click',  e => this._delegateClick(e));
     document.addEventListener('change', e => this._delegateChange(e));
-    // Ontvang slot-klikken vanuit het 3D-wijnrek iframe
+    // Ontvang berichten vanuit het 3D-wijnrek iframe
     window.addEventListener('message', e => {
-      if (!e.data || e.data.type !== 'vinage-slot-click') return;
-      const { slot, cellarId } = e.data;
-      const c = DB.getCellars().find(x => x.id === cellarId);
-      if (!c) return;
-      const wineId = c.slots && c.slots[slot];
-      this.handleSlotClick(cellarId, slot, wineId || null);
+      if (!e.data) return;
+      // Iframe is geladen en klaar — stuur slotdata
+      if (e.data.type === 'vinage-ready') {
+        if (this.cellarDetailId) this._onRack3DLoad(this.cellarDetailId);
+        return;
+      }
+      // Slot aangeklikt in het 3D-rek — open wijndetail
+      if (e.data.type === 'vinage-slot-click') {
+        const { slot, cellarId } = e.data;
+        const c = DB.getCellars().find(x => x.id === cellarId);
+        if (!c) return;
+        const wineId = c.slots && c.slots[slot];
+        this.handleSlotClick(cellarId, slot, wineId || null);
+      }
     });
     Sync.init();
     this._restoreDecantTimer();
@@ -2810,8 +2818,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     <div class="rack-3d-container">
       <iframe id="rack3d-iframe"
         src="./wijnrek_3d.html"
-        style="width:100%;height:420px;border:none;border-radius:10px;display:block;"
-        onload="App._onRack3DLoad('${c.id}')">
+        style="width:100%;height:420px;border:none;border-radius:10px;display:block;">
       </iframe>
       <div class="rack-3d-hint">${this.lang === 'nl' ? 'Tik op een coördinaat om de wijn te bekijken' : 'Tap a coordinate to view the wine'}</div>
     </div>`;
