@@ -303,7 +303,7 @@ function _setupScene(nx,nz){
   if(_gndMesh){ scene.remove(_gndMesh); _gndMesh=null; }
 
   // Nieuw rek
-  _rackGroup=buildRack();
+  _rackGroup=(_rackType==='diamond') ? buildDiamondRack() : buildRack();
   _rackGroup.rotation.x=0;
   scene.add(_rackGroup);
 
