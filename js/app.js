@@ -2813,7 +2813,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     return `
     <div class="rack-3d-container">
       <iframe id="rack3d-iframe"
-        src="./wijnrek_3d.html"
+        src="./wijnrek_3d.html?v=${Date.now()}"
         style="width:100%;height:min(700px,110vw);border:none;border-radius:10px;display:block;touch-action:none;">
       </iframe>
       <div class="rack-3d-hint">${this.lang === 'nl' ? 'Tik op een coördinaat om de wijn te bekijken' : 'Tap a coordinate to view the wine'}</div>
