@@ -202,6 +202,20 @@ const labelContainer=document.getElementById('labels');
 let slotLabels=[];
 let _rackGroup=null, _gndMesh=null;
 let _sceneReady=false;
+let _currentZoom=1.0;
+let _camTarget=new THREE.Vector3(0,-0.04,0);
+const _BASE_DIST=1.55;
+
+function _applyZoom(z){
+  if(z!==undefined) _currentZoom=Math.max(0.4,Math.min(6.0,z));
+  const d=_BASE_DIST/_currentZoom;
+  camera.position.set(
+    d*Math.cos(PHI)*Math.sin(THETA),
+    d*Math.sin(PHI),
+    d*Math.cos(PHI)*Math.cos(THETA)
+  );
+  camera.lookAt(_camTarget);
+}
 
 function _setupScene(nx,nz){
   NX=nx; NZ=nz;
@@ -227,15 +241,8 @@ function _setupScene(nx,nz){
   _gndMesh.receiveShadow=true;
   scene.add(_gndMesh);
 
-  // Camera — dichter bij voor groter rek in beeld
-  const DIST=1.55;
-  const camTarget=new THREE.Vector3(0,-0.04,0);
-  camera.position.set(
-    DIST*Math.cos(PHI)*Math.sin(THETA),
-    DIST*Math.sin(PHI),
-    DIST*Math.cos(PHI)*Math.cos(THETA)
-  );
-  camera.lookAt(camTarget);
+  // Camera via _applyZoom (houdt ook zoom-level bij)
+  _applyZoom(_currentZoom);
 
   // Verwijder oude labels
   while(labelContainer.firstChild) labelContainer.removeChild(labelContainer.firstChild);
