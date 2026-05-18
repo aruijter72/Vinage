@@ -378,7 +378,10 @@ function finishBuild(){
 
 // ── Responsive ────────────────────────────────────────────────────
 window.addEventListener('resize',()=>{
-  camera.aspect=window.innerWidth/window.innerHeight;
+  const h=_BASE_HALF/_currentZoom;
+  const a=window.innerWidth/window.innerHeight;
+  camera.left=-h*a; camera.right=h*a;
+  camera.top=h; camera.bottom=-h;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth,window.innerHeight);
 });
