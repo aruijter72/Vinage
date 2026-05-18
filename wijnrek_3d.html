@@ -76,8 +76,8 @@ document.body.appendChild(renderer.domElement);
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0xf5f0eb);
 
-scene.add(new THREE.AmbientLight(0xfff5ee,1.1));
-const keyL=new THREE.DirectionalLight(0xfff8f0,2.5);
+scene.add(new THREE.AmbientLight(0xfff5ee,0.7));
+const keyL=new THREE.DirectionalLight(0xfff8f0,1.2);
 keyL.position.set(2,4,3); keyL.castShadow=true;
 keyL.shadow.mapSize.set(2048,2048);
 keyL.shadow.camera.left=-1.2; keyL.shadow.camera.right=1.2;
