@@ -282,7 +282,8 @@ function _setupScene(nx,nz){
   slotLabels=[];
 
   // Schaal lettergrootte: min 7px zodat labels leesbaar blijven
-  const fs=Math.max(7,Math.min(11,Math.floor(55/Math.max(NX,NZ))));
+  _baseFontSize=Math.max(7,Math.min(11,Math.floor(55/Math.max(NX,NZ))));
+  const fs=_baseFontSize;
 
   // Coördinaat-labels per vakje
   // Kolommen: A-Z, daarna AA, AB, … | Rijen: iz=0 onderste → rij NZ
