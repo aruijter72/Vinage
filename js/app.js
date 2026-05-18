@@ -2824,10 +2824,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const iframe = document.getElementById('rack3d-iframe');
     if (!c || !iframe) return;
 
-    const NZ = 5; // rijen (iz=0 onderaan, iz=4 bovenaan)
     const slots = {};
     const rows = c.rows || 5;
     const cols = c.cols || 5;
+    const NZ = rows; // rijen (iz=0 onderaan, iz=NZ-1 bovenaan)
 
     for (let r = 0; r < rows; r++) {
       for (let col = 0; col < cols; col++) {
@@ -2837,10 +2837,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           const wine = DB.getWineById(wineId);
           if (wine) {
             const ix = col;
-            const iz = (NZ - 1) - r;
-            // 'rosé' → 'rose' (key in wijnrek_3d.html)
-            const wtype = wine.type === 'rosé' ? 'rose' : (wine.type || 'red');
-            slots[ix + ',' + iz] = wtype;
+            const iz = (NZ - 1) - r; // row 0 (top) → highest iz; last row → iz=0
+            // Normalise wine type for 3D renderer
+            let wtype = wine.type || 'red';
+            if (wtype === 'rosé') wtype = 'rose';
+            if (wtype === 'dessert') wtype = 'fortified';
+            slots[`${ix},${iz}`] = wtype;
           }
         }
       }
