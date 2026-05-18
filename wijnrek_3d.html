@@ -156,9 +156,13 @@ if(window.parent!==window){
   window.parent.postMessage({type:'vinage-ready'},'*');
 }
 
-// Luister naar slotdata van de Vinage app (postMessage)
+// Luister naar berichten van de Vinage app
 window.addEventListener('message',function(e){
-  if(!e.data||e.data.type!=='vinage-slots') return;
+  if(!e.data) return;
+  if(e.data.type==='vinage-zoom'){
+    _applyZoom(e.data.factor); return;
+  }
+  if(e.data.type!=='vinage-slots') return;
   SLOT_TYPES=e.data.slots||{};
   _cellarId=e.data.cellarId||null;
   _setupScene(e.data.nx||5, e.data.nz||5);
