@@ -95,6 +95,8 @@ const ROD_R=0.0030, NODE_R=0.0055;
 function bPt(ix,iy,iz){
   return new THREE.Vector3((ix-NX/2)*CELL,(iz-NZ/2)*CELL,-((iy-NY/2)*CELL));
 }
+// Diamond offset: odd rows shift right by half a cell
+function _dOff(iz){ return (_rackType==='diamond' && iz%2===1) ? CELL*0.5 : 0; }
 
 const rackMat=new THREE.MeshStandardMaterial({
   color:0x6B3410, metalness:0.0, roughness:0.9
