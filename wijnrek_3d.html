@@ -365,7 +365,7 @@ function _setupScene(nx,nz){
       }
       labelContainer.appendChild(el);
       // Linkerbovenhoek van het vakje: ix=links, iz+1=bovenkant (y omhoog in 3D)
-      const wx=(ix-NX/2)*CELL + CELL*0.06;
+      const wx=(ix-NX/2)*CELL + CELL*0.06 + _dOff(iz);
       const wy=(iz+1-NZ/2)*CELL - CELL*0.06;
       const wz=(NY/2)*CELL+0.018;
       slotLabels.push({el, pos:new THREE.Vector3(wx,wy,wz)});
@@ -418,7 +418,7 @@ function finishBuild(){
       });
       const mesh=new THREE.Mesh(geo,mat);
       mesh.position.set(
-        ((ix+0.5)-NX/2)*CELL,
+        ((ix+0.5)-NX/2)*CELL+_dOff(iz),
         ((iz+0.5)-NZ/2)*CELL,
         CELL*0.38
       );
