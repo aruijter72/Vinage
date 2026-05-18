@@ -321,7 +321,7 @@ function updateLabels(){
   const v=new THREE.Vector3();
   const W=window.innerWidth, H=window.innerHeight;
   // Schaal lettergrootte mee met zoom, min 5px
-  const fs=Math.max(5,Math.round(_baseFontSize*_currentZoom))+'px';
+  const fs=Math.max(5,Math.round(_baseFontSize*(1+(_currentZoom-1)/3)))+'px';
   for(const{el,pos}of slotLabels){
     v.copy(pos).project(camera);
     const sx=(v.x+1)/2*W;
