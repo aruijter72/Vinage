@@ -2901,26 +2901,62 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const inner     = document.getElementById('rack-zoom-inner');
     if (!container || !inner) return;
 
-    // Read natural dimensions before any transform so we can resize container correctly
-    const origW = inner.scrollWidth;
-    const origH = inner.scrollHeight;
-
-    // Restore saved zoom for this cellar (falls back to in-memory value)
     const zoomKey = `vinage_rack_zoom_${this.cellarDetailId}`;
     const saved = parseFloat(localStorage.getItem(zoomKey));
     if (!isNaN(saved)) this._rackZoom = saved;
+
+    const iframe3d = document.getElementById('rack3d-iframe');
+
+    if (iframe3d) {
+      // ── 3D rek: zoom via camera in Three.js (geen CSS scale = geen pixels) ──
+      const send = (z) => {
+        this._rackZoom = Math.max(0.4, Math.min(6.0, z));
+        iframe3d.contentWindow?.postMessage({ type: 'vinage-zoom', factor: this._rackZoom }, '*');
+        const lvl = document.getElementById('rack-zoom-level');
+        if (lvl) lvl.textContent = Math.round(this._rackZoom * 100) + '%';
+        localStorage.setItem(zoomKey, this._rackZoom);
+      };
+
+      document.getElementById('zoom-in-btn')?.addEventListener('click',    () => send(this._rackZoom + 0.25));
+      document.getElementById('zoom-out-btn')?.addEventListener('click',   () => send(this._rackZoom - 0.25));
+      document.getElementById('zoom-reset-btn')?.addEventListener('click', () => send(1.0));
+
+      // Pinch-to-zoom op touchscreen
+      let pinchDist0 = 0, zoom0 = 1;
+      container.addEventListener('touchstart', e => {
+        if (e.touches.length === 2) {
+          pinchDist0 = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          zoom0 = this._rackZoom;
+        }
+      }, { passive: true });
+      container.addEventListener('touchmove', e => {
+        if (e.touches.length !== 2) return;
+        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        send(zoom0 * dist / pinchDist0);
+        e.preventDefault();
+      }, { passive: false });
+
+      container.addEventListener('wheel', e => {
+        if (e.ctrlKey || e.metaKey) { e.preventDefault(); send(this._rackZoom - e.deltaY * 0.005); }
+      }, { passive: false });
+
+      send(this._rackZoom); // herstel opgeslagen zoom
+      return;
+    }
+
+    // ── 2D rek: originele CSS-scale zoom ─────────────────────────────────────
+    const origW = inner.scrollWidth;
+    const origH = inner.scrollHeight;
 
     const applyZoom = (z) => {
       this._rackZoom = Math.max(0.35, Math.min(3.0, z));
       const sz = this._rackZoom;
       inner.style.transform = `scale(${sz})`;
       inner.style.transformOrigin = 'top left';
-      // Expand/shrink container so scroll area matches scaled content
       container.style.minWidth  = (origW * sz) + 'px';
       container.style.minHeight = (origH * sz) + 'px';
       const lvl = document.getElementById('rack-zoom-level');
       if (lvl) lvl.textContent = Math.round(sz * 100) + '%';
-      // Persist per-cellar zoom so it survives navigation
       localStorage.setItem(zoomKey, this._rackZoom);
     };
 
@@ -2928,36 +2964,23 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     document.getElementById('zoom-out-btn')?.addEventListener('click',   () => applyZoom(this._rackZoom - 0.2));
     document.getElementById('zoom-reset-btn')?.addEventListener('click', () => applyZoom(1.0));
 
-    // Pinch-to-zoom (touch devices)
     let pinchDist0 = 0, zoom0 = 1;
     container.addEventListener('touchstart', e => {
       if (e.touches.length === 2) {
-        pinchDist0 = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
+        pinchDist0 = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
         zoom0 = this._rackZoom;
       }
     }, { passive: true });
     container.addEventListener('touchmove', e => {
       if (e.touches.length !== 2) return;
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
       applyZoom(zoom0 * dist / pinchDist0);
       e.preventDefault();
     }, { passive: false });
-
-    // Ctrl+scroll-wheel zoom on desktop
     container.addEventListener('wheel', e => {
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        applyZoom(this._rackZoom - e.deltaY * 0.004);
-      }
+      if (e.ctrlKey || e.metaKey) { e.preventDefault(); applyZoom(this._rackZoom - e.deltaY * 0.004); }
     }, { passive: false });
 
-    // Restore current zoom level (persists between re-renders of same cellar)
     applyZoom(this._rackZoom);
   },
 
