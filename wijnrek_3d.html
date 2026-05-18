@@ -131,33 +131,46 @@ function buildRack(){
 function buildDiamondRack(){
   const grp=new THREE.Group();
   const sph=new THREE.SphereGeometry(NODE_R,14,10);
-  // Diamond rack: diagonal cross-braces inside each cell, with outer frame
-  // Outer frame: horizontal + vertical rods along edges
+  // Diamond rack: offset rows create honeycomb pattern
+  // Helper: point with diamond offset applied
+  function dPt(ix,iy,iz){
+    const p=bPt(ix,iy,iz);
+    p.x+=_dOff(iz);
+    return p;
+  }
   for(let iy=0;iy<=NY;iy++){
-    // Horizontal rods (top/bottom of each row)
+    // Horizontal rods per row
     for(let iz=0;iz<=NZ;iz++){
       for(let ix=0;ix<NX;ix++){
-        _addRod(grp,bPt(ix,iy,iz),bPt(ix+1,iy,iz));
+        _addRod(grp,dPt(ix,iy,iz),dPt(ix+1,iy,iz));
+      }
+      // Nodes per row
+      for(let ix=0;ix<=NX;ix++){
+        _addNode(grp,sph,dPt(ix,iy,iz));
       }
     }
-    // Vertical rods (left/right of each column)
-    for(let ix=0;ix<=NX;ix++){
-      for(let iz=0;iz<NZ;iz++){
-        _addRod(grp,bPt(ix,iy,iz),bPt(ix,iy,iz+1));
-      }
-    }
-    // Diagonal cross-braces: two diagonals per cell
-    for(let ix=0;ix<NX;ix++){
-      for(let iz=0;iz<NZ;iz++){
-        _addRod(grp,bPt(ix,iy,iz),bPt(ix+1,iy,iz+1));
-        _addRod(grp,bPt(ix+1,iy,iz),bPt(ix,iy,iz+1));
+    // Diagonal rods connecting row iz to row iz+1 (honeycomb)
+    for(let iz=0;iz<NZ;iz++){
+      if(iz%2===0){
+        // Even row → odd row above: each node connects diagonally up-right and up-left
+        for(let ix=0;ix<=NX;ix++){
+          // Up-right: node(ix,iz) → node(ix,iz+1) (shifted right by 0.5)
+          if(ix<NX) _addRod(grp,dPt(ix,iy,iz),dPt(ix,iy,iz+1));
+          // Up-left: node(ix,iz) → node(ix-1,iz+1)
+          if(ix>0) _addRod(grp,dPt(ix,iy,iz),dPt(ix-1,iy,iz+1));
+        }
+      } else {
+        // Odd row → even row above: reversed
+        for(let ix=0;ix<=NX;ix++){
+          if(ix<NX) _addRod(grp,dPt(ix,iy,iz),dPt(ix,iy,iz+1));
+          if(ix<NX) _addRod(grp,dPt(ix,iy,iz),dPt(ix+1,iy,iz+1));
+        }
       }
     }
     // Depth rods connecting front to back
-    for(let ix=0;ix<=NX;ix++){
-      for(let iz=0;iz<=NZ;iz++){
-        if(iy<NY) _addRod(grp,bPt(ix,iy,iz),bPt(ix,iy+1,iz));
-        _addNode(grp,sph,bPt(ix,iy,iz));
+    for(let iz=0;iz<=NZ;iz++){
+      for(let ix=0;ix<=NX;ix++){
+        if(iy<NY) _addRod(grp,dPt(ix,iy,iz),dPt(ix,iy+1,iz));
       }
     }
   }
