@@ -89,7 +89,7 @@ fillL.position.set(-2,1.5,1); scene.add(fillL);
 
 // ── REKPARAMETERS (dynamisch ingesteld via _setupScene) ───────────
 let NX=5, NY=2, NZ=5, CELL=0.12;
-const ROD_R=0.0052, NODE_R=0.0095;
+const ROD_R=0.0030, NODE_R=0.0055;
 
 function bPt(ix,iy,iz){
   return new THREE.Vector3((ix-NX/2)*CELL,(iz-NZ/2)*CELL,-((iy-NY/2)*CELL));
