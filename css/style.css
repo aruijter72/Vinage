@@ -840,6 +840,7 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(92,26,16,.12);
+  touch-action: none;
 }
 .rack-3d-hint {
   text-align: center;
