@@ -76,15 +76,15 @@ document.body.appendChild(renderer.domElement);
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0xf5f0eb);
 
-scene.add(new THREE.AmbientLight(0xfff5ee,0.7));
-const keyL=new THREE.DirectionalLight(0xfff8f0,1.2);
+scene.add(new THREE.AmbientLight(0xfff5ee,0.4));
+const keyL=new THREE.DirectionalLight(0xfff8f0,0.6);
 keyL.position.set(2,4,3); keyL.castShadow=true;
 keyL.shadow.mapSize.set(2048,2048);
 keyL.shadow.camera.left=-1.2; keyL.shadow.camera.right=1.2;
 keyL.shadow.camera.top=1.5;  keyL.shadow.camera.bottom=-1.5;
 keyL.shadow.camera.near=0.1; keyL.shadow.camera.far=12;
 keyL.shadow.bias=-0.0006; scene.add(keyL);
-const fillL=new THREE.DirectionalLight(0xddeeff,0.6);
+const fillL=new THREE.DirectionalLight(0xddeeff,0.3);
 fillL.position.set(-2,1.5,1); scene.add(fillL);
 
 // ── REKPARAMETERS (dynamisch ingesteld via _setupScene) ───────────
