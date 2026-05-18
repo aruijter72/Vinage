@@ -100,24 +100,64 @@ const rackMat=new THREE.MeshStandardMaterial({
   color:0x6B3410, metalness:0.0, roughness:0.9
 });
 
+function _addRod(grp,p1,p2){
+  const dir=new THREE.Vector3().subVectors(p2,p1);
+  const len=dir.length(); if(len<1e-6)return;
+  const mid=new THREE.Vector3().addVectors(p1,p2).multiplyScalar(.5);
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(ROD_R,ROD_R,len,10),rackMat);
+  m.position.copy(mid);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());
+  m.castShadow=true; m.receiveShadow=true; grp.add(m);
+}
+function _addNode(grp,sph,p){
+  const s=new THREE.Mesh(sph,rackMat); s.position.copy(p); s.castShadow=true; grp.add(s);
+}
+
 function buildRack(){
   const grp=new THREE.Group();
   const sph=new THREE.SphereGeometry(NODE_R,14,10);
-  function addRod(p1,p2){
-    const dir=new THREE.Vector3().subVectors(p2,p1);
-    const len=dir.length(); if(len<1e-6)return;
-    const mid=new THREE.Vector3().addVectors(p1,p2).multiplyScalar(.5);
-    const m=new THREE.Mesh(new THREE.CylinderGeometry(ROD_R,ROD_R,len,10),rackMat);
-    m.position.copy(mid);
-    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());
-    m.castShadow=true; m.receiveShadow=true; grp.add(m);
-  }
   for(let ix=0;ix<=NX;ix++) for(let iy=0;iy<=NY;iy++) for(let iz=0;iz<=NZ;iz++){
     const p=bPt(ix,iy,iz);
-    const s=new THREE.Mesh(sph,rackMat); s.position.copy(p); s.castShadow=true; grp.add(s);
-    if(ix<NX)addRod(p,bPt(ix+1,iy,iz));
-    if(iy<NY)addRod(p,bPt(ix,iy+1,iz));
-    if(iz<NZ)addRod(p,bPt(ix,iy,iz+1));
+    _addNode(grp,sph,p);
+    if(ix<NX)_addRod(grp,p,bPt(ix+1,iy,iz));
+    if(iy<NY)_addRod(grp,p,bPt(ix,iy+1,iz));
+    if(iz<NZ)_addRod(grp,p,bPt(ix,iy,iz+1));
+  }
+  return grp;
+}
+
+function buildDiamondRack(){
+  const grp=new THREE.Group();
+  const sph=new THREE.SphereGeometry(NODE_R,14,10);
+  // Diamond rack: diagonal cross-braces inside each cell, with outer frame
+  // Outer frame: horizontal + vertical rods along edges
+  for(let iy=0;iy<=NY;iy++){
+    // Horizontal rods (top/bottom of each row)
+    for(let iz=0;iz<=NZ;iz++){
+      for(let ix=0;ix<NX;ix++){
+        _addRod(grp,bPt(ix,iy,iz),bPt(ix+1,iy,iz));
+      }
+    }
+    // Vertical rods (left/right of each column)
+    for(let ix=0;ix<=NX;ix++){
+      for(let iz=0;iz<NZ;iz++){
+        _addRod(grp,bPt(ix,iy,iz),bPt(ix,iy,iz+1));
+      }
+    }
+    // Diagonal cross-braces: two diagonals per cell
+    for(let ix=0;ix<NX;ix++){
+      for(let iz=0;iz<NZ;iz++){
+        _addRod(grp,bPt(ix,iy,iz),bPt(ix+1,iy,iz+1));
+        _addRod(grp,bPt(ix+1,iy,iz),bPt(ix,iy,iz+1));
+      }
+    }
+    // Depth rods connecting front to back
+    for(let ix=0;ix<=NX;ix++){
+      for(let iz=0;iz<=NZ;iz++){
+        if(iy<NY) _addRod(grp,bPt(ix,iy,iz),bPt(ix,iy+1,iz));
+        _addNode(grp,sph,bPt(ix,iy,iz));
+      }
+    }
   }
   return grp;
 }
