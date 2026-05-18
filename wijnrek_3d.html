@@ -200,22 +200,28 @@ for(const[wtype,src]of Object.entries(BOTTLE_IMG)){
 
 // ── Vaste camera + container voor dynamische opbouw ──────────────
 const THETA=0.38, PHI=0.24;
-const camera=new THREE.PerspectiveCamera(36,window.innerWidth/window.innerHeight,0.001,30);
+const _BASE_HALF=0.504; // matches original perspective FOV=36° at dist=1.55
+const _CAM_DIST=1.55;
+const _aspect0=window.innerWidth/window.innerHeight;
+const camera=new THREE.OrthographicCamera(-_BASE_HALF*_aspect0,_BASE_HALF*_aspect0,_BASE_HALF,-_BASE_HALF,0.001,30);
 const labelContainer=document.getElementById('labels');
 let slotLabels=[];
 let _rackGroup=null, _gndMesh=null;
 let _sceneReady=false;
 let _currentZoom=1.0;
 let _camTarget=new THREE.Vector3(0,-0.04,0);
-const _BASE_DIST=1.55;
 
 function _applyZoom(z){
   if(z!==undefined) _currentZoom=Math.max(0.4,Math.min(6.0,z));
-  const d=_BASE_DIST/_currentZoom;
+  const h=_BASE_HALF/_currentZoom;
+  const a=window.innerWidth/window.innerHeight;
+  camera.left=-h*a; camera.right=h*a;
+  camera.top=h; camera.bottom=-h;
+  camera.updateProjectionMatrix();
   camera.position.set(
-    d*Math.cos(PHI)*Math.sin(THETA),
-    d*Math.sin(PHI),
-    d*Math.cos(PHI)*Math.cos(THETA)
+    _camTarget.x+_CAM_DIST*Math.cos(PHI)*Math.sin(THETA),
+    _camTarget.y+_CAM_DIST*Math.sin(PHI),
+    _camTarget.z+_CAM_DIST*Math.cos(PHI)*Math.cos(THETA)
   );
   camera.lookAt(_camTarget);
 }
