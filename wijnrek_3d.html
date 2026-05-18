@@ -267,8 +267,9 @@ function _setupScene(nx,nz){
         })((NZ-1-iz)+'-'+ix);
       }
       labelContainer.appendChild(el);
-      const wx=((ix+0.5)-NX/2)*CELL;
-      const wy=((iz+0.5)-NZ/2)*CELL;
+      // Linkerbovenhoek van het vakje: ix=links, iz+1=bovenkant (y omhoog in 3D)
+      const wx=(ix-NX/2)*CELL + CELL*0.06;
+      const wy=(iz+1-NZ/2)*CELL - CELL*0.06;
       const wz=(NY/2)*CELL+0.018;
       slotLabels.push({el, pos:new THREE.Vector3(wx,wy,wz)});
     }
