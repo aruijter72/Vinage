@@ -4921,6 +4921,318 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   // ══════════════════════════════════════════════════════════════════════════
+  // EXPLORE VIEW (geographical drilldown: country → region → detail)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Country list — grouped from the user's collection. Stable across the app
+  // language by normalising `wine.country` to its canonical English key.
+  _exploreCountryGroups() {
+    const groups = {};
+    for (const w of DB.getWines()) {
+      const key = this._countryKey(w.country);
+      if (!key) continue;
+      if (!groups[key]) groups[key] = { key, displayLocal: this._localizeCountry(this._titleCase(key)), bottles: 0, wines: [] };
+      groups[key].bottles += (w.quantity || 1);
+      groups[key].wines.push(w);
+    }
+    return Object.values(groups).sort((a, b) => b.bottles - a.bottles);
+  },
+
+  _titleCase(s) {
+    return (s || '').replace(/\b\w/g, c => c.toUpperCase());
+  },
+
+  // Importer wines whose region string mentions this country (or its
+  // localised name). Used in the country & region detail sections.
+  _importerWinesByCountry(countryKey) {
+    if (!countryKey || typeof IMPORTERS === 'undefined') return [];
+    const enName = this._titleCase(countryKey).toLowerCase();
+    const nlName = (this._localizeCountry(this._titleCase(countryKey)) || '').toLowerCase();
+    const out = [];
+    for (const imp of IMPORTERS) {
+      const enabled = (typeof Sync !== 'undefined' && Sync.isImporterActive)
+        ? Sync.isImporterActive(imp.id, imp.active) : imp.active;
+      if (!enabled) continue;
+      for (const w of imp.wines || []) {
+        const r = (w.region || '').toLowerCase();
+        if (r.includes(enName) || (nlName && r.includes(nlName))) out.push({ importer: imp, wine: w });
+      }
+    }
+    return out;
+  },
+
+  _importerWinesByRegion(regionName) {
+    if (!regionName || typeof IMPORTERS === 'undefined') return [];
+    const q = regionName.toLowerCase();
+    const out = [];
+    for (const imp of IMPORTERS) {
+      const enabled = (typeof Sync !== 'undefined' && Sync.isImporterActive)
+        ? Sync.isImporterActive(imp.id, imp.active) : imp.active;
+      if (!enabled) continue;
+      for (const w of imp.wines || []) {
+        if ((w.region || '').toLowerCase().includes(q)) out.push({ importer: imp, wine: w });
+      }
+    }
+    return out;
+  },
+
+  // Renders a short list of partner wines (max 6) for the explore detail views.
+  _renderExplorePartnerList(matches) {
+    if (!matches.length) return '';
+    const top = matches.slice(0, 6);
+    const items = top.map(({ importer, wine }) => {
+      const meta = [this.t('types.' + (wine.type || 'red')), wine.region].filter(Boolean).join(' · ');
+      const brand = importer.logo
+        ? `<img class="pairing-importer-badge-logo" src="${this._esc(importer.logo)}" alt="${this._esc(importer.name)}">`
+        : `<span style="font-weight:700;color:${importer.color}">${this._esc(importer.name)}</span>`;
+      const link = wine.url
+        ? ` <a class="pairing-importer-link" href="${this._esc(wine.url)}" target="_blank" rel="noopener">${this.lang === 'nl' ? 'Bestellen' : 'Order'} ↗</a>`
+        : '';
+      return `<div class="explore-partner-row">
+        <span class="explore-partner-brand">${brand}</span>
+        <span class="explore-partner-name"><strong>${this._esc(wine.name)}</strong>${wine.vintage ? ` <span style="color:var(--text-lt);font-weight:400">${wine.vintage}</span>` : ''}<br>
+          <span style="font-size:.78rem;color:var(--text-lt)">${this._esc(meta)}</span></span>
+        ${link}
+      </div>`;
+    }).join('');
+    return `<div class="settings-section" style="margin-top:14px">
+      <h2 style="margin-top:0">${this._esc(this.t('explore.partners'))}</h2>
+      ${items}
+    </div>`;
+  },
+
+  buildExploreView() {
+    const groups = this._exploreCountryGroups();
+    if (!groups.length) {
+      return `${this._exploreHeader(this.t('explore.title'), null)}
+        <div class="settings-section" style="text-align:center;color:var(--text-lt);padding:32px 16px">${this._esc(this.t('explore.empty'))}</div>`;
+    }
+    const max = Math.max(...groups.map(g => g.bottles));
+    const rows = groups.map(g => {
+      const pct = Math.max(8, Math.round(g.bottles / max * 100));
+      const countText = (g.bottles === 1 ? this.t('explore.bottle1') : this.t('explore.bottlesN', { n: g.bottles }));
+      return `<button class="explore-country-row" data-action="explore-country" data-key="${this._esc(g.key)}" data-display="${this._esc(g.displayLocal)}">
+        <span class="explore-country-name">${this._esc(g.displayLocal)}</span>
+        <span class="explore-country-bar"><span style="width:${pct}%"></span></span>
+        <span class="explore-country-count">${this._esc(countText)}</span>
+        <span class="explore-country-arrow">›</span>
+      </button>`;
+    }).join('');
+    return `${this._exploreHeader(this.t('explore.title'), null)}
+      <div class="settings-section" style="padding-top:8px">
+        <p style="margin:0 0 14px;color:var(--text-lt);font-size:.9rem">${this._esc(this.t('explore.subtitle'))}</p>
+        <div class="explore-section-title">${this._esc(this.t('explore.countries'))}</div>
+        <div class="explore-country-list">${rows}</div>
+      </div>`;
+  },
+
+  _exploreHeader(title, backAction) {
+    const back = backAction
+      ? `<button class="btn btn-icon" data-action="${backAction}" aria-label="${this.t('common.back')}">${this._iconBack()}</button>`
+      : `<button class="btn btn-icon" data-nav="stats" aria-label="${this.t('common.back')}">${this._iconBack()}</button>`;
+    return `<div class="page-header">${back}<h1>${this._esc(title)}</h1></div>`;
+  },
+
+  buildExploreCountryView() {
+    const countryKey = this.exploreCountry || '';
+    const display = this.exploreCountryDisplay || this._localizeCountry(this._titleCase(countryKey));
+    // Wines in collection, grouped by region (case-insensitive trim)
+    const wines = DB.getWines().filter(w => this._countryKey(w.country) === countryKey);
+    const regionGroups = {};
+    for (const w of wines) {
+      const raw = (w.region || '').trim();
+      const slug = this._regionSlug(raw) || '_';
+      if (!regionGroups[slug]) regionGroups[slug] = { display: raw || (this.lang === 'nl' ? 'Onbekend' : 'Unknown'), bottles: 0, wines: [] };
+      regionGroups[slug].bottles += (w.quantity || 1);
+      regionGroups[slug].wines.push(w);
+    }
+    const regionsList = Object.values(regionGroups).sort((a, b) => b.bottles - a.bottles);
+    const regionsHtml = regionsList.map(r => {
+      const sample = r.wines.slice(0, 3).map(w => w.name).join(', ');
+      const countText = (r.bottles === 1 ? this.t('explore.bottle1') : this.t('explore.bottlesN', { n: r.bottles }));
+      const canClick = r.display && r.display !== (this.lang === 'nl' ? 'Onbekend' : 'Unknown');
+      return `<button class="explore-region-row"${canClick ? ` data-action="explore-region" data-region="${this._esc(r.display)}"` : ' disabled style="opacity:.6;cursor:default"'}>
+        <span class="explore-region-name"><strong>${this._esc(r.display)}</strong><br><span style="font-size:.78rem;color:var(--text-lt)">${this._esc(sample)}</span></span>
+        <span class="explore-region-count">${this._esc(countText)}</span>
+        ${canClick ? '<span class="explore-country-arrow">›</span>' : ''}
+      </button>`;
+    }).join('');
+
+    const partnerMatches = this._importerWinesByCountry(countryKey);
+
+    return `${this._exploreHeader(display, 'explore-back-countries')}
+      <div class="settings-section" style="padding-top:8px">
+        <h2 style="margin-top:0">${this._esc(this.t('explore.aboutCountry', { country: display }))}</h2>
+        <div id="explore-country-about" style="font-size:.9rem;color:var(--text);min-height:24px">
+          <span style="color:var(--text-lt)">${this._esc(this.t('explore.loading'))}</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 style="margin-top:0">${this._esc(this.t('explore.regionsInCollection'))}</h2>
+        ${regionsList.length ? `<div class="explore-region-list">${regionsHtml}</div>` : `<p style="color:var(--text-lt);font-size:.9rem">${this._esc(this.t('explore.noWinesYet'))}</p>`}
+      </div>
+      <div class="settings-section">
+        <h2 style="margin-top:0">${this._esc(this.t('explore.regionsDiscover'))}</h2>
+        <div id="explore-country-discover" style="font-size:.9rem;color:var(--text-lt)">
+          <span>${this._esc(this.t('explore.loading'))}</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 style="margin-top:0">${this._esc(this.t('explore.classics'))}</h2>
+        <div id="explore-country-classics" style="font-size:.9rem;color:var(--text-lt)">
+          <span>${this._esc(this.t('explore.loading'))}</span>
+        </div>
+      </div>
+      ${this._renderExplorePartnerList(partnerMatches)}`;
+  },
+
+  buildExploreRegionView() {
+    const countryKey = this.exploreCountry || '';
+    const countryDisplay = this.exploreCountryDisplay || this._localizeCountry(this._titleCase(countryKey));
+    const regionRaw = this.exploreRegion || '';
+    const title = regionRaw + (countryDisplay ? `, ${countryDisplay}` : '');
+
+    const slugTarget = this._regionSlug(regionRaw);
+    const wines = DB.getWines().filter(w => {
+      if (this._countryKey(w.country) !== countryKey) return false;
+      return this._regionSlug((w.region || '').trim()) === slugTarget;
+    });
+    const winesHtml = wines.map(w => `<div class="explore-wine-row">
+      <strong>${this._esc(w.name)}</strong>${w.vintage ? ` <span style="color:var(--text-lt)">${w.vintage}</span>` : ''}
+      <div style="font-size:.78rem;color:var(--text-lt)">${[this.t('types.' + (w.type || 'red')), w.producer].filter(Boolean).map(s => this._esc(s)).join(' · ')}</div>
+    </div>`).join('');
+
+    const partnerMatches = this._importerWinesByRegion(regionRaw);
+
+    return `${this._exploreHeader(title, 'explore-back-country')}
+      <div class="settings-section" style="padding-top:8px">
+        <h2 style="margin-top:0">${this._esc(this.t('explore.climateStyle'))}</h2>
+        <div id="explore-region-climate" style="font-size:.9rem;color:var(--text);min-height:24px">
+          <span style="color:var(--text-lt)">${this._esc(this.t('explore.loading'))}</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 style="margin-top:0">${this._esc(this.t('explore.grapes'))}</h2>
+        <div id="explore-region-grapes" style="font-size:.9rem;color:var(--text-lt)">
+          <span>${this._esc(this.t('explore.loading'))}</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h2 style="margin-top:0">${this._esc(this.t('explore.yourWines', { region: regionRaw }))}</h2>
+        ${wines.length ? `<div class="explore-wine-list">${winesHtml}</div>` : `<p style="color:var(--text-lt);font-size:.9rem">${this._esc(this.t('explore.noWinesYet'))}</p>`}
+      </div>
+      <div class="settings-section">
+        <h2 style="margin-top:0">${this._esc(this.t('explore.classicsTry'))}</h2>
+        <div id="explore-region-classics" style="font-size:.9rem;color:var(--text-lt)">
+          <span>${this._esc(this.t('explore.loading'))}</span>
+        </div>
+      </div>
+      ${this._renderExplorePartnerList(partnerMatches)}`;
+  },
+
+  async _loadCountryOverview() {
+    const countryKey = this.exploreCountry || '';
+    if (!countryKey) return;
+    const display = this.exploreCountryDisplay || this._titleCase(countryKey);
+    const settings = DB.getSettings();
+    const aboutEl    = document.getElementById('explore-country-about');
+    const discoverEl = document.getElementById('explore-country-discover');
+    const classicsEl = document.getElementById('explore-country-classics');
+    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
+      const msg = `<span style="color:var(--text-lt)">${this._esc(this.t('explore.loadFailed'))}</span>`;
+      if (aboutEl) aboutEl.innerHTML = msg;
+      if (discoverEl) discoverEl.innerHTML = '';
+      if (classicsEl) classicsEl.innerHTML = '';
+      return;
+    }
+    try {
+      // Quota: only count against the user when an actual AI call happens
+      // (cache hit = free). API marks _cached so we can skip increment.
+      const data = await API.getCountryOverview(this._titleCase(countryKey), this.lang, settings);
+      if (!data._cached) {
+        if (!this._canUseAI()) { this._showAiLimitPaywall(); return; }
+        this._incrementAiCalls();
+      }
+      if (aboutEl) aboutEl.innerHTML = this._esc(data.about || '');
+      if (discoverEl) {
+        const inCollection = new Set(Object.values(this._collectionRegionsForCountry(countryKey)).map(r => this._regionSlug(r)));
+        const list = (data.regions || []).filter(r => r && r.name && !inCollection.has(this._regionSlug(r.name)));
+        if (list.length) {
+          discoverEl.innerHTML = list.map(r => `<div style="margin-bottom:6px"><strong style="color:var(--text)">${this._esc(r.name)}</strong>${r.why ? ` — <span>${this._esc(r.why)}</span>` : ''}</div>`).join('');
+        } else {
+          discoverEl.innerHTML = `<span>—</span>`;
+        }
+      }
+      if (classicsEl) {
+        const arr = data.classics || [];
+        classicsEl.innerHTML = arr.length ? arr.map(c => `<div>• ${this._esc(c)}</div>`).join('') : `<span>—</span>`;
+      }
+    } catch (e) {
+      console.warn('explore country overview failed', e);
+      const msg = `<span style="color:var(--text-lt)">${this._esc(this.t('explore.loadFailed'))}</span>`;
+      if (aboutEl) aboutEl.innerHTML = msg;
+      if (discoverEl) discoverEl.innerHTML = '';
+      if (classicsEl) classicsEl.innerHTML = '';
+    }
+  },
+
+  _collectionRegionsForCountry(countryKey) {
+    const m = {};
+    for (const w of DB.getWines()) {
+      if (this._countryKey(w.country) !== countryKey) continue;
+      const raw = (w.region || '').trim();
+      if (!raw) continue;
+      m[this._regionSlug(raw)] = raw;
+    }
+    return m;
+  },
+
+  async _loadRegionOverview() {
+    const countryKey = this.exploreCountry || '';
+    const regionRaw  = this.exploreRegion || '';
+    if (!countryKey || !regionRaw) return;
+    const settings = DB.getSettings();
+    const climateEl  = document.getElementById('explore-region-climate');
+    const grapesEl   = document.getElementById('explore-region-grapes');
+    const classicsEl = document.getElementById('explore-region-classics');
+    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+    if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
+      const msg = `<span style="color:var(--text-lt)">${this._esc(this.t('explore.loadFailed'))}</span>`;
+      if (climateEl) climateEl.innerHTML = msg;
+      if (grapesEl) grapesEl.innerHTML = '';
+      if (classicsEl) classicsEl.innerHTML = '';
+      return;
+    }
+    try {
+      const data = await API.getRegionOverview(this._titleCase(countryKey), regionRaw, this.lang, settings);
+      if (!data._cached) {
+        if (!this._canUseAI()) { this._showAiLimitPaywall(); return; }
+        this._incrementAiCalls();
+      }
+      if (climateEl) climateEl.innerHTML = this._esc(data.climate || '');
+      if (grapesEl) {
+        const red = (data.grapes?.red || []).map(g => this._esc(g)).join(' · ');
+        const wht = (data.grapes?.white || []).map(g => this._esc(g)).join(' · ');
+        grapesEl.innerHTML = `
+          ${red ? `<div><strong>${this._esc(this.t('explore.grapesRed'))}:</strong> ${red}</div>` : ''}
+          ${wht ? `<div style="margin-top:4px"><strong>${this._esc(this.t('explore.grapesWhite'))}:</strong> ${wht}</div>` : ''}
+          ${!red && !wht ? '<span>—</span>' : ''}`;
+      }
+      if (classicsEl) {
+        const arr = data.classics || [];
+        classicsEl.innerHTML = arr.length ? arr.map(c => `<div>• ${this._esc(c)}</div>`).join('') : `<span>—</span>`;
+      }
+    } catch (e) {
+      console.warn('explore region overview failed', e);
+      const msg = `<span style="color:var(--text-lt)">${this._esc(this.t('explore.loadFailed'))}</span>`;
+      if (climateEl) climateEl.innerHTML = msg;
+      if (grapesEl) grapesEl.innerHTML = '';
+      if (classicsEl) classicsEl.innerHTML = '';
+    }
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
   // STATS VIEW
   // ══════════════════════════════════════════════════════════════════════════
   buildStatsView() {
