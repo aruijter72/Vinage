@@ -170,7 +170,10 @@ const Sync = {
     // Start live listener on user doc — picks up plan changes in real time
     this._startUserDocListener(user.uid);
 
-    if (data.householdId) {
+    // In demo mode, keep auth alive (AI proxy + read-only community lookups)
+    // but never download or sync household data — that would overwrite the
+    // sandboxed demo collection with real cloud data.
+    if (data.householdId && !this._demo()) {
       this.householdId = data.householdId;
       await this._loadHousehold();
       // If this user is the household owner, push their plan to the household doc
