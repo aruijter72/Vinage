@@ -173,6 +173,27 @@ const App = {
     document.getElementById('modal-overlay').onclick = e => {
       if (e.target === document.getElementById('modal-overlay')) this._tryCloseModal();
     };
+    this._renderDemoBanner();
+  },
+
+  // Persistent banner shown while the sandboxed demo mode is active.
+  _renderDemoBanner() {
+    const el = document.getElementById('demo-banner');
+    if (!el) return;
+    const active = typeof DB !== 'undefined' && DB.Demo && DB.Demo.isActive();
+    document.body.classList.toggle('demo-on', !!active);
+    if (!active) { el.innerHTML = ''; el.style.display = 'none'; return; }
+    el.style.display = 'flex';
+    el.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;'
+      + 'position:fixed;top:0;left:0;right:0;z-index:9999;padding:6px 12px;'
+      + 'background:var(--burgundy);color:#fff;font-size:.78rem;font-weight:700;'
+      + 'box-shadow:0 1px 6px rgba(0,0,0,.25)';
+    el.innerHTML = `
+      <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🎬 ${this._esc(this.t('settings.demoActive'))}</span>
+      <span style="display:flex;gap:6px;flex-shrink:0">
+        <button data-action="reset-demo" style="background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:6px;padding:4px 10px;font-weight:700;font-size:.75rem;cursor:pointer">${this._esc(this.t('settings.demoReset'))}</button>
+        <button data-action="exit-demo" style="background:#fff;color:var(--burgundy);border:0;border-radius:6px;padding:4px 10px;font-weight:700;font-size:.75rem;cursor:pointer">${this._esc(this.t('settings.demoExit'))}</button>
+      </span>`;
   },
 
   renderNav() {
