@@ -65,6 +65,11 @@ const App = {
       sessionStorage.removeItem('swUpdated');
       setTimeout(() => this.toast('✓ ' + (this.lang === 'nl' ? 'Vinage bijgewerkt' : 'Vinage updated'), 'success'), 600);
     }
+    // Toast after entering/resetting demo mode (survives the reload)
+    if (sessionStorage.getItem('demoToast')) {
+      sessionStorage.removeItem('demoToast');
+      setTimeout(() => this.toast('🎬 ' + this.t('settings.demoEntered'), 'success'), 600);
+    }
 
     // First-run flow: onboarding → consent (both only shown once)
     const hasOnboarding = localStorage.getItem('vinageOnboarding');
