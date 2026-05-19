@@ -1709,6 +1709,8 @@ const TRANSLATIONS = {
       reviewsBusy: 'Der Bewertungsdienst ist vorübergehend überlastet. Bitte versuche es gleich erneut.',
       reviewsPro: 'Professionelle Bewertungen',
       reviewsCommunity: 'Vinage-Nutzer',
+      reviewsExpertsSay: 'Experten sagen:',
+      reviewsAvgRating: 'Durchschnittliche Bewertung',
       reviewCommunity: 'Vinage-Nutzer',
       ratingNote: 'Warum diese Bewertung?',
       ratingNotePlaceholder: 'Was hat dir gefallen oder nicht? Hilft anderen Vinage-Nutzern.',
