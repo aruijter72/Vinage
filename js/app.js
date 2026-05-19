@@ -3148,47 +3148,6 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     }
 
     // Non-3D racks (case / free shelf) just show wine cards — no zoom needed.
-    return;
-
-    // eslint-disable-next-line no-unreachable
-    // ── 2D rek: originele CSS-scale zoom ─────────────────────────────────────
-    const origW = inner.scrollWidth;
-    const origH = inner.scrollHeight;
-
-    const applyZoom = (z) => {
-      this._rackZoom = Math.max(0.35, Math.min(3.0, z));
-      const sz = this._rackZoom;
-      inner.style.transform = `scale(${sz})`;
-      inner.style.transformOrigin = 'top left';
-      container.style.minWidth  = (origW * sz) + 'px';
-      container.style.minHeight = (origH * sz) + 'px';
-      const lvl = document.getElementById('rack-zoom-level');
-      if (lvl) lvl.textContent = Math.round(sz * 100) + '%';
-      localStorage.setItem(zoomKey, this._rackZoom);
-    };
-
-    document.getElementById('zoom-in-btn')?.addEventListener('click',    () => applyZoom(this._rackZoom + 0.2));
-    document.getElementById('zoom-out-btn')?.addEventListener('click',   () => applyZoom(this._rackZoom - 0.2));
-    document.getElementById('zoom-reset-btn')?.addEventListener('click', () => applyZoom(1.0));
-
-    let pinchDist0 = 0, zoom0 = 1;
-    container.addEventListener('touchstart', e => {
-      if (e.touches.length === 2) {
-        pinchDist0 = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        zoom0 = this._rackZoom;
-      }
-    }, { passive: true });
-    container.addEventListener('touchmove', e => {
-      if (e.touches.length !== 2) return;
-      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-      applyZoom(zoom0 * dist / pinchDist0);
-      e.preventDefault();
-    }, { passive: false });
-    container.addEventListener('wheel', e => {
-      if (e.ctrlKey || e.metaKey) { e.preventDefault(); applyZoom(this._rackZoom - e.deltaY * 0.004); }
-    }, { passive: false });
-
-    applyZoom(this._rackZoom);
   },
 
   _buildWineMap(c) {
