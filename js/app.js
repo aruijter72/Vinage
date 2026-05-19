@@ -5534,6 +5534,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   resetDemo() {
+    if (!this._isDemoOwner()) return;
     DB.Demo.reset();
     sessionStorage.setItem('demoToast', '1');
     location.reload();
