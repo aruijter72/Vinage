@@ -183,11 +183,9 @@ const App = {
     const active = typeof DB !== 'undefined' && DB.Demo && DB.Demo.isActive();
     document.body.classList.toggle('demo-on', !!active);
     if (!active) { el.innerHTML = ''; el.style.display = 'none'; return; }
-    el.style.display = 'flex';
     el.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;'
-      + 'position:fixed;top:0;left:0;right:0;z-index:9999;padding:6px 12px;'
-      + 'background:var(--burgundy);color:#fff;font-size:.78rem;font-weight:700;'
-      + 'box-shadow:0 1px 6px rgba(0,0,0,.25)';
+      + 'padding:6px 12px;background:var(--burgundy);color:#fff;font-size:.78rem;'
+      + 'font-weight:700;box-shadow:0 1px 6px rgba(0,0,0,.25)';
     el.innerHTML = `
       <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🎬 ${this._esc(this.t('settings.demoActive'))}</span>
       <span style="display:flex;gap:6px;flex-shrink:0">
