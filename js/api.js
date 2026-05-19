@@ -294,12 +294,23 @@ If no wines can be meaningfully matched, return: []`;
   },
 
   // ── Wine reviews lookup ──────────────────────────────────────────────────
-  async getWineReviews(wine, settings, lang = 'en') {
+  async getWineReviews(wine, settings, lang = 'en', communityReviews = []) {
     const langName = { en: 'English', nl: 'Dutch', it: 'Italian', fr: 'French', es: 'Spanish', de: 'German' }[lang] || 'English';
     const langNote = `Write all review details (the "source", "summary" and any text you generate) in ${langName}. Exception: if a "quote" is a genuine original excerpt from a critic's review, you may keep it verbatim in its original language instead of translating it.`;
 
     const wineDesc = [wine.name, wine.producer, wine.vintage, wine.region, wine.country]
       .filter(Boolean).join(', ');
+
+    // Community reviews are written by Vinage users in their own language.
+    // Fold their translation into THIS single call so it costs nothing extra.
+    const community = (communityReviews || []).filter(r => (r.text || '').trim());
+    const communityBlock = community.length ? `
+
+These are reviews written by Vinage app users (translate each into ${langName}, keep meaning, do NOT edit ratings, do NOT invent any):
+${JSON.stringify(community.map((r, i) => ({ i, rating: r.rating || 0, text: r.text })))}
+
+Also return a "community" array with one entry per input in the SAME ORDER:
+"community": [{ "i": 0, "rating": 5, "text": "<the text translated into ${langName}>" }]` : '';
 
     const prompt = `You are an expert wine critic researcher.
 Provide professional critic reviews and scores for this wine: ${wineDesc}
@@ -315,18 +326,20 @@ Return ONLY a valid JSON object with this structure:
       "vintage": 2019
     }
   ],
-  "summary": "1-2 sentence overall critical consensus about this wine"
+  "summary": "1-2 sentence overall critical consensus about this wine",
+  "community": []
 }
 
 Rules:
-- Include ONLY reviews and scores from professional wine critics and publications — NOT consumer, community or crowd-sourced ratings.
+- The "reviews" array must contain ONLY reviews and scores from professional wine critics and publications — NOT consumer, community or crowd-sourced ratings.
 - Use the critic's or publication's real name (Decanter, Robert Parker/Wine Advocate, Wine Spectator, Jancis Robinson, James Suckling, Wine Enthusiast, Falstaff, Gambero Rosso, Perswijn, Gault&Millau).
 - NEVER name, write or mention any consumer rating platform, app or website (such as crowd-rating apps) anywhere in "source", "quote" or "summary".
 - Only include scores and quotes you are confident are real — NEVER invent specific numeric scores or fake quotes.
 - If you know the wine but have no specific professional scores, set "found": true with an empty "reviews" array and provide a general "summary" of its style and reputation.
-- If you do not recognize this wine at all, return {"found": false, "reviews": [], "summary": null}
+- If you do not recognize this wine at all, set "found": false with an empty "reviews" array and null "summary".
 - Include the vintage year for each review when known.
-${langNote}`;
+- The "community" array is ONLY the translated user reviews described below (empty if none are given). Never put professional reviews there and never put user reviews in "reviews".
+${langNote}${communityBlock}`;
 
     const provider = settings.apiProvider || 'anthropic';
     const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
