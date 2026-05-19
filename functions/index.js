@@ -46,7 +46,7 @@ exports.aiProxy = onCall(
 
     const uid  = request.auth.uid;
     const data = request.data || {};
-    const { prompt, model, base64image, webSearch } = data;
+    const { prompt, model, base64image } = data;
 
     console.log(`[aiProxy] uid=${uid} model=${model} hasImage=${!!base64image} promptLen=${prompt?.length}`);
 
@@ -109,11 +109,8 @@ exports.aiProxy = onCall(
         },
         body: JSON.stringify({
           model:      chosenModel,
-          max_tokens: webSearch ? 1800 : 1024,
+          max_tokens: 1024,
           messages:   [{ role: 'user', content: messageContent }],
-          ...(webSearch && !base64image
-            ? { tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }] }
-            : {}),
         }),
       });
     } catch (fetchErr) {
@@ -136,11 +133,7 @@ exports.aiProxy = onCall(
     }
 
     // 6. Return result
-    const text = (anthropicData.content || [])
-      .filter(b => b.type === 'text' && b.text)
-      .map(b => b.text)
-      .join('\n')
-      .trim() || anthropicData.content?.[0]?.text;
+    const text = anthropicData.content?.[0]?.text;
     if (!text) {
       console.error('[aiProxy] Unexpected Anthropic response shape:', JSON.stringify(anthropicData).slice(0, 200));
       throw new HttpsError('internal', 'Unexpected response from AI service.');
