@@ -228,6 +228,11 @@ ul { list-style: none; }
   align-items: center;
   gap: 4px 10px;
 }
+/* In demo mode the demo banner already absorbs the top safe area, so the
+   topmost in-flow elements must not add it again (avoids a double gap). */
+body.demo-on .page-header        { padding-top: 10px; }
+body.demo-on .scan-mode-toggle-bar { padding-top: 8px; }
+
 .page-header h1 { font-size: 1.4rem; font-weight: 300; color: var(--burgundy); font-family: 'Fraunces', Georgia, serif; letter-spacing: .04em; width: 100%; flex: none; }
 .page-header .header-actions { display: flex; gap: 8px; align-items: center; width: 100%; justify-content: flex-end; padding-bottom: 4px; flex-wrap: wrap; }
 
