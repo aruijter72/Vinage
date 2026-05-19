@@ -1867,8 +1867,74 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   .rack-body-row { padding-bottom: 20px; }
 }
 
+/* ── Desktop / laptop layout (≥1024px) ──────────────────────────────────────
+   Bottom tab bar becomes a left sidebar; content gets a comfortable reading
+   width. The phone layout below this breakpoint is untouched. */
 @media (min-width: 1024px) {
-  #main-content { max-width: 760px; margin: 0 auto; }
+  #app-body { flex-direction: row; }
+
+  /* Bottom nav → fixed left sidebar */
+  #bottom-nav {
+    position: sticky;
+    top: 0;
+    bottom: auto;
+    left: auto; right: auto;
+    width: 232px;
+    height: 100dvh;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 22px 12px;
+    border-top: none;
+    border-right: 1px solid var(--cream-dk);
+    box-shadow: 2px 0 16px var(--shadow);
+  }
+  body.demo-on #bottom-nav { height: auto; align-self: stretch; }
+
+  .nav-item {
+    flex: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 13px;
+    max-width: none;
+    padding: 12px 14px;
+    border-radius: 10px;
+    transition: background var(--transition), color var(--transition);
+  }
+  .nav-item:hover { background: var(--cream-dk); color: var(--burgundy); }
+  .nav-item.active { background: var(--cream-dk); }
+  .nav-item svg { width: 21px; height: 21px; }
+  .nav-item span {
+    font-size: .92rem; font-weight: 600;
+    max-width: none; text-overflow: clip;
+  }
+
+  /* Flatten the raised round scan pill into a normal sidebar row */
+  .nav-item-scan { margin-top: 0; flex: none; flex-direction: row; justify-content: flex-start; gap: 13px; }
+  .nav-scan-pill { width: 36px; height: 36px; border-radius: 9px; margin: 0; box-shadow: none; }
+  .nav-item-scan svg { width: 19px; height: 19px; }
+  .nav-item-scan.active .nav-scan-pill { transform: none; box-shadow: none; }
+  .nav-item-scan span { color: var(--text-lt); }
+  .nav-item-scan.active span { color: var(--burgundy); }
+
+  /* Content: no fixed bottom bar to clear; give it a roomy max width */
+  #main-content { max-width: none; margin: 0; padding-bottom: 32px; }
+  #main-content > * { max-width: 1080px; margin-left: auto; margin-right: auto; }
+
+  /* Collection & wishlist: multi-column card grid instead of a single column */
+  .wine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 12px;
+    padding: 16px;
+  }
+  .wine-card { cursor: pointer; transition: box-shadow var(--transition), transform var(--transition); }
+  .wine-card:hover { box-shadow: 0 4px 16px var(--shadow-md); transform: translateY(-1px); }
+
+  /* Bigger, centred dialogs */
+  #modal-box { max-width: 600px; }
+
   .pairing-hero { border-radius: 0 0 var(--radius) var(--radius); }
 }
 
