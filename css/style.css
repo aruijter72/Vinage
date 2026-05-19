@@ -1873,14 +1873,12 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 @media (min-width: 1024px) {
   #app-body { flex-direction: row; }
 
-  /* Bottom nav → fixed left sidebar */
+  /* Bottom nav → left sidebar. As a flex item next to the scrolling
+     #main-content it stays put without sticky/fixed positioning. */
   #bottom-nav {
-    position: sticky;
-    top: 0;
-    bottom: auto;
-    left: auto; right: auto;
+    position: static;
+    height: auto;
     width: 232px;
-    height: 100dvh;
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
@@ -1889,8 +1887,8 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
     border-top: none;
     border-right: 1px solid var(--cream-dk);
     box-shadow: 2px 0 16px var(--shadow);
+    overflow-y: auto;
   }
-  body.demo-on #bottom-nav { height: auto; align-self: stretch; }
 
   .nav-item {
     flex: none;
