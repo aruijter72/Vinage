@@ -413,6 +413,105 @@ ${langNote}`;
     }
   },
 
+  // ── Geography overview (Explore feature) ─────────────────────────────────
+  // Cached in Firestore `regionInfo/{slug}_{lang}`. First reader globally per
+  // (slug, language) pays for the AI call; everyone after reads from cache.
+  _langName(lang) {
+    return { en:'English', nl:'Dutch', it:'Italian', fr:'French', es:'Spanish', de:'German' }[lang] || 'English';
+  },
+
+  async _fetchCachedOverview(slug) {
+    if (typeof firebase === 'undefined' || typeof Sync === 'undefined' || !Sync._db) return null;
+    try {
+      const snap = await Sync._db.doc(`regionInfo/${slug}`).get();
+      return snap.exists ? (snap.data().payload || null) : null;
+    } catch { return null; }
+  },
+
+  _writeCachedOverview(slug, payload, meta) {
+    if (typeof firebase === 'undefined' || typeof Sync === 'undefined' || !Sync._db || !Sync.user) return;
+    Sync._db.doc(`regionInfo/${slug}`).set({
+      payload, ...meta, updatedAt: Date.now(), updatedBy: Sync.user.uid,
+    }).catch(e => console.warn('Vinage: region cache write failed', e?.code || e));
+  },
+
+  async getCountryOverview(country, lang, settings) {
+    const slug = `country_${country.toLowerCase().replace(/[^a-z0-9]+/g,'_')}_${lang}`;
+    const cached = await this._fetchCachedOverview(slug);
+    if (cached) return { ...cached, _cached: true };
+
+    const langName = this._langName(lang);
+    const prompt = `You are an expert wine educator.
+Give a concise overview of the wine landscape of: ${country}
+
+Return ONLY valid JSON in ${langName}:
+{
+  "about": "2-3 sentence intro: history, climate themes, hallmark styles",
+  "regions": [
+    { "name": "<region>", "why": "<1-sentence reason: signature grape/style>" }
+  ],
+  "classics": ["<famous wine 1>", "<famous wine 2>", "<famous wine 3>", "<famous wine 4>"]
+}
+
+Rules:
+- 4–8 well-known regions of this country in "regions"; widely recognised, not obscure.
+- 4–6 truly iconic classic wines (estate or wine name) in "classics" — only ones you are confident exist.
+- All textual fields in ${langName}; keep proper nouns (regions, estates) in their native form.
+- Do NOT include scores, prices, or vintages.
+- If the country is not a meaningful wine country, return {"about": "<short note>", "regions": [], "classics": []}.`;
+
+    const provider = settings.apiProvider || 'anthropic';
+    const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
+    const raw = key
+      ? (provider === 'anthropic'
+          ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+          : await this._openaiText(prompt, key, 'gpt-4o-mini'))
+      : await this._proxyText(prompt, 'claude-haiku-4-5-20251001');
+    const data = this._parseJSON(raw);
+    this._writeCachedOverview(slug, data, { kind: 'country', country, lang });
+    return { ...data, _cached: false };
+  },
+
+  async getRegionOverview(country, region, lang, settings) {
+    const rslug = (region || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+    const cslug = country.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+    const slug = `region_${cslug}_${rslug}_${lang}`;
+    const cached = await this._fetchCachedOverview(slug);
+    if (cached) return { ...cached, _cached: true };
+
+    const langName = this._langName(lang);
+    const prompt = `You are an expert wine educator.
+Give a concise overview of the wine region: ${region}, ${country}
+
+Return ONLY valid JSON in ${langName}:
+{
+  "climate": "2-3 sentences on terroir, climate and signature wine style",
+  "grapes": {
+    "red":   ["<grape>", "<grape>"],
+    "white": ["<grape>", "<grape>"]
+  },
+  "classics": ["<famous wine or estate 1>", "<famous wine 2>", "<famous wine 3>"]
+}
+
+Rules:
+- Up to 5 grapes per colour, classic for this region only.
+- 3–5 iconic classics (estate name or appellation+style) — only ones you are confident exist.
+- Textual fields in ${langName}; keep grape & proper-noun names in their native form.
+- Do NOT include scores, prices, or vintages.
+- If "${region}" is not a recognisable wine region of ${country}, return {"climate": "<short note>", "grapes": {"red": [], "white": []}, "classics": []}.`;
+
+    const provider = settings.apiProvider || 'anthropic';
+    const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
+    const raw = key
+      ? (provider === 'anthropic'
+          ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+          : await this._openaiText(prompt, key, 'gpt-4o-mini'))
+      : await this._proxyText(prompt, 'claude-haiku-4-5-20251001');
+    const data = this._parseJSON(raw);
+    this._writeCachedOverview(slug, data, { kind: 'region', country, region, lang });
+    return { ...data, _cached: false };
+  },
+
   // ── Rule-based fallback pairing (no API key needed) ───────────────────────
   ruleBasedPairing(dish, wines) {
     const d = dish.toLowerCase();
