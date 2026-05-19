@@ -1957,6 +1957,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
     height: min(900px, 88vh);
     min-height: 620px;
   }
+  /* The shared zoom wrapper is inline-block (shrink-to-fit) for the 2D rack;
+     for the 3D iframe make it a full-width block so it fills the card. */
+  #rack-zoom-inner:has(.rack-3d-container) { display: block; width: 100%; }
   .rack-3d-container { box-shadow: 0 6px 26px rgba(92,26,16,.14); }
 
   /* Wine form: wider dialog with a two-column field layout. Full-width rows
