@@ -1980,6 +1980,34 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   .wine-form > .form-group:has(textarea) { grid-column: 1 / -1; }
 
   .pairing-hero { border-radius: 0 0 var(--radius) var(--radius); }
+
+  /* ── Phase 3: scan, pairing, stats, settings ────────────────────────────── */
+
+  /* Scan: keep the phone-style camera column at a sane size, centred —
+     not stretched across the whole desktop width. */
+  #scan-view { max-width: 540px; margin: 0 auto; min-height: 0; }
+  .scan-mode-toggle-bar { max-width: 540px; margin: 0 auto; }
+  .camera-area { max-height: 60dvh; min-height: 380px; border-radius: var(--radius); }
+  .scan-brand-panel { padding-bottom: 8px; }
+
+  /* Pairing: constrain the hero, show wine results in a multi-column grid */
+  .pairing-hero { max-width: 1080px; margin: 0 auto; }
+  .pairing-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .pairing-wine-card { cursor: pointer; transition: box-shadow var(--transition), transform var(--transition); }
+  .pairing-wine-card:hover { box-shadow: 0 4px 16px var(--shadow-md); transform: translateY(-1px); }
+
+  /* Stats: roomier multi-column summary, wider health tiles */
+  .stats-summary-grid { grid-template-columns: repeat(4, 1fr); max-width: 1080px; margin: 0 auto; }
+  .stats-section { max-width: 1080px; margin-left: auto; margin-right: auto; }
+
+  /* Settings: a comfortable reading column instead of full width */
+  .settings-section { max-width: 760px; margin-left: auto; margin-right: auto; }
 }
 
 /* ── Cloud Sync UI ───────────────────────────────────────────────────────────── */
