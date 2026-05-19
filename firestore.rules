@@ -64,5 +64,26 @@ service cloud.firestore {
             .data.members[request.auth.uid] != null;
       }
     }
+
+    // ── Community reviews (global, cross-user) ────────────────────────────────
+    // Any signed-in user can READ all reviews (shown anonymously in the app).
+    // A user may only CREATE/UPDATE/DELETE a review whose `uid` is their own,
+    // with a rating of 1–5 and a note no longer than 800 characters.
+    match /communityReviews/{reviewId} {
+      allow read: if request.auth != null;
+
+      allow create, update: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 800
+        && request.resource.data.wineKey is string
+        && request.resource.data.wineKey.size() > 0;
+
+      allow delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+    }
   }
 }
