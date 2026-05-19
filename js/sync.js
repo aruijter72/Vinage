@@ -674,6 +674,70 @@ const Sync = {
     DB.getCellars().forEach(c => this._pushCellar(c));
   },
 
+  // ── Community reviews (global, cross-user) ────────────────────────────────
+  // A single top-level `communityReviews` collection, independent of
+  // households. One document per (user, wine) so editing overwrites instead
+  // of duplicating. Authors are shown anonymously ("Vinage user").
+
+  // Stable identity for a wine across all users (no shared wine IDs exist).
+  _wineKey(wine) {
+    const norm = s => (s || '')
+      .toString()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '') // strip diacritics
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '');
+    const name = norm(wine.name);
+    if (!name) return null;
+    return [name, norm(wine.producer), wine.vintage || ''].join('_');
+  },
+
+  _REVIEW_MAX: 800,
+
+  publishCommunityReview(wine) {
+    if (!this._ready || !this.user || !wine) return;
+    const key = this._wineKey(wine);
+    if (!key) return;
+    const rating = parseInt(wine.rating, 10) || 0;
+    const text = (wine.ratingNote || '').toString().trim().slice(0, this._REVIEW_MAX);
+    const ref = this._db.doc(`communityReviews/${this.user.uid}__${key}`);
+    // Nothing to share → remove any previous review by this user for this wine.
+    if (rating <= 0 && !text) {
+      ref.delete().catch(() => {});
+      return;
+    }
+    ref.set({
+      wineKey:  key,
+      uid:      this.user.uid,
+      name:     wine.name || '',
+      producer: wine.producer || '',
+      vintage:  wine.vintage || null,
+      rating,
+      text,
+      lang:     (typeof App !== 'undefined' && App.lang) || 'en',
+      updatedAt: Date.now(),
+    }).catch(e => console.warn('Vinage: publish review failed', e));
+  },
+
+  async fetchCommunityReviews(wine) {
+    if (!this._ready || !this.user || !wine) return [];
+    const key = this._wineKey(wine);
+    if (!key) return [];
+    try {
+      const snap = await this._db.collection('communityReviews')
+        .where('wineKey', '==', key)
+        .get();
+      return snap.docs
+        .map(d => d.data())
+        .filter(r => r && r.uid !== this.user.uid) // exclude own (already on the wine card)
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+        .slice(0, 25)
+        .map(r => ({ rating: r.rating || 0, text: r.text || '', lang: r.lang || 'en' }));
+    } catch (e) {
+      console.warn('Vinage: fetch community reviews failed', e);
+      return [];
+    }
+  },
+
   addCellar(data) {
     const cellar = DB.addCellar(data);
     this._pushCellar(cellar);
