@@ -1542,6 +1542,12 @@ const App = {
           { label: '🔖 ' + this.t('wine.viewDpp'), cls: 'btn-ghost', action: () => window.open(passportUrl, '_blank') }
         );
       }
+      // Reviews button
+      footerBtns.splice(footerBtns.length - 1, 0,
+        { label: '⭐ ' + this.t('wine.reviews'), cls: 'btn-ghost', action: () => {
+          this._showWineReviews(wid);
+        }}
+      );
       // Open a bottle (only when stock > 0)
       if (w && (w.quantity || 1) > 0) {
         footerBtns.unshift({ label: '🍷 ' + this.t('consume.openBottle'), cls: 'btn-ghost', action: () => {
