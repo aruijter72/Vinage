@@ -4826,9 +4826,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
       const tagline = importer.tagline?.[this.lang] || importer.tagline?.en || `Recommended by ${importer.name}`;
 
+      const brandMark = importer.logo
+        ? `<img class="pairing-importer-logo" src="${this._esc(importer.logo)}" alt="${this._esc(importer.name)}">`
+        : '🏷️';
+
       html += `<div class="pairing-importer-block">
         <div class="pairing-importer-header" style="background:${importer.color}">
-          <span>🏷️ ${this._esc(tagline)}</span>
+          <span>${brandMark} ${this._esc(tagline)}</span>
           <a href="${this._esc(importer.website)}" target="_blank" rel="noopener">${this._esc(importer.name)} ↗</a>
         </div>`;
 
