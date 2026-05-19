@@ -308,6 +308,43 @@ function _applyZoom(z){
   },{passive:true});
 }
 
+// ── Muis-pan + wiel-zoom: door het rek scrollen/zoomen op laptop/desktop ──
+{
+  let _mx=0,_my=0,_down=false,_panning=false;
+  document.body.style.cursor='grab';
+  window.addEventListener('mousedown',function(e){
+    if(e.button!==0)return;
+    _down=true;_panning=false;_mx=e.clientX;_my=e.clientY;
+  });
+  window.addEventListener('mouseup',function(){
+    _down=false;
+    if(_panning){_panning=false;}
+    document.body.style.cursor='grab';
+  });
+  window.addEventListener('mousemove',function(e){
+    if(!_down)return;
+    let dx=e.clientX-_mx, dy=e.clientY-_my;
+    if(!_panning && Math.hypot(dx,dy)<6) return; // laat echte klikken (labels) met rust
+    _panning=true;
+    document.body.style.cursor='grabbing';
+    const h=_BASE_HALF/_currentZoom;
+    const scale=2*h/window.innerHeight;
+    _camTarget.x-=dx*Math.cos(THETA)*scale;
+    _camTarget.z+=dx*Math.sin(THETA)*scale;
+    _camTarget.y+=dy*scale;
+    _applyZoom();
+    _mx=e.clientX;_my=e.clientY;
+  });
+  // Scrollwiel/trackpad = in-/uitzoomen (handig om het rek groter te maken)
+  window.addEventListener('wheel',function(e){
+    e.preventDefault();
+    _applyZoom(_currentZoom - e.deltaY*0.0016);
+    if(window.parent!==window){
+      window.parent.postMessage({type:'vinage-zoom-sync',factor:_currentZoom},'*');
+    }
+  },{passive:false});
+}
+
 function _setupScene(nx,nz){
   NX=nx; NZ=nz;
   // Auto-schaal CELL zodat het rek altijd ≈0.60m groot is in de grootste dimensie
