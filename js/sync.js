@@ -21,6 +21,15 @@ const Sync = {
   _db:         null,   // Firestore instance
   _auth:       null,   // Auth instance
   _storage:    null,   // Storage instance
+  importerConfig: null, // { [importerId]: boolean } from config/importers; null = not loaded
+
+  // Whether a partner importer should be shown. Firestore override wins; if the
+  // config isn't loaded or has no entry for this id, use the hardcoded default.
+  isImporterActive(id, fallback) {
+    const cfg = this.importerConfig;
+    if (cfg && Object.prototype.hasOwnProperty.call(cfg, id)) return cfg[id] !== false;
+    return fallback !== false;
+  },
 
   // ── Init ─────────────────────────────────────────────────────────────────
   init() {
