@@ -1395,6 +1395,7 @@ const App = {
         : '';
 
     const body = `
+      <div class="wine-form">
       ${imageSection}
       <div class="form-group">
         <label>${this.t('wine.name')} *</label>
