@@ -1471,6 +1471,13 @@ const App = {
           </div>
         </div>
       </div>
+      <div class="form-group">
+        <label>${this.t('wine.ratingNote')}</label>
+        <textarea id="wf-rating-note" class="form-control" rows="3" maxlength="800"
+                  placeholder="${this._esc(this.t('wine.ratingNotePlaceholder'))}"
+                  style="resize:none">${this._esc(wine.ratingNote||'')}</textarea>
+        <p style="font-size:.72rem;color:var(--text-lt);margin:6px 0 0">${this._esc(this.t('wine.ratingNoteShare'))}</p>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="form-group">
           <label>${this.t('wine.drinkFrom')}</label>
@@ -1743,6 +1750,7 @@ const App = {
       tags:     parseList('wf-tags'),
       notes:      parse('wf-notes'),
       memo:       parse('wf-memo'),
+      ratingNote: parse('wf-rating-note'),
       price:      parseNum('wf-price'),
       rating:     this._formRating,
       drinkFrom:  parseNum('wf-drink-from')  ? parseInt(parse('wf-drink-from'),  10) : null,
