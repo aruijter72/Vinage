@@ -725,7 +725,28 @@ const Sync = {
     }).catch(e => console.warn('Vinage: publish review failed', e));
   },
 
+  // Canned community reviews for demo mode so the "Vinage users" section is
+  // populated during a presentation. Deterministic per wine, English source
+  // text (the reviews screen translates it into the app language live).
+  _demoCommunityReviews(wine) {
+    const pool = [
+      { rating: 5, text: 'Absolutely loved this one — great depth and a long, elegant finish. Bought more straight away.' },
+      { rating: 4, text: 'Solid and very enjoyable. Paired beautifully with a Sunday roast. Good value for the price.' },
+      { rating: 4, text: 'Nicely balanced, smooth tannins. Not the most complex, but a reliable crowd-pleaser.' },
+      { rating: 3, text: 'Decent everyday bottle. Pleasant but a little short on the finish for my taste.' },
+      { rating: 5, text: 'One of my favourites this year. Aromatic, well-structured and ages nicely.' },
+    ];
+    const key = this._wineKey(wine) || (wine.name || 'x');
+    let h = 0;
+    for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+    const n = 2 + (h % 2); // 2 or 3 reviews
+    const out = [];
+    for (let i = 0; i < n; i++) out.push(pool[(h + i * 7) % pool.length]);
+    return out.map(r => ({ rating: r.rating, text: r.text, lang: 'en' }));
+  },
+
   async fetchCommunityReviews(wine) {
+    if (this._demo()) return this._demoCommunityReviews(wine);
     if (!this._ready || !this.user || !wine) return [];
     const key = this._wineKey(wine);
     if (!key) return [];
