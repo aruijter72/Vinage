@@ -111,6 +111,7 @@ const TRANSLATIONS = {
       reviewsLoading: 'Searching for reviews…',
       reviewsNone: 'No professional reviews found for this wine.',
       reviewsWebSearch: 'No AI reviews found, searching the web…',
+      reviewsBusy: 'The review service is temporarily busy. Please try again in a moment.',
     },
     types: {
       red: 'Red', white: 'White', rosé: 'Rosé',
