@@ -115,6 +115,8 @@ const TRANSLATIONS = {
       reviewsBusy: 'The review service is temporarily busy. Please try again in a moment.',
       reviewsPro: 'Professional reviews',
       reviewsCommunity: 'Vinage users',
+      reviewsExpertsSay: 'Experts say:',
+      reviewsAvgRating: 'Average rating',
       reviewCommunity: 'Vinage user',
       ratingNote: 'Why this rating?',
       ratingNotePlaceholder: 'What did you like or dislike? Helps other Vinage users.',
