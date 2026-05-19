@@ -5529,6 +5529,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     return `
     <div class="page-header"><h1>${this.t('stats.title')}</h1></div>
 
+    <div style="padding:12px 16px 0">
+      <button class="btn btn-ghost btn-full" data-action="explore-open" style="text-align:left">
+        ${this.t('explore.open')} ›
+      </button>
+    </div>
+
     <div class="stats-summary-grid">
       <div class="stats-card">
         <div class="stats-card-value">${totalBottles}</div>
