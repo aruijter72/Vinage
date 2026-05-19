@@ -4844,7 +4844,9 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             <div class="pairing-importer-wine-name">${this._esc(w.name)}${w.vintage ? ` <span style="font-weight:400;font-size:.85em;color:var(--text-lt)">${w.vintage}</span>` : ''}</div>
             ${w.producer ? `<div class="pairing-importer-wine-meta">${this._esc(w.producer)} · ${meta}</div>` : `<div class="pairing-importer-wine-meta">${meta}</div>`}
             <div class="pairing-importer-wine-footer">
-              <span class="pairing-importer-badge" style="background:${importer.color}">${this._esc(importer.name)}</span>
+              ${importer.logo
+                ? `<span class="pairing-importer-badge pairing-importer-badge--logo"><img class="pairing-importer-badge-logo" src="${this._esc(importer.logo)}" alt="${this._esc(importer.name)}"></span>`
+                : `<span class="pairing-importer-badge" style="background:${importer.color}">${this._esc(importer.name)}</span>`}
               ${w.priceRange ? `<span class="pairing-importer-price">💶 ${this._esc(w.priceRange)}</span>` : ''}
               ${w.url ? `<a class="pairing-importer-link" href="${this._esc(w.url)}" target="_blank" rel="noopener">${this.lang === 'nl' ? 'Bestellen' : 'Order'} ↗</a>` : ''}
             </div>
