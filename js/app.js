@@ -2175,10 +2175,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const header = label => `<div style="font-weight:700;font-size:.75rem;color:var(--text-lt);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 8px">${this._esc(label)}</div>`;
 
     let body = '';
-    if (proCards) body += header(this.t('wine.reviewsPro')) + proCards + proSummary;
-    else if (proSummary) body += proSummary;
+    // Professional block: "Experts say:" → average rating → description → critic cards
+    if (expertRow || proSummary || proCards) {
+      body += header(this.t('wine.reviewsExpertsSay')) + expertRow + proSummary + proCards;
+    }
     if (commCards) body += header(this.t('wine.reviewsCommunity')) + commCards;
-    if (!proCards && !proSummary && !commCards) {
+    if (!expertRow && !proSummary && !proCards && !commCards) {
       body = `<p style="text-align:center;color:var(--text-lt);padding:16px 0">${this.t('wine.reviewsNone')}</p>`;
     }
 
