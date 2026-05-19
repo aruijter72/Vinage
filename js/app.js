@@ -3147,6 +3147,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       return;
     }
 
+    // Non-3D racks (case / free shelf) just show wine cards — no zoom needed.
+    return;
+
+    // eslint-disable-next-line no-unreachable
     // ── 2D rek: originele CSS-scale zoom ─────────────────────────────────────
     const origW = inner.scrollWidth;
     const origH = inner.scrollHeight;
