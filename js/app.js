@@ -5511,6 +5511,25 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     reader.readAsText(file);
   },
 
+  // ── Demo mode ────────────────────────────────────────────────────────────
+  enterDemo() {
+    DB.Demo.enter();
+    sessionStorage.setItem('demoToast', '1');
+    location.reload();
+  },
+
+  resetDemo() {
+    DB.Demo.reset();
+    sessionStorage.setItem('demoToast', '1');
+    location.reload();
+  },
+
+  exitDemo() {
+    if (!confirm(this.t('settings.demoExitConfirm'))) return;
+    DB.Demo.exit();
+    location.reload();
+  },
+
   clearData() {
     if (!confirm(this.t('settings.clearConfirm'))) return;
     DB.clearAll();
