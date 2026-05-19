@@ -2106,6 +2106,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       body = `<p style="text-align:center;color:var(--text-lt);padding:16px 0">${this.t('wine.reviewsNone')}</p>${summaryHtml}`;
     }
 
+    body += `<p style="font-size:.72rem;color:var(--text-lt);margin:16px 0 0;text-align:center">${this.t('wine.reviewsProNote')}</p>`;
+
     this.showModal(this.t('wine.reviews'), body, [
       { label: 'OK', cls: 'btn-primary', action: () => this.closeModal() }
     ]);
