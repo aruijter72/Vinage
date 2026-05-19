@@ -1660,6 +1660,51 @@ const App = {
     }
   },
 
+  // Stable canonical English lowercase key for a country, regardless of the
+  // language the user entered it in. Used by the explorer to group wines by
+  // country and to build cache slugs for AI region overviews.
+  _countryKey(raw) {
+    if (!raw) return '';
+    const k = raw.toString().trim().toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const EN = ['france','italy','spain','portugal','germany','austria','switzerland',
+      'netherlands','belgium','luxembourg','united states','australia','new zealand',
+      'south africa','argentina','chile','uruguay','brazil','greece','hungary','romania',
+      'bulgaria','croatia','slovenia','czech republic','slovakia','poland','serbia',
+      'moldova','georgia','turkey','israel','lebanon','england','united kingdom','russia',
+      'ukraine','sweden','denmark','norway','finland','north macedonia','albania',
+      'montenegro','cyprus','malta','morocco','tunisia','algeria','canada','mexico',
+      'japan','china','india','peru','bolivia'];
+    if (EN.includes(k)) return k;
+    const NL_TO_EN_LC = {
+      'frankrijk':'france','italië':'italy','italie':'italy','spanje':'spain','portugal':'portugal',
+      'duitsland':'germany','oostenrijk':'austria','zwitserland':'switzerland','nederland':'netherlands',
+      'belgië':'belgium','belgie':'belgium','luxemburg':'luxembourg','verenigde staten':'united states',
+      'australië':'australia','australie':'australia','nieuw-zeeland':'new zealand','zuid-afrika':'south africa',
+      'argentinië':'argentina','argentinie':'argentina','chili':'chile','uruguay':'uruguay','brazilië':'brazil',
+      'brazilie':'brazil','griekenland':'greece','hongarije':'hungary','roemenië':'romania','roemenie':'romania',
+      'bulgarije':'bulgaria','kroatië':'croatia','kroatie':'croatia','slovenië':'slovenia','slovenie':'slovenia',
+      'tsjechië':'czech republic','tsjechie':'czech republic','slowakije':'slovakia','polen':'poland',
+      'servië':'serbia','servie':'serbia','moldavië':'moldova','moldavie':'moldova',
+      'georgië':'georgia','georgie':'georgia','turkije':'turkey','israël':'israel','israel':'israel',
+      'libanon':'lebanon','engeland':'england','verenigd koninkrijk':'united kingdom','rusland':'russia',
+      'oekraïne':'ukraine','oekraine':'ukraine','zweden':'sweden','denemarken':'denmark','noorwegen':'norway',
+      'finland':'finland','noord-macedonië':'north macedonia','noord-macedonie':'north macedonia',
+      'albanië':'albania','albanie':'albania','montenegro':'montenegro','cyprus':'cyprus','malta':'malta',
+      'marokko':'morocco','tunesië':'tunisia','tunesie':'tunisia','algerije':'algeria','canada':'canada',
+      'mexico':'mexico','japan':'japan','china':'china','india':'india','peru':'peru','bolivia':'bolivia',
+      'usa':'united states','us':'united states','uk':'united kingdom'
+    };
+    return NL_TO_EN_LC[k] || k; // fall back to raw lowercase for unknowns
+  },
+
+  // Slugify a free-text region name for use in cache keys / DOM ids.
+  _regionSlug(raw) {
+    return (raw || '').toString().trim().toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  },
+
   // ── Subscription plan helpers ─────────────────────────────────────────────
   _getPlan() {
     const s = DB.getSettings();
