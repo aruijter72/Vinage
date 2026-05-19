@@ -17,6 +17,7 @@ const IMPORTERS = [
     name:    'Okhuysen',
     tagline: { nl: 'Aanbevolen door Okhuysen', en: 'Recommended by Okhuysen' },
     color:   '#7A2535',
+    logo:    'Okhuysen logo.png',
     website: 'https://www.okhuysen.nl',
     active:  true,
 
