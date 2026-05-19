@@ -2092,7 +2092,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
             <strong style="font-size:.9rem">${this._esc(r.source)}</strong>
             ${r.score ? `<span style="background:var(--burgundy);color:#fff;border-radius:6px;padding:2px 8px;font-weight:700;font-size:.85rem">${this._esc(r.score)}</span>` : ''}
           </div>
-          ${r.vintage ? `<div style="font-size:.75rem;color:var(--text-lt);margin-bottom:4px">${nl ? 'Jaargang' : 'Vintage'} ${r.vintage}</div>` : ''}
+          ${r.vintage ? `<div style="font-size:.75rem;color:var(--text-lt);margin-bottom:4px">${this._esc(this.t('wine.vintage'))} ${r.vintage}</div>` : ''}
           ${r.quote ? `<p style="font-size:.85rem;margin:0;font-style:italic;color:var(--text)">"${this._esc(r.quote)}"</p>` : ''}
         </div>`).join('');
 
