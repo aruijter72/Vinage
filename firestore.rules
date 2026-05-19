@@ -10,6 +10,14 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ── App config (e.g. config/importers) ────────────────────────────────────
+    // Public read so partner suggestions work even when signed out / offline.
+    // Non-sensitive (on/off flags). Write is console-only (admin-managed).
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // ── User profiles ─────────────────────────────────────────────────────────
     // Each user can only read/write their own profile document.
     match /users/{userId} {
