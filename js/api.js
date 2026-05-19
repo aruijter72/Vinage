@@ -494,7 +494,15 @@ ${langNote}`;
     return data.content[0].text;
   },
 
-  async _claudeText(prompt, key, model = 'claude-haiku-4-5-20251001') {
+  async _claudeText(prompt, key, model = 'claude-haiku-4-5-20251001', opts = {}) {
+    const body = {
+      model,
+      max_tokens: opts.webSearch ? 1800 : 1024,
+      messages: [{ role: 'user', content: prompt }]
+    };
+    if (opts.webSearch) {
+      body.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }];
+    }
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -503,15 +511,21 @@ ${langNote}`;
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
-      body: JSON.stringify({
-        model,
-        max_tokens: 1024,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify(body)
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
-    return data.content[0].text;
+    return this._joinTextBlocks(data);
+  },
+
+  // Concatenate all text blocks (web-search responses have multiple content blocks)
+  _joinTextBlocks(data) {
+    const text = (data.content || [])
+      .filter(b => b.type === 'text' && b.text)
+      .map(b => b.text)
+      .join('\n')
+      .trim();
+    return text || data.content?.[0]?.text || '';
   },
 
   // ── Internal: OpenAI ──────────────────────────────────────────────────────
