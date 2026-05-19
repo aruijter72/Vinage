@@ -2071,7 +2071,8 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         }
       }
     } catch (e) {
-      this.showModal(this.t('wine.reviews'), `<p>${nl ? 'Fout bij ophalen reviews.' : 'Error fetching reviews.'}</p>`, [
+      console.error('Reviews error:', e);
+      this.showModal(this.t('wine.reviews'), `<p>${nl ? 'Fout bij ophalen reviews:' : 'Error fetching reviews:'}<br><small style="color:var(--text-lt)">${this._esc(e.message || String(e))}</small></p>`, [
         { label: 'OK', cls: 'btn-ghost', action: () => this.closeModal() }
       ]);
       return;
