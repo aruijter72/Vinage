@@ -1521,6 +1521,15 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   padding: 2px 9px; border-radius: 50px;
   color: var(--white);
 }
+.pairing-importer-badge--logo {
+  background: #fff;
+  border: 1px solid var(--cream-dk);
+  padding: 3px 8px;
+  line-height: 0;
+}
+.pairing-importer-badge-logo {
+  height: 14px; width: auto; display: block;
+}
 .pairing-importer-price {
   font-size: .8rem; color: var(--text-lt);
 }
