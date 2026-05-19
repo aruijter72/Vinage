@@ -456,10 +456,13 @@ const Sync = {
     App.renderView();
   },
 
+  // True when the sandboxed demo presentation mode is active.
+  _demo() { return typeof DB !== 'undefined' && DB.Demo && DB.Demo.isActive(); },
+
   // ── Realtime sync ─────────────────────────────────────────────────────────
   _startSync() {
     this._stopSync();
-    if (!this.householdId) return;
+    if (this._demo() || !this.householdId) return;
 
     const wineRef    = this._db.collection(`households/${this.householdId}/wines`);
     const cellarRef  = this._db.collection(`households/${this.householdId}/cellars`);
@@ -697,6 +700,7 @@ const Sync = {
   _REVIEW_MAX: 800,
 
   publishCommunityReview(wine) {
+    if (this._demo()) return; // never write demo activity to the global pool
     if (!this._ready || !this.user || !wine) return;
     const key = this._wineKey(wine);
     if (!key) return;
