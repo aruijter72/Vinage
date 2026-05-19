@@ -5104,8 +5104,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       </button>`;
     }).join('');
     return `${this._exploreHeader(this.t('explore.title'), null)}
+      <div class="settings-section world-map-section">
+        <p style="margin:0 0 10px;color:var(--text-lt);font-size:.9rem">${this._esc(this.t('explore.subtitle'))}</p>
+        <div id="world-map" class="world-map world-map-loading"></div>
+        <p class="world-map-credit">${this.lang === 'nl' ? 'Klik op een land om het te verkennen. Kaart: Wikimedia Commons (publiek domein).' : 'Click a country to explore it. Map: Wikimedia Commons (public domain).'}</p>
+      </div>
       <div class="settings-section" style="padding-top:8px">
-        <p style="margin:0 0 14px;color:var(--text-lt);font-size:.9rem">${this._esc(this.t('explore.subtitle'))}</p>
         <div class="explore-section-title">${this._esc(this.t('explore.countries'))}</div>
         <div class="explore-country-list">${rows}</div>
       </div>`;
