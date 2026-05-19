@@ -184,6 +184,141 @@ const IMPORTERS = [
         ]
       }
     ]
+  },
+
+  /* ── SooD (Tonino — Sicily, Italian wine exporter) ─────────────────────── */
+  {
+    id:      'sood',
+    name:    'SooD',
+    tagline: { nl: 'Aanbevolen door SooD — Italiaanse wijn', en: 'Recommended by SooD — Italian wine' },
+    color:   '#3E6B4A',
+    logo:    'SooD logo.png',
+    website: 'https://soodmarket.com/wines/',
+    active:  true,
+
+    wines: [
+      {
+        name: 'Barolo DOCG', vintage: 2018, type: 'red',
+        region: 'Piedmont, Italy', grapes: ['Nebbiolo'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'beef','braised','stew','game','venison','lamb','truffle','mushroom','hard cheese','roast',
+          'rund','stoofvlees','wild','lam','truffel','paddenstoel','kaas','gebraad',
+          'boeuf','gibier','agneau','champignon',
+          'brasato','ossobuco','osso buco','manzo','selvaggina','tartufo','arrosto','risotto al tartufo','pasta','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: 'Barbaresco DOCG', type: 'red',
+        region: 'Piedmont, Italy', grapes: ['Nebbiolo'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'beef','game','duck','mushroom','truffle','aged cheese','roast',
+          'rund','wild','eend','paddenstoel','truffel','kaas',
+          'gibier','canard','champignon',
+          'brasato','selvaggina','tartufo','anatra','risotto','pasta','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: "Barbera d'Alba DOC Superiore", type: 'red',
+        region: 'Piedmont, Italy', grapes: ['Barbera'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'pasta','tomato','ragu','ragù','bolognese','pizza','charcuterie','salami','cured meat','lasagna','meatballs',
+          'tomaat','worst','salami','vleeswaren','lasagne','gehaktballen','pizza','pasta',
+          'tomate','saucisson',
+          'pasta al pomodoro','ragù','lasagne','salumi','pizza','parmigiana','polpette','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: 'Taurasi DOCG', vintage: 2015, type: 'red',
+        region: 'Campania, Italy', grapes: ['Aglianico'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'grilled meat','lamb','beef','game','aged cheese','stew','bbq','barbecue',
+          'gegrild vlees','lam','rund','wild','kaas','stoofvlees','barbecue',
+          'agneau','gibier','grillades',
+          'agnello','manzo','brasato','selvaggina','grigliata','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: 'Etna Bianco DOC "Occhi di Ciumi"', type: 'white',
+        region: 'Sicily, Italy', grapes: ['Carricante'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'fish','seafood','shellfish','grilled fish','sea bass','prawn','oyster','light pasta','risotto',
+          'vis','zeevruchten','schaaldieren','gegrilde vis','zeebaars','garnaal','oester',
+          'poisson','fruits de mer','crevette',
+          'pesce','frutti di mare','spaghetti alle vongole','risotto','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: 'Fiano di Avellino DOCG', type: 'white',
+        region: 'Campania, Italy', grapes: ['Fiano'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'fish','white fish','chicken','creamy pasta','seafood','vegetables','aperitif',
+          'vis','witvis','kip','romige pasta','zeevruchten','groenten','aperitief',
+          'poisson','poulet','légumes',
+          'pesce','pollo','pasta','antipasti','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: 'Greco di Tufo DOCG', type: 'white',
+        region: 'Campania, Italy', grapes: ['Greco'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'shellfish','fried fish','seafood','antipasti','salad','aperitif','fritto misto',
+          'schaaldieren','gebakken vis','zeevruchten','salade','aperitief',
+          'fruits de mer','poisson frit','salade',
+          'frutti di mare','fritto misto','antipasti','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: '"Ciuri di strata" Sicilia Bianco DOC', type: 'white',
+        region: 'Sicily, Italy', grapes: ['Grillo', 'Catarratto'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'aperitif','salad','seafood','light','starter','goat cheese','vegetables',
+          'aperitief','salade','zeevruchten','licht','voorgerecht','geitenkaas','groenten',
+          'apéritif','salade','entrée',
+          'aperitivo','insalata','antipasti','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: 'Cirò Rosato', type: 'rosé',
+        region: 'Calabria, Italy', grapes: ['Gaglioppo'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'rosé','salad','grilled vegetables','tomato','light fish','charcuterie','aperitif','pizza',
+          'salade','gegrilde groenten','tomaat','lichte vis','vleeswaren','aperitief','pizza',
+          'salade','légumes grillés',
+          'insalata','verdure grigliate','pizza','salumi','aperitivo','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: 'Lambrusco Rosso Reggiano D.O.P.', type: 'sparkling',
+        region: 'Emilia-Romagna, Italy', grapes: ['Lambrusco'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'pizza','charcuterie','cured meat','prosciutto','salami','parma ham','fried food','mortadella','lasagna',
+          'pizza','vleeswaren','rauwe ham','salami','parmaham','gefrituurd','lasagne',
+          'charcuterie','jambon','friture',
+          'pizza','salumi','prosciutto','mortadella','lambrusco','gnocco fritto','lasagne','italiaans','italian','italiano'
+        ]
+      },
+      {
+        name: 'Verduzzo Friulano (dolce)', type: 'dessert',
+        region: 'Friuli, Italy', grapes: ['Verduzzo'],
+        url: 'https://soodmarket.com/wines/',
+        pairings: [
+          'dessert','blue cheese','fruit tart','pastry','foie gras','cake','sweet',
+          'nagerecht','blauwe kaas','vruchtentaart','gebak','zoet',
+          'dessert','fromage bleu','tarte',
+          'dolce','dessert','formaggio erborinato','crostata','italiaans','italian','italiano'
+        ]
+      }
+    ]
   }
 
   /* ── Add next importer here ────────────────────────────────────────────── */
