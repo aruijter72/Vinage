@@ -2067,15 +2067,26 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       { label: this.t('common.close') || 'OK', cls: 'btn-ghost', action: () => this.closeModal() }
     ]);
 
-    let result = null;
+    // Reviews written by other Vinage users (global pool). Fetched up front so
+    // they can be passed into the single AI call for translation, and so they
+    // still show even if the AI lookup fails.
+    let community = [];
     try {
-      // Step 1: AI lookup
-      result = await API.getWineReviews(wine, settings, this.lang);
-      this._incrementAiCalls();
+      if (typeof Sync !== 'undefined' && Sync.fetchCommunityReviews) {
+        community = await Sync.fetchCommunityReviews(wine);
+      }
+    } catch { community = []; }
 
-      // Step 2: If AI found nothing, try web search
+    let result = null;
+    let communityTranslated = null;
+    try {
+      // Step 1: AI lookup (also translates the community reviews — same call)
+      result = await API.getWineReviews(wine, settings, this.lang, community);
+      this._incrementAiCalls();
+      communityTranslated = result && Array.isArray(result.community) ? result.community : null;
+
+      // Step 2: If AI found no professional reviews, try web search
       if (!result || !result.found || !result.reviews || result.reviews.length === 0) {
-        // Update modal to show web search status
         const modalBody = document.querySelector('.modal-body');
         if (modalBody) modalBody.innerHTML = `<p style="text-align:center;padding:24px 0">${this.t('wine.reviewsWebSearch')}</p>`;
 
@@ -2087,21 +2098,24 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       }
     } catch (e) {
       console.error('Reviews error:', e);
-      const msg = (e.message || '').toLowerCase();
-      const isBusy = msg.includes('overloaded') || msg.includes('529') || msg.includes('rate') || msg.includes('capacity');
-      const text = isBusy
-        ? this.t('wine.reviewsBusy')
-        : (nl ? 'Er ging iets mis bij het ophalen van reviews. Probeer het later opnieuw.' : 'Something went wrong fetching reviews. Please try again later.');
-      this.showModal(this.t('wine.reviews'), `<p style="text-align:center;padding:16px 0">${text}</p>`, [
-        { label: 'OK', cls: 'btn-ghost', action: () => this.closeModal() }
-      ]);
-      return;
+      // AI unavailable — we can still show community reviews (untranslated).
+      if (!community.length) {
+        const msg = (e.message || '').toLowerCase();
+        const isBusy = msg.includes('overloaded') || msg.includes('529') || msg.includes('rate') || msg.includes('capacity');
+        const text = isBusy
+          ? this.t('wine.reviewsBusy')
+          : (nl ? 'Er ging iets mis bij het ophalen van reviews. Probeer het later opnieuw.' : 'Something went wrong fetching reviews. Please try again later.');
+        this.showModal(this.t('wine.reviews'), `<p style="text-align:center;padding:16px 0">${text}</p>`, [
+          { label: 'OK', cls: 'btn-ghost', action: () => this.closeModal() }
+        ]);
+        return;
+      }
+      result = null;
     }
 
-    // Build reviews HTML
-    let body = '';
-    if (result && result.reviews && result.reviews.length > 0) {
-      const reviewCards = result.reviews.map(r => `
+    // ── Professional reviews section ───────────────────────────────────────
+    const proCards = (result && result.reviews && result.reviews.length > 0)
+      ? result.reviews.map(r => `
         <div style="background:var(--cream-dk);border-radius:10px;padding:12px;margin-bottom:8px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
             <strong style="font-size:.9rem">${this._esc(r.source)}</strong>
@@ -2109,16 +2123,37 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
           </div>
           ${r.vintage ? `<div style="font-size:.75rem;color:var(--text-lt);margin-bottom:4px">${this._esc(this.t('wine.vintage'))} ${r.vintage}</div>` : ''}
           ${r.quote ? `<p style="font-size:.85rem;margin:0;font-style:italic;color:var(--text)">"${this._esc(r.quote)}"</p>` : ''}
-        </div>`).join('');
+        </div>`).join('')
+      : '';
+    const proSummary = result && result.summary
+      ? `<p style="font-size:.9rem;margin:8px 0 0;color:var(--text)">${this._esc(result.summary)}</p>` : '';
 
-      const summaryHtml = result.summary
-        ? `<p style="font-size:.9rem;margin:16px 0 8px;color:var(--text)">${this._esc(result.summary)}</p>` : '';
+    // ── Vinage users section ───────────────────────────────────────────────
+    const transMap = {};
+    (communityTranslated || []).forEach(c => { if (c && typeof c.i === 'number') transMap[c.i] = c.text; });
+    const commCards = community.map((r, idx) => {
+      const txt = (transMap[idx] != null ? transMap[idx] : r.text || '').toString().trim();
+      const n = Math.max(0, Math.min(5, parseInt(r.rating, 10) || 0));
+      if (!txt && !n) return '';
+      const stars = n ? `<span style="color:var(--burgundy);font-size:.9rem">${'★'.repeat(n)}${'☆'.repeat(5 - n)}</span>` : '';
+      return `
+        <div style="background:var(--cream-dk);border-radius:10px;padding:12px;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <strong style="font-size:.9rem">${this._esc(this.t('wine.reviewCommunity'))}</strong>
+            ${stars}
+          </div>
+          ${txt ? `<p style="font-size:.85rem;margin:0;color:var(--text)">${this._esc(txt)}</p>` : ''}
+        </div>`;
+    }).filter(Boolean).join('');
 
-      body = `<div>${reviewCards}${summaryHtml}</div>`;
-    } else {
-      const summaryHtml = result && result.summary
-        ? `<p style="font-size:.9rem;margin-top:8px;color:var(--text)">${this._esc(result.summary)}</p>` : '';
-      body = `<p style="text-align:center;color:var(--text-lt);padding:16px 0">${this.t('wine.reviewsNone')}</p>${summaryHtml}`;
+    const header = label => `<div style="font-weight:700;font-size:.75rem;color:var(--text-lt);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 8px">${this._esc(label)}</div>`;
+
+    let body = '';
+    if (proCards) body += header(this.t('wine.reviewsPro')) + proCards + proSummary;
+    else if (proSummary) body += proSummary;
+    if (commCards) body += header(this.t('wine.reviewsCommunity')) + commCards;
+    if (!proCards && !proSummary && !commCards) {
+      body = `<p style="text-align:center;color:var(--text-lt);padding:16px 0">${this.t('wine.reviewsNone')}</p>`;
     }
 
     body += `<p style="font-size:.72rem;color:var(--text-lt);margin:16px 0 0;text-align:center">${this.t('wine.reviewsProNote')}</p>`;
