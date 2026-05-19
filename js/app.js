@@ -2138,6 +2138,22 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const proSummary = result && result.summary
       ? `<p style="font-size:.9rem;margin:8px 0 0;color:var(--text)">${this._esc(result.summary)}</p>` : '';
 
+    // Overall expert rating (1–5, may be fractional) → stars + numeric value
+    const er = result && result.expertRating != null ? Number(result.expertRating) : NaN;
+    let expertRow = '';
+    if (!isNaN(er) && er > 0) {
+      const clamped = Math.max(0, Math.min(5, er));
+      const rounded = Math.round(clamped);
+      const sep = this.lang === 'en' ? '.' : ',';
+      const numTxt = clamped.toFixed(1).replace('.', sep);
+      expertRow = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <strong style="font-size:.85rem">${this._esc(this.t('wine.reviewsAvgRating'))}</strong>
+          <span><span style="color:var(--burgundy);font-size:.95rem">${'★'.repeat(rounded)}${'☆'.repeat(5 - rounded)}</span>
+            <span style="font-size:.8rem;color:var(--text-lt);margin-left:6px">${numTxt}/5</span></span>
+        </div>`;
+    }
+
     // ── Vinage users section ───────────────────────────────────────────────
     const transMap = {};
     (communityTranslated || []).forEach(c => { if (c && typeof c.i === 'number') transMap[c.i] = c.text; });
