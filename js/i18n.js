@@ -936,6 +936,12 @@ const TRANSLATIONS = {
       drinkFrom: 'Bere dal (anno)', drinkUntil: 'Bere fino al (anno)', tags: 'Etichette',
       viewDpp: 'Visualizza Passaporto Digitale',
       watchStock: 'Avviso scorta a:',
+      reviews: 'Recensioni',
+      reviewsLoading: 'Ricerca recensioni…',
+      reviewsNone: 'Nessuna recensione professionale trovata per questo vino.',
+      reviewsProNote: 'Vinage mostra solo recensioni di critici enologici professionisti, non valutazioni di singoli utenti.',
+      reviewsWebSearch: 'Nessuna recensione AI trovata, ricerca sul web…',
+      reviewsBusy: 'Il servizio recensioni è temporaneamente sovraccarico. Riprova tra poco.',
     },
     types: { red: 'Rosso', white: 'Bianco', rosé: 'Rosato', sparkling: 'Spumante', dessert: 'Passito', fortified: 'Vino liquoroso' },
     cellar: {
