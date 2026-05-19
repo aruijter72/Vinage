@@ -293,6 +293,110 @@ If no wines can be meaningfully matched, return: []`;
     }
   },
 
+  // ── Wine reviews lookup ──────────────────────────────────────────────────
+  async getWineReviews(wine, settings, lang = 'en') {
+    const langNote = lang === 'nl'
+      ? 'Antwoord volledig in het Nederlands.'
+      : 'Respond entirely in English.';
+
+    const wineDesc = [wine.name, wine.producer, wine.vintage, wine.region, wine.country]
+      .filter(Boolean).join(', ');
+
+    const prompt = `You are an expert wine critic researcher.
+Find professional reviews and scores for this wine: ${wineDesc}
+
+Return ONLY a valid JSON object with this structure:
+{
+  "found": true,
+  "reviews": [
+    {
+      "source": "Robert Parker / Wine Advocate",
+      "score": "92/100",
+      "quote": "Brief excerpt or summary of the review",
+      "vintage": 2019
+    }
+  ],
+  "summary": "1-2 sentence overall consensus about this wine"
+}
+
+Rules:
+- Only include reviews you are confident are real — NEVER invent scores or reviews.
+- Sources to look for: Robert Parker/Wine Advocate, Wine Spectator, Decanter, Jancis Robinson, James Suckling, Vivino average, Wine Enthusiast, Falstaff, Gambero Rosso.
+- If you know the wine but have no specific review scores, set "found": true with an empty "reviews" array and provide a general "summary" of the wine's reputation.
+- If you do not recognize this wine at all, return: {"found": false, "reviews": [], "summary": null}
+- Include the vintage year for each review when known.
+${langNote}`;
+
+    const provider = settings.apiProvider || 'anthropic';
+    const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
+
+    try {
+      const raw = key
+        ? (provider === 'anthropic'
+            ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+            : await this._openaiText(prompt, key, 'gpt-4o-mini'))
+        : await this._proxyText(prompt, 'claude-haiku-4-5-20251001');
+      return this._parseJSON(raw);
+    } catch (e) {
+      throw new Error('api_error: ' + e.message);
+    }
+  },
+
+  // Web search fallback for wine reviews
+  async getWineReviewsWeb(wine, settings, lang = 'en') {
+    const query = [wine.name, wine.producer, wine.vintage, 'wine review score']
+      .filter(Boolean).join(' ');
+
+    // Try fetching from wine-searcher (aggregates scores from multiple critics)
+    const searchUrl = `https://www.wine-searcher.com/find/${encodeURIComponent(query)}`;
+    let pageText = await this.fetchPageText(searchUrl, settings);
+
+    // If wine-searcher didn't work, try a general search
+    if (!pageText || pageText.length < 100) {
+      const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+      pageText = await this.fetchPageText(googleUrl, settings);
+    }
+
+    if (!pageText || pageText.length < 100) return { found: false, reviews: [], summary: null };
+
+    const langNote = lang === 'nl'
+      ? 'Antwoord volledig in het Nederlands.'
+      : 'Respond entirely in English.';
+
+    const extractPrompt = `Extract wine review scores from this web page text for: ${wine.name} ${wine.vintage || ''}
+
+Page text:
+"""
+${pageText.slice(0, 3000)}
+"""
+
+Return ONLY valid JSON:
+{
+  "found": true,
+  "reviews": [{"source": "Critic Name", "score": "92/100", "quote": "brief note", "vintage": 2019}],
+  "summary": "1-2 sentence summary"
+}
+
+Rules:
+- Only include scores you can clearly see in the text — do NOT invent any.
+- If no review scores are visible, return {"found": false, "reviews": [], "summary": null}
+${langNote}`;
+
+    const provider = settings.apiProvider || 'anthropic';
+    const key = provider === 'anthropic' ? settings.anthropicKey : settings.openaiKey;
+
+    try {
+      const raw = key
+        ? (provider === 'anthropic'
+            ? await this._claudeText(extractPrompt, key, 'claude-haiku-4-5-20251001')
+            : await this._openaiText(extractPrompt, key, 'gpt-4o-mini'))
+        : await this._proxyText(extractPrompt, 'claude-haiku-4-5-20251001');
+      return this._parseJSON(raw);
+    } catch {
+      return { found: false, reviews: [], summary: null };
+    }
+  },
+
   // ── Rule-based fallback pairing (no API key needed) ───────────────────────
   ruleBasedPairing(dish, wines) {
     const d = dish.toLowerCase();
