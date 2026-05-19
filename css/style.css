@@ -1123,6 +1123,9 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   display: inline-block;
   transform-origin: top left;
 }
+/* The 3D rack handles its own zoom inside the iframe, so its wrapper must be
+   a full-width block (not the inline-block shrink-to-fit used for 2D racks). */
+.rack3d-wrap, .rack3d-wrap > #rack-zoom-inner { display: block; width: 100%; }
 
 /* Case rack (3×4) */
 .rack-case {
