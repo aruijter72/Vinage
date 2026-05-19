@@ -310,6 +310,11 @@ const App = {
       case 'delete-wine':         this.confirmDeleteWine(args.id); break;
       case 'open-cellar':         this.openCellarDetail(args.id); break;
       case 'back-cellar':         this.cellarDetailId = null; this.renderView(); break;
+      case 'explore-open':            this.navigate('explore'); break;
+      case 'explore-country':         this.exploreCountry = args.key || ''; this.exploreCountryDisplay = args.display || args.key || ''; this.exploreRegion = null; this.view = 'explore-country'; this.renderView(); this.renderNav(); break;
+      case 'explore-region':          this.exploreRegion = args.region || ''; this.view = 'explore-region'; this.renderView(); this.renderNav(); break;
+      case 'explore-back-countries':  this.exploreCountry = null; this.exploreCountryDisplay = null; this.exploreRegion = null; this.view = 'explore'; this.renderView(); this.renderNav(); break;
+      case 'explore-back-country':    this.exploreRegion = null; this.view = 'explore-country'; this.renderView(); this.renderNav(); break;
       case 'add-cellar':          this.showAddCellarModal(); break;
       case 'save-cellar':         this.saveCellarForm(); break;
       case 'rename-cellar':       this._renameCellar(args.id); break;
