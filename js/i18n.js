@@ -542,7 +542,7 @@ const TRANSLATIONS = {
       watchStock: 'Voorraadwaarschuwing bij:',
       reviews: 'Reviews',
       reviewsLoading: 'Reviews zoeken…',
-      reviewsNone: 'Geen professionele reviews gevonden voor deze wijn.',
+      reviewsNone: 'Geen reviews gevonden voor deze wijn.',
       reviewsWebSearch: 'Geen AI-reviews gevonden, zoeken op het web…',
       reviewsBusy: 'De review-service is tijdelijk overbelast. Probeer het zo opnieuw.',
     },
