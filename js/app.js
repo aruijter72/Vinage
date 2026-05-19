@@ -2072,7 +2072,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       }
     } catch (e) {
       console.error('Reviews error:', e);
-      this.showModal(this.t('wine.reviews'), `<p>${nl ? 'Fout bij ophalen reviews:' : 'Error fetching reviews:'}<br><small style="color:var(--text-lt)">${this._esc(e.message || String(e))}</small></p>`, [
+      const msg = (e.message || '').toLowerCase();
+      const isBusy = msg.includes('overloaded') || msg.includes('529') || msg.includes('rate') || msg.includes('capacity');
+      const text = isBusy
+        ? this.t('wine.reviewsBusy')
+        : (nl ? 'Er ging iets mis bij het ophalen van reviews. Probeer het later opnieuw.' : 'Something went wrong fetching reviews. Please try again later.');
+      this.showModal(this.t('wine.reviews'), `<p style="text-align:center;padding:16px 0">${text}</p>`, [
         { label: 'OK', cls: 'btn-ghost', action: () => this.closeModal() }
       ]);
       return;
