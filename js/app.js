@@ -2057,19 +2057,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     const nl = this.lang === 'nl';
     const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
 
-    if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
-      this.toast(this.t('scan.apiKeyMissing'), 'error'); return;
-    }
-    if (!this._canUseAI()) { this._showAiLimitPaywall(); return; }
-
     // Show loading state
     this.showModal(this.t('wine.reviews'), `<p style="text-align:center;padding:24px 0">${this.t('wine.reviewsLoading')}</p>`, [
       { label: this.t('common.close') || 'OK', cls: 'btn-ghost', action: () => this.closeModal() }
     ]);
 
-    // Reviews written by other Vinage users (global pool). Fetched up front so
-    // they can be passed into the single AI call for translation, and so they
-    // still show even if the AI lookup fails.
+    // Reviews written by other Vinage users (global pool). No API/AI needed —
+    // fetched first so they still show when AI is unavailable.
     let community = [];
     try {
       if (typeof Sync !== 'undefined' && Sync.fetchCommunityReviews) {
@@ -2077,9 +2071,24 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       }
     } catch { community = []; }
 
+    // Professional reviews + translating community reviews need the AI.
+    // The community reviews themselves do not, so a missing key or a spent
+    // AI quota only blocks the screen when there is nothing else to show.
+    const aiHasAccess   = !!(settings.anthropicKey || settings.openaiKey || isSignedIn);
+    const aiWithinLimit = this._canUseAI();
+    const useAI = aiHasAccess && aiWithinLimit;
+
+    if (!useAI && !community.length) {
+      this.closeModal();
+      if (!aiHasAccess) { this.toast(this.t('scan.apiKeyMissing'), 'error'); return; }
+      this._showAiLimitPaywall();
+      return;
+    }
+
     let result = null;
     let communityTranslated = null;
-    try {
+    if (useAI) {
+     try {
       // Step 1: AI lookup (also translates the community reviews — same call)
       result = await API.getWineReviews(wine, settings, this.lang, community);
       this._incrementAiCalls();
