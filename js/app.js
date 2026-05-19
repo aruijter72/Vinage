@@ -189,8 +189,8 @@ const App = {
     document.body.classList.toggle('demo-on', !!active);
     if (!active) { el.innerHTML = ''; el.style.display = 'none'; return; }
     el.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;'
-      + 'padding:6px 12px;background:var(--burgundy);color:#fff;font-size:.78rem;'
-      + 'font-weight:700;box-shadow:0 1px 6px rgba(0,0,0,.25)';
+      + 'padding:calc(6px + var(--safe-top)) 12px 6px;background:var(--burgundy);'
+      + 'color:#fff;font-size:.78rem;font-weight:700;box-shadow:0 1px 6px rgba(0,0,0,.25)';
     el.innerHTML = `
       <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🎬 ${this._esc(this.t('settings.demoActive'))}</span>
       <span style="display:flex;gap:6px;flex-shrink:0">
