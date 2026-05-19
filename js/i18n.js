@@ -539,6 +539,10 @@ const TRANSLATIONS = {
       tags: 'Labels',
       viewDpp: 'Digitaal Paspoort Bekijken',
       watchStock: 'Voorraadwaarschuwing bij:',
+      reviews: 'Reviews',
+      reviewsLoading: 'Reviews zoeken…',
+      reviewsNone: 'Geen professionele reviews gevonden voor deze wijn.',
+      reviewsWebSearch: 'Geen AI-reviews gevonden, zoeken op het web…',
     },
     types: {
       red: 'Rood', white: 'Wit', rosé: 'Rosé',
