@@ -1945,14 +1945,18 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 
   /* Cellar detail presented as a centred card; roomier 3D rack */
   .rack-container {
-    max-width: 1000px;
+    max-width: 1040px;
     margin: 18px auto;
     background: var(--white);
     border: 1px solid var(--cream-dk);
     border-radius: var(--radius);
     padding: 20px 24px;
+    overflow: auto;          /* keep zoom/pan scrollable inside the card */
   }
-  .rack3d-frame { height: min(78vh, 780px); }
+  .rack3d-frame {
+    height: min(900px, 88vh);
+    min-height: 620px;
+  }
   .rack-3d-container { box-shadow: 0 6px 26px rgba(92,26,16,.14); }
 
   /* Wine form: wider dialog with a two-column field layout. Full-width rows
