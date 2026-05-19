@@ -814,8 +814,12 @@ const Sync = {
 
   // ── UI helpers ────────────────────────────────────────────────────────────
   _updateSyncUI() {
-    // Re-render settings if it's currently open, so the cloud sync card updates
-    if (App.view === 'settings') App.renderView();
+    // Re-render whenever Settings (or any of its sub-pages, e.g. settings-sync
+    // where sign-in/out and household actions live) is open, so account /
+    // household state updates immediately instead of one navigation late.
+    if (typeof App.view === 'string' && App.view.indexOf('settings') === 0) {
+      App.renderView();
+    }
   },
 
   _setSyncIndicator(state) {
