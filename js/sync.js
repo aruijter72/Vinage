@@ -38,6 +38,13 @@ const Sync = {
       this._storage = firebase.storage();
       this._ready   = true;
 
+      // Live partner-importer on/off config (publicly readable, console-managed).
+      // Silently falls back to each importer's hardcoded `active` if unreadable.
+      this._db.doc('config/importers').onSnapshot(
+        snap => { this.importerConfig = snap.exists ? (snap.data() || {}) : {}; },
+        err  => { console.warn('Vinage: importer config unavailable, using defaults', err?.code || err); }
+      );
+
       this._auth.onAuthStateChanged(user => {
         this.user = user;
         if (user) {
