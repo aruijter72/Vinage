@@ -2034,6 +2034,71 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     setTimeout(() => this._promptCellarPlacement(existing.id, newQty, newQty), 400);
   },
 
+  // ── Wine reviews ────────────────────────────────────────────────────────
+  async _showWineReviews(wineId) {
+    const wine = DB.getWineById(wineId);
+    if (!wine) return;
+    const settings = DB.getSettings();
+    const nl = this.lang === 'nl';
+
+    // Show loading state
+    this.showModal(this.t('wine.reviews'), `<p style="text-align:center;padding:24px 0">${this.t('wine.reviewsLoading')}</p>`, [
+      { label: this.t('common.close') || 'OK', cls: 'btn-ghost', action: () => this.closeModal() }
+    ]);
+
+    let result = null;
+    try {
+      // Step 1: AI lookup
+      result = await API.getWineReviews(wine, settings, this.lang);
+      this._incrementAiCalls();
+
+      // Step 2: If AI found nothing, try web search
+      if (!result || !result.found || !result.reviews || result.reviews.length === 0) {
+        // Update modal to show web search status
+        const modalBody = document.querySelector('.modal-body');
+        if (modalBody) modalBody.innerHTML = `<p style="text-align:center;padding:24px 0">${this.t('wine.reviewsWebSearch')}</p>`;
+
+        const webResult = await API.getWineReviewsWeb(wine, settings, this.lang);
+        this._incrementAiCalls();
+        if (webResult && webResult.found && webResult.reviews && webResult.reviews.length > 0) {
+          result = webResult;
+        }
+      }
+    } catch (e) {
+      this.showModal(this.t('wine.reviews'), `<p>${nl ? 'Fout bij ophalen reviews.' : 'Error fetching reviews.'}</p>`, [
+        { label: 'OK', cls: 'btn-ghost', action: () => this.closeModal() }
+      ]);
+      return;
+    }
+
+    // Build reviews HTML
+    let body = '';
+    if (result && result.reviews && result.reviews.length > 0) {
+      const reviewCards = result.reviews.map(r => `
+        <div style="background:var(--cream-dk);border-radius:10px;padding:12px;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <strong style="font-size:.9rem">${this._esc(r.source)}</strong>
+            ${r.score ? `<span style="background:var(--burgundy);color:#fff;border-radius:6px;padding:2px 8px;font-weight:700;font-size:.85rem">${this._esc(r.score)}</span>` : ''}
+          </div>
+          ${r.vintage ? `<div style="font-size:.75rem;color:var(--text-lt);margin-bottom:4px">${nl ? 'Jaargang' : 'Vintage'} ${r.vintage}</div>` : ''}
+          ${r.quote ? `<p style="font-size:.85rem;margin:0;font-style:italic;color:var(--text)">"${this._esc(r.quote)}"</p>` : ''}
+        </div>`).join('');
+
+      const summaryHtml = result.summary
+        ? `<p style="font-size:.9rem;margin:16px 0 8px;color:var(--text)">${this._esc(result.summary)}</p>` : '';
+
+      body = `<div>${reviewCards}${summaryHtml}</div>`;
+    } else {
+      const summaryHtml = result && result.summary
+        ? `<p style="font-size:.9rem;margin-top:8px;color:var(--text)">${this._esc(result.summary)}</p>` : '';
+      body = `<p style="text-align:center;color:var(--text-lt);padding:16px 0">${this.t('wine.reviewsNone')}</p>${summaryHtml}`;
+    }
+
+    this.showModal(this.t('wine.reviews'), body, [
+      { label: 'OK', cls: 'btn-primary', action: () => this.closeModal() }
+    ]);
+  },
+
   // ── Post-scan cellar placement ────────────────────────────────────────────
   _promptCellarPlacement(wineId, totalQty, bottleNum) {
     const wine = DB.getWineById(wineId);
