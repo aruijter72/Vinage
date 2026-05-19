@@ -1783,6 +1783,13 @@ const App = {
       return;
     }
 
+    // Publish this user's rating + note to the global community pool (if signed
+    // in). Other Vinage users see it anonymously when they look up reviews.
+    Sync.publishCommunityReview({
+      ...data,
+      id: editWineId || newWine?.id,
+    });
+
     // Persist medium image to IndexedDB AND Firebase Storage (if signed in).
     // IndexedDB is fast/offline; Firebase Storage is permanent and cross-device.
     const savedId = editWineId || newWine?.id;
