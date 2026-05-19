@@ -44,6 +44,26 @@
       { "source": "/gebruiksvoorwaarden",   "destination": "/website/terms.html" },
       { "source": "/terms",                 "destination": "/website/terms.html" },
       { "source": "/terms.html",            "destination": "/website/terms.html" }
+    ],
+    "headers": [
+      {
+        "source": "/sw.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      },
+      {
+        "source": "/app",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      },
+      {
+        "source": "**/*.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      }
     ]
   }
 }
