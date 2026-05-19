@@ -150,6 +150,7 @@ const App = {
   // ── Full render ───────────────────────────────────────────────────────────
   render() {
     document.getElementById('app').innerHTML = `
+      <div id="demo-banner"></div>
       <div id="main-content"></div>
       <nav id="bottom-nav"></nav>
       <div id="modal-overlay">
