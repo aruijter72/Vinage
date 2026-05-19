@@ -1177,6 +1177,12 @@ const TRANSLATIONS = {
       drinkFrom: 'À boire à partir de (année)', drinkUntil: "À boire jusqu'en (année)", tags: 'Étiquettes',
       viewDpp: 'Voir le Passeport Numérique',
       watchStock: 'Alerte stock à:',
+      reviews: 'Avis',
+      reviewsLoading: 'Recherche d’avis…',
+      reviewsNone: 'Aucun avis professionnel trouvé pour ce vin.',
+      reviewsProNote: 'Vinage affiche uniquement les avis de critiques de vin professionnels, pas les notes d’utilisateurs individuels.',
+      reviewsWebSearch: 'Aucun avis IA trouvé, recherche sur le web…',
+      reviewsBusy: 'Le service d’avis est temporairement surchargé. Veuillez réessayer dans un instant.',
     },
     types: { red: 'Rouge', white: 'Blanc', rosé: 'Rosé', sparkling: 'Effervescent', dessert: 'Vin de dessert', fortified: 'Vin fortifié' },
     cellar: {
