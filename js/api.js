@@ -455,9 +455,9 @@ ${langNote}`;
   // ── Internal: Vinage AI Proxy (Firebase Cloud Function) ──────────────────
   // Called automatically when the user has no personal API key but is signed in.
   // The Anthropic key lives server-side — it is never exposed to the client.
-  async _proxyText(prompt, model = 'claude-haiku-4-5-20251001', opts = {}) {
+  async _proxyText(prompt, model = 'claude-haiku-4-5-20251001') {
     const fn = firebase.app().functions('europe-west1').httpsCallable('aiProxy');
-    const result = await fn({ prompt, model, webSearch: !!opts.webSearch });
+    const result = await fn({ prompt, model });
     return result.data.text;
   },
 
