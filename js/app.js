@@ -4804,7 +4804,11 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     let html = '';
 
     for (const importer of IMPORTERS) {
-      if (!importer.active) continue;
+      // Firestore (console-managed) on/off override; falls back to hardcoded active
+      const enabled = (typeof Sync !== 'undefined' && Sync.isImporterActive)
+        ? Sync.isImporterActive(importer.id, importer.active)
+        : importer.active;
+      if (!enabled) continue;
 
       // Score each wine by keyword overlap between dish text and wine.pairings
       const scored = importer.wines.map(wine => {
