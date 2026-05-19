@@ -339,9 +339,6 @@ function _applyZoom(z){
   window.addEventListener('wheel',function(e){
     e.preventDefault();
     _applyZoom(_currentZoom - e.deltaY*0.0016);
-    if(window.parent!==window){
-      window.parent.postMessage({type:'vinage-zoom-sync',factor:_currentZoom},'*');
-    }
   },{passive:false});
 }
 
