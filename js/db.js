@@ -284,3 +284,46 @@ const DB = {
     return true;
   }
 };
+
+// ── Demo mode ────────────────────────────────────────────────────────────────
+// Sandboxed presentation mode. Works on a `vinage_demo_*` copy of the real
+// data; nothing demo-related ever touches the real `vinage_*` keys, Firestore
+// or the global community pool. A fresh snapshot is taken on entry and on
+// reset; an auto-reset kicks in if the snapshot is older than the TTL.
+const DEMO = {
+  STATE_KEY: 'vinage_demo',
+  TTL_MS: 24 * 60 * 60 * 1000,
+  _realKeys: { wines: 'vinage_wines', cellars: 'vinage_cellars', settings: 'vinage_settings', wishlist: 'vinage_wishlist', consumption: 'vinage_consumption' },
+  _demoKeys: { wines: 'vinage_demo_wines', cellars: 'vinage_demo_cellars', settings: 'vinage_demo_settings', wishlist: 'vinage_demo_wishlist', consumption: 'vinage_demo_consumption' },
+
+  state() { try { return JSON.parse(localStorage.getItem(this.STATE_KEY) || 'null'); } catch { return null; } },
+  isActive() { const s = this.state(); return !!(s && s.active); },
+
+  _snapshot() {
+    Object.keys(this._realKeys).forEach(k => {
+      const v = localStorage.getItem(this._realKeys[k]);
+      if (v != null) localStorage.setItem(this._demoKeys[k], v);
+      else localStorage.removeItem(this._demoKeys[k]);
+    });
+    localStorage.setItem(this.STATE_KEY, JSON.stringify({ active: true, startedAt: Date.now() }));
+  },
+
+  enter() { this._snapshot(); },   // caller reloads afterwards
+  reset() { this._snapshot(); },   // fresh data, demo stays active
+
+  exit() {
+    Object.values(this._demoKeys).forEach(k => localStorage.removeItem(k));
+    localStorage.removeItem(this.STATE_KEY);
+  },
+
+  // Runs at script load (before anything reads DB). If demo is active, point
+  // DB.KEYS at the demo namespace; auto-reset stale snapshots.
+  _applyAtBoot() {
+    const s = this.state();
+    if (!s || !s.active) return;
+    if (!s.startedAt || (Date.now() - s.startedAt) > this.TTL_MS) this._snapshot();
+    DB.KEYS = { ...this._demoKeys };
+  },
+};
+DB.Demo = DEMO;
+DEMO._applyAtBoot();
