@@ -1556,7 +1556,8 @@ const App = {
           <label>${label}</label>
           <div class="wine-location-block" style="margin-top:0;border-top:none;padding-top:0">${rows}</div>
         </div>`;
-      })()}`;
+      })()}
+      </div>`;
 
     const footerBtns = [
       { label: this.t('common.cancel'), cls: 'btn-secondary', action: () => this.closeModal() },
