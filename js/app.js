@@ -4924,6 +4924,91 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   // EXPLORE VIEW (geographical drilldown: country → region → detail)
   // ══════════════════════════════════════════════════════════════════════════
 
+  // ISO-A2 (lowercase, as used in the BlankMap-World SVG) → canonical English
+  // country key matching `_countryKey()`. Covers the wine-producing world.
+  _ISO_TO_KEY: {
+    fr:'france', it:'italy', es:'spain', pt:'portugal', de:'germany', at:'austria',
+    ch:'switzerland', nl:'netherlands', be:'belgium', lu:'luxembourg',
+    us:'united states', au:'australia', nz:'new zealand', za:'south africa',
+    ar:'argentina', cl:'chile', uy:'uruguay', br:'brazil',
+    gr:'greece', hu:'hungary', ro:'romania', bg:'bulgaria', hr:'croatia',
+    si:'slovenia', cz:'czech republic', sk:'slovakia', pl:'poland',
+    rs:'serbia', md:'moldova', ge:'georgia', tr:'turkey', il:'israel',
+    lb:'lebanon', gb:'united kingdom', ru:'russia', ua:'ukraine',
+    se:'sweden', dk:'denmark', no:'norway', fi:'finland',
+    mk:'north macedonia', al:'albania', me:'montenegro', cy:'cyprus', mt:'malta',
+    ma:'morocco', tn:'tunisia', dz:'algeria', ca:'canada', mx:'mexico',
+    jp:'japan', cn:'china', in:'india', pe:'peru', bo:'bolivia'
+  },
+
+  // Interpolate from light cream-burgundy (0%) to full burgundy (100%).
+  _mapShade(t) {
+    const lerp = (a, b, x) => Math.round(a + (b - a) * x);
+    const s = [228, 210, 197], e = [122, 37, 53]; // soft → burgundy
+    return `rgb(${lerp(s[0],e[0],t)},${lerp(s[1],e[1],t)},${lerp(s[2],e[2],t)})`;
+  },
+
+  // Lazy-load the world map SVG (≈1 MB, gzipped ~200 KB), inject into the
+  // explore view, colour countries by bottle count, and wire click handlers
+  // to navigate into the existing country detail route.
+  async _initWorldMap() {
+    const target = document.getElementById('world-map');
+    if (!target) return;
+    if (!this._worldMapSvg) {
+      try {
+        const res = await fetch('assets/world-map.svg', { cache: 'force-cache' });
+        if (!res.ok) throw new Error('http ' + res.status);
+        this._worldMapSvg = await res.text();
+      } catch (e) {
+        target.innerHTML = `<p style="color:var(--text-lt);font-size:.85rem;text-align:center;padding:12px">${this._esc(this.t('explore.loadFailed'))}</p>`;
+        return;
+      }
+    }
+    target.innerHTML = this._worldMapSvg;
+    target.classList.remove('world-map-loading');
+
+    // Reverse lookup: canonical key → ISO codes
+    const KEY_TO_ISO = {};
+    for (const [iso, key] of Object.entries(this._ISO_TO_KEY)) {
+      (KEY_TO_ISO[key] = KEY_TO_ISO[key] || []).push(iso);
+    }
+
+    // Colour countries the user owns wines from
+    const groups = this._exploreCountryGroups();
+    const max = groups.length ? Math.max(...groups.map(g => g.bottles)) : 1;
+    for (const g of groups) {
+      const isos = KEY_TO_ISO[g.key] || [];
+      const fill = this._mapShade(Math.min(1, g.bottles / max));
+      for (const iso of isos) {
+        const el = target.querySelector(`g[id="${iso}"]`);
+        if (!el) continue;
+        el.setAttribute('data-vinage-key', g.key);
+        el.setAttribute('data-vinage-display', g.displayLocal);
+        el.querySelectorAll('path').forEach(p => { p.style.fill = fill; });
+      }
+    }
+    // Mark every mapped country as clickable (even without wines yet)
+    for (const [iso, key] of Object.entries(this._ISO_TO_KEY)) {
+      const el = target.querySelector(`g[id="${iso}"]`);
+      if (el && !el.hasAttribute('data-vinage-key')) {
+        el.setAttribute('data-vinage-key', key);
+        el.setAttribute('data-vinage-display', this._localizeCountry(this._titleCase(key)));
+      }
+    }
+
+    // Click delegation on the map
+    target.onclick = (e) => {
+      const g = e.target.closest('g[data-vinage-key]');
+      if (!g) return;
+      this.exploreCountry = g.getAttribute('data-vinage-key');
+      this.exploreCountryDisplay = g.getAttribute('data-vinage-display');
+      this.exploreRegion = null;
+      this.view = 'explore-country';
+      this.renderView();
+      this.renderNav();
+    };
+  },
+
   // Country list — grouped from the user's collection. Stable across the app
   // language by normalising `wine.country` to its canonical English key.
   _exploreCountryGroups() {
