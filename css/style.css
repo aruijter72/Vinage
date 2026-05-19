@@ -1941,6 +1941,33 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   /* Bigger, centred dialogs */
   #modal-box { max-width: 600px; }
 
+  /* ── Phase 2: cellar detail + 3D rack + forms ───────────────────────────── */
+
+  /* Cellar detail presented as a centred card; roomier 3D rack */
+  .rack-container {
+    max-width: 1000px;
+    margin: 18px auto;
+    background: var(--white);
+    border: 1px solid var(--cream-dk);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+  }
+  .rack3d-frame { height: min(78vh, 780px); }
+  .rack-3d-container { box-shadow: 0 6px 26px rgba(92,26,16,.14); }
+
+  /* Wine form: wider dialog with a two-column field layout. Full-width rows
+     (image, paired inline grids, location block) and any textarea field
+     span both columns; simple fields flow into two columns. */
+  #modal-box:has(.wine-form) { max-width: 880px; }
+  .wine-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+    align-items: start;
+  }
+  .wine-form > *:not(.form-group) { grid-column: 1 / -1; }
+  .wine-form > .form-group:has(textarea) { grid-column: 1 / -1; }
+
   .pairing-hero { border-radius: 0 0 var(--radius) var(--radius); }
 }
 
