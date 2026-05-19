@@ -3100,7 +3100,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
 
     const zoomKey = `vinage_rack_zoom_${this.cellarDetailId}`;
     const saved = parseFloat(localStorage.getItem(zoomKey));
-    if (!isNaN(saved)) this._rackZoom = saved;
+    if (!isNaN(saved)) {
+      this._rackZoom = saved;
+    } else if (window.innerWidth >= 1024) {
+      // Wide screen, no saved preference → start more zoomed-in so the 3D
+      // rack fills the large iframe instead of floating tiny in empty space.
+      this._rackZoom = 1.8;
+    }
 
     const iframe3d = document.getElementById('rack3d-iframe');
 
