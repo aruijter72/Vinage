@@ -109,8 +109,11 @@ exports.aiProxy = onCall(
         },
         body: JSON.stringify({
           model:      chosenModel,
-          max_tokens: 1024,
+          max_tokens: webSearch ? 1800 : 1024,
           messages:   [{ role: 'user', content: messageContent }],
+          ...(webSearch && !base64image
+            ? { tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }] }
+            : {}),
         }),
       });
     } catch (fetchErr) {
