@@ -12,6 +12,9 @@ const App = {
   scanResult: null,
   editWineId: null,
   cellarDetailId: null,
+  exploreCountry: null,        // canonical English key, e.g. 'italy'
+  exploreCountryDisplay: null, // localised display name shown to user
+  exploreRegion: null,         // raw region string the user picked
   collectionSort: 'addedAt',
   collectionFilters: new Set(), // empty = show all; multi-select
   collectionFilterRegion: '',   // '' = all regions
