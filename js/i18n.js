@@ -107,6 +107,10 @@ const TRANSLATIONS = {
       tags: 'Tags',
       viewDpp: 'View Digital Passport',
       watchStock: 'Low stock alert at:',
+      reviews: 'Reviews',
+      reviewsLoading: 'Searching for reviews…',
+      reviewsNone: 'No professional reviews found for this wine.',
+      reviewsWebSearch: 'No AI reviews found, searching the web…',
     },
     types: {
       red: 'Red', white: 'White', rosé: 'Rosé',
