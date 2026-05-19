@@ -1491,6 +1491,14 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   text-transform: none; letter-spacing: 0;
 }
 .pairing-importer-header a:hover { color: var(--white); }
+.pairing-importer-logo {
+  height: 20px; width: auto;
+  background: #fff;
+  border-radius: 4px;
+  padding: 3px 5px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
 .pairing-importer-wine {
   display: flex; gap: 12px; align-items: flex-start;
   padding: 13px 14px; background: var(--white);
