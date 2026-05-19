@@ -318,6 +318,7 @@ Provide professional critic reviews and scores for this wine: ${wineDesc}
 Return ONLY a valid JSON object with this structure:
 {
   "found": true,
+  "expertRating": 4.1,
   "reviews": [
     {
       "source": "Decanter / Robert Parker / Wine Advocate",
@@ -335,8 +336,9 @@ Rules:
 - Use the critic's or publication's real name (Decanter, Robert Parker/Wine Advocate, Wine Spectator, Jancis Robinson, James Suckling, Wine Enthusiast, Falstaff, Gambero Rosso, Perswijn, Gault&Millau).
 - NEVER name, write or mention any consumer rating platform, app or website (such as crowd-rating apps) anywhere in "source", "quote" or "summary".
 - Only include scores and quotes you are confident are real — NEVER invent specific numeric scores or fake quotes.
-- If you know the wine but have no specific professional scores, set "found": true with an empty "reviews" array and provide a general "summary" of its style and reputation.
-- If you do not recognize this wine at all, set "found": false with an empty "reviews" array and null "summary".
+- "expertRating" is an overall expert quality estimate on a 1–5 scale (one decimal allowed), reflecting the general critical standing of this wine/producer/style. Give your best estimate whenever you recognise the wine, its producer, region or style — it does NOT require specific published scores. Use null only if you truly know nothing about it.
+- Be generous about recognition: if you know the producer, the appellation/region, or the grape and style, set "found": true, give an "expertRating", and write a helpful general "summary" of its style, quality level and reputation — even with an empty "reviews" array.
+- Only set "found": false (with [] reviews, null summary, null expertRating) if the wine, its producer and its style are all completely unknown to you.
 - Include the vintage year for each review when known.
 - The "community" array is ONLY the translated user reviews described below (empty if none are given). Never put professional reviews there and never put user reviews in "reviews".
 ${langNote}${communityBlock}`;
