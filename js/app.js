@@ -2120,6 +2120,7 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         return;
       }
       result = null;
+     }
     }
 
     // ── Professional reviews section ───────────────────────────────────────
