@@ -2007,15 +2007,11 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   .camera-area { max-height: 60dvh; min-height: 380px; border-radius: var(--radius); }
   .scan-brand-panel { padding-bottom: 8px; }
 
-  /* Pairing: constrain the hero, show wine results in a multi-column grid */
-  .pairing-hero { max-width: 1080px; margin: 0 auto; }
-  .pairing-results {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 12px;
-    max-width: 1080px;
-    margin: 0 auto;
-  }
+  /* Pairing: the results are a linear sequence of section headers + cards,
+     NOT a uniform card list — a grid scrambles the sections. Keep the
+     single-column flow (as on mobile) but centred in a readable column. */
+  .pairing-hero { max-width: 900px; margin: 0 auto; }
+  .pairing-results { max-width: 900px; margin: 0 auto; }
   .pairing-wine-card { cursor: pointer; transition: box-shadow var(--transition), transform var(--transition); }
   .pairing-wine-card:hover { box-shadow: 0 4px 16px var(--shadow-md); transform: translateY(-1px); }
 
