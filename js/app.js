@@ -261,7 +261,7 @@ const App = {
       case 'wishlist':   el.innerHTML = this.buildWishlistView(); break;
       case 'pairing':    el.innerHTML = this.buildPairingView(); break;
       case 'stats':      el.innerHTML = this.buildStatsView(); break;
-      case 'explore':         el.innerHTML = this.buildExploreView(); break;
+      case 'explore':         el.innerHTML = this.buildExploreView(); setTimeout(() => this._initWorldMap(), 0); break;
       case 'explore-country': el.innerHTML = this.buildExploreCountryView(); setTimeout(() => this._loadCountryOverview(), 0); break;
       case 'explore-region':  el.innerHTML = this.buildExploreRegionView();  setTimeout(() => this._loadRegionOverview(), 0); break;
       case 'settings':               el.innerHTML = this.buildSettingsView(); break;
