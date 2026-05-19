@@ -2040,6 +2040,12 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     if (!wine) return;
     const settings = DB.getSettings();
     const nl = this.lang === 'nl';
+    const isSignedIn = !!(typeof firebase !== 'undefined' && firebase.auth().currentUser);
+
+    if (!settings.anthropicKey && !settings.openaiKey && !isSignedIn) {
+      this.toast(this.t('scan.apiKeyMissing'), 'error'); return;
+    }
+    if (!this._canUseAI()) { this._showAiLimitPaywall(); return; }
 
     // Show loading state
     this.showModal(this.t('wine.reviews'), `<p style="text-align:center;padding:24px 0">${this.t('wine.reviewsLoading')}</p>`, [
