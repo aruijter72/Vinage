@@ -302,17 +302,19 @@ If no wines can be meaningfully matched, return: []`;
     const wineDesc = [wine.name, wine.producer, wine.vintage, wine.region, wine.country]
       .filter(Boolean).join(', ');
 
-    const prompt = `You are an expert wine researcher.
-Find reviews, scores and community ratings for this wine: ${wineDesc}
+    const prompt = `You are an expert wine researcher with web search access.
+Search the web for reviews, scores and overall ratings for this wine: ${wineDesc}
+
+Use web search to find current, real information — do this before answering.
 
 Return ONLY a valid JSON object with this structure:
 {
   "found": true,
   "reviews": [
     {
-      "source": "Vivino community / Robert Parker / Wine Advocate",
-      "score": "3.8/5 (211 ratings) / 92/100",
-      "quote": "Brief excerpt or summary of the review or community consensus",
+      "source": "Decanter / Robert Parker / Community rating",
+      "score": "92/100 / 3.8/5 (211 ratings)",
+      "quote": "Brief excerpt of the review or a description of the community consensus",
       "vintage": 2019
     }
   ],
@@ -320,11 +322,12 @@ Return ONLY a valid JSON object with this structure:
 }
 
 Rules:
-- Include BOTH professional critic reviews AND consumer/community ratings — most everyday and supermarket wines have no critic scores but do have community ratings.
-- Sources to look for: Vivino (community average + number of ratings), CellarTracker, Wine-Searcher aggregate, Robert Parker/Wine Advocate, Wine Spectator, Decanter, Jancis Robinson, James Suckling, Wine Enthusiast, Falstaff, Gambero Rosso.
-- Only include scores and quotes you are confident are real — NEVER invent specific numeric scores or fake quotes. If you are unsure of the exact Vivino number, omit "score" but still describe the typical community reception in the "quote".
-- If you recognize the wine or its style but have no specific scores, still set "found": true, give what review/rating entries you can, and always provide a helpful "summary" describing the wine's style, typical quality level and reputation.
-- Only return {"found": false, "reviews": [], "summary": null} if you have absolutely no information about this wine, its producer, or its style.
+- Include BOTH professional critic reviews AND the overall community/consumer rating. Most everyday and supermarket wines have no critic scores but DO have an aggregate community rating with many ratings — always include that.
+- For community/aggregate ratings, ALWAYS use the source label "Community rating" (or in Dutch "Beoordeling wijnliefhebbers"). NEVER name, write or mention "Vivino" anywhere in the output — not in "source", "quote" or "summary". You may still use the rating value you find there, just do not attribute it to that platform by name.
+- For named critics/publications, use their real name (Decanter, Robert Parker/Wine Advocate, Wine Spectator, Jancis Robinson, James Suckling, Wine Enthusiast, Falstaff, Gambero Rosso, Perswijn, Gault&Millau).
+- Only include scores and quotes that the web search results actually support — NEVER invent specific numeric scores or fake quotes. If you cannot find an exact number, omit "score" but still describe the reception in "quote".
+- If the wine itself has little coverage, still set "found": true and provide at least a "summary" describing its style, typical quality level and reputation based on the producer, grape and region.
+- Only return {"found": false, "reviews": [], "summary": null} if web search yields nothing usable about this wine, its producer or its style.
 - Include the vintage year for each review when known.
 ${langNote}`;
 
@@ -334,9 +337,9 @@ ${langNote}`;
     try {
       const raw = key
         ? (provider === 'anthropic'
-            ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001')
+            ? await this._claudeText(prompt, key, 'claude-haiku-4-5-20251001', { webSearch: true })
             : await this._openaiText(prompt, key, 'gpt-4o-mini'))
-        : await this._proxyText(prompt, 'claude-haiku-4-5-20251001');
+        : await this._proxyText(prompt, 'claude-haiku-4-5-20251001', { webSearch: true });
       return this._parseJSON(raw);
     } catch (e) {
       throw new Error('api_error: ' + e.message);
