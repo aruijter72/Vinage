@@ -6064,6 +6064,16 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       </div>
     </div>
     <div class="settings-section" style="margin-top:18px">
+      <h2>🎬 ${this.t('settings.demoTitle')}</h2>
+      <p style="font-size:.85rem;color:var(--muted)">${this._esc(this.t('settings.demoDesc'))}</p>
+      ${(typeof DB !== 'undefined' && DB.Demo && DB.Demo.isActive())
+        ? `<div style="display:flex;gap:10px">
+             <button class="btn btn-ghost btn-full" data-action="reset-demo">${this.t('settings.demoReset')}</button>
+             <button class="btn btn-danger btn-full" data-action="exit-demo">${this.t('settings.demoExit')}</button>
+           </div>`
+        : `<button class="btn btn-primary btn-full" data-action="enter-demo">${this.t('settings.demoEnter')}</button>`}
+    </div>
+    <div class="settings-section" style="margin-top:18px">
       <h2>${nl ? 'App vernieuwen' : 'Refresh app'}</h2>
       <p style="font-size:.85rem;color:var(--muted)">${nl ? 'Forceer een update van de app naar de nieuwste versie. Handig als de PWA niet automatisch ververst.' : 'Force the app to update to the latest version. Useful when the PWA does not refresh automatically.'}</p>
       <button class="btn btn-ghost btn-full" data-action="force-refresh">${nl ? '🔄 Forceer vernieuwing' : '🔄 Force refresh'}</button>
