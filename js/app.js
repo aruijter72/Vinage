@@ -5517,7 +5517,17 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
   },
 
   // ── Demo mode ────────────────────────────────────────────────────────────
+  // Demo mode is a private presentation tool — only these owner accounts may
+  // see/start it. The Exit control stays available to anyone so nobody can
+  // get stuck in a demo state.
+  _DEMO_OWNERS: ['arnold.ruijter@outlook.com', 'arnoldruijter@gmail.com'],
+  _isDemoOwner() {
+    const email = ((typeof Sync !== 'undefined' && Sync.user && Sync.user.email) || '').trim().toLowerCase();
+    return !!email && this._DEMO_OWNERS.includes(email);
+  },
+
   enterDemo() {
+    if (!this._isDemoOwner()) return;
     DB.Demo.enter();
     sessionStorage.setItem('demoToast', '1');
     location.reload();
