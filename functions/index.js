@@ -136,7 +136,11 @@ exports.aiProxy = onCall(
     }
 
     // 6. Return result
-    const text = anthropicData.content?.[0]?.text;
+    const text = (anthropicData.content || [])
+      .filter(b => b.type === 'text' && b.text)
+      .map(b => b.text)
+      .join('\n')
+      .trim() || anthropicData.content?.[0]?.text;
     if (!text) {
       console.error('[aiProxy] Unexpected Anthropic response shape:', JSON.stringify(anthropicData).slice(0, 200));
       throw new HttpsError('internal', 'Unexpected response from AI service.');
