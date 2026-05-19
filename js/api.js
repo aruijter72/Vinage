@@ -295,9 +295,8 @@ If no wines can be meaningfully matched, return: []`;
 
   // ── Wine reviews lookup ──────────────────────────────────────────────────
   async getWineReviews(wine, settings, lang = 'en') {
-    const langNote = lang === 'nl'
-      ? 'Antwoord volledig in het Nederlands.'
-      : 'Respond entirely in English.';
+    const langName = { en: 'English', nl: 'Dutch', it: 'Italian', fr: 'French', es: 'Spanish', de: 'German' }[lang] || 'English';
+    const langNote = `Write all review details (the "source", "summary" and any text you generate) in ${langName}. Exception: if a "quote" is a genuine original excerpt from a critic's review, you may keep it verbatim in its original language instead of translating it.`;
 
     const wineDesc = [wine.name, wine.producer, wine.vintage, wine.region, wine.country]
       .filter(Boolean).join(', ');
