@@ -5012,8 +5012,10 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       }
     }
 
-    // Click delegation on the map
+    // Click delegation on the map (suppressed when the user was panning)
+    this._mapDidDrag = false;
     target.onclick = (e) => {
+      if (this._mapDidDrag) { this._mapDidDrag = false; return; }
       const g = e.target.closest('g[data-vinage-key]');
       if (!g) return;
       this.exploreCountry = g.getAttribute('data-vinage-key');
@@ -5023,6 +5025,110 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
       this.renderView();
       this.renderNav();
     };
+
+    this._initWorldMapPanZoom(target, svgEl);
+  },
+
+  // Pinch-to-zoom + drag-to-pan for the world map (no external library).
+  _initWorldMapPanZoom(target, svgEl) {
+    if (!svgEl) return;
+    let scale = 1, tx = 0, ty = 0;
+    svgEl.style.transformOrigin = '0 0';
+    svgEl.style.willChange = 'transform';
+
+    const apply = () => {
+      svgEl.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+    };
+    const clampPan = () => {
+      const w = target.clientWidth;
+      const h = target.clientHeight;
+      tx = Math.min(0, Math.max(w - w * scale, tx));
+      ty = Math.min(0, Math.max(h - h * scale, ty));
+    };
+    const zoomAt = (newScale, cx, cy) => {
+      newScale = Math.max(1, Math.min(8, newScale));
+      // Keep the point under (cx,cy) visually fixed while scale changes
+      const ix = (cx - tx) / scale;
+      const iy = (cy - ty) / scale;
+      scale = newScale;
+      tx = cx - ix * scale;
+      ty = cy - iy * scale;
+      clampPan(); apply();
+    };
+
+    // ── Mouse: drag to pan, ctrl+wheel and plain wheel zoom ─────────────────
+    let mDown = false, mx = 0, my = 0;
+    target.style.cursor = 'grab';
+    target.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      mDown = true;
+      this._mapDidDrag = false;
+      mx = e.clientX; my = e.clientY;
+      target.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!mDown) return;
+      const dx = e.clientX - mx, dy = e.clientY - my;
+      if (!this._mapDidDrag && Math.hypot(dx, dy) < 6) return;
+      this._mapDidDrag = true;
+      tx += dx; ty += dy;
+      mx = e.clientX; my = e.clientY;
+      clampPan(); apply();
+    });
+    window.addEventListener('mouseup', () => {
+      if (mDown) { mDown = false; target.style.cursor = 'grab'; }
+    });
+    target.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const r = target.getBoundingClientRect();
+      zoomAt(scale * Math.pow(1.0015, -e.deltaY), e.clientX - r.left, e.clientY - r.top);
+    }, { passive: false });
+
+    // ── Touch: one finger = pan, two fingers = pinch zoom ──────────────────
+    let t1x = 0, t1y = 0, pinchD0 = 0, pinchScale0 = 1, pinchCx = 0, pinchCy = 0;
+    let panActive = false, pinchActive = false;
+    target.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        panActive = true; pinchActive = false;
+        this._mapDidDrag = false;
+        t1x = e.touches[0].clientX; t1y = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
+        panActive = false; pinchActive = true;
+        const a = e.touches[0], b = e.touches[1];
+        pinchD0 = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        pinchScale0 = scale;
+        const r = target.getBoundingClientRect();
+        pinchCx = (a.clientX + b.clientX) / 2 - r.left;
+        pinchCy = (a.clientY + b.clientY) / 2 - r.top;
+      }
+    }, { passive: true });
+    target.addEventListener('touchmove', (e) => {
+      if (pinchActive && e.touches.length === 2) {
+        const a = e.touches[0], b = e.touches[1];
+        const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        if (pinchD0 > 0) zoomAt(pinchScale0 * (d / pinchD0), pinchCx, pinchCy);
+        e.preventDefault();
+      } else if (panActive && e.touches.length === 1) {
+        const dx = e.touches[0].clientX - t1x, dy = e.touches[0].clientY - t1y;
+        if (!this._mapDidDrag && Math.hypot(dx, dy) < 6) return;
+        this._mapDidDrag = true;
+        tx += dx; ty += dy;
+        t1x = e.touches[0].clientX; t1y = e.touches[0].clientY;
+        clampPan(); apply();
+        e.preventDefault();
+      }
+    }, { passive: false });
+    target.addEventListener('touchend', (e) => {
+      if (e.touches.length === 0) { panActive = false; pinchActive = false; }
+      else if (e.touches.length === 1) {
+        // pinch released, leave one finger panning
+        pinchActive = false; panActive = true;
+        t1x = e.touches[0].clientX; t1y = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    apply();
   },
 
   // Country list — grouped from the user's collection. Stable across the app
