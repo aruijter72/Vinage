@@ -1895,6 +1895,66 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   .rack-body-row { padding-bottom: 20px; }
 }
 
+/* ── Explore (Verken je collectie) ─────────────────────────────────────────── */
+.explore-section-title {
+  font-size: .72rem; font-weight: 700; color: var(--text-lt);
+  text-transform: uppercase; letter-spacing: .04em;
+  margin: 6px 0 10px;
+}
+.explore-country-list, .explore-region-list { display: flex; flex-direction: column; gap: 8px; }
+.explore-country-row, .explore-region-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%; text-align: left;
+  background: var(--white);
+  border: 1px solid var(--cream-dk);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: box-shadow var(--transition), transform var(--transition);
+  font: inherit; color: inherit;
+}
+.explore-country-row:hover, .explore-region-row:hover {
+  box-shadow: 0 2px 10px var(--shadow);
+  transform: translateY(-1px);
+}
+.explore-country-row { grid-template-columns: minmax(0, 1fr) 120px auto auto; }
+.explore-country-name, .explore-region-name { font-weight: 600; min-width: 0; }
+.explore-country-bar {
+  height: 6px; background: var(--cream-dk); border-radius: 3px; overflow: hidden;
+  display: inline-block; width: 100%;
+}
+.explore-country-bar > span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--burgundy-lt), var(--burgundy));
+  border-radius: 3px;
+}
+.explore-country-count, .explore-region-count {
+  font-size: .8rem; color: var(--text-lt); white-space: nowrap;
+}
+.explore-country-arrow { color: var(--text-lt); font-size: 1.1rem; padding-left: 2px; }
+
+.explore-wine-list { display: flex; flex-direction: column; gap: 6px; }
+.explore-wine-row { padding: 8px 0; border-bottom: 1px solid var(--cream-dk); }
+.explore-wine-row:last-child { border-bottom: none; }
+
+.explore-partner-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--cream-dk);
+  font-size: .88rem;
+}
+.explore-partner-row:last-child { border-bottom: none; }
+.explore-partner-brand { display: inline-flex; align-items: center; }
+.explore-partner-brand .pairing-importer-badge-logo { height: 16px; padding: 2px 6px; background: #fff; border: 1px solid var(--cream-dk); border-radius: 4px; }
+.explore-partner-name { flex: 1; min-width: 0; }
+
+/* On phones, country rows can drop the wide bar to keep the row readable */
+@media (max-width: 480px) {
+  .explore-country-row { grid-template-columns: minmax(0, 1fr) 70px auto auto; }
+}
+
 /* ── Desktop / laptop layout (≥1024px) ──────────────────────────────────────
    Bottom tab bar becomes a left sidebar; content gets a comfortable reading
    width. The phone layout below this breakpoint is untouched. */
