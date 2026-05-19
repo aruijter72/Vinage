@@ -4967,6 +4967,22 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
     target.innerHTML = this._worldMapSvg;
     target.classList.remove('world-map-loading');
 
+    // Wikimedia's SVG has hard-coded width="2754" height="1398" but no
+    // viewBox — without one the browser can't scale it via CSS, so it
+    // renders at native pixel size and the container clips it. Convert
+    // the fixed size to a viewBox so width:100% scales the whole world.
+    const svgEl = target.querySelector('svg');
+    if (svgEl) {
+      if (!svgEl.getAttribute('viewBox')) {
+        const w = svgEl.getAttribute('width')  || '2754';
+        const h = svgEl.getAttribute('height') || '1398';
+        svgEl.setAttribute('viewBox', `0 0 ${parseFloat(w)} ${parseFloat(h)}`);
+      }
+      svgEl.removeAttribute('width');
+      svgEl.removeAttribute('height');
+      svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    }
+
     // Reverse lookup: canonical key → ISO codes
     const KEY_TO_ISO = {};
     for (const [iso, key] of Object.entries(this._ISO_TO_KEY)) {
