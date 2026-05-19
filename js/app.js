@@ -4632,8 +4632,13 @@ Wine: ${[name, producer, vintage, region, country, grapes].filter(Boolean).join(
         result = API.ruleBasedPairing(dish, wines);
       }
     } catch (err) {
-      // Show error + importer suggestions (they don't need AI)
-      let html = `<div class="scan-status error">${this.t('common.error')} ${err.message}</div>`;
+      // Show friendly error + importer suggestions (they don't need AI)
+      const errMsg = (err.message || '').toLowerCase();
+      const isBusy = errMsg.includes('overloaded') || errMsg.includes('529') || errMsg.includes('rate') || errMsg.includes('capacity');
+      const friendlyMsg = isBusy
+        ? (this.lang === 'nl' ? 'De AI-service is tijdelijk overbelast. Probeer het zo opnieuw.' : 'The AI service is temporarily busy. Please try again in a moment.')
+        : (this.lang === 'nl' ? 'Er ging iets mis. Probeer het later opnieuw.' : 'Something went wrong. Please try again later.');
+      let html = `<div class="scan-status error">${friendlyMsg}</div>`;
       if (importerHtml) {
         html += `<div class="pairing-section-title" style="margin-top:20px">${this.lang === 'nl' ? 'Van onze partners' : 'From our partners'}</div>`;
         html += importerHtml;
