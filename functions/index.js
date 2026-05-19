@@ -46,7 +46,7 @@ exports.aiProxy = onCall(
 
     const uid  = request.auth.uid;
     const data = request.data || {};
-    const { prompt, model, base64image } = data;
+    const { prompt, model, base64image, webSearch } = data;
 
     console.log(`[aiProxy] uid=${uid} model=${model} hasImage=${!!base64image} promptLen=${prompt?.length}`);
 
